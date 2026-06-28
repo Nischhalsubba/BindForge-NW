@@ -3,8 +3,15 @@
 import { useMemo, useState } from "react";
 import { consoleCommands } from "./data/commands";
 import { keyCombos } from "./data/keyCombos";
+import { keybindPresets } from "./data/keybindPresets";
 import type { ConsoleCommand } from "./data/commands";
 import type { KeyCombo } from "./data/keyCombos";
+import type { KeybindPreset, KeybindType } from "./data/keybindPresets";
+
+const bindTypes = [
+  "All",
+  ...Array.from(new Set(keybindPresets.map((preset) => preset.type))),
+] as Array<KeybindType | "All">;
 
 const commandCategories = [
   "All",
@@ -17,15 +24,9 @@ const comboCategories = [
 ];
 
 const statusLabels: Record<KeyCombo["status"], string> = {
-  core: "Core",
-  candidate: "Test",
-  avoid: "Risk",
-};
-
-const statusClasses: Record<KeyCombo["status"], string> = {
-  core: "border-emerald-400/40 bg-emerald-400/10 text-emerald-100",
-  candidate: "border-amber-300/40 bg-amber-300/10 text-amber-100",
-  avoid: "border-red-400/50 bg-red-400/10 text-red-100",
+  core: "Safe",
+  candidate: "Test first",
+  avoid: "Risky",
 };
 
 function normalizeText(value: string) {
@@ -45,33 +46,67 @@ function normalizeCombo(value: string) {
   return [...modifiers, key].filter(Boolean).join("+");
 }
 
+function presetBind(preset: KeybindPreset, keyValue: string) {
+  return `/bind ${normalizeCombo(keyValue) || preset.defaultKey} ${preset.command}`;
+}
+
 function commandLabel(command: ConsoleCommand) {
   return `${command.command}${command.params ? ` ${command.params}` : ""}`;
 }
 
 export default function Home() {
+  const [search, setSearch] = useState("");
+  const [activeType, setActiveType] = useState<KeybindType | "All">("All");
+  const [customKeys, setCustomKeys] = useState<Record<string, string>>(() =>
+    Object.fromEntries(keybindPresets.map((preset) => [preset.id, preset.defaultKey])),
+  );
+  const [copied, setCopied] = useState("");
+
   const [commandSearch, setCommandSearch] = useState("");
   const [commandCategory, setCommandCategory] = useState("All");
   const [comboSearch, setComboSearch] = useState("");
   const [comboCategory, setComboCategory] = useState("All");
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showAdvancedCombos, setShowAdvancedCombos] = useState(false);
   const [selectedCombo, setSelectedCombo] = useState("ctrl+b");
-  const [customCombo, setCustomCombo] = useState("ctrl+b");
   const [selectedCommandId, setSelectedCommandId] = useState("gensendmessage");
   const [customArgs, setCustomArgs] = useState("Vipaction_Bankvendor activate");
-  const [copied, setCopied] = useState("");
 
   const selectedCommand =
     consoleCommands.find((command) => command.id === selectedCommandId) ?? consoleCommands[0];
 
-  const activeCombo = normalizeCombo(customCombo || selectedCombo);
-  const selectedComboData = keyCombos.find((combo) => combo.combo === activeCombo);
-  const bindPreview = `/bind ${activeCombo || "<key>"} ${selectedCommand.bindCommand}${
+  const advancedBind = `/bind ${selectedCombo || "<key>"} ${selectedCommand.bindCommand}${
     customArgs.trim() ? ` ${customArgs.trim()}` : ""
   }`;
 
+  const filteredPresets = useMemo(() => {
+    const query = normalizeText(search);
+
+    return keybindPresets.filter((preset) => {
+      const matchesType = activeType === "All" || preset.type === activeType;
+      const haystack = normalizeText(
+        `${preset.title} ${preset.type} ${preset.plainEnglish} ${preset.command} ${preset.searchTerms.join(
+          " ",
+        )}`,
+      );
+
+      return matchesType && (!query || haystack.includes(query));
+    });
+  }, [activeType, search]);
+
+  const typeCounts = useMemo(
+    () =>
+      bindTypes.reduce<Record<string, number>>((counts, type) => {
+        counts[type] =
+          type === "All"
+            ? keybindPresets.length
+            : keybindPresets.filter((preset) => preset.type === type).length;
+        return counts;
+      }, {}),
+    [],
+  );
+
   const filteredCommands = useMemo(() => {
-    const search = normalizeText(commandSearch);
+    const query = normalizeText(commandSearch);
 
     return consoleCommands.filter((command) => {
       const matchesCategory =
@@ -82,25 +117,25 @@ export default function Home() {
         )} ${command.category}`,
       );
 
-      return matchesCategory && (!search || haystack.includes(search));
+      return matchesCategory && (!query || haystack.includes(query));
     });
   }, [commandCategory, commandSearch]);
 
   const filteredCombos = useMemo(() => {
-    const search = normalizeText(comboSearch);
+    const query = normalizeText(comboSearch);
 
     return keyCombos.filter((combo) => {
       const matchesCategory = comboCategory === "All" || combo.category === comboCategory;
-      const visibleStatus = showAdvanced || combo.status === "core";
+      const visibleStatus = showAdvancedCombos || combo.status === "core";
       const haystack = normalizeText(
         `${combo.combo} ${combo.baseKey} ${combo.modifiers.join(" ")} ${combo.category} ${
           combo.status
         } ${combo.note ?? ""}`,
       );
 
-      return matchesCategory && visibleStatus && (!search || haystack.includes(search));
+      return matchesCategory && visibleStatus && (!query || haystack.includes(query));
     });
-  }, [comboCategory, comboSearch, showAdvanced]);
+  }, [comboCategory, comboSearch, showAdvancedCombos]);
 
   async function copyText(text: string, label: string) {
     await navigator.clipboard.writeText(text);
@@ -108,59 +143,57 @@ export default function Home() {
     window.setTimeout(() => setCopied(""), 1800);
   }
 
+  function setPresetKey(id: string, value: string) {
+    setCustomKeys((current) => ({ ...current, [id]: value }));
+  }
+
   function chooseCommand(command: ConsoleCommand) {
     setSelectedCommandId(command.id);
     setCustomArgs(command.params && !/[<>]| or | to /i.test(command.params) ? command.params : "");
   }
 
-  function chooseCombo(combo: KeyCombo) {
-    setSelectedCombo(combo.combo);
-    setCustomCombo(combo.combo);
-  }
-
   return (
-    <main className="min-h-dvh bg-[var(--surface-0)] text-[var(--text-primary)]">
-      <section className="border-b border-white/10 bg-[linear-gradient(135deg,#141514_0%,#251717_48%,#18231c_100%)]">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <div className="grid gap-6 lg:grid-cols-[1fr_420px] lg:items-end">
-            <div className="space-y-5">
-              <div className="flex flex-wrap gap-2 text-xs font-bold uppercase tracking-normal">
-                <span className="chip chip-red">Neverwinter</span>
-                <span className="chip chip-amber">{consoleCommands.length} commands</span>
-                <span className="chip chip-green">{keyCombos.length} combos</span>
-              </div>
-              <div className="max-w-3xl">
-                <h1 className="text-4xl font-semibold tracking-normal text-white sm:text-5xl lg:text-6xl">
-                  BindForge NW
-                </h1>
-                <p className="mt-4 max-w-2xl text-base leading-7 text-stone-200">
-                  Build clean Neverwinter bind lines from a full command table and generated key
-                  combo catalog.
-                </p>
-              </div>
+    <main className="min-h-dvh bg-[var(--app-bg)] text-[var(--text-main)]">
+      <section className="hero-shell">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="grid gap-8 lg:grid-cols-[1fr_380px] lg:items-end">
+            <div>
+              <div className="eyebrow">Neverwinter keybind builder</div>
+              <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-normal sm:text-5xl lg:text-6xl">
+                Search what you want. Copy the keybind.
+              </h1>
+              <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--text-soft)]">
+                Built for players who do not want to learn console commands. Type words like
+                invoke, bank, loot, animation cancel, fps, or screenshot.
+              </p>
             </div>
 
-            <div className="panel-dark p-4">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <div className="text-xs font-bold uppercase text-stone-400">Ready to paste</div>
-                  <div className="mt-1 text-sm text-stone-300">
-                    Copy this line into Neverwinter chat.
-                  </div>
+            <div className="hero-card">
+              <div className="text-sm font-semibold text-[var(--text-muted)]">Start here</div>
+              <label className="search-field mt-3">
+                <span className="sr-only">Search keybinds</span>
+                <input
+                  autoComplete="off"
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Search invoke, animation cancel, loot..."
+                  value={search}
+                />
+              </label>
+              <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                <div className="metric">
+                  <strong>{keybindPresets.length}</strong>
+                  <span>Ready binds</span>
                 </div>
-                <div className="status-dot" aria-hidden="true" />
+                <div className="metric">
+                  <strong>{bindTypes.length - 1}</strong>
+                  <span>Types</span>
+                </div>
+                <div className="metric">
+                  <strong>{keyCombos.length}</strong>
+                  <span>Combos</span>
+                </div>
               </div>
-              <code className="mt-4 block max-h-24 overflow-auto rounded-md border border-white/10 bg-black/35 px-3 py-3 font-mono text-sm leading-6 text-amber-100">
-                {bindPreview}
-              </code>
-              <button
-                className="button-primary mt-4 w-full"
-                onClick={() => copyText(bindPreview, "bind command")}
-                type="button"
-              >
-                Copy bind
-              </button>
-              <div className="mt-3 min-h-5 text-sm text-emerald-200" role="status">
+              <div className="mt-3 min-h-5 text-sm font-semibold text-[var(--success)]" role="status">
                 {copied ? `Copied ${copied}.` : ""}
               </div>
             </div>
@@ -168,216 +201,207 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="sticky top-0 z-20 border-b border-white/10 bg-[#171918]/95 backdrop-blur">
-        <div className="mx-auto grid max-w-7xl gap-3 px-4 py-3 sm:px-6 lg:grid-cols-[1fr_auto] lg:px-8">
-          <code className="min-w-0 overflow-x-auto rounded-md border border-white/10 bg-black/30 px-3 py-3 font-mono text-sm text-stone-100">
-            {bindPreview}
-          </code>
-          <button
-            className="button-secondary min-h-11"
-            onClick={() => copyText(bindPreview, "bind command")}
-            type="button"
-          >
-            Copy current bind
-          </button>
+      <section className="sticky top-0 z-20 border-b border-[var(--line)] bg-[var(--app-bg)]/92 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 py-3 sm:px-6 lg:px-8">
+          {bindTypes.map((type) => (
+            <button
+              className={`type-tab ${activeType === type ? "type-tab-active" : ""}`}
+              key={type}
+              onClick={() => setActiveType(type)}
+              type="button"
+            >
+              <span>{type}</span>
+              <strong>{typeCounts[type]}</strong>
+            </button>
+          ))}
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[360px_1fr] lg:px-8">
-        <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
-          <div className="panel p-4">
-            <div className="section-label">Builder</div>
-            <h2 className="mt-1 text-xl font-semibold">Shape the command</h2>
+      <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <div className="grid gap-4 lg:grid-cols-3">
+          {filteredPresets.map((preset) => {
+            const keyValue = customKeys[preset.id] ?? preset.defaultKey;
+            const bind = presetBind(preset, keyValue);
 
-            <label className="field mt-5">
-              <span>Key or combo</span>
-              <input
-                onChange={(event) => setCustomCombo(event.target.value)}
-                placeholder="ctrl+b, f5, numpad1"
-                value={customCombo}
-              />
-            </label>
-
-            <label className="field mt-4">
-              <span>Command arguments</span>
-              <input
-                onChange={(event) => setCustomArgs(event.target.value)}
-                placeholder={selectedCommand.params || "optional values"}
-                value={customArgs}
-              />
-            </label>
-
-            <div className="mt-4 rounded-md border border-stone-700/70 bg-stone-950/60 p-3">
-              <div className="text-xs font-bold uppercase text-stone-400">Selected command</div>
-              <div className="mt-2 break-words font-mono text-sm text-stone-100">
-                {commandLabel(selectedCommand)}
-              </div>
-              {selectedComboData?.status && selectedComboData.status !== "core" ? (
-                <div className="mt-3 rounded-md border border-amber-300/30 bg-amber-300/10 px-3 py-2 text-sm font-semibold text-amber-100">
-                  {statusLabels[selectedComboData.status]} combo. Test it in-game before relying
-                  on it.
-                </div>
-              ) : null}
-            </div>
-          </div>
-
-          <div className="panel p-4">
-            <div className="section-label">Command search</div>
-            <label className="field mt-3">
-              <span>Find command</span>
-              <input
-                onChange={(event) => setCommandSearch(event.target.value)}
-                placeholder="showfps, bind, team"
-                value={commandSearch}
-              />
-            </label>
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              {commandCategories.map((category) => (
-                <button
-                  className={`filter-button ${
-                    commandCategory === category ? "filter-button-active" : ""
-                  }`}
-                  key={category}
-                  onClick={() => setCommandCategory(category)}
-                  type="button"
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-          </div>
-        </aside>
-
-        <div className="min-w-0 space-y-5">
-          <section className="panel p-4 sm:p-5">
-            <div className="grid gap-4 xl:grid-cols-[1fr_280px] xl:items-end">
-              <div>
-                <div className="section-label">Key matrix</div>
-                <h2 className="mt-1 text-2xl font-semibold">Pick a combo</h2>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-300">
-                  Core combos stay visible by default. Advanced mode includes punctuation,
-                  extended keys, and reserved shortcuts.
-                </p>
-              </div>
-              <label className="toggle-card">
-                <input
-                  checked={showAdvanced}
-                  onChange={(event) => setShowAdvanced(event.target.checked)}
-                  type="checkbox"
-                />
-                <span>
-                  <strong>Advanced combos</strong>
-                  <small>Show test and risk keys</small>
-                </span>
-              </label>
-            </div>
-
-            <div className="mt-5 grid gap-3 md:grid-cols-[1fr_240px]">
-              <label className="field">
-                <span>Search combos</span>
-                <input
-                  onChange={(event) => setComboSearch(event.target.value)}
-                  placeholder="ctrl+shift, numpad, f12"
-                  value={comboSearch}
-                />
-              </label>
-              <label className="field">
-                <span>Combo group</span>
-                <select
-                  onChange={(event) => setComboCategory(event.target.value)}
-                  value={comboCategory}
-                >
-                  {comboCategories.map((category) => (
-                    <option key={category}>{category}</option>
-                  ))}
-                </select>
-              </label>
-            </div>
-
-            <div className="mt-5 grid max-h-[380px] gap-2 overflow-y-auto pr-1 sm:grid-cols-2 xl:grid-cols-3">
-              {filteredCombos.map((combo) => (
-                <button
-                  className={`combo-button ${activeCombo === combo.combo ? "combo-active" : ""}`}
-                  key={combo.combo}
-                  onClick={() => chooseCombo(combo)}
-                  type="button"
-                >
-                  <span className="font-mono font-semibold">{combo.combo}</span>
-                  <span className={`status-pill ${statusClasses[combo.status]}`}>
-                    {statusLabels[combo.status]}
+            return (
+              <article className="bind-card" key={preset.id}>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="type-label">{preset.type}</div>
+                    <h2 className="mt-2 text-xl font-semibold">{preset.title}</h2>
+                  </div>
+                  <span className={preset.difficulty === "Easy" ? "pill-good" : "pill-warn"}>
+                    {preset.difficulty}
                   </span>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="panel p-4 sm:p-5">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <div className="section-label">Command archive</div>
-                <h2 className="mt-1 text-2xl font-semibold">Console commands</h2>
-                <p className="mt-2 text-sm text-stone-300">
-                  {filteredCommands.length} matching commands.
+                </div>
+                <p className="mt-3 min-h-12 text-sm leading-6 text-[var(--text-soft)]">
+                  {preset.plainEnglish}
                 </p>
-              </div>
+
+                <label className="control-field mt-5">
+                  <span>Your key or combo</span>
+                  <input
+                    onChange={(event) => setPresetKey(preset.id, event.target.value)}
+                    value={keyValue}
+                  />
+                </label>
+
+                <code className="bind-code mt-4">{bind}</code>
+
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <button
+                    className="primary-action"
+                    onClick={() => copyText(bind, preset.title)}
+                    type="button"
+                  >
+                    Copy keybind
+                  </button>
+                  <button
+                    className="quiet-action"
+                    onClick={() => setPresetKey(preset.id, preset.defaultKey)}
+                    type="button"
+                  >
+                    Reset key
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+
+        {filteredPresets.length === 0 ? (
+          <div className="empty-state">
+            <h2>No keybinds found</h2>
+            <p>Try searching for invoke, utility, loot, combat, animation cancel, fps, or screenshot.</p>
+            <button
+              className="primary-action mt-4"
+              onClick={() => {
+                setSearch("");
+                setActiveType("All");
+              }}
+              type="button"
+            >
+              Show all keybinds
+            </button>
+          </div>
+        ) : null}
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
+        <div className="advanced-shell">
+          <div className="grid gap-6 xl:grid-cols-[360px_1fr]">
+            <div>
+              <div className="eyebrow-dark">Advanced builder</div>
+              <h2 className="mt-2 text-2xl font-semibold">Make a custom command bind</h2>
+              <p className="mt-2 text-sm leading-6 text-[var(--text-soft)]">
+                Use this only when the ready-made cards do not cover what you need.
+              </p>
+
+              <label className="control-field mt-5">
+                <span>Selected key</span>
+                <input
+                  onChange={(event) => setSelectedCombo(normalizeCombo(event.target.value))}
+                  value={selectedCombo}
+                />
+              </label>
+              <label className="control-field mt-4">
+                <span>Extra command values</span>
+                <input
+                  onChange={(event) => setCustomArgs(event.target.value)}
+                  placeholder={selectedCommand.params || "optional"}
+                  value={customArgs}
+                />
+              </label>
+              <code className="bind-code mt-4">{advancedBind}</code>
               <button
-                className="button-secondary"
-                onClick={() => copyText(selectedCommand.command, "slash command")}
+                className="primary-action mt-4 w-full"
+                onClick={() => copyText(advancedBind, "custom command")}
                 type="button"
               >
-                Copy selected command
+                Copy custom bind
               </button>
             </div>
 
-            <div className="mt-5 grid gap-3">
-              {filteredCommands.map((command) => (
-                <article
-                  className={`command-row ${
-                    selectedCommand.id === command.id ? "command-row-active" : ""
-                  }`}
-                  key={`${command.id}-${command.category}-${command.params}`}
-                >
-                  <button
-                    className="min-w-0 text-left"
-                    onClick={() => chooseCommand(command)}
-                    type="button"
+            <div className="grid gap-4 lg:grid-cols-2">
+              <div>
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-lg font-semibold">Key combos</h3>
+                  <label className="mini-toggle">
+                    <input
+                      checked={showAdvancedCombos}
+                      onChange={(event) => setShowAdvancedCombos(event.target.checked)}
+                      type="checkbox"
+                    />
+                    Advanced
+                  </label>
+                </div>
+                <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_160px]">
+                  <input
+                    className="compact-input"
+                    onChange={(event) => setComboSearch(event.target.value)}
+                    placeholder="Search combos"
+                    value={comboSearch}
+                  />
+                  <select
+                    className="compact-input"
+                    onChange={(event) => setComboCategory(event.target.value)}
+                    value={comboCategory}
                   >
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-mono text-base font-semibold text-stone-50">
-                        {command.command}
-                      </span>
-                      <span className="rounded border border-amber-300/30 bg-amber-300/10 px-2 py-1 text-xs font-bold uppercase text-amber-100">
-                        {command.category}
-                      </span>
-                    </div>
-                    <div className="mt-2 overflow-x-auto font-mono text-sm text-stone-300">
-                      {command.params || "No arguments"}
-                    </div>
-                    {command.aliases.length > 0 ? (
-                      <div className="mt-2 text-sm text-stone-400">
-                        Aliases: {command.aliases.join(", ")}
-                      </div>
-                    ) : null}
-                  </button>
-                  <button
-                    className="button-row"
-                    onClick={() => {
-                      chooseCommand(command);
-                      copyText(
-                        `/bind ${activeCombo || "<key>"} ${command.bindCommand}${
-                          customArgs.trim() ? ` ${customArgs.trim()}` : ""
-                        }`,
-                        command.command,
-                      );
-                    }}
-                    type="button"
+                    {comboCategories.map((category) => (
+                      <option key={category}>{category}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="mt-3 grid max-h-80 gap-2 overflow-y-auto pr-1">
+                  {filteredCombos.slice(0, 80).map((combo) => (
+                    <button
+                      className="combo-row"
+                      key={combo.combo}
+                      onClick={() => setSelectedCombo(combo.combo)}
+                      type="button"
+                    >
+                      <span>{combo.combo}</span>
+                      <strong>{statusLabels[combo.status]}</strong>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold">Raw commands</h3>
+                <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_160px]">
+                  <input
+                    className="compact-input"
+                    onChange={(event) => setCommandSearch(event.target.value)}
+                    placeholder="Search commands"
+                    value={commandSearch}
+                  />
+                  <select
+                    className="compact-input"
+                    onChange={(event) => setCommandCategory(event.target.value)}
+                    value={commandCategory}
                   >
-                    Copy bind
-                  </button>
-                </article>
-              ))}
+                    {commandCategories.map((category) => (
+                      <option key={category}>{category}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="mt-3 grid max-h-80 gap-2 overflow-y-auto pr-1">
+                  {filteredCommands.slice(0, 80).map((command) => (
+                    <button
+                      className="command-choice"
+                      key={`${command.id}-${command.category}-${command.params}`}
+                      onClick={() => chooseCommand(command)}
+                      type="button"
+                    >
+                      <span>{command.command}</span>
+                      <small>{commandLabel(command)}</small>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-          </section>
+          </div>
         </div>
       </section>
     </main>
