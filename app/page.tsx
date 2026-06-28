@@ -8,15 +8,15 @@ import type { ConsoleCommand } from "./data/commands";
 import type { KeyCombo } from "./data/keyCombos";
 import type { KeybindClass, KeybindPreset, KeybindType } from "./data/keybindPresets";
 
-const bindTypes = [
-  "All",
-  ...Array.from(new Set(keybindPresets.map((preset) => preset.type))),
-] as Array<KeybindType | "All">;
-
-const bindClasses = [
+const classFilters = [
   "All",
   ...Array.from(new Set(keybindPresets.map((preset) => preset.className))),
 ] as Array<KeybindClass | "All">;
+
+const typeFilters = [
+  "All",
+  ...Array.from(new Set(keybindPresets.map((preset) => preset.type))),
+] as Array<KeybindType | "All">;
 
 const commandCategories = [
   "All",
@@ -33,6 +33,54 @@ const statusLabels: Record<KeyCombo["status"], string> = {
   candidate: "Test first",
   avoid: "Risky",
 };
+
+const keyWarnings: Array<{ keys: string[]; message: string; level: "info" | "warn" | "danger" }> = [
+  {
+    keys: ["w", "a", "s", "d", "space"],
+    message: "This key is commonly used for movement or jumping.",
+    level: "danger",
+  },
+  {
+    keys: ["tab"],
+    message: "Tab is often used for targeting or Bard perform mode.",
+    level: "warn",
+  },
+  {
+    keys: ["f", "g"],
+    message: "This key is often used for interact, loot, or nearby prompts.",
+    level: "warn",
+  },
+  {
+    keys: ["i", "c", "m", "p", "j", "k", "l"],
+    message: "This key may open a menu, inventory, map, journal, or character window.",
+    level: "warn",
+  },
+  {
+    keys: ["enter", "r"],
+    message: "This key may be used for chat or replying to messages.",
+    level: "warn",
+  },
+  {
+    keys: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
+    message: "Number keys are often used for powers, items, or potion slots.",
+    level: "info",
+  },
+  {
+    keys: ["lbutton", "rbutton", "mbutton"],
+    message: "Mouse buttons are usually used for attacks or camera control.",
+    level: "danger",
+  },
+  {
+    keys: ["escape"],
+    message: "Escape is usually used to close menus.",
+    level: "danger",
+  },
+  {
+    keys: ["alt+f4", "alt+tab", "ctrl+alt+delete"],
+    message: "This is a Windows shortcut. Avoid using it.",
+    level: "danger",
+  },
+];
 
 function normalizeText(value: string) {
   return value.trim().toLowerCase();
@@ -51,6 +99,18 @@ function normalizeCombo(value: string) {
   return [...modifiers, key].filter(Boolean).join("+");
 }
 
+function baseKey(value: string) {
+  const combo = normalizeCombo(value);
+  return combo.split("+").pop() ?? combo;
+}
+
+function warningForKey(value: string) {
+  const combo = normalizeCombo(value);
+  const key = baseKey(value);
+
+  return keyWarnings.find((warning) => warning.keys.includes(combo) || warning.keys.includes(key));
+}
+
 function presetBind(preset: KeybindPreset, keyValue: string) {
   return `/bind ${normalizeCombo(keyValue) || preset.defaultKey} ${preset.command}`;
 }
@@ -59,10 +119,19 @@ function commandLabel(command: ConsoleCommand) {
   return `${command.command}${command.params ? ` ${command.params}` : ""}`;
 }
 
+function groupedPresets(presets: KeybindPreset[]) {
+  return presets.reduce<Record<string, KeybindPreset[]>>((groups, preset) => {
+    const key = `${preset.className} - ${preset.type}`;
+    groups[key] = [...(groups[key] ?? []), preset];
+    return groups;
+  }, {});
+}
+
 export default function Home() {
   const [search, setSearch] = useState("");
-  const [activeType, setActiveType] = useState<KeybindType | "All">("All");
   const [activeClass, setActiveClass] = useState<KeybindClass | "All">("All");
+  const [activeType, setActiveType] = useState<KeybindType | "All">("All");
+  const [safetyFilter, setSafetyFilter] = useState<"All" | "Easy" | "Advanced" | "Risky">("All");
   const [customKeys, setCustomKeys] = useState<Record<string, string>>(() =>
     Object.fromEntries(keybindPresets.map((preset) => [preset.id, preset.defaultKey])),
   );
@@ -88,41 +157,25 @@ export default function Home() {
     const query = normalizeText(search);
 
     return keybindPresets.filter((preset) => {
-      const matchesType = activeType === "All" || preset.type === activeType;
       const matchesClass = activeClass === "All" || preset.className === activeClass;
+      const matchesType = activeType === "All" || preset.type === activeType;
+      const matchesSafety = safetyFilter === "All" || preset.difficulty === safetyFilter;
       const haystack = normalizeText(
         `${preset.title} ${preset.type} ${preset.className} ${preset.plainEnglish} ${
           preset.command
         } ${preset.searchTerms.join(" ")}`,
       );
 
-      return matchesType && matchesClass && (!query || haystack.includes(query));
+      return (
+        matchesClass &&
+        matchesType &&
+        matchesSafety &&
+        (!query || haystack.includes(query))
+      );
     });
-  }, [activeClass, activeType, search]);
+  }, [activeClass, activeType, safetyFilter, search]);
 
-  const typeCounts = useMemo(
-    () =>
-      bindTypes.reduce<Record<string, number>>((counts, type) => {
-        counts[type] =
-          type === "All"
-            ? keybindPresets.length
-            : keybindPresets.filter((preset) => preset.type === type).length;
-        return counts;
-      }, {}),
-    [],
-  );
-
-  const classCounts = useMemo(
-    () =>
-      bindClasses.reduce<Record<string, number>>((counts, className) => {
-        counts[className] =
-          className === "All"
-            ? keybindPresets.length
-            : keybindPresets.filter((preset) => preset.className === className).length;
-        return counts;
-      }, {}),
-    [],
-  );
+  const grouped = useMemo(() => groupedPresets(filteredPresets), [filteredPresets]);
 
   const filteredCommands = useMemo(() => {
     const query = normalizeText(commandSearch);
@@ -171,45 +224,49 @@ export default function Home() {
     setCustomArgs(command.params && !/[<>]| or | to /i.test(command.params) ? command.params : "");
   }
 
+  function clearFilters() {
+    setSearch("");
+    setActiveClass("All");
+    setActiveType("All");
+    setSafetyFilter("All");
+  }
+
   return (
     <main className="min-h-dvh bg-[var(--app-bg)] text-[var(--text-main)]">
-      <section className="hero-shell">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="grid gap-8 lg:grid-cols-[1fr_380px] lg:items-end">
+      <section className="top-band">
+        <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6 lg:px-8">
+          <div className="grid gap-6 lg:grid-cols-[1fr_420px] lg:items-center">
             <div>
-              <div className="eyebrow">Neverwinter keybind builder</div>
-              <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-normal sm:text-5xl lg:text-6xl">
-                Search what you want. Copy the keybind.
+              <div className="small-label">BindForge NW</div>
+              <h1 className="mt-3 max-w-4xl text-4xl font-semibold tracking-normal sm:text-5xl">
+                Find a Neverwinter keybind without learning commands.
               </h1>
               <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--text-soft)]">
-                Built for players who do not want to learn console commands. Type words like
-                invoke, bank, loot, animation cancel, fps, or screenshot.
+                Pick your class, pick what you want to do, change the key if you want, then copy.
               </p>
             </div>
-
-            <div className="hero-card">
-              <div className="text-sm font-semibold text-[var(--text-muted)]">Start here</div>
-              <label className="search-field mt-3">
-                <span className="sr-only">Search keybinds</span>
+            <div className="search-panel">
+              <label className="big-search">
+                <span>Search keybinds</span>
                 <input
                   autoComplete="off"
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Search invoke, animation cancel, loot..."
+                  placeholder="Try bard, invoke, buff, companion, animation cancel..."
                   value={search}
                 />
               </label>
-              <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-                <div className="metric">
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                <div className="quick-stat">
                   <strong>{keybindPresets.length}</strong>
-                  <span>Ready binds</span>
+                  <span>Binds</span>
                 </div>
-                <div className="metric">
-                  <strong>{bindTypes.length - 1}</strong>
-                  <span>Types</span>
-                </div>
-                <div className="metric">
-                  <strong>{bindClasses.length - 1}</strong>
+                <div className="quick-stat">
+                  <strong>{classFilters.length - 1}</strong>
                   <span>Classes</span>
+                </div>
+                <div className="quick-stat">
+                  <strong>{typeFilters.length - 1}</strong>
+                  <span>Uses</span>
                 </div>
               </div>
               <div className="mt-3 min-h-5 text-sm font-semibold text-[var(--success)]" role="status">
@@ -220,141 +277,173 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="sticky top-0 z-20 border-b border-[var(--line)] bg-[var(--app-bg)]/92 backdrop-blur">
-        <div className="mx-auto grid max-w-7xl gap-3 px-4 py-3 sm:px-6 lg:px-8">
-          <div className="flex gap-2 overflow-x-auto">
-            {bindClasses.map((className) => (
-              <button
-                className={`type-tab ${activeClass === className ? "type-tab-active" : ""}`}
-                key={className}
-                onClick={() => setActiveClass(className)}
-                type="button"
-              >
-                <span>{className}</span>
-                <strong>{classCounts[className]}</strong>
-              </button>
+      <section className="mx-auto grid max-w-7xl gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[300px_1fr] lg:px-8">
+        <aside className="filter-rail">
+          <div className="filter-box">
+            <div className="step-title">1. Choose class</div>
+            <div className="choice-list">
+              {classFilters.map((className) => (
+                <button
+                  className={`choice-button ${activeClass === className ? "choice-active" : ""}`}
+                  key={className}
+                  onClick={() => setActiveClass(className)}
+                  type="button"
+                >
+                  {className}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="filter-box">
+            <div className="step-title">2. Choose what it does</div>
+            <div className="choice-list">
+              {typeFilters.map((type) => (
+                <button
+                  className={`choice-button ${activeType === type ? "choice-active" : ""}`}
+                  key={type}
+                  onClick={() => setActiveType(type)}
+                  type="button"
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="filter-box">
+            <div className="step-title">3. Choose difficulty</div>
+            <div className="choice-list">
+              {(["All", "Easy", "Advanced", "Risky"] as const).map((item) => (
+                <button
+                  className={`choice-button ${safetyFilter === item ? "choice-active" : ""}`}
+                  key={item}
+                  onClick={() => setSafetyFilter(item)}
+                  type="button"
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button className="clear-button" onClick={clearFilters} type="button">
+            Clear all filters
+          </button>
+        </aside>
+
+        <section className="min-w-0">
+          <div className="result-header">
+            <div>
+              <div className="small-label">Ready to copy</div>
+              <h2>{filteredPresets.length} keybinds found</h2>
+            </div>
+            <p>Warnings show when your chosen key may already be used by the game.</p>
+          </div>
+
+          <div className="mt-4 space-y-6">
+            {Object.entries(grouped).map(([groupName, presets]) => (
+              <section className="bind-group" key={groupName}>
+                <div className="group-heading">
+                  <h3>{groupName}</h3>
+                  <span>{presets.length} binds</span>
+                </div>
+                <div className="bind-grid">
+                  {presets.map((preset) => {
+                    const keyValue = customKeys[preset.id] ?? preset.defaultKey;
+                    const bind = presetBind(preset, keyValue);
+                    const warning = warningForKey(keyValue);
+
+                    return (
+                      <article className="bind-card" key={preset.id}>
+                        <div className="card-topline">
+                          <span className={`level-pill level-${preset.difficulty.toLowerCase()}`}>
+                            {preset.difficulty}
+                          </span>
+                          <span>{preset.className}</span>
+                        </div>
+                        <h4>{preset.title}</h4>
+                        <p>{preset.plainEnglish}</p>
+
+                        <label className="key-field">
+                          <span>Key to press</span>
+                          <input
+                            onChange={(event) => setPresetKey(preset.id, event.target.value)}
+                            value={keyValue}
+                          />
+                        </label>
+
+                        {warning ? (
+                          <div className={`key-warning warning-${warning.level}`}>
+                            {warning.message}
+                          </div>
+                        ) : (
+                          <div className="key-warning warning-safe">
+                            No common conflict found for this key.
+                          </div>
+                        )}
+
+                        <code className="bind-output">{bind}</code>
+
+                        <div className="card-actions">
+                          <button
+                            className="copy-button"
+                            onClick={() => copyText(bind, preset.title)}
+                            type="button"
+                          >
+                            Copy
+                          </button>
+                          <button
+                            className="reset-button"
+                            onClick={() => setPresetKey(preset.id, preset.defaultKey)}
+                            type="button"
+                          >
+                            Reset key
+                          </button>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              </section>
             ))}
           </div>
-          <div className="flex gap-2 overflow-x-auto">
-            {bindTypes.map((type) => (
-              <button
-                className={`type-tab type-tab-soft ${
-                  activeType === type ? "type-tab-active" : ""
-                }`}
-                key={type}
-                onClick={() => setActiveType(type)}
-                type="button"
-              >
-                <span>{type}</span>
-                <strong>{typeCounts[type]}</strong>
+
+          {filteredPresets.length === 0 ? (
+            <div className="empty-state">
+              <h2>No keybinds found</h2>
+              <p>Try words like bard, invoke, companion, buff, potion, warlock, or animation cancel.</p>
+              <button className="copy-button mt-4" onClick={clearFilters} type="button">
+                Show all keybinds
               </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <div className="grid gap-4 lg:grid-cols-3">
-          {filteredPresets.map((preset) => {
-            const keyValue = customKeys[preset.id] ?? preset.defaultKey;
-            const bind = presetBind(preset, keyValue);
-
-            return (
-              <article className="bind-card" key={preset.id}>
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="type-label">{preset.type}</div>
-                    <h2 className="mt-2 text-xl font-semibold">{preset.title}</h2>
-                    <div className="mt-2 text-sm font-bold text-[var(--text-muted)]">
-                      {preset.className}
-                    </div>
-                  </div>
-                  <span className={preset.difficulty === "Easy" ? "pill-good" : "pill-warn"}>
-                    {preset.difficulty}
-                  </span>
-                </div>
-                <p className="mt-3 min-h-12 text-sm leading-6 text-[var(--text-soft)]">
-                  {preset.plainEnglish}
-                </p>
-
-                <label className="control-field mt-5">
-                  <span>Your key or combo</span>
-                  <input
-                    onChange={(event) => setPresetKey(preset.id, event.target.value)}
-                    value={keyValue}
-                  />
-                </label>
-
-                <code className="bind-code mt-4">{bind}</code>
-
-                <div className="mt-4 grid grid-cols-2 gap-2">
-                  <button
-                    className="primary-action"
-                    onClick={() => copyText(bind, preset.title)}
-                    type="button"
-                  >
-                    Copy keybind
-                  </button>
-                  <button
-                    className="quiet-action"
-                    onClick={() => setPresetKey(preset.id, preset.defaultKey)}
-                    type="button"
-                  >
-                    Reset key
-                  </button>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-
-        {filteredPresets.length === 0 ? (
-          <div className="empty-state">
-            <h2>No keybinds found</h2>
-            <p>Try searching for invoke, utility, loot, combat, animation cancel, fps, or screenshot.</p>
-            <button
-              className="primary-action mt-4"
-              onClick={() => {
-                setSearch("");
-                setActiveType("All");
-                setActiveClass("All");
-              }}
-              type="button"
-            >
-              Show all keybinds
-            </button>
-          </div>
-        ) : null}
+            </div>
+          ) : null}
+        </section>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
-        <div className="advanced-shell">
-          <div className="grid gap-6 xl:grid-cols-[360px_1fr]">
+        <details className="advanced-panel">
+          <summary>Advanced: build your own command</summary>
+          <div className="mt-5 grid gap-6 xl:grid-cols-[360px_1fr]">
             <div>
-              <div className="eyebrow-dark">Advanced builder</div>
-              <h2 className="mt-2 text-2xl font-semibold">Make a custom command bind</h2>
-              <p className="mt-2 text-sm leading-6 text-[var(--text-soft)]">
-                Use this only when the ready-made cards do not cover what you need.
-              </p>
-
-              <label className="control-field mt-5">
-                <span>Selected key</span>
+              <label className="key-field">
+                <span>Key to press</span>
                 <input
                   onChange={(event) => setSelectedCombo(normalizeCombo(event.target.value))}
                   value={selectedCombo}
                 />
               </label>
-              <label className="control-field mt-4">
-                <span>Extra command values</span>
+              <label className="key-field mt-4">
+                <span>Extra command text</span>
                 <input
                   onChange={(event) => setCustomArgs(event.target.value)}
                   placeholder={selectedCommand.params || "optional"}
                   value={customArgs}
                 />
               </label>
-              <code className="bind-code mt-4">{advancedBind}</code>
+              <code className="bind-output mt-4">{advancedBind}</code>
               <button
-                className="primary-action mt-4 w-full"
+                className="copy-button mt-4 w-full"
                 onClick={() => copyText(advancedBind, "custom command")}
                 type="button"
               >
@@ -364,26 +453,24 @@ export default function Home() {
 
             <div className="grid gap-4 lg:grid-cols-2">
               <div>
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-lg font-semibold">Key combos</h3>
-                  <label className="mini-toggle">
+                <div className="advanced-head">
+                  <h3>Key combos</h3>
+                  <label>
                     <input
                       checked={showAdvancedCombos}
                       onChange={(event) => setShowAdvancedCombos(event.target.checked)}
                       type="checkbox"
                     />
-                    Advanced
+                    Show risky keys
                   </label>
                 </div>
-                <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_160px]">
+                <div className="advanced-controls">
                   <input
-                    className="compact-input"
                     onChange={(event) => setComboSearch(event.target.value)}
                     placeholder="Search combos"
                     value={comboSearch}
                   />
                   <select
-                    className="compact-input"
                     onChange={(event) => setComboCategory(event.target.value)}
                     value={comboCategory}
                   >
@@ -392,10 +479,10 @@ export default function Home() {
                     ))}
                   </select>
                 </div>
-                <div className="mt-3 grid max-h-80 gap-2 overflow-y-auto pr-1">
+                <div className="scroll-list">
                   {filteredCombos.slice(0, 80).map((combo) => (
                     <button
-                      className="combo-row"
+                      className="list-row"
                       key={combo.combo}
                       onClick={() => setSelectedCombo(combo.combo)}
                       type="button"
@@ -408,16 +495,14 @@ export default function Home() {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold">Raw commands</h3>
-                <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_160px]">
+                <h3>Raw commands</h3>
+                <div className="advanced-controls">
                   <input
-                    className="compact-input"
                     onChange={(event) => setCommandSearch(event.target.value)}
                     placeholder="Search commands"
                     value={commandSearch}
                   />
                   <select
-                    className="compact-input"
                     onChange={(event) => setCommandCategory(event.target.value)}
                     value={commandCategory}
                   >
@@ -426,10 +511,10 @@ export default function Home() {
                     ))}
                   </select>
                 </div>
-                <div className="mt-3 grid max-h-80 gap-2 overflow-y-auto pr-1">
+                <div className="scroll-list">
                   {filteredCommands.slice(0, 80).map((command) => (
                     <button
-                      className="command-choice"
+                      className="command-row"
                       key={`${command.id}-${command.category}-${command.params}`}
                       onClick={() => chooseCommand(command)}
                       type="button"
@@ -442,7 +527,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </div>
+        </details>
       </section>
     </main>
   );
