@@ -158,6 +158,10 @@ button:disabled {
   color: white;
 }
 
+.type-tab-soft {
+  background: var(--surface-soft);
+}
+
 .type-tab strong {
   background: rgba(16, 24, 40, 0.08);
   border-radius: 999px;

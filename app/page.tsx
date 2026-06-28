@@ -6,12 +6,17 @@ import { keyCombos } from "./data/keyCombos";
 import { keybindPresets } from "./data/keybindPresets";
 import type { ConsoleCommand } from "./data/commands";
 import type { KeyCombo } from "./data/keyCombos";
-import type { KeybindPreset, KeybindType } from "./data/keybindPresets";
+import type { KeybindClass, KeybindPreset, KeybindType } from "./data/keybindPresets";
 
 const bindTypes = [
   "All",
   ...Array.from(new Set(keybindPresets.map((preset) => preset.type))),
 ] as Array<KeybindType | "All">;
+
+const bindClasses = [
+  "All",
+  ...Array.from(new Set(keybindPresets.map((preset) => preset.className))),
+] as Array<KeybindClass | "All">;
 
 const commandCategories = [
   "All",
@@ -57,6 +62,7 @@ function commandLabel(command: ConsoleCommand) {
 export default function Home() {
   const [search, setSearch] = useState("");
   const [activeType, setActiveType] = useState<KeybindType | "All">("All");
+  const [activeClass, setActiveClass] = useState<KeybindClass | "All">("All");
   const [customKeys, setCustomKeys] = useState<Record<string, string>>(() =>
     Object.fromEntries(keybindPresets.map((preset) => [preset.id, preset.defaultKey])),
   );
@@ -83,15 +89,16 @@ export default function Home() {
 
     return keybindPresets.filter((preset) => {
       const matchesType = activeType === "All" || preset.type === activeType;
+      const matchesClass = activeClass === "All" || preset.className === activeClass;
       const haystack = normalizeText(
-        `${preset.title} ${preset.type} ${preset.plainEnglish} ${preset.command} ${preset.searchTerms.join(
-          " ",
-        )}`,
+        `${preset.title} ${preset.type} ${preset.className} ${preset.plainEnglish} ${
+          preset.command
+        } ${preset.searchTerms.join(" ")}`,
       );
 
-      return matchesType && (!query || haystack.includes(query));
+      return matchesType && matchesClass && (!query || haystack.includes(query));
     });
-  }, [activeType, search]);
+  }, [activeClass, activeType, search]);
 
   const typeCounts = useMemo(
     () =>
@@ -100,6 +107,18 @@ export default function Home() {
           type === "All"
             ? keybindPresets.length
             : keybindPresets.filter((preset) => preset.type === type).length;
+        return counts;
+      }, {}),
+    [],
+  );
+
+  const classCounts = useMemo(
+    () =>
+      bindClasses.reduce<Record<string, number>>((counts, className) => {
+        counts[className] =
+          className === "All"
+            ? keybindPresets.length
+            : keybindPresets.filter((preset) => preset.className === className).length;
         return counts;
       }, {}),
     [],
@@ -189,8 +208,8 @@ export default function Home() {
                   <span>Types</span>
                 </div>
                 <div className="metric">
-                  <strong>{keyCombos.length}</strong>
-                  <span>Combos</span>
+                  <strong>{bindClasses.length - 1}</strong>
+                  <span>Classes</span>
                 </div>
               </div>
               <div className="mt-3 min-h-5 text-sm font-semibold text-[var(--success)]" role="status">
@@ -202,18 +221,35 @@ export default function Home() {
       </section>
 
       <section className="sticky top-0 z-20 border-b border-[var(--line)] bg-[var(--app-bg)]/92 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 py-3 sm:px-6 lg:px-8">
-          {bindTypes.map((type) => (
-            <button
-              className={`type-tab ${activeType === type ? "type-tab-active" : ""}`}
-              key={type}
-              onClick={() => setActiveType(type)}
-              type="button"
-            >
-              <span>{type}</span>
-              <strong>{typeCounts[type]}</strong>
-            </button>
-          ))}
+        <div className="mx-auto grid max-w-7xl gap-3 px-4 py-3 sm:px-6 lg:px-8">
+          <div className="flex gap-2 overflow-x-auto">
+            {bindClasses.map((className) => (
+              <button
+                className={`type-tab ${activeClass === className ? "type-tab-active" : ""}`}
+                key={className}
+                onClick={() => setActiveClass(className)}
+                type="button"
+              >
+                <span>{className}</span>
+                <strong>{classCounts[className]}</strong>
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-2 overflow-x-auto">
+            {bindTypes.map((type) => (
+              <button
+                className={`type-tab type-tab-soft ${
+                  activeType === type ? "type-tab-active" : ""
+                }`}
+                key={type}
+                onClick={() => setActiveType(type)}
+                type="button"
+              >
+                <span>{type}</span>
+                <strong>{typeCounts[type]}</strong>
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -229,6 +265,9 @@ export default function Home() {
                   <div>
                     <div className="type-label">{preset.type}</div>
                     <h2 className="mt-2 text-xl font-semibold">{preset.title}</h2>
+                    <div className="mt-2 text-sm font-bold text-[var(--text-muted)]">
+                      {preset.className}
+                    </div>
                   </div>
                   <span className={preset.difficulty === "Easy" ? "pill-good" : "pill-warn"}>
                     {preset.difficulty}
@@ -278,6 +317,7 @@ export default function Home() {
               onClick={() => {
                 setSearch("");
                 setActiveType("All");
+                setActiveClass("All");
               }}
               type="button"
             >
