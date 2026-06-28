@@ -111,8 +111,23 @@ function warningForKey(value: string) {
   return keyWarnings.find((warning) => warning.keys.includes(combo) || warning.keys.includes(key));
 }
 
-function presetBind(preset: KeybindPreset, keyValue: string) {
-  return `/bind ${normalizeCombo(keyValue) || preset.defaultKey} ${preset.command}`;
+function presetLine(preset: KeybindPreset, keyValue: string, mode: "bind" | "unbind") {
+  const key = normalizeCombo(keyValue) || preset.defaultKey;
+  return mode === "bind" ? `/bind ${key} ${preset.command}` : `/unbind ${key}`;
+}
+
+function customLine(
+  keyValue: string,
+  command: ConsoleCommand,
+  customArgs: string,
+  mode: "bind" | "unbind",
+) {
+  const key = normalizeCombo(keyValue) || "<key>";
+  if (mode === "unbind") {
+    return `/unbind ${key}`;
+  }
+
+  return `/bind ${key} ${command.bindCommand}${customArgs.trim() ? ` ${customArgs.trim()}` : ""}`;
 }
 
 function commandLabel(command: ConsoleCommand) {
@@ -136,6 +151,7 @@ export default function Home() {
     Object.fromEntries(keybindPresets.map((preset) => [preset.id, preset.defaultKey])),
   );
   const [copied, setCopied] = useState("");
+  const [copyMode, setCopyMode] = useState<"bind" | "unbind">("bind");
 
   const [commandSearch, setCommandSearch] = useState("");
   const [commandCategory, setCommandCategory] = useState("All");
@@ -149,9 +165,8 @@ export default function Home() {
   const selectedCommand =
     consoleCommands.find((command) => command.id === selectedCommandId) ?? consoleCommands[0];
 
-  const advancedBind = `/bind ${selectedCombo || "<key>"} ${selectedCommand.bindCommand}${
-    customArgs.trim() ? ` ${customArgs.trim()}` : ""
-  }`;
+  const advancedBind = customLine(selectedCombo, selectedCommand, customArgs, copyMode);
+  const copyModeLabel = copyMode === "bind" ? "Bind" : "Unbind";
 
   const filteredPresets = useMemo(() => {
     const query = normalizeText(search);
@@ -261,14 +276,35 @@ export default function Home() {
                   <span>Binds</span>
                 </div>
                 <div className="quick-stat">
-                  <strong>{classFilters.length - 1}</strong>
-                  <span>Classes</span>
+                  <strong>{keyCombos.length}</strong>
+                  <span>Keys</span>
                 </div>
                 <div className="quick-stat">
-                  <strong>{typeFilters.length - 1}</strong>
-                  <span>Uses</span>
+                  <strong>{consoleCommands.length}</strong>
+                  <span>Commands</span>
                 </div>
               </div>
+              <div className="mode-toggle mt-3" aria-label="Choose copy mode">
+                <button
+                  className={copyMode === "bind" ? "mode-active" : ""}
+                  onClick={() => setCopyMode("bind")}
+                  type="button"
+                >
+                  Bind
+                </button>
+                <button
+                  className={copyMode === "unbind" ? "mode-active" : ""}
+                  onClick={() => setCopyMode("unbind")}
+                  type="button"
+                >
+                  Unbind
+                </button>
+              </div>
+              <p className="mode-help">
+                {copyMode === "bind"
+                  ? "Bind mode adds or changes a keybind."
+                  : "Unbind mode removes the chosen keybind from that key."}
+              </p>
               <div className="mt-3 min-h-5 text-sm font-semibold text-[var(--success)]" role="status">
                 {copied ? `Copied ${copied}.` : ""}
               </div>
@@ -333,12 +369,30 @@ export default function Home() {
         </aside>
 
         <section className="min-w-0">
+          <div className="coverage-strip">
+            <div>
+              <strong>Ready binds</strong>
+              <span>Imported from your Desktop text file and organized by class and use.</span>
+            </div>
+            <div>
+              <strong>Possible keys</strong>
+              <span>{keyCombos.length} combos from neverwinter-possible-keybind-combos.md.</span>
+            </div>
+            <div>
+              <strong>Wiki commands</strong>
+              <span>{consoleCommands.length} commands from the Neverwinter console command page.</span>
+            </div>
+          </div>
+
           <div className="result-header">
             <div>
               <div className="small-label">Ready to copy</div>
               <h2>{filteredPresets.length} keybinds found</h2>
             </div>
-            <p>Warnings show when your chosen key may already be used by the game.</p>
+            <p>
+              Current mode: {copyModeLabel}. Warnings show when your chosen key may already be
+              used by the game.
+            </p>
           </div>
 
           <div className="mt-4 space-y-6">
@@ -351,7 +405,7 @@ export default function Home() {
                 <div className="bind-grid">
                   {presets.map((preset) => {
                     const keyValue = customKeys[preset.id] ?? preset.defaultKey;
-                    const bind = presetBind(preset, keyValue);
+                    const bind = presetLine(preset, keyValue, copyMode);
                     const warning = warningForKey(keyValue);
 
                     return (
@@ -391,7 +445,7 @@ export default function Home() {
                             onClick={() => copyText(bind, preset.title)}
                             type="button"
                           >
-                            Copy
+                            Copy {copyModeLabel.toLowerCase()}
                           </button>
                           <button
                             className="reset-button"
@@ -423,9 +477,13 @@ export default function Home() {
 
       <section className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
         <details className="advanced-panel">
-          <summary>Advanced: build your own command</summary>
+          <summary>Full lists: build your own command</summary>
           <div className="mt-5 grid gap-6 xl:grid-cols-[360px_1fr]">
             <div>
+              <p className="advanced-note">
+                Pick any key combo and any wiki command. In Unbind mode, only the key is copied
+                because that is what gets removed.
+              </p>
               <label className="key-field">
                 <span>Key to press</span>
                 <input
@@ -447,14 +505,14 @@ export default function Home() {
                 onClick={() => copyText(advancedBind, "custom command")}
                 type="button"
               >
-                Copy custom bind
+                Copy custom {copyModeLabel.toLowerCase()}
               </button>
             </div>
 
             <div className="grid gap-4 lg:grid-cols-2">
               <div>
                 <div className="advanced-head">
-                  <h3>Key combos</h3>
+                  <h3>All key combos ({filteredCombos.length})</h3>
                   <label>
                     <input
                       checked={showAdvancedCombos}
@@ -480,7 +538,7 @@ export default function Home() {
                   </select>
                 </div>
                 <div className="scroll-list">
-                  {filteredCombos.slice(0, 80).map((combo) => (
+                  {filteredCombos.map((combo) => (
                     <button
                       className="list-row"
                       key={combo.combo}
@@ -495,7 +553,7 @@ export default function Home() {
               </div>
 
               <div>
-                <h3>Raw commands</h3>
+                <h3>All wiki commands ({filteredCommands.length})</h3>
                 <div className="advanced-controls">
                   <input
                     onChange={(event) => setCommandSearch(event.target.value)}
@@ -512,7 +570,7 @@ export default function Home() {
                   </select>
                 </div>
                 <div className="scroll-list">
-                  {filteredCommands.slice(0, 80).map((command) => (
+                  {filteredCommands.map((command) => (
                     <button
                       className="command-row"
                       key={`${command.id}-${command.category}-${command.params}`}
