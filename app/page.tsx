@@ -13,9 +13,25 @@ const classFilters = [
   ...Array.from(new Set(keybindPresets.map((preset) => preset.className))),
 ] as Array<KeybindClass | "All">;
 
+const typeOrder: KeybindType[] = [
+  "Invocation / Character",
+  "Targeting",
+  "VIP Services",
+  "Bard Songs",
+  "Animation Cancel",
+  "Combat",
+  "Companion",
+  "Inventory / Buffs",
+  "Loot / Interact",
+  "Utility",
+  "Camera / Screenshot",
+  "Risky / Testing",
+  "Social",
+];
+
 const typeFilters = [
   "All",
-  ...Array.from(new Set(keybindPresets.map((preset) => preset.type))),
+  ...typeOrder.filter((type) => keybindPresets.some((preset) => preset.type === type)),
 ] as Array<KeybindType | "All">;
 
 const commandCategories = [
@@ -136,7 +152,7 @@ function commandLabel(command: ConsoleCommand) {
 
 function groupedPresets(presets: KeybindPreset[]) {
   return presets.reduce<Record<string, KeybindPreset[]>>((groups, preset) => {
-    const key = `${preset.className} - ${preset.type}`;
+    const key = `${preset.type} - ${preset.className}`;
     groups[key] = [...(groups[key] ?? []), preset];
     return groups;
   }, {});
@@ -171,23 +187,25 @@ export default function Home() {
   const filteredPresets = useMemo(() => {
     const query = normalizeText(search);
 
-    return keybindPresets.filter((preset) => {
-      const matchesClass = activeClass === "All" || preset.className === activeClass;
-      const matchesType = activeType === "All" || preset.type === activeType;
-      const matchesSafety = safetyFilter === "All" || preset.difficulty === safetyFilter;
-      const haystack = normalizeText(
-        `${preset.title} ${preset.type} ${preset.className} ${preset.plainEnglish} ${
-          preset.command
-        } ${preset.searchTerms.join(" ")}`,
-      );
+    return keybindPresets
+      .filter((preset) => {
+        const matchesClass = activeClass === "All" || preset.className === activeClass;
+        const matchesType = activeType === "All" || preset.type === activeType;
+        const matchesSafety = safetyFilter === "All" || preset.difficulty === safetyFilter;
+        const haystack = normalizeText(
+          `${preset.title} ${preset.type} ${preset.className} ${preset.plainEnglish} ${
+            preset.command
+          } ${preset.searchTerms.join(" ")}`,
+        );
 
-      return (
-        matchesClass &&
-        matchesType &&
-        matchesSafety &&
-        (!query || haystack.includes(query))
-      );
-    });
+        return (
+          matchesClass &&
+          matchesType &&
+          matchesSafety &&
+          (!query || haystack.includes(query))
+        );
+      })
+      .sort((left, right) => typeOrder.indexOf(left.type) - typeOrder.indexOf(right.type));
   }, [activeClass, activeType, safetyFilter, search]);
 
   const grouped = useMemo(() => groupedPresets(filteredPresets), [filteredPresets]);
@@ -266,7 +284,7 @@ export default function Home() {
                 <input
                   autoComplete="off"
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Try bard, invoke, buff, companion, animation cancel..."
+                  placeholder="Try hardlock, invoke, character, buff, companion, animation cancel..."
                   value={search}
                 />
               </label>
