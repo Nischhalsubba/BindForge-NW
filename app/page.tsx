@@ -18,8 +18,14 @@ const comboCategories = [
 
 const statusLabels: Record<KeyCombo["status"], string> = {
   core: "Core",
-  candidate: "Needs testing",
-  avoid: "Reserved",
+  candidate: "Test",
+  avoid: "Risk",
+};
+
+const statusClasses: Record<KeyCombo["status"], string> = {
+  core: "border-emerald-400/40 bg-emerald-400/10 text-emerald-100",
+  candidate: "border-amber-300/40 bg-amber-300/10 text-amber-100",
+  avoid: "border-red-400/50 bg-red-400/10 text-red-100",
 };
 
 function normalizeText(value: string) {
@@ -59,6 +65,7 @@ export default function Home() {
     consoleCommands.find((command) => command.id === selectedCommandId) ?? consoleCommands[0];
 
   const activeCombo = normalizeCombo(customCombo || selectedCombo);
+  const selectedComboData = keyCombos.find((combo) => combo.combo === activeCombo);
   const bindPreview = `/bind ${activeCombo || "<key>"} ${selectedCommand.bindCommand}${
     customArgs.trim() ? ` ${customArgs.trim()}` : ""
   }`;
@@ -95,12 +102,10 @@ export default function Home() {
     });
   }, [comboCategory, comboSearch, showAdvanced]);
 
-  const selectedComboData = keyCombos.find((combo) => combo.combo === activeCombo);
-
   async function copyText(text: string, label: string) {
     await navigator.clipboard.writeText(text);
     setCopied(label);
-    window.setTimeout(() => setCopied(""), 1500);
+    window.setTimeout(() => setCopied(""), 1800);
   }
 
   function chooseCommand(command: ConsoleCommand) {
@@ -114,44 +119,48 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f4f6f2] text-[#171918]">
-      <section className="border-b border-[#d4dbd1] bg-white">
+    <main className="min-h-dvh bg-[var(--surface-0)] text-[var(--text-primary)]">
+      <section className="border-b border-white/10 bg-[linear-gradient(135deg,#141514_0%,#251717_48%,#18231c_100%)]">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <div className="grid gap-5 lg:grid-cols-[1fr_360px] lg:items-end">
-            <div>
-              <div className="flex flex-wrap gap-2 text-xs font-bold uppercase text-[#7d1f24]">
-                <span className="border border-[#c94832] bg-[#fff4ef] px-2 py-1">
-                  Neverwinter
-                </span>
-                <span className="border border-[#d2a03a] bg-[#fff8e7] px-2 py-1">
-                  {consoleCommands.length} commands
-                </span>
-                <span className="border border-[#5d7a61] bg-[#edf5ee] px-2 py-1">
-                  {keyCombos.length} key combos
-                </span>
+          <div className="grid gap-6 lg:grid-cols-[1fr_420px] lg:items-end">
+            <div className="space-y-5">
+              <div className="flex flex-wrap gap-2 text-xs font-bold uppercase tracking-normal">
+                <span className="chip chip-red">Neverwinter</span>
+                <span className="chip chip-amber">{consoleCommands.length} commands</span>
+                <span className="chip chip-green">{keyCombos.length} combos</span>
               </div>
-              <h1 className="mt-4 text-4xl font-semibold tracking-normal sm:text-5xl">
-                BindForge NW
-              </h1>
-              <p className="mt-3 max-w-3xl text-base leading-7 text-[#58635b]">
-                Pick any key or combo, pick a Neverwinter console command, then copy the finished
-                bind line into the game chat.
-              </p>
+              <div className="max-w-3xl">
+                <h1 className="text-4xl font-semibold tracking-normal text-white sm:text-5xl lg:text-6xl">
+                  BindForge NW
+                </h1>
+                <p className="mt-4 max-w-2xl text-base leading-7 text-stone-200">
+                  Build clean Neverwinter bind lines from a full command table and generated key
+                  combo catalog.
+                </p>
+              </div>
             </div>
 
-            <div className="border border-[#c7d0c5] bg-[#f9fbf7] p-4">
-              <div className="text-xs font-bold uppercase text-[#647067]">Current bind</div>
-              <code className="mt-3 block overflow-x-auto border border-[#d4dbd1] bg-white px-3 py-3 font-mono text-sm text-[#222724]">
+            <div className="panel-dark p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-xs font-bold uppercase text-stone-400">Ready to paste</div>
+                  <div className="mt-1 text-sm text-stone-300">
+                    Copy this line into Neverwinter chat.
+                  </div>
+                </div>
+                <div className="status-dot" aria-hidden="true" />
+              </div>
+              <code className="mt-4 block max-h-24 overflow-auto rounded-md border border-white/10 bg-black/35 px-3 py-3 font-mono text-sm leading-6 text-amber-100">
                 {bindPreview}
               </code>
               <button
-                className="mt-3 h-11 w-full border border-[#171918] bg-[#171918] px-4 text-sm font-bold text-white transition hover:bg-[#343837]"
+                className="button-primary mt-4 w-full"
                 onClick={() => copyText(bindPreview, "bind command")}
                 type="button"
               >
                 Copy bind
               </button>
-              <div className="mt-2 min-h-5 text-sm text-[#58635b]" role="status">
+              <div className="mt-3 min-h-5 text-sm text-emerald-200" role="status">
                 {copied ? `Copied ${copied}.` : ""}
               </div>
             </div>
@@ -159,59 +168,74 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[340px_1fr] lg:px-8">
-        <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
-          <div className="border border-[#c7d0c5] bg-white p-4">
-            <h2 className="text-lg font-semibold">Builder</h2>
-            <label className="mt-4 block">
-              <span className="mb-2 block text-xs font-bold uppercase text-[#647067]">
-                Key or combo
-              </span>
+      <section className="sticky top-0 z-20 border-b border-white/10 bg-[#171918]/95 backdrop-blur">
+        <div className="mx-auto grid max-w-7xl gap-3 px-4 py-3 sm:px-6 lg:grid-cols-[1fr_auto] lg:px-8">
+          <code className="min-w-0 overflow-x-auto rounded-md border border-white/10 bg-black/30 px-3 py-3 font-mono text-sm text-stone-100">
+            {bindPreview}
+          </code>
+          <button
+            className="button-secondary min-h-11"
+            onClick={() => copyText(bindPreview, "bind command")}
+            type="button"
+          >
+            Copy current bind
+          </button>
+        </div>
+      </section>
+
+      <section className="mx-auto grid max-w-7xl gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[360px_1fr] lg:px-8">
+        <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
+          <div className="panel p-4">
+            <div className="section-label">Builder</div>
+            <h2 className="mt-1 text-xl font-semibold">Shape the command</h2>
+
+            <label className="field mt-5">
+              <span>Key or combo</span>
               <input
-                className="h-11 w-full border border-[#bac6b8] bg-[#fbfcfa] px-3 font-mono text-sm outline-none focus:border-[#7d1f24]"
                 onChange={(event) => setCustomCombo(event.target.value)}
                 placeholder="ctrl+b, f5, numpad1"
                 value={customCombo}
               />
             </label>
-            <label className="mt-4 block">
-              <span className="mb-2 block text-xs font-bold uppercase text-[#647067]">
-                Command arguments
-              </span>
+
+            <label className="field mt-4">
+              <span>Command arguments</span>
               <input
-                className="h-11 w-full border border-[#bac6b8] bg-[#fbfcfa] px-3 font-mono text-sm outline-none focus:border-[#7d1f24]"
                 onChange={(event) => setCustomArgs(event.target.value)}
                 placeholder={selectedCommand.params || "optional values"}
                 value={customArgs}
               />
             </label>
-            <div className="mt-4 border border-[#d4dbd1] bg-[#f4f6f2] p-3 text-sm leading-6 text-[#4f5b52]">
-              Selected command:{" "}
-              <span className="font-mono font-semibold">{commandLabel(selectedCommand)}</span>
+
+            <div className="mt-4 rounded-md border border-stone-700/70 bg-stone-950/60 p-3">
+              <div className="text-xs font-bold uppercase text-stone-400">Selected command</div>
+              <div className="mt-2 break-words font-mono text-sm text-stone-100">
+                {commandLabel(selectedCommand)}
+              </div>
               {selectedComboData?.status && selectedComboData.status !== "core" ? (
-                <div className="mt-2 font-semibold text-[#7d1f24]">
-                  {statusLabels[selectedComboData.status]} combo. Test it in-game before relying on
-                  it.
+                <div className="mt-3 rounded-md border border-amber-300/30 bg-amber-300/10 px-3 py-2 text-sm font-semibold text-amber-100">
+                  {statusLabels[selectedComboData.status]} combo. Test it in-game before relying
+                  on it.
                 </div>
               ) : null}
             </div>
           </div>
 
-          <div className="border border-[#c7d0c5] bg-white p-4">
-            <h2 className="text-lg font-semibold">Command filters</h2>
-            <input
-              className="mt-3 h-11 w-full border border-[#bac6b8] bg-[#fbfcfa] px-3 text-sm outline-none focus:border-[#7d1f24]"
-              onChange={(event) => setCommandSearch(event.target.value)}
-              placeholder="Search commands"
-              value={commandSearch}
-            />
-            <div className="mt-3 grid grid-cols-2 gap-2">
+          <div className="panel p-4">
+            <div className="section-label">Command search</div>
+            <label className="field mt-3">
+              <span>Find command</span>
+              <input
+                onChange={(event) => setCommandSearch(event.target.value)}
+                placeholder="showfps, bind, team"
+                value={commandSearch}
+              />
+            </label>
+            <div className="mt-4 grid grid-cols-2 gap-2">
               {commandCategories.map((category) => (
                 <button
-                  className={`h-10 border px-2 text-sm font-semibold transition ${
-                    commandCategory === category
-                      ? "border-[#171918] bg-[#171918] text-white"
-                      : "border-[#d4dbd1] bg-[#fbfcfa] hover:border-[#171918]"
+                  className={`filter-button ${
+                    commandCategory === category ? "filter-button-active" : ""
                   }`}
                   key={category}
                   onClick={() => setCommandCategory(category)}
@@ -225,66 +249,61 @@ export default function Home() {
         </aside>
 
         <div className="min-w-0 space-y-5">
-          <section className="border border-[#c7d0c5] bg-white p-4">
-            <div className="grid gap-4 lg:grid-cols-[1fr_260px] lg:items-end">
+          <section className="panel p-4 sm:p-5">
+            <div className="grid gap-4 xl:grid-cols-[1fr_280px] xl:items-end">
               <div>
-                <h2 className="text-xl font-semibold">Key combo picker</h2>
-                <p className="mt-1 text-sm text-[#58635b]">
-                  Core combos show by default. Enable advanced to include candidates and reserved
-                  shortcuts.
+                <div className="section-label">Key matrix</div>
+                <h2 className="mt-1 text-2xl font-semibold">Pick a combo</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-300">
+                  Core combos stay visible by default. Advanced mode includes punctuation,
+                  extended keys, and reserved shortcuts.
                 </p>
               </div>
-              <label className="flex min-h-11 items-center gap-3 border border-[#d4dbd1] bg-[#f9fbf7] px-3 text-sm font-semibold">
+              <label className="toggle-card">
                 <input
                   checked={showAdvanced}
-                  className="h-4 w-4"
                   onChange={(event) => setShowAdvanced(event.target.checked)}
                   type="checkbox"
                 />
-                Show advanced combos
+                <span>
+                  <strong>Advanced combos</strong>
+                  <small>Show test and risk keys</small>
+                </span>
               </label>
             </div>
 
-            <div className="mt-4 grid gap-3 md:grid-cols-[1fr_220px]">
-              <input
-                className="h-11 border border-[#bac6b8] bg-[#fbfcfa] px-3 text-sm outline-none focus:border-[#7d1f24]"
-                onChange={(event) => setComboSearch(event.target.value)}
-                placeholder="Search combos"
-                value={comboSearch}
-              />
-              <select
-                className="h-11 border border-[#bac6b8] bg-[#fbfcfa] px-3 text-sm font-semibold outline-none focus:border-[#7d1f24]"
-                onChange={(event) => setComboCategory(event.target.value)}
-                value={comboCategory}
-              >
-                {comboCategories.map((category) => (
-                  <option key={category}>{category}</option>
-                ))}
-              </select>
+            <div className="mt-5 grid gap-3 md:grid-cols-[1fr_240px]">
+              <label className="field">
+                <span>Search combos</span>
+                <input
+                  onChange={(event) => setComboSearch(event.target.value)}
+                  placeholder="ctrl+shift, numpad, f12"
+                  value={comboSearch}
+                />
+              </label>
+              <label className="field">
+                <span>Combo group</span>
+                <select
+                  onChange={(event) => setComboCategory(event.target.value)}
+                  value={comboCategory}
+                >
+                  {comboCategories.map((category) => (
+                    <option key={category}>{category}</option>
+                  ))}
+                </select>
+              </label>
             </div>
 
-            <div className="mt-4 grid max-h-[330px] gap-2 overflow-y-auto pr-1 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-5 grid max-h-[380px] gap-2 overflow-y-auto pr-1 sm:grid-cols-2 xl:grid-cols-3">
               {filteredCombos.map((combo) => (
                 <button
-                  className={`flex min-h-12 items-center justify-between border px-3 text-left text-sm transition ${
-                    activeCombo === combo.combo
-                      ? "border-[#7d1f24] bg-[#7d1f24] text-white"
-                      : "border-[#d4dbd1] bg-[#fbfcfa] hover:border-[#7d1f24]"
-                  }`}
+                  className={`combo-button ${activeCombo === combo.combo ? "combo-active" : ""}`}
                   key={combo.combo}
                   onClick={() => chooseCombo(combo)}
                   type="button"
                 >
                   <span className="font-mono font-semibold">{combo.combo}</span>
-                  <span
-                    className={
-                      activeCombo === combo.combo
-                        ? "text-white"
-                        : combo.status === "core"
-                          ? "text-[#5d7a61]"
-                          : "text-[#7d1f24]"
-                    }
-                  >
+                  <span className={`status-pill ${statusClasses[combo.status]}`}>
                     {statusLabels[combo.status]}
                   </span>
                 </button>
@@ -292,16 +311,17 @@ export default function Home() {
             </div>
           </section>
 
-          <section className="border border-[#c7d0c5] bg-white p-4">
+          <section className="panel p-4 sm:p-5">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <h2 className="text-xl font-semibold">Console commands</h2>
-                <p className="mt-1 text-sm text-[#58635b]">
-                  {filteredCommands.length} commands shown from the Neverwinter command table.
+                <div className="section-label">Command archive</div>
+                <h2 className="mt-1 text-2xl font-semibold">Console commands</h2>
+                <p className="mt-2 text-sm text-stone-300">
+                  {filteredCommands.length} matching commands.
                 </p>
               </div>
               <button
-                className="h-10 border border-[#171918] px-4 text-sm font-bold transition hover:bg-[#171918] hover:text-white"
+                className="button-secondary"
                 onClick={() => copyText(selectedCommand.command, "slash command")}
                 type="button"
               >
@@ -309,13 +329,11 @@ export default function Home() {
               </button>
             </div>
 
-            <div className="mt-4 grid gap-3">
+            <div className="mt-5 grid gap-3">
               {filteredCommands.map((command) => (
                 <article
-                  className={`grid gap-3 border p-4 md:grid-cols-[1fr_auto] md:items-center ${
-                    selectedCommand.id === command.id
-                      ? "border-[#7d1f24] bg-[#fffafa]"
-                      : "border-[#d4dbd1] bg-[#fbfcfa]"
+                  className={`command-row ${
+                    selectedCommand.id === command.id ? "command-row-active" : ""
                   }`}
                   key={`${command.id}-${command.category}-${command.params}`}
                 >
@@ -325,24 +343,24 @@ export default function Home() {
                     type="button"
                   >
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-mono text-base font-semibold text-[#171918]">
+                      <span className="font-mono text-base font-semibold text-stone-50">
                         {command.command}
                       </span>
-                      <span className="border border-[#d2a03a] bg-[#fff8e7] px-2 py-1 text-xs font-bold uppercase text-[#6f510e]">
+                      <span className="rounded border border-amber-300/30 bg-amber-300/10 px-2 py-1 text-xs font-bold uppercase text-amber-100">
                         {command.category}
                       </span>
                     </div>
-                    <div className="mt-2 overflow-x-auto font-mono text-sm text-[#4c564f]">
+                    <div className="mt-2 overflow-x-auto font-mono text-sm text-stone-300">
                       {command.params || "No arguments"}
                     </div>
                     {command.aliases.length > 0 ? (
-                      <div className="mt-2 text-sm text-[#58635b]">
+                      <div className="mt-2 text-sm text-stone-400">
                         Aliases: {command.aliases.join(", ")}
                       </div>
                     ) : null}
                   </button>
                   <button
-                    className="h-10 border border-[#171918] px-4 text-sm font-bold transition hover:bg-[#171918] hover:text-white"
+                    className="button-row"
                     onClick={() => {
                       chooseCommand(command);
                       copyText(

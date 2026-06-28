@@ -1,37 +1,297 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f6f7f4;
-  --foreground: #171717;
+  --surface-0: #101211;
+  --surface-1: #171918;
+  --surface-2: #20231f;
+  --text-primary: #f6f2e9;
+  --text-muted: #b8b0a3;
+  --accent-red: #a83238;
+  --accent-red-strong: #d8474f;
+  --accent-amber: #d6a13f;
+  --accent-green: #4c8a63;
+  --ring: #e0b653;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--surface-0);
+  --color-foreground: var(--text-primary);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--surface-0);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background:
+    radial-gradient(circle at top left, rgba(168, 50, 56, 0.16), transparent 34rem),
+    linear-gradient(180deg, #101211 0%, #151716 52%, #101211 100%);
+  color: var(--text-primary);
   font-family: Arial, Helvetica, sans-serif;
 }
 
 button,
-input {
-  border-radius: 0;
+input,
+select {
+  border-radius: 6px;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 button:focus-visible,
-input:focus-visible {
-  outline: 3px solid #d9a441;
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--ring);
   outline-offset: 2px;
+}
+
+::selection {
+  background: rgba(216, 71, 79, 0.35);
+}
+
+.panel,
+.panel-dark {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+.panel {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.035)),
+    #171918;
+}
+
+.panel-dark {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025)),
+    rgba(10, 11, 10, 0.82);
+}
+
+.section-label {
+  color: var(--accent-amber);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.chip {
+  border-radius: 4px;
+  border-width: 1px;
+  padding: 0.35rem 0.55rem;
+}
+
+.chip-red {
+  border-color: rgba(216, 71, 79, 0.5);
+  background: rgba(168, 50, 56, 0.18);
+  color: #ffd9d4;
+}
+
+.chip-amber {
+  border-color: rgba(214, 161, 63, 0.5);
+  background: rgba(214, 161, 63, 0.14);
+  color: #ffe2a6;
+}
+
+.chip-green {
+  border-color: rgba(76, 138, 99, 0.55);
+  background: rgba(76, 138, 99, 0.16);
+  color: #c9f1d5;
+}
+
+.status-dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 999px;
+  background: var(--accent-green);
+  box-shadow: 0 0 0 4px rgba(76, 138, 99, 0.18), 0 0 20px rgba(76, 138, 99, 0.85);
+}
+
+.button-primary,
+.button-secondary,
+.button-row {
+  align-items: center;
+  border-radius: 6px;
+  display: inline-flex;
+  font-size: 0.875rem;
+  font-weight: 800;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.button-primary {
+  background: var(--accent-red-strong);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+}
+
+.button-primary:hover {
+  background: #f05a61;
+}
+
+.button-secondary,
+.button-row {
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #f6f2e9;
+}
+
+.button-secondary:hover,
+.button-row:hover {
+  background: rgba(214, 161, 63, 0.14);
+  border-color: rgba(214, 161, 63, 0.55);
+}
+
+.field {
+  display: block;
+}
+
+.field span {
+  color: var(--text-muted);
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.field input,
+.field select {
+  background: rgba(10, 11, 10, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-primary);
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  width: 100%;
+}
+
+.field input::placeholder {
+  color: #837c72;
+}
+
+.filter-button {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #d8d1c4;
+  font-size: 0.8125rem;
+  font-weight: 750;
+  min-height: 2.75rem;
+  padding: 0 0.5rem;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.filter-button:hover,
+.filter-button-active {
+  background: rgba(168, 50, 56, 0.24);
+  border-color: rgba(216, 71, 79, 0.55);
+  color: white;
+}
+
+.toggle-card {
+  align-items: center;
+  background: rgba(10, 11, 10, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  display: flex;
+  gap: 0.75rem;
+  min-height: 4rem;
+  padding: 0.75rem;
+}
+
+.toggle-card input {
+  height: 1.15rem;
+  width: 1.15rem;
+}
+
+.toggle-card span {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.toggle-card small {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.combo-button {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #f6f2e9;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  min-height: 3rem;
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.combo-button:hover,
+.combo-active {
+  background: rgba(168, 50, 56, 0.28);
+  border-color: rgba(216, 71, 79, 0.65);
+}
+
+.combo-button:hover {
+  transform: translateY(-1px);
+}
+
+.status-pill {
+  border-radius: 999px;
+  border-width: 1px;
+  flex: 0 0 auto;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.2rem 0.45rem;
+  text-transform: uppercase;
+}
+
+.command-row {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.command-row:hover,
+.command-row-active {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(216, 71, 79, 0.55);
+}
+
+@media (min-width: 768px) {
+  .command-row {
+    align-items: center;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }
