@@ -2,6 +2,10 @@
   "name": "bindforge-nw",
   "version": "0.1.0",
   "private": true,
+  "description": "A Neverwinter keybind builder, console-command browser, safety checker, and copy-ready bind or unbind generator.",
+  "author": "Nischhal Raj Subba",
+  "license": "UNLICENSED",
+  "type": "module",
   "engines": {
     "node": ">=22.13.0"
   },
@@ -25,6 +29,5 @@
     "eslint-config-next": "16.2.6",
     "tailwindcss": "4.2.1",
     "typescript": "5.9.3"
-  },
-  "type": "module"
+  }
 }
