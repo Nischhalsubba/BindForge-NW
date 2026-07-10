@@ -1,0 +1,51 @@
+# BindForge NW
+
+BindForge NW is a browser-based Neverwinter keybind builder and console-command generator.
+
+## Primary use cases
+
+- Search Neverwinter keybind presets.
+- Filter binds by class, command type, and safety level.
+- Browse Neverwinter console commands.
+- Browse safe, advanced, and risky key combinations.
+- Generate copy-ready `/bind` commands.
+- Generate `/unbind` commands.
+- Create custom command arguments.
+- Review warnings for movement, menu, mouse, chat, and Windows shortcut keys.
+
+## Key categories
+
+- Invocation and character
+- Targeting
+- VIP services
+- Bard songs
+- Animation cancel
+- Combat
+- Companion
+- Inventory and buffs
+- Loot and interact
+- Utility
+- Camera and screenshot
+- Social
+- Risky and testing
+
+## Technical summary
+
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- Static data for presets, commands, and key combinations
+- Clipboard-based command copying
+
+## Repository
+
+https://github.com/Nischhalsubba/BindForge-NW
+
+## Accuracy note
+
+Neverwinter commands and valid key combinations can change. Risky or undocumented commands should be tested carefully.
+
+## Disclaimer
+
+This is an independent community project and is not affiliated with or endorsed by Cryptic Studios, Arc Games, Gearbox Publishing, or the Neverwinter rights holders.
