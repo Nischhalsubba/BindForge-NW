@@ -52,31 +52,107 @@ function normalizeCombo(value: string) {
   return [...orderedModifiers, ...keys].join("+");
 }
 
-function updateCommandPreview(card: HTMLElement, input: HTMLInputElement) {
-  const output = card.querySelector<HTMLElement>(".bind-output");
-  if (!output) return;
+function findPresetInput(card: HTMLElement) {
+  return card.querySelector<HTMLInputElement>(".key-field input");
+}
+
+function findOutput(card: HTMLElement) {
+  return card.querySelector<HTMLElement>(".bind-output");
+}
+
+function commandWithKey(command: string, key: string) {
+  return command.replace(/^\/(?:un)?bind\s+\S+/, `/bind ${key}`);
+}
+
+function applyCardMode(card: HTMLElement) {
+  const output = findOutput(card);
+  const input = findPresetInput(card);
+  if (!output || !input) return;
 
   const key = normalizeCombo(input.value);
   if (!key) return;
 
-  card.dataset.normalizedKey = key;
   const current = output.textContent ?? "";
-  const next = current.startsWith("/unbind ")
-    ? current.replace(/^\/unbind\s+\S+/, `/unbind ${key}`)
-    : current.replace(/^\/bind\s+\S+/, `/bind ${key}`);
+  const bindCommand = commandWithKey(current, key);
+  const isUnbind = card.dataset.unbind === "true";
 
+  card.dataset.normalizedKey = key;
+  card.dataset.bindCommand = bindCommand;
+
+  const next = isUnbind ? bindCommand.replace(/^\/bind\b/, "/unbind") : bindCommand;
   if (next !== current) output.textContent = next;
+
+  const copyButton = card.querySelector<HTMLButtonElement>(".copy-button");
+  if (copyButton) copyButton.textContent = isUnbind ? "Copy unbind" : "Copy bind";
 }
 
-function findPresetInput(card: HTMLElement) {
-  return card.querySelector<HTMLInputElement>(".key-field input");
+function createToggle(card: HTMLElement) {
+  if (card.querySelector(".card-unbind-toggle")) return;
+
+  const output = findOutput(card);
+  if (!output) return;
+
+  const row = document.createElement("label");
+  row.className = "card-unbind-toggle";
+  row.style.display = "flex";
+  row.style.alignItems = "center";
+  row.style.justifyContent = "space-between";
+  row.style.gap = "12px";
+  row.style.margin = "12px 0 8px";
+  row.style.fontSize = "14px";
+  row.style.fontWeight = "700";
+  row.style.cursor = "pointer";
+
+  const text = document.createElement("span");
+  text.textContent = "Unbind";
+
+  const switchTrack = document.createElement("span");
+  switchTrack.style.position = "relative";
+  switchTrack.style.display = "inline-flex";
+  switchTrack.style.width = "44px";
+  switchTrack.style.height = "24px";
+  switchTrack.style.flexShrink = "0";
+  switchTrack.style.borderRadius = "999px";
+  switchTrack.style.background = "#c9c4ba";
+  switchTrack.style.transition = "background 160ms ease";
+
+  const knob = document.createElement("span");
+  knob.style.position = "absolute";
+  knob.style.top = "3px";
+  knob.style.left = "3px";
+  knob.style.width = "18px";
+  knob.style.height = "18px";
+  knob.style.borderRadius = "50%";
+  knob.style.background = "#ffffff";
+  knob.style.boxShadow = "0 1px 3px rgba(0, 0, 0, 0.28)";
+  knob.style.transition = "transform 160ms ease";
+
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.className = "card-unbind-checkbox";
+  checkbox.setAttribute("aria-label", "Generate unbind command for this keybind");
+  checkbox.style.position = "absolute";
+  checkbox.style.inlineSize = "1px";
+  checkbox.style.blockSize = "1px";
+  checkbox.style.opacity = "0";
+
+  checkbox.addEventListener("change", () => {
+    card.dataset.unbind = checkbox.checked ? "true" : "false";
+    switchTrack.style.background = checkbox.checked ? "#2f654f" : "#c9c4ba";
+    knob.style.transform = checkbox.checked ? "translateX(20px)" : "translateX(0)";
+    applyCardMode(card);
+  });
+
+  switchTrack.append(checkbox, knob);
+  row.append(text, switchTrack);
+  output.before(row);
 }
 
 export default function KeybindInputSync() {
   useEffect(() => {
     function syncCard(card: HTMLElement) {
-      const input = findPresetInput(card);
-      if (input) updateCommandPreview(card, input);
+      createToggle(card);
+      applyCardMode(card);
     }
 
     function handleInput(event: Event) {
@@ -103,7 +179,7 @@ export default function KeybindInputSync() {
 
       if (!target.closest(".copy-button")) return;
 
-      const output = card.querySelector<HTMLElement>(".bind-output");
+      const output = findOutput(card);
       if (!output?.textContent) return;
 
       event.preventDefault();
@@ -130,8 +206,7 @@ export default function KeybindInputSync() {
         const card = output?.closest<HTMLElement>(".bind-card");
         if (!card || !card.dataset.normalizedKey) continue;
 
-        const input = findPresetInput(card);
-        if (input) updateCommandPreview(card, input);
+        applyCardMode(card);
       }
     });
 
