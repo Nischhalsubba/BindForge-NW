@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import FilterTopBar from "./FilterTopBar";
 import LocalSettingsManager from "./LocalSettingsManager";
+import ThemeSwitcher from "./ThemeSwitcher";
 import "./globals.css";
 import "./local-settings.css";
 import "./theme.css";
@@ -10,6 +11,7 @@ import "./filter-dock.css";
 import "./sticky-filter-dock.css";
 import "./split-filter-layout.css";
 import "./organized-layout.css";
+import "./apple-appearance.css";
 
 export const metadata: Metadata = {
   title: {
@@ -108,6 +110,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         />
         {children}
         <FilterTopBar />
+        <ThemeSwitcher />
         <LocalSettingsManager />
       </body>
     </html>
