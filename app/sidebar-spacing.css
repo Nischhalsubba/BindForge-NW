@@ -32,14 +32,22 @@
 }
 
 .filter-section {
-  padding: 18px 16px 20px;
+  display: flow-root;
+  padding: 20px 16px 22px;
 }
 
 .filter-section legend {
   display: block;
+  float: left;
+  width: 100%;
   line-height: 1.2;
-  margin: 0 0 12px;
+  margin: 0 0 16px;
   padding: 0;
+}
+
+.filter-options,
+.difficulty-options {
+  clear: both;
 }
 
 .filter-options {
@@ -159,7 +167,11 @@
   }
 
   .filter-section {
-    padding: 16px 14px 18px;
+    padding: 18px 14px 20px;
+  }
+
+  .filter-section legend {
+    margin-bottom: 14px;
   }
 
   .filter-tip {
