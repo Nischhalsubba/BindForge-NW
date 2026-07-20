@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Cinzel, JetBrains_Mono, Manrope } from "next/font/google";
+import LocalSettingsManager from "./LocalSettingsManager";
 import "./globals.css";
+import "./local-settings.css";
 
 const appSans = Manrope({
   variable: "--font-geist-sans",
@@ -87,7 +89,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     operatingSystem: "Any operating system with a modern web browser",
     description:
       "A browser-based Neverwinter keybind builder for searching presets, console commands, and key combinations and generating copy-ready bind and unbind commands.",
-    softwareVersion: "0.2.0",
+    softwareVersion: "0.3.0",
     isAccessibleForFree: true,
     author: {
       "@type": "Person",
@@ -98,6 +100,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     featureList: [
       "Neverwinter keybind preset library",
       "Editable key-combination previews",
+      "Automatic browser-local settings backup",
+      "JSON backup export and import",
       "Neverwinter console command search",
       "Custom bind and unbind command generation",
       "Class, action, and difficulty filtering",
@@ -114,6 +118,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
         {children}
+        <LocalSettingsManager />
       </body>
     </html>
   );
