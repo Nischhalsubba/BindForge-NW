@@ -1,0 +1,115 @@
+/* Persistent filter controls without nested scrolling. */
+@media (min-width: 761px) {
+  .workspace {
+    overflow: visible !important;
+  }
+
+  .filter-panel,
+  .filter-panel.filter-panel-open {
+    position: sticky !important;
+    top: 12px !important;
+    z-index: 60;
+    margin-bottom: 24px;
+    max-height: none !important;
+    overflow: visible !important;
+    background: rgba(28, 28, 30, 0.96);
+    box-shadow:
+      0 20px 48px rgba(0, 0, 0, 0.48),
+      0 0 0 1px rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(28px) saturate(140%);
+    -webkit-backdrop-filter: blur(28px) saturate(140%);
+  }
+
+  .filter-panel-head {
+    padding-top: 14px;
+    padding-bottom: 12px;
+  }
+
+  .filter-panel-head .eyebrow {
+    display: none;
+  }
+
+  .filter-panel-head h2 {
+    font-size: 1.05rem;
+  }
+
+  .filter-section {
+    padding-top: 14px;
+    padding-bottom: 16px;
+  }
+
+  .filter-section legend {
+    margin-bottom: 10px;
+    font-size: 0.68rem;
+  }
+
+  .filter-option,
+  .difficulty-chip {
+    min-height: 34px;
+    padding: 7px 11px;
+    font-size: 0.78rem;
+  }
+
+  .filter-tip {
+    min-height: 76px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 12px;
+  }
+
+  .filter-tip p {
+    font-size: 0.76rem;
+    line-height: 1.4;
+  }
+
+  .local-backup-card {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .local-backup-heading .eyebrow,
+  .local-backup-copy,
+  .local-privacy-note {
+    display: none;
+  }
+
+  .local-backup-heading h3 {
+    font-size: 0.88rem;
+  }
+
+  .local-save-status {
+    min-height: 54px;
+    padding: 10px;
+  }
+
+  .local-backup-actions button {
+    min-height: 34px;
+    font-size: 0.74rem;
+  }
+
+  .library-toolbar {
+    scroll-margin-top: 330px;
+  }
+}
+
+@media (max-width: 760px) {
+  .mobile-filter-button {
+    position: sticky;
+    top: 8px;
+    z-index: 70;
+    width: 100%;
+    justify-content: center;
+    background: rgba(28, 28, 30, 0.96);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.36);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .filter-panel.filter-panel-open {
+    position: relative !important;
+    top: auto !important;
+    z-index: 1;
+  }
+}

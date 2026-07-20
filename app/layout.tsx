@@ -6,6 +6,7 @@ import "./theme.css";
 import "./apple-theme.css";
 import "./sidebar-spacing.css";
 import "./filter-dock.css";
+import "./sticky-filter-dock.css";
 
 export const metadata: Metadata = {
   title: {
