@@ -1,28 +1,48 @@
-/* Persistent filter controls without nested scrolling. */
-@media (min-width: 761px) {
+/* Persistent, scroll-free filter rail. */
+@media (min-width: 1181px) {
   .workspace {
+    display: grid !important;
+    grid-template-columns: 232px minmax(0, 1fr) !important;
+    align-items: start;
+    gap: 20px !important;
     overflow: visible !important;
   }
 
   .filter-panel,
   .filter-panel.filter-panel-open {
+    grid-column: 1;
     position: sticky !important;
-    top: 12px !important;
-    z-index: 60;
-    margin-bottom: 24px;
+    top: 20px !important;
+    z-index: 70;
+    width: 232px !important;
+    max-width: 232px !important;
     max-height: none !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column;
     overflow: visible !important;
-    background: rgba(28, 28, 30, 0.96);
-    box-shadow:
-      0 20px 48px rgba(0, 0, 0, 0.48),
-      0 0 0 1px rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(28px) saturate(140%);
-    -webkit-backdrop-filter: blur(28px) saturate(140%);
+    margin: 0 !important;
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    border-radius: 18px;
+    background: rgba(28, 28, 30, 0.97);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.42);
+    backdrop-filter: blur(26px) saturate(140%);
+    -webkit-backdrop-filter: blur(26px) saturate(140%);
+  }
+
+  .library {
+    grid-column: 2;
+    min-width: 0;
   }
 
   .filter-panel-head {
-    padding-top: 14px;
-    padding-bottom: 12px;
+    min-height: 0 !important;
+    padding: 18px 16px 16px !important;
+    align-items: center;
+  }
+
+  .filter-panel-head > div {
+    gap: 3px !important;
   }
 
   .filter-panel-head .eyebrow {
@@ -30,43 +50,148 @@
   }
 
   .filter-panel-head h2 {
-    font-size: 1.05rem;
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.2;
+  }
+
+  .filter-panel-head .text-button {
+    min-height: 30px;
+    margin: 0 !important;
+    padding: 5px 8px;
+    font-size: 0.75rem;
   }
 
   .filter-section {
-    padding-top: 14px;
-    padding-bottom: 16px;
+    position: relative;
+    width: 100%;
+    height: auto !important;
+    min-width: 0;
+    padding: 18px 16px !important;
+    border-right: 0 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.09) !important;
   }
 
   .filter-section legend {
-    margin-bottom: 10px;
+    float: none !important;
+    display: block;
+    width: 100%;
+    margin: 0 0 12px !important;
+    padding: 0 !important;
+    color: rgba(235, 235, 245, 0.58);
     font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1.35;
+    text-transform: uppercase;
   }
 
-  .filter-option,
+  .filter-section:nth-of-type(1),
+  .filter-section:nth-of-type(2) {
+    min-height: 92px;
+  }
+
+  .filter-section:nth-of-type(1) .filter-options,
+  .filter-section:nth-of-type(2) .filter-options {
+    position: relative;
+    display: block !important;
+    width: 100%;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0;
+  }
+
+  .filter-section:nth-of-type(1) .filter-option,
+  .filter-section:nth-of-type(2) .filter-option {
+    display: none;
+    width: 100% !important;
+    min-height: 40px;
+    padding: 9px 11px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    text-align: left;
+  }
+
+  .filter-section:nth-of-type(1) .filter-option[aria-pressed="true"],
+  .filter-section:nth-of-type(2) .filter-option[aria-pressed="true"] {
+    display: flex;
+  }
+
+  .filter-section:nth-of-type(1):hover .filter-options,
+  .filter-section:nth-of-type(1):focus-within .filter-options,
+  .filter-section:nth-of-type(2):hover .filter-options,
+  .filter-section:nth-of-type(2):focus-within .filter-options {
+    position: absolute;
+    z-index: 100;
+    top: 6px;
+    left: calc(100% + 12px);
+    width: 250px;
+    display: grid !important;
+    gap: 5px;
+    padding: 10px !important;
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    border-radius: 14px;
+    background: rgba(36, 36, 38, 0.99);
+    box-shadow: 0 22px 54px rgba(0, 0, 0, 0.52);
+  }
+
+  .filter-section:nth-of-type(1):hover .filter-option,
+  .filter-section:nth-of-type(1):focus-within .filter-option,
+  .filter-section:nth-of-type(2):hover .filter-option,
+  .filter-section:nth-of-type(2):focus-within .filter-option {
+    display: flex;
+  }
+
+  .filter-section:nth-of-type(3) {
+    padding-bottom: 16px !important;
+  }
+
+  .difficulty-options {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px !important;
+    width: 100%;
+    margin: 0;
+  }
+
   .difficulty-chip {
-    min-height: 34px;
-    padding: 7px 11px;
-    font-size: 0.78rem;
+    width: 100% !important;
+    min-height: 36px;
+    padding: 7px 8px;
+    border-radius: 10px;
+    font-size: 0.76rem;
   }
 
   .filter-tip {
-    min-height: 76px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    padding: 12px;
+    min-height: 0 !important;
+    margin: 12px !important;
+    padding: 11px !important;
   }
 
   .filter-tip p {
-    font-size: 0.76rem;
-    line-height: 1.4;
+    font-size: 0.72rem;
+    line-height: 1.42;
   }
 
   .local-backup-card {
-    margin-top: 10px;
-    margin-bottom: 10px;
-    padding-top: 12px;
-    padding-bottom: 12px;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 9px !important;
+    margin: 0 !important;
+    padding: 13px 12px 14px !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.09) !important;
+    background: transparent !important;
+  }
+
+  .local-backup-heading,
+  .local-backup-copy,
+  .local-save-status,
+  .local-backup-actions,
+  .local-privacy-note {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+    margin: 0 !important;
   }
 
   .local-backup-heading .eyebrow,
@@ -76,21 +201,67 @@
   }
 
   .local-backup-heading h3 {
-    font-size: 0.88rem;
+    font-size: 0.8rem;
+    line-height: 1.25;
   }
 
   .local-save-status {
-    min-height: 54px;
-    padding: 10px;
+    min-height: 0;
+    padding: 9px !important;
+  }
+
+  .local-save-status strong,
+  .local-save-status span {
+    font-size: 0.68rem;
+  }
+
+  .local-backup-actions {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
   }
 
   .local-backup-actions button {
-    min-height: 34px;
-    font-size: 0.74rem;
+    min-height: 32px;
+    padding: 6px 7px;
+    font-size: 0.68rem;
+  }
+
+  .local-backup-actions .local-danger-action {
+    grid-column: 1 / -1 !important;
   }
 
   .library-toolbar {
-    scroll-margin-top: 330px;
+    scroll-margin-top: 20px;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1180px) {
+  .workspace {
+    overflow: visible !important;
+  }
+
+  .filter-panel,
+  .filter-panel.filter-panel-open {
+    position: sticky !important;
+    top: 10px !important;
+    z-index: 70;
+    max-height: none !important;
+    overflow: visible !important;
+    margin-bottom: 20px;
+    background: rgba(28, 28, 30, 0.97);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.42);
+    backdrop-filter: blur(24px) saturate(140%);
+  }
+
+  .filter-panel-head {
+    padding-top: 14px !important;
+    padding-bottom: 12px !important;
+  }
+
+  .filter-section legend {
+    margin-top: 0 !important;
+    margin-bottom: 12px !important;
   }
 }
 
@@ -101,15 +272,21 @@
     z-index: 70;
     width: 100%;
     justify-content: center;
-    background: rgba(28, 28, 30, 0.96);
+    background: rgba(28, 28, 30, 0.97);
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.36);
     backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
   }
 
   .filter-panel.filter-panel-open {
     position: relative !important;
     top: auto !important;
     z-index: 1;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .filter-section legend {
+    margin-top: 0 !important;
+    margin-bottom: 12px !important;
   }
 }
