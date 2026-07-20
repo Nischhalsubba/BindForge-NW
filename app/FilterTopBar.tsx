@@ -99,8 +99,8 @@ export default function FilterTopBar() {
     const panel = document.querySelector(".filter-panel");
     if (panel) clickButtonByText(panel, "Reset all");
     updateSearch("");
+    chooseMode("bind");
     setActionType("All actions");
-    setMode("bind");
   }
 
   if (!ready) return null;
