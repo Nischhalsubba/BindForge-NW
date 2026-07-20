@@ -12,6 +12,7 @@ import "./sticky-filter-dock.css";
 import "./split-filter-layout.css";
 import "./organized-layout.css";
 import "./apple-appearance.css";
+import "./alignment-polish.css";
 
 export const metadata: Metadata = {
   title: {
