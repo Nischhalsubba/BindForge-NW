@@ -1,35 +1,38 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import KeybindInputSync from "./KeybindInputSync";
+import { Cinzel, JetBrains_Mono, Manrope } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
+const appSans = Manrope({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
+const appMono = JetBrains_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const appDisplay = Cinzel({
+  variable: "--font-display",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "BindForge NW | Neverwinter Keybind Builder & Command Generator",
+    default: "BindForge NW | Neverwinter Keybind Builder",
     template: "%s | BindForge NW",
   },
   description:
-    "Create copy-ready Neverwinter keybind and unbind commands. Search class presets, console commands, safe key combinations, Bard songs, targeting, VIP, combat, companion, camera, and utility binds.",
+    "Search, review, and generate copy-ready Neverwinter keybind and unbind commands with editable key combinations and conflict warnings.",
   applicationName: "BindForge NW",
   keywords: [
     "Neverwinter keybind builder",
     "Neverwinter bind commands",
     "Neverwinter console commands",
-    "Neverwinter keybinds",
-    "Neverwinter unbind command",
     "Neverwinter Bard song binds",
-    "Neverwinter targeting bind",
-    "Neverwinter animation cancel bind",
     "Neverwinter command generator",
   ],
   authors: [{ name: "Nischhal Raj Subba", url: "https://github.com/Nischhalsubba" }],
@@ -52,21 +55,20 @@ export const metadata: Metadata = {
     siteName: "BindForge NW",
     title: "BindForge NW | Neverwinter Keybind Builder",
     description:
-      "Build safe, copy-ready Neverwinter bind and unbind commands from presets, console commands, and custom key combinations.",
+      "Find safer key combinations and generate copy-ready Neverwinter bind or unbind commands.",
     images: [
       {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "BindForge NW Neverwinter keybind builder and command generator",
+        alt: "BindForge NW Neverwinter keybind builder",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
     title: "BindForge NW | Neverwinter Keybind Builder",
-    description:
-      "Search presets and generate copy-ready Neverwinter bind or unbind commands with key safety warnings.",
+    description: "Search presets and generate copy-ready Neverwinter keybind commands.",
     images: ["/opengraph-image"],
   },
   icons: {
@@ -75,11 +77,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
@@ -89,7 +87,7 @@ export default function RootLayout({
     operatingSystem: "Any operating system with a modern web browser",
     description:
       "A browser-based Neverwinter keybind builder for searching presets, console commands, and key combinations and generating copy-ready bind and unbind commands.",
-    softwareVersion: "0.1.0",
+    softwareVersion: "0.2.0",
     isAccessibleForFree: true,
     author: {
       "@type": "Person",
@@ -99,23 +97,22 @@ export default function RootLayout({
     codeRepository: "https://github.com/Nischhalsubba/BindForge-NW",
     featureList: [
       "Neverwinter keybind preset library",
+      "Editable key-combination previews",
       "Neverwinter console command search",
       "Custom bind and unbind command generation",
-      "Class, type, and safety filtering",
+      "Class, action, and difficulty filtering",
       "Reserved and risky key warnings",
-      "Bard song and animation-cancel presets",
-      "Clipboard-ready command output",
+      "Keyboard-accessible responsive interface",
     ],
   };
 
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${appSans.variable} ${appMono.variable} ${appDisplay.variable}`}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
-        <KeybindInputSync />
         {children}
       </body>
     </html>
