@@ -9,6 +9,7 @@ import "./sidebar-spacing.css";
 import "./filter-dock.css";
 import "./sticky-filter-dock.css";
 import "./split-filter-layout.css";
+import "./organized-layout.css";
 
 export const metadata: Metadata = {
   title: {
