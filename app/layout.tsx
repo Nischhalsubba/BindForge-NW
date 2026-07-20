@@ -5,6 +5,7 @@ import "./local-settings.css";
 import "./theme.css";
 import "./apple-theme.css";
 import "./sidebar-spacing.css";
+import "./filter-dock.css";
 
 export const metadata: Metadata = {
   title: {
