@@ -1,0 +1,172 @@
+.filter-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.filter-panel-head {
+  align-items: flex-start;
+  min-height: 104px;
+  padding: 22px 20px 20px;
+}
+
+.filter-panel-head > div {
+  display: grid;
+  gap: 6px;
+}
+
+.filter-panel-head .eyebrow {
+  margin: 0;
+  line-height: 1.2;
+}
+
+.filter-panel-head h2 {
+  line-height: 1.05;
+  margin: 0;
+}
+
+.filter-panel-head .text-button {
+  margin-top: 14px;
+  min-height: 32px;
+  padding: 6px 8px;
+}
+
+.filter-section {
+  padding: 18px 16px 20px;
+}
+
+.filter-section legend {
+  display: block;
+  line-height: 1.2;
+  margin: 0 0 12px;
+  padding: 0;
+}
+
+.filter-options {
+  gap: 6px;
+  margin-top: 0;
+}
+
+.filter-option {
+  min-height: 42px;
+  padding: 10px 12px;
+  line-height: 1.25;
+}
+
+.filter-option > span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.filter-option[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 1px rgba(10, 132, 255, 0.16);
+}
+
+.compact-options {
+  max-height: 304px;
+  padding-right: 8px;
+}
+
+.compact-options::-webkit-scrollbar {
+  width: 8px;
+}
+
+.compact-options::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.compact-options::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.20);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+.difficulty-options {
+  gap: 8px;
+  margin-top: 0;
+}
+
+.difficulty-chip {
+  min-height: 42px;
+  padding: 8px 10px;
+}
+
+.filter-tip {
+  margin: 16px;
+  padding: 14px;
+}
+
+.filter-tip p {
+  line-height: 1.5;
+}
+
+.local-backup-card {
+  border-top: 1px solid var(--border);
+  margin-top: 0;
+  padding: 20px 16px 18px;
+}
+
+.local-backup-heading {
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.local-backup-heading > div {
+  display: grid;
+  gap: 6px;
+}
+
+.local-backup-heading .eyebrow,
+.local-backup-heading h3 {
+  margin: 0;
+}
+
+.local-backup-heading h3 {
+  line-height: 1.2;
+}
+
+.local-backup-copy {
+  margin: 0 0 14px;
+}
+
+.local-save-status {
+  margin-top: 0;
+  padding: 12px;
+}
+
+.local-backup-actions {
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.local-privacy-note {
+  margin: 14px 0 0;
+  padding-top: 14px;
+}
+
+@media (min-width: 1100px) {
+  .filter-panel {
+    scrollbar-gutter: stable;
+  }
+}
+
+@media (max-width: 560px) {
+  .filter-panel-head {
+    min-height: 96px;
+    padding: 20px 16px 18px;
+  }
+
+  .filter-section {
+    padding: 16px 14px 18px;
+  }
+
+  .filter-tip {
+    margin: 14px;
+  }
+
+  .local-backup-card {
+    padding: 18px 14px 16px;
+  }
+}
