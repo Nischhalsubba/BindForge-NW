@@ -37,7 +37,7 @@ function selectedMode() {
 }
 
 export default function FilterTopBar() {
-  const [ready, setReady] = useState(false);
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
   const [actionType, setActionType] = useState("All actions");
   const [search, setSearch] = useState("");
   const [mode, setMode] = useState<"bind" | "unbind">("bind");
@@ -49,7 +49,7 @@ export default function FilterTopBar() {
   );
 
   useEffect(() => {
-    setReady(true);
+    setPortalTarget(document.querySelector<HTMLElement>(".library"));
 
     const syncFromPage = () => {
       setActionType(selectedActionType());
@@ -103,13 +103,13 @@ export default function FilterTopBar() {
     setActionType("All actions");
   }
 
-  if (!ready) return null;
+  if (!portalTarget) return null;
 
   return createPortal(
     <section className="filter-top-bar" aria-label="Keybind filters and search">
       <div className="filter-top-summary">
         <span>Keybind library</span>
-        <strong>{resultCount} found</strong>
+        <strong>{resultCount} keybinds</strong>
       </div>
 
       <label className="filter-top-search">
@@ -137,6 +137,6 @@ export default function FilterTopBar() {
 
       <button className="filter-top-reset" onClick={resetAll} type="button">Reset</button>
     </section>,
-    document.body,
+    portalTarget,
   );
 }
