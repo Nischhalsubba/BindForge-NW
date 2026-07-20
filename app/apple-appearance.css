@@ -1,0 +1,170 @@
+:root,
+html[data-theme="dark"] {
+  --app-bg: #000000;
+  --surface-1: #1c1c1e;
+  --surface-2: #242426;
+  --surface-3: #2c2c2e;
+  --surface-hover: #353538;
+  --text-1: #f5f5f7;
+  --text-2: #d1d1d6;
+  --text-3: #a1a1a6;
+  --separator: rgba(255,255,255,.14);
+  --separator-soft: rgba(255,255,255,.09);
+  --accent: #0a84ff;
+  --accent-soft: rgba(10,132,255,.18);
+  --success: #30d158;
+  --success-soft: rgba(48,209,88,.12);
+  --warning: #ffd60a;
+  --warning-soft: rgba(255,214,10,.12);
+  --danger: #ff453a;
+  --danger-soft: rgba(255,69,58,.12);
+  --code-bg: #111113;
+  --shadow: 0 18px 48px rgba(0,0,0,.38);
+}
+
+html[data-theme="light"] {
+  --app-bg: #f5f5f7;
+  --surface-1: #ffffff;
+  --surface-2: #f2f2f7;
+  --surface-3: #e9e9ee;
+  --surface-hover: #e2e2e7;
+  --text-1: #1d1d1f;
+  --text-2: #3a3a3c;
+  --text-3: #636366;
+  --separator: rgba(60,60,67,.24);
+  --separator-soft: rgba(60,60,67,.14);
+  --accent: #0071e3;
+  --accent-soft: rgba(0,113,227,.12);
+  --success: #248a3d;
+  --success-soft: rgba(36,138,61,.10);
+  --warning: #9a6700;
+  --warning-soft: rgba(154,103,0,.10);
+  --danger: #d70015;
+  --danger-soft: rgba(215,0,21,.09);
+  --code-bg: #f2f2f7;
+  --shadow: 0 14px 38px rgba(0,0,0,.10);
+}
+
+html, body { background: var(--app-bg) !important; color: var(--text-1) !important; }
+body, button, input, select { color: var(--text-1); }
+
+.app-header, .filter-panel, .filter-top-bar, .library-toolbar, .bind-group, .command-lab, .reference-panel, .local-backup-card {
+  color: var(--text-1) !important;
+}
+.filter-panel, .filter-top-bar, .library-toolbar, .bind-group, .command-lab, .reference-panel {
+  background: var(--surface-1) !important;
+  border-color: var(--separator) !important;
+  box-shadow: var(--shadow);
+}
+.bind-card, .group-heading, .stat-card, .ready-state, .local-save-status {
+  background: var(--surface-2) !important;
+  border-color: var(--separator-soft) !important;
+}
+
+/* Sidebar hierarchy and spacing */
+.filter-panel-head {
+  min-height: auto !important;
+  padding: 20px 18px 18px !important;
+  background: transparent !important;
+  border-bottom: 1px solid var(--separator-soft) !important;
+}
+.filter-panel-head h2 {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  color: var(--text-1) !important;
+  font-size: 1.05rem !important;
+  line-height: 1.25 !important;
+}
+.filter-section {
+  padding: 22px 18px !important;
+  border-bottom: 1px solid var(--separator-soft) !important;
+}
+.filter-section legend,
+.theme-switcher legend {
+  float: none !important;
+  display: block !important;
+  width: 100% !important;
+  margin: 0 0 14px !important;
+  padding: 0 !important;
+  color: var(--text-3) !important;
+  font-size: .72rem !important;
+  font-weight: 700 !important;
+  letter-spacing: .06em !important;
+  line-height: 1.4 !important;
+  text-transform: uppercase !important;
+}
+.filter-options { gap: 7px !important; }
+.filter-option, .difficulty-chip {
+  min-height: 40px !important;
+  color: var(--text-2) !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+}
+.filter-option:hover, .difficulty-chip:hover { background: var(--surface-hover) !important; }
+.filter-option[aria-pressed="true"], .difficulty-chip[aria-pressed="true"] {
+  color: #fff !important;
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+}
+
+/* Theme control */
+.theme-switcher {
+  order: 4;
+  margin: 0 !important;
+  padding: 20px 18px !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--separator-soft) !important;
+}
+.theme-switcher > div {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 4px;
+  border-radius: 11px;
+  background: var(--surface-3);
+}
+.theme-switcher button {
+  min-height: 34px;
+  border: 0;
+  border-radius: 8px;
+  color: var(--text-2);
+  background: transparent;
+  font: inherit;
+  font-size: .72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.theme-switcher button:hover { background: var(--surface-hover); }
+.theme-switcher button[aria-pressed="true"] { color: #fff; background: var(--accent); }
+.theme-switcher button:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 2px; }
+
+/* Readability */
+.brand-subtitle, .library-toolbar p, .group-heading p, .card-copy p, .filter-tip p, .local-backup-copy, .local-privacy-note, small {
+  color: var(--text-2) !important;
+}
+.eyebrow, .card-type, .card-meta, .command-label, .filter-top-summary span, .filter-top-select > span {
+  color: var(--text-3) !important;
+}
+.card-copy h4, .group-heading h3, .library-toolbar h2, .filter-top-summary strong { color: var(--text-1) !important; }
+.card-copy p { font-size: .9rem !important; line-height: 1.55 !important; }
+
+input, select, .filter-top-search input, .filter-top-select select {
+  color: var(--text-1) !important;
+  background: var(--surface-2) !important;
+  border-color: var(--separator) !important;
+}
+input::placeholder { color: var(--text-3) !important; opacity: 1; }
+input:focus, select:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px var(--accent-soft) !important; }
+
+.primary-button, .filter-top-mode button[aria-pressed="true"], .local-primary-action { background: var(--accent) !important; color: #fff !important; }
+.secondary-button, .filter-top-mode, .filter-top-reset, .local-secondary-action { background: var(--surface-3) !important; color: var(--text-1) !important; border-color: var(--separator) !important; }
+.command-preview { background: var(--code-bg) !important; border-color: var(--separator-soft) !important; }
+.command-preview code { color: var(--accent) !important; }
+.key-status.status-safe { background: var(--success-soft) !important; border-color: color-mix(in srgb, var(--success) 35%, transparent) !important; color: var(--success) !important; }
+.filter-tip { background: var(--warning-soft) !important; border-color: color-mix(in srgb, var(--warning) 35%, transparent) !important; color: var(--warning) !important; }
+.local-danger-action { color: var(--danger) !important; border-color: color-mix(in srgb, var(--danger) 40%, transparent) !important; background: var(--danger-soft) !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
