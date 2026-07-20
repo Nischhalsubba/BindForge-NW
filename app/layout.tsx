@@ -1,28 +1,9 @@
 import type { Metadata } from "next";
-import { Barlow_Condensed, JetBrains_Mono, Source_Sans_3 } from "next/font/google";
 import LocalSettingsManager from "./LocalSettingsManager";
 import "./globals.css";
 import "./local-settings.css";
 import "./theme.css";
-
-const appInterface = Source_Sans_3({
-  variable: "--font-interface",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const appCode = JetBrains_Mono({
-  variable: "--font-code",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const appDisplay = Barlow_Condensed({
-  variable: "--font-display",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["500", "600", "700"],
-});
+import "./apple-theme.css";
 
 export const metadata: Metadata = {
   title: {
@@ -91,7 +72,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     operatingSystem: "Any operating system with a modern web browser",
     description:
       "A browser-based Neverwinter keybind builder for searching presets, console commands, and key combinations and generating copy-ready bind and unbind commands.",
-    softwareVersion: "0.4.0",
+    softwareVersion: "0.5.0",
     isAccessibleForFree: true,
     author: {
       "@type": "Person",
@@ -114,7 +95,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 
   return (
     <html lang="en">
-      <body className={`${appInterface.variable} ${appCode.variable} ${appDisplay.variable}`}>
+      <body>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
