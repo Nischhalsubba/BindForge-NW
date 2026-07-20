@@ -1,0 +1,62 @@
+/* Final sidebar structure fix: full-width header and legends in normal flow. */
+
+.filter-panel-head {
+  width: 100% !important;
+  max-width: none !important;
+  align-self: stretch !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding: 18px 18px 16px !important;
+}
+
+.filter-panel-head > div {
+  width: 100%;
+  min-width: 0;
+}
+
+.filter-panel-head h2 {
+  width: 100%;
+  margin: 0 !important;
+}
+
+.filter-section,
+.theme-switcher {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  padding: 22px 18px 20px !important;
+}
+
+.filter-section legend,
+.theme-switcher legend {
+  float: left !important;
+  display: block !important;
+  width: 100% !important;
+  margin: 0 0 14px !important;
+  padding: 0 !important;
+  line-height: 1.35 !important;
+}
+
+.filter-section legend + .filter-options,
+.filter-section legend + .difficulty-options,
+.theme-switcher legend + div {
+  clear: both !important;
+  width: 100% !important;
+  margin-top: 0 !important;
+}
+
+.filter-options,
+.difficulty-options,
+.theme-switcher > div {
+  width: 100% !important;
+}
+
+@media (max-width: 760px) {
+  .filter-panel-head {
+    padding: 16px !important;
+  }
+
+  .filter-section,
+  .theme-switcher {
+    padding: 20px 16px 18px !important;
+  }
+}
