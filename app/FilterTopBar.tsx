@@ -113,7 +113,7 @@ export default function FilterTopBar() {
       </div>
 
       <label className="filter-top-search">
-        <span className="sr-only">Search keybinds</span>
+        <span>Search</span>
         <input
           autoComplete="off"
           onChange={(event) => updateSearch(event.target.value)}
