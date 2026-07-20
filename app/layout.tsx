@@ -4,6 +4,7 @@ import "./globals.css";
 import "./local-settings.css";
 import "./theme.css";
 import "./apple-theme.css";
+import "./sidebar-spacing.css";
 
 export const metadata: Metadata = {
   title: {
