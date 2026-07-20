@@ -1,25 +1,27 @@
 import type { Metadata } from "next";
-import { Cinzel, JetBrains_Mono, Manrope } from "next/font/google";
+import { Barlow_Condensed, JetBrains_Mono, Source_Sans_3 } from "next/font/google";
 import LocalSettingsManager from "./LocalSettingsManager";
 import "./globals.css";
 import "./local-settings.css";
+import "./theme.css";
 
-const appSans = Manrope({
-  variable: "--font-geist-sans",
+const appInterface = Source_Sans_3({
+  variable: "--font-interface",
   subsets: ["latin"],
   display: "swap",
 });
 
-const appMono = JetBrains_Mono({
-  variable: "--font-geist-mono",
+const appCode = JetBrains_Mono({
+  variable: "--font-code",
   subsets: ["latin"],
   display: "swap",
 });
 
-const appDisplay = Cinzel({
+const appDisplay = Barlow_Condensed({
   variable: "--font-display",
   subsets: ["latin"],
   display: "swap",
+  weight: ["500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -89,7 +91,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     operatingSystem: "Any operating system with a modern web browser",
     description:
       "A browser-based Neverwinter keybind builder for searching presets, console commands, and key combinations and generating copy-ready bind and unbind commands.",
-    softwareVersion: "0.3.0",
+    softwareVersion: "0.4.0",
     isAccessibleForFree: true,
     author: {
       "@type": "Person",
@@ -112,7 +114,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 
   return (
     <html lang="en">
-      <body className={`${appSans.variable} ${appMono.variable} ${appDisplay.variable}`}>
+      <body className={`${appInterface.variable} ${appCode.variable} ${appDisplay.variable}`}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
