@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import FilterTopBar from "./FilterTopBar";
 import LocalSettingsManager from "./LocalSettingsManager";
 import "./globals.css";
 import "./local-settings.css";
@@ -7,6 +8,7 @@ import "./apple-theme.css";
 import "./sidebar-spacing.css";
 import "./filter-dock.css";
 import "./sticky-filter-dock.css";
+import "./split-filter-layout.css";
 
 export const metadata: Metadata = {
   title: {
@@ -104,6 +106,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
         {children}
+        <FilterTopBar />
         <LocalSettingsManager />
       </body>
     </html>
