@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 const STORAGE_KEY = "bindforge-nw:theme";
 type ThemeChoice = "system" | "light" | "dark";
@@ -19,8 +20,10 @@ function applyTheme(choice: ThemeChoice) {
 
 export default function ThemeSwitcher() {
   const [choice, setChoice] = useState<ThemeChoice>("system");
+  const [target, setTarget] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
+    setTarget(document.querySelector<HTMLElement>(".filter-panel"));
     const stored = window.localStorage.getItem(STORAGE_KEY);
     const initial: ThemeChoice = stored === "light" || stored === "dark" || stored === "system" ? stored : "system";
     setChoice(initial);
@@ -40,21 +43,19 @@ export default function ThemeSwitcher() {
     applyTheme(next);
   }
 
-  return (
+  if (!target) return null;
+
+  return createPortal(
     <fieldset className="theme-switcher" aria-label="Appearance">
       <legend>Appearance</legend>
       <div>
         {(["system", "light", "dark"] as const).map((item) => (
-          <button
-            aria-pressed={choice === item}
-            key={item}
-            onClick={() => choose(item)}
-            type="button"
-          >
+          <button aria-pressed={choice === item} key={item} onClick={() => choose(item)} type="button">
             {item[0].toUpperCase() + item.slice(1)}
           </button>
         ))}
       </div>
-    </fieldset>
+    </fieldset>,
+    target,
   );
 }
