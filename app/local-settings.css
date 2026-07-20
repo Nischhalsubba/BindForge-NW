@@ -1,0 +1,226 @@
+.filter-panel {
+  gap: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.filter-panel-head {
+  background:
+    linear-gradient(135deg, rgba(40, 211, 176, 0.1), transparent 58%),
+    var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  padding: 1.15rem;
+}
+
+.filter-panel-head h2 {
+  font-family: var(--font-display), serif;
+  font-size: 1.35rem;
+  letter-spacing: 0.015em;
+}
+
+.filter-section {
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  margin: 0;
+  padding: 1rem 1.15rem;
+}
+
+.filter-section legend {
+  color: var(--accent-soft);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 0;
+  text-transform: uppercase;
+}
+
+.filter-options {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.7rem;
+}
+
+.filter-option {
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: var(--text-soft);
+  display: flex;
+  font-size: 0.86rem;
+  font-weight: 650;
+  justify-content: space-between;
+  min-height: 2.45rem;
+  padding: 0.45rem 0.65rem;
+  text-align: left;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+  width: 100%;
+}
+
+.filter-option:hover {
+  background: rgba(255, 255, 255, 0.035);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.filter-option[aria-pressed="true"] {
+  background: rgba(40, 211, 176, 0.12);
+  border-color: rgba(40, 211, 176, 0.42);
+  color: var(--primary-hover);
+}
+
+.compact-options {
+  max-height: none;
+  overflow: visible;
+  padding-right: 0;
+}
+
+.difficulty-options {
+  display: grid;
+  gap: 0.45rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 0.7rem;
+}
+
+.difficulty-chip {
+  min-height: 2.45rem;
+}
+
+.filter-tip {
+  margin: 1rem 1.15rem 0;
+}
+
+.local-backup-card {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(40, 211, 176, 0.12), transparent 12rem),
+    linear-gradient(180deg, rgba(22, 33, 38, 0.98), rgba(13, 21, 25, 0.98));
+  border-top: 1px solid var(--border);
+  margin-top: 1rem;
+  padding: 1.15rem;
+}
+
+.local-backup-heading {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.local-backup-heading h3 {
+  color: var(--text);
+  font-size: 1rem;
+  margin-top: 0.15rem;
+}
+
+.local-save-dot {
+  background: var(--success);
+  border-radius: 999px;
+  box-shadow: 0 0 0 5px rgba(80, 216, 144, 0.1);
+  flex: 0 0 auto;
+  height: 0.55rem;
+  margin-top: 0.45rem;
+  width: 0.55rem;
+}
+
+.local-backup-copy,
+.local-privacy-note {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.55;
+  margin-top: 0.65rem;
+}
+
+.local-save-status {
+  background: rgba(7, 11, 13, 0.55);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: grid;
+  gap: 0.15rem;
+  margin-top: 0.8rem;
+  padding: 0.7rem 0.75rem;
+}
+
+.local-save-status strong {
+  color: var(--success);
+  font-size: 0.78rem;
+}
+
+.local-save-status span {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.local-backup-actions {
+  display: grid;
+  gap: 0.45rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 0.8rem;
+}
+
+.local-backup-actions button {
+  border-radius: 9px;
+  font-size: 0.76rem;
+  font-weight: 750;
+  min-height: 2.35rem;
+  padding: 0.45rem 0.6rem;
+}
+
+.local-primary-action {
+  background: var(--primary);
+  border: 1px solid var(--primary);
+  color: var(--primary-ink);
+}
+
+.local-primary-action:hover {
+  background: var(--primary-hover);
+}
+
+.local-secondary-action {
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-soft);
+}
+
+.local-secondary-action:hover {
+  border-color: var(--primary);
+  color: var(--text);
+}
+
+.local-danger-action {
+  background: transparent;
+  border: 1px solid rgba(255, 127, 120, 0.35);
+  color: var(--danger);
+  grid-column: 1 / -1;
+}
+
+.local-danger-action:hover {
+  background: rgba(255, 127, 120, 0.08);
+  border-color: var(--danger);
+}
+
+.local-privacy-note {
+  border-top: 1px solid var(--border);
+  margin-top: 0.8rem;
+  padding-top: 0.7rem;
+}
+
+@media (min-width: 1024px) {
+  .filter-panel {
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    scrollbar-color: var(--border-strong) transparent;
+    scrollbar-width: thin;
+  }
+}
+
+@media (max-width: 1023px) {
+  .local-backup-card {
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filter-option {
+    transition: none;
+  }
+}
