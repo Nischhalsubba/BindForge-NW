@@ -39,5 +39,8 @@ jobs:
       - name: Unit tests
         run: npm test
 
+      - name: Validate catalog integrity
+        run: npm run validate:catalog
+
       - name: Production build
         run: npm run build
