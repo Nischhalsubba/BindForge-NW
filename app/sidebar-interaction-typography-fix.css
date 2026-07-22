@@ -1,0 +1,168 @@
+/* Final sidebar stabilization layer.
+   Keeps hover/focus states from changing layout and improves readability. */
+
+@media (min-width: 1181px) {
+  .workspace {
+    grid-template-columns: 252px minmax(0, 1fr) !important;
+  }
+
+  .filter-panel,
+  .filter-panel.filter-panel-open {
+    width: 252px !important;
+    max-width: 252px !important;
+    overflow: hidden !important;
+  }
+
+  /* The older sticky-filter stylesheet turns these groups into flyouts on
+     hover. Override the same states with equal-or-higher specificity so the
+     sidebar geometry remains identical for mouse and keyboard users. */
+  .filter-panel .filter-section:nth-of-type(1):hover .filter-options,
+  .filter-panel .filter-section:nth-of-type(1):focus-within .filter-options,
+  .filter-panel .filter-section:nth-of-type(2):hover .filter-options,
+  .filter-panel .filter-section:nth-of-type(2):focus-within .filter-options {
+    position: static !important;
+    inset: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    z-index: auto !important;
+    display: grid !important;
+    width: 100% !important;
+    max-height: none !important;
+    gap: 6px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .filter-panel .filter-section:nth-of-type(1):hover .filter-option,
+  .filter-panel .filter-section:nth-of-type(1):focus-within .filter-option,
+  .filter-panel .filter-section:nth-of-type(2):hover .filter-option,
+  .filter-panel .filter-section:nth-of-type(2):focus-within .filter-option {
+    display: flex !important;
+    width: 100% !important;
+  }
+}
+
+/* Sidebar type scale. The previous cascade reduced several labels and
+   controls below a comfortable UI reading size. */
+.filter-panel-head h2 {
+  font-size: 1.125rem !important;
+  font-weight: 750 !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.018em !important;
+}
+
+.filter-section legend,
+.theme-switcher legend {
+  margin-bottom: 12px !important;
+  font-size: 0.75rem !important;
+  font-weight: 750 !important;
+  line-height: 1.35 !important;
+  letter-spacing: 0.045em !important;
+}
+
+.filter-option {
+  min-height: 42px !important;
+  padding: 9px 12px !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  line-height: 1.35 !important;
+}
+
+.filter-option > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.difficulty-chip {
+  min-height: 40px !important;
+  padding: 8px 10px !important;
+  font-size: 0.8125rem !important;
+  font-weight: 650 !important;
+  line-height: 1.25 !important;
+}
+
+.filter-tip {
+  padding: 12px !important;
+}
+
+.filter-tip p {
+  font-size: 0.75rem !important;
+  line-height: 1.48 !important;
+}
+
+.local-backup-heading h3 {
+  font-size: 0.875rem !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  letter-spacing: -0.012em !important;
+}
+
+.local-save-status strong {
+  font-size: 0.75rem !important;
+  line-height: 1.35 !important;
+}
+
+.local-save-status span {
+  font-size: 0.72rem !important;
+  line-height: 1.4 !important;
+}
+
+.local-backup-actions button {
+  min-height: 34px !important;
+  padding: 7px 8px !important;
+  font-size: 0.75rem !important;
+  font-weight: 650 !important;
+  line-height: 1.2 !important;
+}
+
+.theme-switcher button {
+  min-height: 36px !important;
+  font-size: 0.8125rem !important;
+  font-weight: 650 !important;
+  line-height: 1.2 !important;
+}
+
+/* Hover and focus may change color, never dimensions or position. */
+.filter-option,
+.difficulty-chip,
+.theme-switcher button,
+.local-backup-actions button {
+  transform: none !important;
+  transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease, box-shadow 140ms ease !important;
+}
+
+.filter-option:hover,
+.filter-option:focus-visible,
+.difficulty-chip:hover,
+.difficulty-chip:focus-visible,
+.theme-switcher button:hover,
+.theme-switcher button:focus-visible,
+.local-backup-actions button:hover,
+.local-backup-actions button:focus-visible {
+  transform: none !important;
+}
+
+@media (max-width: 760px) {
+  .filter-panel-head h2 {
+    font-size: 1.0625rem !important;
+  }
+
+  .filter-option {
+    min-height: 44px !important;
+    font-size: 0.9rem !important;
+  }
+
+  .difficulty-chip,
+  .theme-switcher button {
+    min-height: 42px !important;
+  }
+}
