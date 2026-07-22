@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import FilterTopBar from "./FilterTopBar";
 import LocalSettingsManager from "./LocalSettingsManager";
 import ThemeSwitcher from "./ThemeSwitcher";
+import { CustomSayBuilder } from "./components/CustomSayBuilder";
 import "./globals.css";
 import "./local-settings.css";
 import "./theme.css";
@@ -82,7 +83,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     operatingSystem: "Any operating system with a modern web browser",
     description:
       "A browser-based Neverwinter keybind builder for searching presets, console commands, and key combinations and generating copy-ready bind and unbind commands.",
-    softwareVersion: "0.5.0",
+    softwareVersion: "0.5.1",
     isAccessibleForFree: true,
     author: {
       "@type": "Person",
@@ -93,6 +94,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     featureList: [
       "Neverwinter keybind preset library",
       "Editable key-combination previews",
+      "Custom say-message keybind generator",
       "Automatic browser-local settings backup",
       "JSON backup export and import",
       "Neverwinter console command search",
@@ -111,6 +113,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
         {children}
+        <CustomSayBuilder />
         <FilterTopBar />
         <ThemeSwitcher />
         <LocalSettingsManager />
