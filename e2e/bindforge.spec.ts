@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import AxeBuilder from "@axe-core/playwright";
+import axe from "axe-core";
 
 test("loads the keybind builder and filters presets", async ({ page }) => {
   await page.goto("/");
@@ -38,6 +38,10 @@ test("renders the route not-found recovery page", async ({ page }) => {
 
 test("meets the axe accessibility baseline", async ({ page }) => {
   await page.goto("/");
-  const results = await new AxeBuilder({ page }).analyze();
+  await page.addScriptTag({ content: axe.source });
+  const results = await page.evaluate(async () => {
+    const axeApi = (window as unknown as { axe: { run: () => Promise<{ violations: unknown[] }> } }).axe;
+    return axeApi.run();
+  });
   expect(results.violations).toEqual([]);
 });
