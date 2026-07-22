@@ -56,6 +56,7 @@ export function CustomSayBuilder() {
             <span>Key combination</span>
             <input
               autoComplete="off"
+              data-bindforge-custom-say="key"
               onChange={(event) => setKeyValue(event.target.value)}
               placeholder="F1, Numpad7, Ctrl+R"
               spellCheck={false}
@@ -67,6 +68,7 @@ export function CustomSayBuilder() {
           <label>
             <span>Message</span>
             <textarea
+              data-bindforge-custom-say="message"
               maxLength={240}
               onChange={(event) => setMessage(event.target.value)}
               placeholder="Type the message you want Neverwinter to send"
