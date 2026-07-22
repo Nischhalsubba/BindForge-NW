@@ -23,18 +23,24 @@ export default function ThemeSwitcher() {
   const [target, setTarget] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
-    setTarget(document.querySelector<HTMLElement>(".filter-panel"));
     const stored = window.localStorage.getItem(STORAGE_KEY);
     const initial: ThemeChoice = stored === "light" || stored === "dark" || stored === "system" ? stored : "system";
-    setChoice(initial);
     applyTheme(initial);
+
+    const setupFrame = window.requestAnimationFrame(() => {
+      setTarget(document.querySelector<HTMLElement>(".filter-panel"));
+      setChoice(initial);
+    });
 
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const handleSystemChange = () => {
       if ((window.localStorage.getItem(STORAGE_KEY) ?? "system") === "system") applyTheme("system");
     };
     media.addEventListener("change", handleSystemChange);
-    return () => media.removeEventListener("change", handleSystemChange);
+    return () => {
+      window.cancelAnimationFrame(setupFrame);
+      media.removeEventListener("change", handleSystemChange);
+    };
   }, []);
 
   function choose(next: ThemeChoice) {
