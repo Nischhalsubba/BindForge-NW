@@ -43,14 +43,18 @@ function validatePresets(presets, errors) {
   });
 }
 
+function commandSignature(command) {
+  return [command?.id, command?.category, command?.params].join(" | ");
+}
+
 function validateCommands(commands, errors) {
   if (!Array.isArray(commands) || commands.length === 0) {
     errors.push("Command catalog must contain at least one entry.");
     return;
   }
 
-  for (const duplicate of duplicateValues(commands, (item) => item?.id)) {
-    errors.push(`Duplicate command id: ${duplicate}`);
+  for (const duplicate of duplicateValues(commands, commandSignature)) {
+    errors.push(`Duplicate command entry: ${duplicate}`);
   }
 
   commands.forEach((command, index) => {
