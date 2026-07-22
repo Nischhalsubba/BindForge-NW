@@ -39,23 +39,5 @@ jobs:
       - name: Unit tests
         run: npm test
 
-      - name: Capture production build
-        id: build
-        shell: bash
-        run: |
-          set +e
-          npm run build > build-report.txt 2>&1
-          status=$?
-          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
-          exit 0
-
-      - name: Upload build report
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-report
-          path: build-report.txt
-          retention-days: 1
-
-      - name: Fail on build errors
-        if: steps.build.outputs.exit_code != '0'
-        run: exit 1
+      - name: Production build
+        run: npm run build
