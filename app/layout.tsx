@@ -15,6 +15,7 @@ import "./organized-layout.css";
 import "./apple-appearance.css";
 import "./alignment-polish.css";
 import "./sidebar-fieldset-fix.css";
+import "./sidebar-interaction-typography-fix.css";
 
 export const metadata: Metadata = {
   title: {
