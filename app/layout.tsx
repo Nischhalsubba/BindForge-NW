@@ -3,6 +3,7 @@ import FilterTopBar from "./FilterTopBar";
 import LocalSettingsManager from "./LocalSettingsManager";
 import ThemeSwitcher from "./ThemeSwitcher";
 import { CustomSayBuilder } from "./components/CustomSayBuilder";
+import "./data/catalogIntegrity";
 import "./globals.css";
 import "./local-settings.css";
 import "./theme.css";
