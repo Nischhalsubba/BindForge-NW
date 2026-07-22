@@ -1,37 +1,43 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { buildSayLine, normalizeCombo, normalizeMessage } from "../lib/keybind-core.mjs";
+import { copyTextSafely } from "../lib/clipboard";
 import styles from "./CustomSayBuilder.module.css";
 
-function normalizeKey(value: string) {
-  return value.trim().replace(/\s*\+\s*/g, "+").replace(/\s+/g, "");
-}
-
-function normalizeMessage(value: string) {
-  return value.replace(/\s+/g, " ").replace(/"/g, "'").trim();
-}
+type CopyState = "idle" | "copied" | "fallback" | "error";
 
 export function CustomSayBuilder() {
   const [keyValue, setKeyValue] = useState("f1");
   const [message, setMessage] = useState("ARTIFACTS NOW");
-  const [copied, setCopied] = useState(false);
+  const [copyState, setCopyState] = useState<CopyState>("idle");
+  const resetTimer = useRef<number | null>(null);
 
-  const cleanKey = normalizeKey(keyValue);
+  const cleanKey = normalizeCombo(keyValue);
   const cleanMessage = normalizeMessage(message);
-  const command = useMemo(
-    () => `/bind ${cleanKey || "<key>"} "say ${cleanMessage || "<message>"}"`,
-    [cleanKey, cleanMessage],
-  );
+  const command = useMemo(() => buildSayLine(keyValue, message), [keyValue, message]);
 
   const canCopy = Boolean(cleanKey && cleanMessage);
   const messageChanged = message !== cleanMessage;
 
   async function copyCommand() {
     if (!canCopy) return;
-    await navigator.clipboard.writeText(command);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1800);
+
+    const result = await copyTextSafely(command);
+    setCopyState(result.ok ? (result.method === "fallback" ? "fallback" : "copied") : "error");
+
+    if (resetTimer.current) window.clearTimeout(resetTimer.current);
+    resetTimer.current = window.setTimeout(() => setCopyState("idle"), 2400);
   }
+
+  const copyLabel =
+    copyState === "copied"
+      ? "Copied custom bind"
+      : copyState === "fallback"
+        ? "Copied with browser fallback"
+        : copyState === "error"
+          ? "Copy failed — select the command manually"
+          : "Copy custom message bind";
 
   return (
     <section className={styles.builder} aria-labelledby="custom-say-title">
@@ -80,7 +86,7 @@ export function CustomSayBuilder() {
 
         <div className={styles.preview}>
           <span>Generated command</span>
-          <code>{command}</code>
+          <code tabIndex={copyState === "error" ? 0 : undefined}>{command}</code>
         </div>
 
         <div className={styles.actions}>
@@ -90,19 +96,23 @@ export function CustomSayBuilder() {
             onClick={copyCommand}
             type="button"
           >
-            {copied ? "Copied custom bind" : "Copy custom message bind"}
+            {copyLabel}
           </button>
           <button
             className="secondary-button"
             onClick={() => {
               setKeyValue("f1");
               setMessage("ARTIFACTS NOW");
+              setCopyState("idle");
             }}
             type="button"
           >
             Reset example
           </button>
         </div>
+        <p aria-live="polite" className="sr-only">
+          {copyState === "error" ? "Copy failed. Select the generated command manually." : copyState === "idle" ? "" : copyLabel}
+        </p>
       </div>
     </section>
   );
