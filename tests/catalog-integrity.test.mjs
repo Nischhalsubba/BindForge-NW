@@ -44,7 +44,7 @@ test("accepts a valid catalog set", () => {
   assert.deepEqual(catalogIntegrityErrors(validCatalogs()), []);
 });
 
-test("reports duplicate identifiers and combinations", () => {
+test("reports duplicate preset ids, command entries, and combinations", () => {
   const catalogs = validCatalogs();
   catalogs.presets.push({ ...catalogs.presets[0] });
   catalogs.commands.push({ ...catalogs.commands[0] });
@@ -52,8 +52,19 @@ test("reports duplicate identifiers and combinations", () => {
 
   const errors = catalogIntegrityErrors(catalogs);
   assert.ok(errors.includes("Duplicate preset id: invoke"));
-  assert.ok(errors.includes("Duplicate command id: showfps"));
+  assert.ok(errors.includes("Duplicate command entry: showfps | Performance | 1 or 0"));
   assert.ok(errors.includes("Duplicate key combination: ctrl+i"));
+});
+
+test("allows command variants with the same id", () => {
+  const catalogs = validCatalogs();
+  catalogs.commands.push({
+    ...catalogs.commands[0],
+    params: "toggle",
+    category: "Advanced performance",
+  });
+
+  assert.deepEqual(catalogIntegrityErrors(catalogs), []);
 });
 
 test("rejects malformed command syntax", () => {
