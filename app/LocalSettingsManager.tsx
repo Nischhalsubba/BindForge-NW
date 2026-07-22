@@ -188,9 +188,11 @@ export default function LocalSettingsManager() {
   const restoring = useRef(true);
 
   useEffect(() => {
-    setPortalTarget(document.querySelector<HTMLElement>(".filter-panel"));
     const settings = readSettings();
-    setSavedAt(settings.savedAt === defaults.savedAt ? null : settings.savedAt);
+    const setupFrame = window.requestAnimationFrame(() => {
+      setPortalTarget(document.querySelector<HTMLElement>(".filter-panel"));
+      setSavedAt(settings.savedAt === defaults.savedAt ? null : settings.savedAt);
+    });
 
     const restoreTimer = window.setTimeout(() => {
       restoreInterface(settings);
@@ -221,6 +223,7 @@ export default function LocalSettingsManager() {
     document.addEventListener("click", scheduleSave, true);
 
     return () => {
+      window.cancelAnimationFrame(setupFrame);
       window.clearTimeout(restoreTimer);
       window.clearTimeout(saveTimer);
       observer.disconnect();
