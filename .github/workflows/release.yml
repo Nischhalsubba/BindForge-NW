@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies and browser test tooling
         run: |
           npm ci
-          npm install --no-save @playwright/test@1.55.0 @axe-core/playwright@4.10.2
+          npm install --no-save @playwright/test@1.55.0 axe-core@4.10.2
       - name: Lint
         run: npm run lint
       - name: Typecheck
