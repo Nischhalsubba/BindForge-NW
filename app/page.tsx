@@ -1,9 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { consoleCommands } from "./data/commands";
 import { keyCombos } from "./data/keyCombos";
 import { keybindPresets } from "./data/keybindPresets";
+import { copyTextSafely } from "./lib/clipboard";
+import { baseKey, buildCustomLine, buildPresetLine, normalizeCombo } from "./lib/keybind-core.mjs";
 import type { ConsoleCommand } from "./data/commands";
 import type { KeyCombo } from "./data/keyCombos";
 import type { KeybindClass, KeybindPreset, KeybindType } from "./data/keybindPresets";
@@ -25,38 +27,17 @@ const keyWarnings: Array<{ keys: string[]; message: string; level: "info" | "war
   { keys: ["escape"], message: "Escape is normally used to close menus.", level: "danger" },
   { keys: ["alt+f4", "alt+tab", "ctrl+alt+delete"], message: "This combination is reserved by Windows. Avoid using it.", level: "danger" },
 ];
-const modifierAliases: Record<string, "ctrl" | "alt" | "shift"> = {
-  ctrl: "ctrl", control: "ctrl", lctrl: "ctrl", leftctrl: "ctrl", leftcontrol: "ctrl", rctrl: "ctrl", rightctrl: "ctrl", rightcontrol: "ctrl",
-  alt: "alt", lalt: "alt", leftalt: "alt", ralt: "alt", rightalt: "alt",
-  shift: "shift", lshift: "shift", leftshift: "shift", rshift: "shift", rightshift: "shift",
+
+type CopyFeedback = {
+  state: "idle" | "copied" | "fallback" | "error";
+  label: string;
 };
 
 function normalizeText(value: string) { return value.trim().toLowerCase(); }
-function normalizeCombo(value: string) {
-  const parts = value.split("+").map((part) => part.trim().toLowerCase().replace(/\s+/g, "")).filter(Boolean);
-  const modifiers: Array<"ctrl" | "alt" | "shift"> = [];
-  const keys: string[] = [];
-  for (const part of parts) {
-    const modifier = modifierAliases[part];
-    if (modifier) { if (!modifiers.includes(modifier)) modifiers.push(modifier); } else keys.push(part);
-  }
-  const ordered = (["ctrl", "alt", "shift"] as const).filter((modifier) => modifiers.includes(modifier));
-  return [...ordered, ...keys].join("+");
-}
-function baseKey(value: string) { const combo = normalizeCombo(value); return combo.split("+").pop() ?? combo; }
 function warningForKey(value: string) {
   const combo = normalizeCombo(value);
   const key = baseKey(value);
   return keyWarnings.find((warning) => warning.keys.includes(combo) || warning.keys.includes(key));
-}
-function presetLine(preset: KeybindPreset, keyValue: string, mode: "bind" | "unbind") {
-  const key = normalizeCombo(keyValue) || preset.defaultKey;
-  return mode === "bind" ? `/bind ${key} ${preset.command}` : `/unbind ${key}`;
-}
-function customLine(keyValue: string, command: ConsoleCommand, customArgs: string, mode: "bind" | "unbind") {
-  const key = normalizeCombo(keyValue) || "<key>";
-  if (mode === "unbind") return `/unbind ${key}`;
-  return `/bind ${key} ${command.bindCommand}${customArgs.trim() ? ` ${customArgs.trim()}` : ""}`;
 }
 function commandLabel(command: ConsoleCommand) { return `${command.command}${command.params ? ` ${command.params}` : ""}`; }
 function groupedPresets(presets: KeybindPreset[]) {
@@ -65,6 +46,18 @@ function groupedPresets(presets: KeybindPreset[]) {
     groups[key] = [...(groups[key] ?? []), preset];
     return groups;
   }, {});
+}
+function selectCopyTarget(targetId: string) {
+  const target = document.getElementById(targetId);
+  if (!target) return;
+
+  target.focus();
+  const selection = window.getSelection();
+  if (!selection) return;
+  const range = document.createRange();
+  range.selectNodeContents(target);
+  selection.removeAllRanges();
+  selection.addRange(range);
 }
 function Icon({ name }: { name: "forge" | "search" | "keyboard" | "code" | "shield" | "copy" | "reset" | "filter" | "spark" }) {
   const paths = {
@@ -87,7 +80,7 @@ export default function Home() {
   const [activeType, setActiveType] = useState<KeybindType | "All">("All");
   const [safetyFilter, setSafetyFilter] = useState<"All" | "Easy" | "Advanced" | "Risky">("All");
   const [customKeys, setCustomKeys] = useState<Record<string, string>>(() => Object.fromEntries(keybindPresets.map((preset) => [preset.id, preset.defaultKey])));
-  const [copied, setCopied] = useState("");
+  const [copyFeedback, setCopyFeedback] = useState<CopyFeedback>({ state: "idle", label: "" });
   const [copyMode, setCopyMode] = useState<"bind" | "unbind">("bind");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [commandSearch, setCommandSearch] = useState("");
@@ -98,9 +91,10 @@ export default function Home() {
   const [selectedCombo, setSelectedCombo] = useState("ctrl+b");
   const [selectedCommandId, setSelectedCommandId] = useState("gensendmessage");
   const [customArgs, setCustomArgs] = useState("Vipaction_Bankvendor activate");
+  const copyResetTimer = useRef<number | null>(null);
 
   const selectedCommand = consoleCommands.find((command) => command.id === selectedCommandId) ?? consoleCommands[0];
-  const advancedBind = customLine(selectedCombo, selectedCommand, customArgs, copyMode);
+  const advancedBind = buildCustomLine(selectedCombo, selectedCommand.bindCommand, customArgs, copyMode);
   const filteredPresets = useMemo(() => {
     const query = normalizeText(search);
     return keybindPresets.filter((preset) => {
@@ -124,10 +118,26 @@ export default function Home() {
     });
   }, [comboCategory, comboSearch, showAdvancedCombos]);
 
-  async function copyText(text: string, label: string) {
-    await navigator.clipboard.writeText(text);
-    setCopied(label);
-    window.setTimeout(() => setCopied(""), 1800);
+  const copyTitle =
+    copyFeedback.state === "copied"
+      ? `Copied ${copyFeedback.label}`
+      : copyFeedback.state === "fallback"
+        ? `Copied ${copyFeedback.label} with browser fallback`
+        : copyFeedback.state === "error"
+          ? `Copy failed for ${copyFeedback.label}`
+          : "Ready to copy";
+  const copyDetail = copyFeedback.state === "error" ? "Command selected. Press Ctrl+C to copy it manually." : "Review warnings before testing";
+
+  async function copyText(text: string, label: string, targetId: string) {
+    const result = await copyTextSafely(text);
+    setCopyFeedback({
+      state: result.ok ? (result.method === "fallback" ? "fallback" : "copied") : "error",
+      label,
+    });
+
+    if (!result.ok) window.requestAnimationFrame(() => selectCopyTarget(targetId));
+    if (copyResetTimer.current) window.clearTimeout(copyResetTimer.current);
+    copyResetTimer.current = window.setTimeout(() => setCopyFeedback({ state: "idle", label: "" }), result.ok ? 2400 : 5000);
   }
   function clearFilters() { setSearch(""); setActiveClass("All"); setActiveType("All"); setSafetyFilter("All"); }
   function chooseCommand(command: ConsoleCommand) {
@@ -145,7 +155,7 @@ export default function Home() {
           <div className="stat-card"><Icon name="keyboard" /><span><strong>{keyCombos.length}</strong> possible keys</span></div>
           <div className="stat-card"><Icon name="code" /><span><strong>{consoleCommands.length}</strong> wiki commands</span></div>
         </div>
-        <div className="ready-state" role="status" aria-live="polite"><Icon name="shield" /><span><strong>{copied ? `Copied ${copied}` : "Ready to copy"}</strong><small>Review warnings before testing</small></span></div>
+        <div className="ready-state" role="status" aria-live="polite"><Icon name="shield" /><span><strong>{copyTitle}</strong><small>{copyDetail}</small></span></div>
       </header>
 
       <section className="workspace">
@@ -172,14 +182,15 @@ export default function Home() {
             <div className="group-heading"><div><h3>{groupName}</h3><p>Copy-ready presets with editable keys</p></div><span>{presets.length} {presets.length === 1 ? "bind" : "binds"}</span></div>
             <div className="bind-grid">{presets.map((preset) => {
               const keyValue = customKeys[preset.id] ?? preset.defaultKey;
-              const bind = presetLine(preset, keyValue, copyMode);
+              const bind = buildPresetLine(preset, keyValue, copyMode);
               const warning = warningForKey(keyValue);
+              const previewId = `${preset.id}-command-preview`;
               return <article className="bind-card" key={preset.id}>
                 <div className="card-header"><div className="card-meta"><span className={`level-pill level-${preset.difficulty.toLowerCase()}`}>{preset.difficulty}</span><span>{preset.className}</span></div><span className="card-type">{preset.type}</span></div>
                 <div className="card-copy"><h4>{preset.title}</h4><p>{preset.plainEnglish}</p></div>
                 <div className="card-editor"><label className="key-field"><span>Key combination</span><input aria-describedby={`${preset.id}-key-help`} onChange={(event) => setCustomKeys((current) => ({ ...current, [preset.id]: event.target.value }))} spellCheck={false} value={keyValue} /><small id={`${preset.id}-key-help`}>Examples: F3, Ctrl+R, Left Ctrl+Shift+R</small></label><div className={`key-status ${warning ? `status-${warning.level}` : "status-safe"}`}><Icon name="shield" /><span>{warning?.message ?? "No common conflict found for this key."}</span></div></div>
-                <div className="command-preview"><div className="command-label"><span>Command preview</span><span>{copyMode}</span></div><code>{bind}</code></div>
-                <div className="card-actions"><button className="primary-button" onClick={() => copyText(bind, preset.title)} type="button"><Icon name="copy" /> Copy command</button><button className="secondary-button" onClick={() => setCustomKeys((current) => ({ ...current, [preset.id]: preset.defaultKey }))} type="button"><Icon name="reset" /> Reset</button></div>
+                <div className="command-preview"><div className="command-label"><span>Command preview</span><span>{copyMode}</span></div><code id={previewId} tabIndex={0}>{bind}</code></div>
+                <div className="card-actions"><button className="primary-button" onClick={() => copyText(bind, preset.title, previewId)} type="button"><Icon name="copy" /> Copy command</button><button className="secondary-button" onClick={() => setCustomKeys((current) => ({ ...current, [preset.id]: preset.defaultKey }))} type="button"><Icon name="reset" /> Reset</button></div>
               </article>;
             })}</div>
           </section>)}</div> : <div className="empty-state"><div className="empty-icon"><Icon name="search" /></div><h3>No matching keybinds</h3><p>Try a broader search or clear one of the active filters.</p><button className="primary-button" onClick={clearFilters} type="button">Clear filters</button></div>}
@@ -187,7 +198,7 @@ export default function Home() {
       </section>
 
       <section className="command-lab" aria-labelledby="command-lab-title">
-        <div className="command-lab-intro"><p className="eyebrow">Advanced workspace</p><h2 id="command-lab-title">Build your own command</h2><p>Combine a supported key with any catalog command. Test carefully; community commands may change after patches.</p><div className="lab-preview"><span>Generated command</span><code>{advancedBind}</code><button className="primary-button" onClick={() => copyText(advancedBind, "custom command")} type="button"><Icon name="copy" /> Copy custom command</button></div></div>
+        <div className="command-lab-intro"><p className="eyebrow">Advanced workspace</p><h2 id="command-lab-title">Build your own command</h2><p>Combine a supported key with any catalog command. Test carefully; community commands may change after patches.</p><div className="lab-preview"><span>Generated command</span><code id="custom-command-preview" tabIndex={0}>{advancedBind}</code><button className="primary-button" onClick={() => copyText(advancedBind, "custom command", "custom-command-preview")} type="button"><Icon name="copy" /> Copy custom command</button></div></div>
         <div className="lab-builder">
           <div className="lab-fields"><label className="key-field"><span>Key combination</span><input onChange={(event) => setSelectedCombo(event.target.value)} value={selectedCombo} /></label><label className="key-field"><span>Extra command text</span><input onChange={(event) => setCustomArgs(event.target.value)} placeholder={selectedCommand.params || "Optional arguments"} value={customArgs} /></label></div>
           <div className="reference-grid">
