@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { consoleCommands } from "./data/commands";
 import { keyCombos } from "./data/keyCombos";
 import { keybindPresets } from "./data/keybindPresets";
@@ -91,7 +91,6 @@ export default function Home() {
   const [selectedCombo, setSelectedCombo] = useState("ctrl+b");
   const [selectedCommandId, setSelectedCommandId] = useState("gensendmessage");
   const [customArgs, setCustomArgs] = useState("Vipaction_Bankvendor activate");
-  const copyResetTimer = useRef<number | null>(null);
 
   const selectedCommand = consoleCommands.find((command) => command.id === selectedCommandId) ?? consoleCommands[0];
   const advancedBind = buildCustomLine(selectedCombo, selectedCommand.bindCommand, customArgs, copyMode);
@@ -136,8 +135,7 @@ export default function Home() {
     });
 
     if (!result.ok) window.requestAnimationFrame(() => selectCopyTarget(targetId));
-    if (copyResetTimer.current) window.clearTimeout(copyResetTimer.current);
-    copyResetTimer.current = window.setTimeout(() => setCopyFeedback({ state: "idle", label: "" }), result.ok ? 2400 : 5000);
+    window.setTimeout(() => setCopyFeedback({ state: "idle", label: "" }), result.ok ? 2400 : 5000);
   }
   function clearFilters() { setSearch(""); setActiveClass("All"); setActiveType("All"); setSafetyFilter("All"); }
   function chooseCommand(command: ConsoleCommand) {
@@ -190,7 +188,7 @@ export default function Home() {
                 <div className="card-copy"><h4>{preset.title}</h4><p>{preset.plainEnglish}</p></div>
                 <div className="card-editor"><label className="key-field"><span>Key combination</span><input aria-describedby={`${preset.id}-key-help`} onChange={(event) => setCustomKeys((current) => ({ ...current, [preset.id]: event.target.value }))} spellCheck={false} value={keyValue} /><small id={`${preset.id}-key-help`}>Examples: F3, Ctrl+R, Left Ctrl+Shift+R</small></label><div className={`key-status ${warning ? `status-${warning.level}` : "status-safe"}`}><Icon name="shield" /><span>{warning?.message ?? "No common conflict found for this key."}</span></div></div>
                 <div className="command-preview"><div className="command-label"><span>Command preview</span><span>{copyMode}</span></div><code id={previewId} tabIndex={0}>{bind}</code></div>
-                <div className="card-actions"><button className="primary-button" onClick={() => copyText(bind, preset.title, previewId)} type="button"><Icon name="copy" /> Copy command</button><button className="secondary-button" onClick={() => setCustomKeys((current) => ({ ...current, [preset.id]: preset.defaultKey }))} type="button"><Icon name="reset" /> Reset</button></div>
+                <div className="card-actions"><button className="primary-button" onClick={() => { void copyText(bind, preset.title, previewId); }} type="button"><Icon name="copy" /> Copy command</button><button className="secondary-button" onClick={() => setCustomKeys((current) => ({ ...current, [preset.id]: preset.defaultKey }))} type="button"><Icon name="reset" /> Reset</button></div>
               </article>;
             })}</div>
           </section>)}</div> : <div className="empty-state"><div className="empty-icon"><Icon name="search" /></div><h3>No matching keybinds</h3><p>Try a broader search or clear one of the active filters.</p><button className="primary-button" onClick={clearFilters} type="button">Clear filters</button></div>}
@@ -198,7 +196,7 @@ export default function Home() {
       </section>
 
       <section className="command-lab" aria-labelledby="command-lab-title">
-        <div className="command-lab-intro"><p className="eyebrow">Advanced workspace</p><h2 id="command-lab-title">Build your own command</h2><p>Combine a supported key with any catalog command. Test carefully; community commands may change after patches.</p><div className="lab-preview"><span>Generated command</span><code id="custom-command-preview" tabIndex={0}>{advancedBind}</code><button className="primary-button" onClick={() => copyText(advancedBind, "custom command", "custom-command-preview")} type="button"><Icon name="copy" /> Copy custom command</button></div></div>
+        <div className="command-lab-intro"><p className="eyebrow">Advanced workspace</p><h2 id="command-lab-title">Build your own command</h2><p>Combine a supported key with any catalog command. Test carefully; community commands may change after patches.</p><div className="lab-preview"><span>Generated command</span><code id="custom-command-preview" tabIndex={0}>{advancedBind}</code><button className="primary-button" onClick={() => { void copyText(advancedBind, "custom command", "custom-command-preview"); }} type="button"><Icon name="copy" /> Copy custom command</button></div></div>
         <div className="lab-builder">
           <div className="lab-fields"><label className="key-field"><span>Key combination</span><input onChange={(event) => setSelectedCombo(event.target.value)} value={selectedCombo} /></label><label className="key-field"><span>Extra command text</span><input onChange={(event) => setCustomArgs(event.target.value)} placeholder={selectedCommand.params || "Optional arguments"} value={customArgs} /></label></div>
           <div className="reference-grid">
