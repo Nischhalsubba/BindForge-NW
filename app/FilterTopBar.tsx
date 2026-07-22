@@ -49,7 +49,9 @@ export default function FilterTopBar() {
   );
 
   useEffect(() => {
-    setPortalTarget(document.querySelector<HTMLElement>(".library"));
+    const portalFrame = window.requestAnimationFrame(() => {
+      setPortalTarget(document.querySelector<HTMLElement>(".library"));
+    });
 
     const syncFromPage = () => {
       setActionType(selectedActionType());
@@ -68,6 +70,7 @@ export default function FilterTopBar() {
     document.addEventListener("click", syncFromPage, true);
 
     return () => {
+      window.cancelAnimationFrame(portalFrame);
       window.clearTimeout(timer);
       observer.disconnect();
       document.removeEventListener("input", syncFromPage, true);
