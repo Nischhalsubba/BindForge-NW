@@ -18,8 +18,10 @@ jobs:
         with:
           node-version: 22.13.0
           cache: npm
-      - name: Install application dependencies
-        run: npm ci
+      - name: Install dependencies and browser test tooling
+        run: |
+          npm ci
+          npm install --no-save @playwright/test@1.55.0 @axe-core/playwright@4.10.2
       - name: Lint
         run: npm run lint
       - name: Typecheck
@@ -28,10 +30,8 @@ jobs:
         run: npm test
       - name: Production build
         run: npm run build
-      - name: Install browser test tooling
-        run: |
-          npm install --no-save @playwright/test@1.55.0 @axe-core/playwright@4.10.2
-          npx playwright install --with-deps chromium
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
       - name: Browser regression and accessibility verification
         run: npx playwright test
       - name: Upload browser report
