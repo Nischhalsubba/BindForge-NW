@@ -1,0 +1,220 @@
+/* Final spacing and readability pass for the warm neutral interface.
+   Loaded last so the corrections shown in the visual review are not overridden
+   by older layout layers. */
+
+:root {
+  --readable-text: #f9f8f6;
+  --readable-soft: #efe9e3;
+  --readable-muted: #d9cfc7;
+}
+
+html[data-theme="light"] {
+  --readable-text: #2b2723;
+  --readable-soft: #4f463f;
+  --readable-muted: #6b6158;
+}
+
+body {
+  font-size: 16px !important;
+  line-height: 1.6 !important;
+}
+
+/* Sidebar section rhythm */
+.filter-panel {
+  padding: 0 !important;
+}
+
+.filter-panel-head {
+  padding: 1.15rem 1rem 1rem !important;
+}
+
+.filter-section {
+  margin: 0 !important;
+  padding: 1.15rem 1rem 1.25rem !important;
+  border-top: 1px solid var(--vf-border) !important;
+}
+
+.filter-section:first-of-type {
+  border-top: 0 !important;
+}
+
+.filter-section legend {
+  display: block !important;
+  width: 100%;
+  margin: 0 0 0.85rem !important;
+  padding: 0 !important;
+  color: var(--readable-soft) !important;
+  font-size: 0.82rem !important;
+  line-height: 1.25 !important;
+}
+
+.filter-options,
+.difficulty-options {
+  margin-top: 0 !important;
+  gap: 0.58rem !important;
+}
+
+.filter-option,
+.difficulty-chip,
+.theme-option {
+  min-height: 2.75rem !important;
+  font-size: 0.9rem !important;
+  line-height: 1.25 !important;
+}
+
+.filter-tip,
+.local-backup-card,
+.theme-switcher {
+  margin: 0 !important;
+  padding: 1rem !important;
+  border-top: 1px solid var(--vf-border) !important;
+}
+
+/* Library summary spacing */
+.library-toolbar {
+  padding: 1.35rem 1.45rem !important;
+  gap: 0.8rem !important;
+}
+
+.library-toolbar .eyebrow {
+  margin: 0 0 0.35rem !important;
+}
+
+.library-toolbar h2 {
+  margin: 0 !important;
+  font-size: clamp(2rem, 3.5vw, 2.8rem) !important;
+  line-height: 1.05 !important;
+}
+
+.library-toolbar p:not(.eyebrow) {
+  margin: 0.65rem 0 0 !important;
+  color: var(--readable-soft) !important;
+  font-size: 1rem !important;
+  line-height: 1.55 !important;
+}
+
+.active-filter-row {
+  margin: 1rem 0 1.35rem !important;
+  gap: 0.6rem !important;
+}
+
+.active-filter-row span {
+  padding: 0.48rem 0.75rem !important;
+  color: var(--readable-soft) !important;
+  font-size: 0.82rem !important;
+  line-height: 1.2 !important;
+}
+
+.group-stack {
+  gap: 1.5rem !important;
+}
+
+/* Make small interface text readable rather than decorative */
+.brand-subtitle,
+.stat-card span,
+.ready-state small,
+.group-heading p,
+.card-copy p,
+.card-type,
+.card-meta,
+.key-field > span,
+.key-field small,
+.command-label,
+.filter-tip p,
+.local-backup-copy,
+.local-privacy-note,
+.local-save-status,
+.reference-item,
+.app-footer {
+  color: var(--readable-muted) !important;
+}
+
+.brand-subtitle,
+.card-copy p,
+.filter-tip p,
+.local-backup-copy,
+.local-privacy-note {
+  font-size: 0.95rem !important;
+  line-height: 1.65 !important;
+}
+
+.stat-card span,
+.ready-state strong,
+.filter-option,
+.difficulty-chip,
+.theme-option,
+.text-button,
+.primary-button,
+.secondary-button,
+.local-primary-action,
+.local-secondary-action,
+.key-field > span,
+.command-label {
+  font-weight: 650 !important;
+}
+
+.stat-card span,
+.ready-state small,
+.group-heading p,
+.card-meta,
+.card-type,
+.key-field > span,
+.key-field small,
+.command-label,
+.local-save-status {
+  font-size: 0.82rem !important;
+  line-height: 1.45 !important;
+}
+
+.card-copy h4,
+.group-heading h3 {
+  color: var(--readable-text) !important;
+  line-height: 1.25 !important;
+}
+
+.card-copy h4 {
+  font-size: 1.08rem !important;
+}
+
+.card-copy p {
+  color: var(--readable-soft) !important;
+}
+
+input,
+select,
+textarea,
+button {
+  font-size: 0.94rem !important;
+}
+
+.search-control input,
+.key-field input,
+.reference-controls input,
+.reference-controls select {
+  min-height: 2.9rem !important;
+  color: var(--readable-text) !important;
+}
+
+.command-preview code,
+.lab-preview code {
+  font-size: 0.88rem !important;
+  line-height: 1.6 !important;
+}
+
+@media (max-width: 640px) {
+  body {
+    font-size: 15px !important;
+  }
+
+  .library-toolbar {
+    padding: 1.15rem !important;
+  }
+
+  .library-toolbar h2 {
+    font-size: clamp(1.8rem, 9vw, 2.3rem) !important;
+  }
+
+  .filter-section {
+    padding: 1rem !important;
+  }
+}
