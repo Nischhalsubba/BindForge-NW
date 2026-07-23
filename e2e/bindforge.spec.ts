@@ -1,7 +1,8 @@
 import { expect, test } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import axe from "axe-core";
 
-async function openFiltersWhenCollapsed(page: Parameters<typeof test>[0]["page"]) {
+async function openFiltersWhenCollapsed(page: Page) {
   const toggle = page.getByRole("button", { name: "Filters", exact: true });
   if (await toggle.isVisible()) {
     const expanded = await toggle.getAttribute("aria-expanded");
@@ -9,7 +10,7 @@ async function openFiltersWhenCollapsed(page: Parameters<typeof test>[0]["page"]
   }
 }
 
-async function waitForHydration(page: Parameters<typeof test>[0]["page"]) {
+async function waitForHydration(page: Page) {
   await expect(page.getByTestId("filter-toolbar")).toBeVisible();
   await expect(page.getByLabel("Search keybind library")).toBeEditable();
 }
@@ -49,7 +50,7 @@ test("class, difficulty, and action filters share provider state", async ({ page
 });
 
 test("generates bind and unbind output from shared state", async ({ page }) => {
-  const firstCard = page.locator(".bind-card").filter({ visible: true }).first();
+  const firstCard = page.locator(".bind-card").first();
   const firstKey = firstCard.locator(".key-field input");
   const firstPreview = firstCard.locator(".command-preview code");
 
@@ -77,7 +78,8 @@ test("Command Lab and custom say builder generate normalized commands", async ({
 });
 
 test("persists filters, edited keys, theme, and custom say values across reload", async ({ page }) => {
-  const firstKey = page.locator(".bind-card:visible .key-field input").first();
+  const firstKey = page.locator(".bind-card .key-field input").first();
+  await expect(firstKey).toBeVisible();
   await firstKey.fill("Ctrl+R");
   await page.getByLabel("Search keybind library").fill("bard");
   await openFiltersWhenCollapsed(page);
