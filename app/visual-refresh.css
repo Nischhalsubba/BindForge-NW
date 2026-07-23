@@ -1,33 +1,41 @@
 /* BindForge visual refresh
-   Replaces the neon teal-heavy palette and condensed display type with a calmer,
-   readable blue-and-brass interface. Loaded last so it can normalize legacy layers
-   without changing layout or component behavior. */
+   Color foundation supplied by the product owner:
+   #F9F8F6, #EFE9E3, #D9CFC7, #C9B59C.
+   The exact palette drives backgrounds, surfaces, borders, controls, and highlights.
+   Darker derived neutrals are used only where WCAG-readable text or dark mode requires them. */
 
 :root {
   color-scheme: dark;
 
-  --vf-bg: #0b0f17;
-  --vf-bg-raised: #0f1622;
-  --vf-surface: #121826;
-  --vf-surface-2: #182132;
-  --vf-surface-3: #202b3d;
-  --vf-text: #f4f7fb;
-  --vf-text-soft: #cbd5e1;
-  --vf-text-muted: #8794a8;
-  --vf-border: #29364a;
-  --vf-border-strong: #43536c;
-  --vf-primary: #4f8cff;
-  --vf-primary-hover: #72a4ff;
-  --vf-primary-ink: #07111f;
-  --vf-accent: #d6a85f;
-  --vf-accent-soft: #f0d39a;
-  --vf-success: #5dcf91;
-  --vf-info: #6db6ff;
-  --vf-warning: #efbc62;
-  --vf-danger: #ff7b80;
-  --vf-focus: #9ac0ff;
-  --vf-shadow-sm: 0 10px 28px rgba(2, 7, 18, 0.22);
-  --vf-shadow-lg: 0 26px 72px rgba(2, 7, 18, 0.34);
+  /* Exact Color Hunt palette */
+  --palette-ivory: #f9f8f6;
+  --palette-linen: #efe9e3;
+  --palette-taupe: #d9cfc7;
+  --palette-camel: #c9b59c;
+
+  /* Warm dark appearance derived from the supplied palette */
+  --vf-bg: #1d1916;
+  --vf-bg-raised: #25201c;
+  --vf-surface: #2b2521;
+  --vf-surface-2: #342d28;
+  --vf-surface-3: #40372f;
+  --vf-text: var(--palette-ivory);
+  --vf-text-soft: var(--palette-linen);
+  --vf-text-muted: var(--palette-taupe);
+  --vf-border: rgba(217, 207, 199, 0.2);
+  --vf-border-strong: rgba(201, 181, 156, 0.46);
+  --vf-primary: var(--palette-camel);
+  --vf-primary-hover: var(--palette-taupe);
+  --vf-primary-ink: #241f1a;
+  --vf-accent: var(--palette-camel);
+  --vf-accent-soft: var(--palette-linen);
+  --vf-success: #94c6a6;
+  --vf-info: var(--palette-taupe);
+  --vf-warning: #dfbd7f;
+  --vf-danger: #e79891;
+  --vf-focus: var(--palette-linen);
+  --vf-shadow-sm: 0 10px 28px rgba(13, 10, 8, 0.24);
+  --vf-shadow-lg: 0 26px 72px rgba(13, 10, 8, 0.36);
 
   --vf-font-interface: "Aptos", "Segoe UI Variable Text", "Segoe UI", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --vf-font-display: "Aptos Display", "Segoe UI Variable Display", "Segoe UI", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
@@ -60,16 +68,16 @@
   --od-bg-raised: var(--vf-bg-raised);
   --od-panel: var(--vf-surface);
   --od-panel-strong: var(--vf-surface-2);
-  --od-panel-soft: #0f1620;
+  --od-panel-soft: #241f1b;
   --od-text: var(--vf-text);
   --od-text-soft: var(--vf-text-soft);
   --od-text-muted: var(--vf-text-muted);
-  --od-line: rgba(174, 192, 216, 0.15);
-  --od-line-strong: rgba(174, 192, 216, 0.28);
+  --od-line: rgba(217, 207, 199, 0.18);
+  --od-line-strong: rgba(201, 181, 156, 0.42);
   --od-accent: var(--vf-primary);
   --od-accent-strong: var(--vf-primary-hover);
   --od-accent-ink: var(--vf-primary-ink);
-  --od-blue: var(--vf-info);
+  --od-blue: var(--palette-taupe);
   --od-warning: var(--vf-warning);
   --od-danger: var(--vf-danger);
   --od-success: var(--vf-success);
@@ -83,32 +91,33 @@
 html[data-theme="light"] {
   color-scheme: light;
 
-  --vf-bg: #f4f6fa;
-  --vf-bg-raised: #e9edf4;
+  /* Exact palette allocation */
+  --vf-bg: var(--palette-ivory);
+  --vf-bg-raised: var(--palette-linen);
   --vf-surface: #ffffff;
-  --vf-surface-2: #f7f9fc;
-  --vf-surface-3: #e8edf5;
-  --vf-text: #172033;
-  --vf-text-soft: #34425a;
-  --vf-text-muted: #667085;
-  --vf-border: #d8dfeb;
-  --vf-border-strong: #b9c4d4;
-  --vf-primary: #245fd8;
-  --vf-primary-hover: #174bb5;
-  --vf-primary-ink: #ffffff;
-  --vf-accent: #8a5a14;
-  --vf-accent-soft: #70470e;
-  --vf-success: #18794e;
-  --vf-info: #155fba;
-  --vf-warning: #825400;
-  --vf-danger: #b4232f;
-  --vf-focus: #1d63d7;
-  --vf-shadow-sm: 0 10px 28px rgba(35, 49, 73, 0.08);
-  --vf-shadow-lg: 0 26px 72px rgba(35, 49, 73, 0.13);
+  --vf-surface-2: var(--palette-linen);
+  --vf-surface-3: var(--palette-taupe);
+  --vf-text: #2b2723;
+  --vf-text-soft: #554c44;
+  --vf-text-muted: #746a61;
+  --vf-border: var(--palette-taupe);
+  --vf-border-strong: var(--palette-camel);
+  --vf-primary: var(--palette-camel);
+  --vf-primary-hover: #bda487;
+  --vf-primary-ink: #2a241e;
+  --vf-accent: #806a50;
+  --vf-accent-soft: #66533e;
+  --vf-success: #347451;
+  --vf-info: #66584b;
+  --vf-warning: #815a1c;
+  --vf-danger: #a53b3f;
+  --vf-focus: #806a50;
+  --vf-shadow-sm: 0 10px 28px rgba(76, 59, 43, 0.09);
+  --vf-shadow-lg: 0 26px 72px rgba(76, 59, 43, 0.14);
 
-  --od-panel-soft: #eef2f7;
-  --od-line: rgba(23, 32, 51, 0.13);
-  --od-line-strong: rgba(23, 32, 51, 0.24);
+  --od-panel-soft: var(--palette-linen);
+  --od-line: rgba(84, 69, 56, 0.15);
+  --od-line-strong: rgba(84, 69, 56, 0.28);
 }
 
 html,
@@ -125,16 +134,16 @@ body {
 
 body {
   background:
-    radial-gradient(circle at 12% -8%, color-mix(in srgb, var(--vf-primary) 13%, transparent), transparent 31rem),
-    radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--vf-accent) 6%, transparent), transparent 34rem),
-    linear-gradient(180deg, var(--vf-bg-raised) 0%, var(--vf-bg) 68%, color-mix(in srgb, var(--vf-bg) 92%, #000 8%) 100%) !important;
+    radial-gradient(circle at 12% -8%, rgba(201, 181, 156, 0.13), transparent 31rem),
+    radial-gradient(circle at 90% 0%, rgba(239, 233, 227, 0.055), transparent 34rem),
+    linear-gradient(180deg, var(--vf-bg-raised) 0%, var(--vf-bg) 70%, #171310 100%) !important;
 }
 
 html[data-theme="light"] body {
   background:
-    radial-gradient(circle at 12% -8%, rgba(36, 95, 216, 0.09), transparent 31rem),
-    radial-gradient(circle at 90% 0%, rgba(138, 90, 20, 0.045), transparent 34rem),
-    linear-gradient(180deg, #f8f9fc 0%, var(--vf-bg) 76%, #eef2f7 100%) !important;
+    radial-gradient(circle at 12% -8%, rgba(201, 181, 156, 0.24), transparent 31rem),
+    radial-gradient(circle at 90% 0%, rgba(217, 207, 199, 0.25), transparent 34rem),
+    linear-gradient(180deg, var(--palette-ivory) 0%, var(--palette-linen) 100%) !important;
 }
 
 button,
@@ -215,10 +224,10 @@ samp,
 }
 
 .brand-mark {
-  color: var(--vf-primary) !important;
-  background: linear-gradient(145deg, rgba(79, 140, 255, 0.16), rgba(214, 168, 95, 0.07)) !important;
-  border-color: rgba(79, 140, 255, 0.38) !important;
-  box-shadow: inset 0 0 22px rgba(79, 140, 255, 0.08) !important;
+  color: var(--vf-primary-ink) !important;
+  background: linear-gradient(145deg, var(--palette-camel), var(--palette-taupe)) !important;
+  border-color: color-mix(in srgb, var(--palette-camel) 72%, var(--vf-text)) !important;
+  box-shadow: inset 0 0 22px rgba(249, 248, 246, 0.18) !important;
 }
 
 .stat-card,
@@ -228,20 +237,30 @@ samp,
 .reference-panel,
 .filter-panel,
 .local-backup-card {
-  background-color: color-mix(in srgb, var(--vf-surface) 95%, transparent) !important;
+  background-color: color-mix(in srgb, var(--vf-surface) 96%, transparent) !important;
   border-color: var(--vf-border) !important;
   box-shadow: var(--vf-shadow-sm) !important;
 }
 
+html[data-theme="light"] .stat-card,
+html[data-theme="light"] .library-toolbar,
+html[data-theme="light"] .bind-group,
+html[data-theme="light"] .command-lab,
+html[data-theme="light"] .reference-panel,
+html[data-theme="light"] .filter-panel,
+html[data-theme="light"] .local-backup-card {
+  background-color: rgba(249, 248, 246, 0.96) !important;
+}
+
 .filter-panel-head {
   background:
-    linear-gradient(135deg, color-mix(in srgb, var(--vf-primary) 10%, transparent), transparent 62%),
+    linear-gradient(135deg, color-mix(in srgb, var(--palette-camel) 18%, transparent), transparent 62%),
     var(--vf-surface-2) !important;
 }
 
 .group-heading {
   background:
-    linear-gradient(90deg, color-mix(in srgb, var(--vf-primary) 8%, transparent), color-mix(in srgb, var(--vf-accent) 4%, transparent)),
+    linear-gradient(90deg, color-mix(in srgb, var(--palette-camel) 13%, transparent), color-mix(in srgb, var(--palette-taupe) 7%, transparent)),
     var(--vf-surface-2) !important;
 }
 
@@ -250,18 +269,18 @@ samp,
 .reference-controls input:focus,
 .reference-controls select:focus {
   border-color: var(--vf-primary) !important;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--vf-primary) 18%, transparent) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--palette-camel) 26%, transparent) !important;
 }
 
 .filter-option:hover,
 .reference-item:hover {
-  background: color-mix(in srgb, var(--vf-primary) 7%, transparent) !important;
+  background: color-mix(in srgb, var(--palette-camel) 12%, transparent) !important;
 }
 
 .filter-option[aria-pressed="true"],
 .theme-option[aria-pressed="true"] {
-  background: color-mix(in srgb, var(--vf-primary) 14%, transparent) !important;
-  border-color: color-mix(in srgb, var(--vf-primary) 38%, transparent) !important;
+  background: color-mix(in srgb, var(--palette-camel) 22%, transparent) !important;
+  border-color: color-mix(in srgb, var(--palette-camel) 62%, var(--vf-text)) !important;
 }
 
 .segmented-control button[aria-pressed="true"],
@@ -278,11 +297,16 @@ samp,
 
 .text-button,
 a:hover {
-  color: var(--vf-primary-hover);
+  color: var(--vf-accent-soft);
+}
+
+html[data-theme="light"] .text-button,
+html[data-theme="light"] a:hover {
+  color: var(--vf-accent);
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--vf-primary) 34%, transparent) !important;
+  background: color-mix(in srgb, var(--palette-camel) 50%, transparent) !important;
   color: var(--vf-text) !important;
 }
 
