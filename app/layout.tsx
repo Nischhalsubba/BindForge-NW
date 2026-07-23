@@ -19,6 +19,7 @@ import "./open-design.css";
 import "./open-design-structure.css";
 import "./visual-refresh.css";
 import "./warm-neutral-palette.css";
+import "./readability-polish.css";
 
 const productionUrl = new URL("https://bindforge-nw.hinischalsubba.workers.dev");
 
@@ -95,7 +96,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     operatingSystem: "Any operating system with a modern web browser",
     description:
       "A browser-based Neverwinter keybind builder for searching presets, console commands, and key combinations and generating copy-ready bind and unbind commands.",
-    softwareVersion: "0.7.2",
+    softwareVersion: "0.7.3",
     isAccessibleForFree: true,
     author: {
       "@type": "Person",
