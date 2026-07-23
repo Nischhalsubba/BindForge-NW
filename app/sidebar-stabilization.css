@@ -1,0 +1,229 @@
+/* Final sidebar structure: full-width header and legends in normal flow. */
+
+.filter-panel-head {
+  width: 100% !important;
+  max-width: none !important;
+  align-self: stretch !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding: 18px 18px 16px !important;
+}
+
+.filter-panel-head > div {
+  width: 100%;
+  min-width: 0;
+}
+
+.filter-panel-head h2 {
+  width: 100%;
+  margin: 0 !important;
+}
+
+.filter-section,
+.theme-switcher {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  padding: 22px 18px 20px !important;
+}
+
+.filter-section legend,
+.theme-switcher legend {
+  float: left !important;
+  display: block !important;
+  width: 100% !important;
+  margin: 0 0 14px !important;
+  padding: 0 !important;
+  line-height: 1.35 !important;
+}
+
+.filter-section legend + .filter-options,
+.filter-section legend + .difficulty-options,
+.theme-switcher legend + div {
+  clear: both !important;
+  width: 100% !important;
+  margin-top: 0 !important;
+}
+
+.filter-options,
+.difficulty-options,
+.theme-switcher > div {
+  width: 100% !important;
+}
+
+/* Stable sidebar geometry and readable interaction states. */
+@media (min-width: 1181px) {
+  .workspace {
+    grid-template-columns: 252px minmax(0, 1fr) !important;
+  }
+
+  .filter-panel,
+  .filter-panel.filter-panel-open {
+    width: 252px !important;
+    max-width: 252px !important;
+    overflow: hidden !important;
+  }
+
+  .filter-panel .filter-section:nth-of-type(1):hover .filter-options,
+  .filter-panel .filter-section:nth-of-type(1):focus-within .filter-options,
+  .filter-panel .filter-section:nth-of-type(2):hover .filter-options,
+  .filter-panel .filter-section:nth-of-type(2):focus-within .filter-options {
+    position: static !important;
+    inset: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    z-index: auto !important;
+    display: grid !important;
+    width: 100% !important;
+    max-height: none !important;
+    gap: 6px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .filter-panel .filter-section:nth-of-type(1):hover .filter-option,
+  .filter-panel .filter-section:nth-of-type(1):focus-within .filter-option,
+  .filter-panel .filter-section:nth-of-type(2):hover .filter-option,
+  .filter-panel .filter-section:nth-of-type(2):focus-within .filter-option {
+    display: flex !important;
+    width: 100% !important;
+  }
+}
+
+.filter-panel-head h2 {
+  font-size: 1.125rem !important;
+  font-weight: 750 !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.018em !important;
+}
+
+.filter-section legend,
+.theme-switcher legend {
+  margin-bottom: 12px !important;
+  font-size: 0.75rem !important;
+  font-weight: 750 !important;
+  line-height: 1.35 !important;
+  letter-spacing: 0.045em !important;
+}
+
+.filter-option {
+  min-height: 42px !important;
+  padding: 9px 12px !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  line-height: 1.35 !important;
+}
+
+.filter-option > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.difficulty-chip {
+  min-height: 40px !important;
+  padding: 8px 10px !important;
+  font-size: 0.8125rem !important;
+  font-weight: 650 !important;
+  line-height: 1.25 !important;
+}
+
+.filter-tip {
+  padding: 12px !important;
+}
+
+.filter-tip p {
+  font-size: 0.75rem !important;
+  line-height: 1.48 !important;
+}
+
+.local-backup-heading h3 {
+  font-size: 0.875rem !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  letter-spacing: -0.012em !important;
+}
+
+.local-save-status strong {
+  font-size: 0.75rem !important;
+  line-height: 1.35 !important;
+}
+
+.local-save-status span {
+  font-size: 0.72rem !important;
+  line-height: 1.4 !important;
+}
+
+.local-backup-actions button {
+  min-height: 34px !important;
+  padding: 7px 8px !important;
+  font-size: 0.75rem !important;
+  font-weight: 650 !important;
+  line-height: 1.2 !important;
+}
+
+.theme-switcher button {
+  min-height: 36px !important;
+  font-size: 0.8125rem !important;
+  font-weight: 650 !important;
+  line-height: 1.2 !important;
+}
+
+.filter-option,
+.difficulty-chip,
+.theme-switcher button,
+.local-backup-actions button {
+  transform: none !important;
+  transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease, box-shadow 140ms ease !important;
+}
+
+.filter-option:hover,
+.filter-option:focus-visible,
+.difficulty-chip:hover,
+.difficulty-chip:focus-visible,
+.theme-switcher button:hover,
+.theme-switcher button:focus-visible,
+.local-backup-actions button:hover,
+.local-backup-actions button:focus-visible {
+  transform: none !important;
+}
+
+.reference-empty {
+  color: var(--text-2);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0;
+  padding: 1rem;
+}
+
+@media (max-width: 760px) {
+  .filter-panel-head {
+    padding: 16px !important;
+  }
+
+  .filter-section,
+  .theme-switcher {
+    padding: 20px 16px 18px !important;
+  }
+
+  .filter-panel-head h2 {
+    font-size: 1.0625rem !important;
+  }
+
+  .filter-option {
+    min-height: 44px !important;
+    font-size: 0.9rem !important;
+  }
+
+  .difficulty-chip,
+  .theme-switcher button {
+    min-height: 42px !important;
+  }
+}
