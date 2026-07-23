@@ -1,6 +1,56 @@
-/* Final sidebar stabilization layer.
-   Keeps hover/focus states from changing layout and improves readability. */
+/* Final sidebar structure: full-width header and legends in normal flow. */
 
+.filter-panel-head {
+  width: 100% !important;
+  max-width: none !important;
+  align-self: stretch !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding: 18px 18px 16px !important;
+}
+
+.filter-panel-head > div {
+  width: 100%;
+  min-width: 0;
+}
+
+.filter-panel-head h2 {
+  width: 100%;
+  margin: 0 !important;
+}
+
+.filter-section,
+.theme-switcher {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  padding: 22px 18px 20px !important;
+}
+
+.filter-section legend,
+.theme-switcher legend {
+  float: left !important;
+  display: block !important;
+  width: 100% !important;
+  margin: 0 0 14px !important;
+  padding: 0 !important;
+  line-height: 1.35 !important;
+}
+
+.filter-section legend + .filter-options,
+.filter-section legend + .difficulty-options,
+.theme-switcher legend + div {
+  clear: both !important;
+  width: 100% !important;
+  margin-top: 0 !important;
+}
+
+.filter-options,
+.difficulty-options,
+.theme-switcher > div {
+  width: 100% !important;
+}
+
+/* Stable sidebar geometry and readable interaction states. */
 @media (min-width: 1181px) {
   .workspace {
     grid-template-columns: 252px minmax(0, 1fr) !important;
@@ -13,9 +63,6 @@
     overflow: hidden !important;
   }
 
-  /* The older sticky-filter stylesheet turns these groups into flyouts on
-     hover. Override the same states with equal-or-higher specificity so the
-     sidebar geometry remains identical for mouse and keyboard users. */
   .filter-panel .filter-section:nth-of-type(1):hover .filter-options,
   .filter-panel .filter-section:nth-of-type(1):focus-within .filter-options,
   .filter-panel .filter-section:nth-of-type(2):hover .filter-options,
@@ -49,8 +96,6 @@
   }
 }
 
-/* Sidebar type scale. The previous cascade reduced several labels and
-   controls below a comfortable UI reading size. */
 .filter-panel-head h2 {
   font-size: 1.125rem !important;
   font-weight: 750 !important;
@@ -131,7 +176,6 @@
   line-height: 1.2 !important;
 }
 
-/* Hover and focus may change color, never dimensions or position. */
 .filter-option,
 .difficulty-chip,
 .theme-switcher button,
@@ -151,7 +195,24 @@
   transform: none !important;
 }
 
+.reference-empty {
+  color: var(--text-2);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0;
+  padding: 1rem;
+}
+
 @media (max-width: 760px) {
+  .filter-panel-head {
+    padding: 16px !important;
+  }
+
+  .filter-section,
+  .theme-switcher {
+    padding: 20px 16px 18px !important;
+  }
+
   .filter-panel-head h2 {
     font-size: 1.0625rem !important;
   }
