@@ -23,6 +23,7 @@ const SETTINGS_KEY = "bindforge-nw:settings:v2";
 const LEGACY_SETTINGS_KEY = "bindforge-nw:settings:v1";
 const THEME_KEY = "bindforge-nw:theme";
 const DEFAULT_SAVED_AT = new Date(0).toISOString();
+const AUTOSAVE_DELAY_MS = 220;
 
 export type ThemeChoice = "system" | "light" | "dark";
 export type OutputMode = "bind" | "unbind";
@@ -60,6 +61,11 @@ type BindForgeContextValue = {
   exportBackup: () => void;
   importBackup: (file: File) => Promise<void>;
   clearSavedData: () => void;
+};
+
+type StoredBackupResult = {
+  backup: SavedSettingsV2;
+  storageAvailable: boolean;
 };
 
 const BindForgeContext = createContext<BindForgeContextValue | null>(null);
@@ -107,6 +113,32 @@ function applyTheme(choice: ThemeChoice) {
   document.documentElement.style.colorScheme = resolved;
 }
 
+function storageGet(key: string) {
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function storageSet(key: string, value: string) {
+  try {
+    window.localStorage.setItem(key, value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function storageRemove(key: string) {
+  try {
+    window.localStorage.removeItem(key);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function stateFromBackup(settings: SavedSettingsV2, theme: ThemeChoice): BindForgeState {
   const defaults = defaultState();
   return {
@@ -149,24 +181,32 @@ function backupFromState(state: BindForgeState, savedAt = new Date().toISOString
   return parsed.ok ? parsed.value : createDefaultBackup(savedAt);
 }
 
-function readStoredBackup() {
-  const current = window.localStorage.getItem(SETTINGS_KEY);
-  if (current) {
-    const parsed = parseBackupJson(current);
-    if (parsed.ok) return parsed.value;
+function readStoredBackup(): StoredBackupResult {
+  let storageAvailable = true;
+  let current: string | null = null;
+
+  try {
+    current = window.localStorage.getItem(SETTINGS_KEY);
+  } catch {
+    storageAvailable = false;
   }
 
-  const legacy = window.localStorage.getItem(LEGACY_SETTINGS_KEY);
+  if (current) {
+    const parsed = parseBackupJson(current);
+    if (parsed.ok) return { backup: parsed.value, storageAvailable };
+  }
+
+  const legacy = storageGet(LEGACY_SETTINGS_KEY);
   if (legacy) {
     const parsed = parseBackupJson(legacy);
     if (parsed.ok) {
-      window.localStorage.setItem(SETTINGS_KEY, JSON.stringify(parsed.value));
-      window.localStorage.removeItem(LEGACY_SETTINGS_KEY);
-      return parsed.value;
+      storageAvailable = storageSet(SETTINGS_KEY, JSON.stringify(parsed.value)) && storageAvailable;
+      storageAvailable = storageRemove(LEGACY_SETTINGS_KEY) && storageAvailable;
+      return { backup: parsed.value, storageAvailable };
     }
   }
 
-  return createDefaultBackup(DEFAULT_SAVED_AT);
+  return { backup: createDefaultBackup(DEFAULT_SAVED_AT), storageAvailable };
 }
 
 export function BindForgeProvider({ children }: { children: React.ReactNode }) {
@@ -175,15 +215,22 @@ export function BindForgeProvider({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState("Ready to save customizations");
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const saveTimer = useRef<number | null>(null);
+  const skipNextSave = useRef(false);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
-      const settings = readStoredBackup();
-      const theme = validTheme(window.localStorage.getItem(THEME_KEY));
+      const { backup, storageAvailable } = readStoredBackup();
+      const theme = validTheme(storageGet(THEME_KEY));
       applyTheme(theme);
-      setState(stateFromBackup(settings, theme));
-      setSavedAt(settings.savedAt === DEFAULT_SAVED_AT ? null : settings.savedAt);
-      setStatus(settings.savedAt === DEFAULT_SAVED_AT ? "Ready to save customizations" : "Previous settings restored");
+      setState(stateFromBackup(backup, theme));
+      setSavedAt(backup.savedAt === DEFAULT_SAVED_AT ? null : backup.savedAt);
+      setStatus(
+        storageAvailable
+          ? backup.savedAt === DEFAULT_SAVED_AT
+            ? "Ready to save customizations"
+            : "Previous settings restored"
+          : "Browser storage is unavailable; changes will last only for this session",
+      );
       setHydrated(true);
     });
     return () => window.cancelAnimationFrame(frame);
@@ -191,16 +238,32 @@ export function BindForgeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!hydrated) return;
+
+    if (skipNextSave.current) {
+      skipNextSave.current = false;
+      return;
+    }
+
     if (saveTimer.current) window.clearTimeout(saveTimer.current);
     saveTimer.current = window.setTimeout(() => {
       const backup = backupFromState(state);
-      window.localStorage.setItem(SETTINGS_KEY, JSON.stringify(backup));
-      window.localStorage.setItem(THEME_KEY, state.theme);
-      setSavedAt(backup.savedAt);
-      setStatus("Saved automatically");
-    }, 220);
+      const settingsSaved = storageSet(SETTINGS_KEY, JSON.stringify(backup));
+      const themeSaved = storageSet(THEME_KEY, state.theme);
+      saveTimer.current = null;
+
+      if (settingsSaved && themeSaved) {
+        setSavedAt(backup.savedAt);
+        setStatus("Saved automatically");
+      } else {
+        setStatus("Browser storage is unavailable; changes will last only for this session");
+      }
+    }, AUTOSAVE_DELAY_MS);
+
     return () => {
-      if (saveTimer.current) window.clearTimeout(saveTimer.current);
+      if (saveTimer.current) {
+        window.clearTimeout(saveTimer.current);
+        saveTimer.current = null;
+      }
     };
   }, [hydrated, state]);
 
@@ -260,41 +323,65 @@ export function BindForgeProvider({ children }: { children: React.ReactNode }) {
     resetAll: () => setState((current) => ({ ...defaultState(), theme: current.theme })),
     exportBackup: () => {
       const backup = backupFromState(state);
-      window.localStorage.setItem(SETTINGS_KEY, JSON.stringify(backup));
+      const persisted = storageSet(SETTINGS_KEY, JSON.stringify(backup));
       const url = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" }));
       const link = document.createElement("a");
       link.href = url;
       link.download = `bindforge-backup-v2-${new Date().toISOString().slice(0, 10)}.json`;
+      link.hidden = true;
+      document.body.appendChild(link);
       link.click();
-      URL.revokeObjectURL(url);
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 0);
       setSavedAt(backup.savedAt);
-      setStatus("Version 2 backup exported");
+      setStatus(persisted ? "Version 2 backup exported" : "Backup exported; browser storage remains unavailable");
     },
     importBackup: async (file) => {
       if (file.size > MAX_BACKUP_BYTES) {
         setStatus("Backup file is larger than 256 KB");
         return;
       }
-      const parsed = parseBackupJson(await file.text());
-      if (!parsed.ok) {
-        setStatus(parsed.error);
-        return;
+
+      try {
+        const parsed = parseBackupJson(await file.text());
+        if (!parsed.ok) {
+          setStatus(parsed.error);
+          return;
+        }
+
+        const next = stateFromBackup(parsed.value, state.theme);
+        setState(next);
+        const persisted = storageSet(SETTINGS_KEY, JSON.stringify(parsed.value));
+        storageRemove(LEGACY_SETTINGS_KEY);
+        setSavedAt(parsed.value.savedAt);
+        setStatus(
+          persisted
+            ? parsed.migratedFrom === 1
+              ? "Version 1 backup migrated and restored"
+              : "Backup validated and restored"
+            : "Backup restored for this session; browser storage is unavailable",
+        );
+      } catch {
+        setStatus("The backup file could not be read");
       }
-      const next = stateFromBackup(parsed.value, state.theme);
-      setState(next);
-      window.localStorage.setItem(SETTINGS_KEY, JSON.stringify(parsed.value));
-      window.localStorage.removeItem(LEGACY_SETTINGS_KEY);
-      setSavedAt(parsed.value.savedAt);
-      setStatus(parsed.migratedFrom === 1 ? "Version 1 backup migrated and restored" : "Backup validated and restored");
     },
     clearSavedData: () => {
       if (!window.confirm("Clear all saved BindForge settings from this browser?")) return;
-      window.localStorage.removeItem(SETTINGS_KEY);
-      window.localStorage.removeItem(LEGACY_SETTINGS_KEY);
-      window.localStorage.removeItem(THEME_KEY);
+      if (saveTimer.current) {
+        window.clearTimeout(saveTimer.current);
+        saveTimer.current = null;
+      }
+      skipNextSave.current = true;
+      const settingsRemoved = storageRemove(SETTINGS_KEY);
+      const legacyRemoved = storageRemove(LEGACY_SETTINGS_KEY);
+      const themeRemoved = storageRemove(THEME_KEY);
       setState(defaultState());
       setSavedAt(null);
-      setStatus("Saved data cleared");
+      setStatus(
+        settingsRemoved && legacyRemoved && themeRemoved
+          ? "Saved data cleared"
+          : "Session reset; browser storage could not be cleared",
+      );
     },
   }), [hydrated, patchState, savedAt, state, status]);
 
