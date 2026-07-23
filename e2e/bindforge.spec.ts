@@ -11,29 +11,36 @@ async function openFiltersWhenCollapsed(page: Page) {
 }
 
 async function waitForHydration(page: Page) {
-  await expect(page.getByTestId("filter-toolbar")).toBeVisible();
-  await expect(page.getByLabel("Search keybind library")).toBeEditable();
+  const toolbar = page.getByTestId("filter-toolbar").first();
+  await expect(toolbar).toBeVisible();
+  await expect(page.getByLabel("Search keybind library").first()).toBeEditable();
+  await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
+  await expect(page.locator(".bind-card").first()).toBeVisible();
 }
 
 test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.clear();
+  });
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1, name: "BindForge NW" })).toBeVisible();
   await waitForHydration(page);
 });
 
 test("keeps the search and action toolbar visible and filters presets", async ({ page }) => {
-  const toolbar = page.getByTestId("filter-toolbar");
-  const resultCount = page.getByTestId("result-count");
+  const toolbar = page.getByTestId("filter-toolbar").first();
+  const resultCount = page.getByTestId("result-count").first();
   const originalText = await resultCount.textContent();
 
   await expect(toolbar).toBeVisible();
-  await expect(page.getByLabel("Filter keybinds by action type")).toBeVisible();
-  await page.getByLabel("Search keybind library").fill("invoke");
+  await expect(page.getByLabel("Filter keybinds by action type").first()).toBeVisible();
+  await page.getByLabel("Search keybind library").first().fill("invocation");
   await expect(resultCount).not.toHaveText(originalText ?? "");
+  await expect(resultCount).not.toHaveText("0 keybinds");
   await expect(page.locator(".bind-card").first()).toBeVisible();
 
   await page.getByRole("button", { name: "Reset keybind library filters" }).click();
-  await expect(page.getByLabel("Search keybind library")).toHaveValue("");
+  await expect(page.getByLabel("Search keybind library").first()).toHaveValue("");
 });
 
 test("class, difficulty, and action filters share provider state", async ({ page }) => {
@@ -45,8 +52,9 @@ test("class, difficulty, and action filters share provider state", async ({ page
   await page.getByRole("button", { name: "Advanced", exact: true }).click();
   await expect(page.getByRole("button", { name: "Advanced", exact: true })).toHaveAttribute("aria-pressed", "true");
 
-  await page.getByLabel("Filter keybinds by action type").selectOption({ label: "Bard Songs" });
-  await expect(page.getByLabel("Filter keybinds by action type")).toHaveValue("Bard Songs");
+  await page.getByLabel("Filter keybinds by action type").first().selectOption({ label: "Bard Songs" });
+  await expect(page.getByLabel("Filter keybinds by action type").first()).toHaveValue("Bard Songs");
+  await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
 });
 
 test("generates bind and unbind output from shared state", async ({ page }) => {
@@ -71,8 +79,8 @@ test("Command Lab and custom say builder generate normalized commands", async ({
   await expect(commandLab.getByLabel("Generated custom command")).toContainText("/bind alt+f2");
 
   const customSay = page.getByRole("region", { name: "Create your own say message" });
-  await customSay.getByLabel("Key combination").fill("Ctrl + F1");
-  await customSay.getByLabel("Message").fill('Group\n"now"');
+  await customSay.getByLabel("Custom message key combination").fill("Ctrl + F1");
+  await customSay.getByLabel("Custom say message").fill('Group\n"now"');
   await expect(customSay.locator("code")).toHaveText('/bind ctrl+f1 "say Group \'now\'"');
   await expect(customSay.getByRole("status")).toContainText("Line breaks were converted");
 });
@@ -81,28 +89,28 @@ test("persists filters, edited keys, theme, and custom say values across reload"
   const firstKey = page.locator(".bind-card .key-field input").first();
   await expect(firstKey).toBeVisible();
   await firstKey.fill("Ctrl+R");
-  await page.getByLabel("Search keybind library").fill("bard");
+  await page.getByLabel("Search keybind library").first().fill("bard");
   await openFiltersWhenCollapsed(page);
   await page.getByLabel("Appearance").getByRole("button", { name: "Light" }).click();
-  await page.getByRole("textbox", { name: "Message" }).fill("Group on me");
+  await page.getByLabel("Custom say message").fill("Group on me");
   await expect(page.locator(".local-save-status").getByText("Saved automatically", { exact: true })).toBeVisible();
 
   await page.reload();
   await waitForHydration(page);
-  await expect(page.getByLabel("Search keybind library")).toHaveValue("bard");
+  await expect(page.getByLabel("Search keybind library").first()).toHaveValue("bard");
   await openFiltersWhenCollapsed(page);
   await expect(page.getByLabel("Appearance").getByRole("button", { name: "Light" })).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByRole("textbox", { name: "Message" })).toHaveValue("Group on me");
+  await expect(page.getByLabel("Custom say message")).toHaveValue("Group on me");
 });
 
 test("clear saved data resets state without immediately recreating storage", async ({ page }) => {
-  await page.getByLabel("Search keybind library").fill("bard");
+  await page.getByLabel("Search keybind library").first().fill("bard");
   await openFiltersWhenCollapsed(page);
   await expect(page.locator(".local-save-status").getByText("Saved automatically", { exact: true })).toBeVisible();
 
   page.once("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: "Clear saved data" }).click();
-  await expect(page.getByLabel("Search keybind library")).toHaveValue("");
+  await expect(page.getByLabel("Search keybind library").first()).toHaveValue("");
   await expect(page.locator(".local-save-status").getByText("Saved data cleared", { exact: true })).toBeVisible();
 
   const stored = await page.evaluate(() => window.localStorage.getItem("bindforge-nw:settings:v2"));
@@ -123,18 +131,19 @@ test("supports keyboard navigation with visible focus", async ({ page }) => {
 });
 
 test("keeps essential controls inside the viewport", async ({ page }) => {
-  const toolbarBox = await page.getByTestId("filter-toolbar").boundingBox();
+  const toolbarBox = await page.getByTestId("filter-toolbar").first().boundingBox();
   const viewport = page.viewportSize();
   expect(toolbarBox).not.toBeNull();
   expect(viewport).not.toBeNull();
   expect(toolbarBox!.x).toBeGreaterThanOrEqual(0);
   expect(toolbarBox!.x + toolbarBox!.width).toBeLessThanOrEqual(viewport!.width + 1);
-  await expect(page.getByLabel("Search keybind library")).toBeVisible();
-  await expect(page.getByLabel("Filter keybinds by action type")).toBeVisible();
+  await expect(page.getByLabel("Search keybind library").first()).toBeVisible();
+  await expect(page.getByLabel("Filter keybinds by action type").first()).toBeVisible();
 });
 
 test("meets the axe accessibility baseline in dark and light themes", async ({ page }) => {
   await page.addScriptTag({ content: axe.source });
+  await openFiltersWhenCollapsed(page);
 
   async function violations() {
     return page.evaluate(async () => {
@@ -144,8 +153,11 @@ test("meets the axe accessibility baseline in dark and light themes", async ({ p
     });
   }
 
+  await page.getByLabel("Appearance").getByRole("button", { name: "Dark" }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   expect(await violations()).toEqual([]);
-  await openFiltersWhenCollapsed(page);
+
   await page.getByLabel("Appearance").getByRole("button", { name: "Light" }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   expect(await violations()).toEqual([]);
 });
