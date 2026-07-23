@@ -151,13 +151,31 @@ test("supports keyboard navigation with visible focus", async ({ page }) => {
   await expect(page.locator("#keybind-library")).toBeInViewport();
 });
 
-test("keeps essential controls inside the viewport", async ({ page }) => {
+test("keeps the page canvas and essential controls inside the viewport", async ({ page }) => {
   const toolbarBox = await page.getByTestId("filter-toolbar").first().boundingBox();
+  const shellBox = await page.locator(".app-shell").boundingBox();
+  const headerBox = await page.locator(".app-header").boundingBox();
+  const subNavBox = await page.locator(".sub-nav-frosted").boundingBox();
   const viewport = page.viewportSize();
+
   expect(toolbarBox).not.toBeNull();
+  expect(shellBox).not.toBeNull();
+  expect(headerBox).not.toBeNull();
+  expect(subNavBox).not.toBeNull();
   expect(viewport).not.toBeNull();
+
+  expect(shellBox!.x).toBeGreaterThanOrEqual(0);
+  expect(shellBox!.width).toBeGreaterThanOrEqual(viewport!.width - 2);
+  expect(headerBox!.width).toBeGreaterThanOrEqual(viewport!.width - 2);
+  expect(subNavBox!.width).toBeGreaterThanOrEqual(viewport!.width - 2);
   expect(toolbarBox!.x).toBeGreaterThanOrEqual(0);
   expect(toolbarBox!.x + toolbarBox!.width).toBeLessThanOrEqual(viewport!.width + 1);
+
+  const subNavTitle = page.locator(".sub-nav-title");
+  await expect(subNavTitle).toBeVisible();
+  const titleLines = await subNavTitle.evaluate((element) => Math.round(element.getBoundingClientRect().height / parseFloat(getComputedStyle(element).lineHeight)));
+  expect(titleLines).toBeLessThanOrEqual(1);
+
   await expect(page.getByLabel("Search keybind library").first()).toBeVisible();
   await expect(page.getByLabel("Filter keybinds by action type").first()).toBeVisible();
 });
