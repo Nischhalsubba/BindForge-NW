@@ -17,8 +17,6 @@ import "./mobile-first.css";
 import "./production-verification.css";
 import "./open-design.css";
 import "./open-design-structure.css";
-import "./apple-design-spec.css";
-import "./apple-layout-repair.css";
 
 const productionUrl = new URL("https://bindforge-nw.hinischalsubba.workers.dev");
 
