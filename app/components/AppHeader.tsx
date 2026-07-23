@@ -46,7 +46,7 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
       <section className="hero-tile" aria-labelledby="bindforge-title">
         <div className="hero-copy">
           <p className="eyebrow">Neverwinter command workspace</p>
-          <h1 id="bindforge-title">Build the bind.<br />Skip the guesswork.</h1>
+          <h1 id="bindforge-title" aria-label="BindForge NW">Build the bind.<br />Skip the guesswork.</h1>
           <p className="brand-subtitle">
             Search curated presets, edit the key, review conflicts, and copy a clean command without digging through old forum posts or scattered wiki pages.
           </p>
