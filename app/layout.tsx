@@ -15,7 +15,13 @@ import "./alignment-polish.css";
 import "./sidebar-stabilization.css";
 import "./mobile-first.css";
 
+const productionUrl = new URL("https://bindforge-nw.hinischalsubba.workers.dev");
+
 export const metadata: Metadata = {
+  metadataBase: productionUrl,
+  alternates: {
+    canonical: "/",
+  },
   title: {
     default: "BindForge NW | Neverwinter Keybind Builder",
     template: "%s | BindForge NW",
@@ -47,6 +53,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
+    url: "/",
     siteName: "BindForge NW",
     title: "BindForge NW | Neverwinter Keybind Builder",
     description:
@@ -77,6 +84,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     name: "BindForge NW",
+    url: productionUrl.toString(),
     applicationCategory: "GameApplication",
     applicationSubCategory: "Neverwinter keybind builder and console command generator",
     operatingSystem: "Any operating system with a modern web browser",
