@@ -35,8 +35,8 @@ export function CustomSayBuilder() {
       <div className={styles.intro}><p className={styles.eyebrow}>Custom chat keybind</p><h2 id="custom-say-title">Create your own say message</h2><p>Choose a key and type any message. BindForge keeps the required command syntax intact and updates the preview immediately.</p></div>
       <div className={styles.panel}>
         <div className={styles.fields}>
-          <label><span>Key combination</span><input autoComplete="off" onChange={(event) => updateCustomSay({ key: event.target.value })} placeholder="F1, Numpad7, Ctrl+R" spellCheck={false} value={state.customSay.key} /><small>Use a key that is not already important to your controls.</small></label>
-          <label><span>Message</span><textarea maxLength={240} onChange={(event) => updateCustomSay({ message: event.target.value })} placeholder="Type the message you want Neverwinter to send" rows={4} value={state.customSay.message} /><small>{state.customSay.message.length}/240 characters</small></label>
+          <label><span>Key combination</span><input aria-label="Custom message key combination" autoComplete="off" onChange={(event) => updateCustomSay({ key: event.target.value })} placeholder="F1, Numpad7, Ctrl+R" spellCheck={false} value={state.customSay.key} /><small>Use a key that is not already important to your controls.</small></label>
+          <label><span>Message</span><textarea aria-label="Custom say message" maxLength={240} onChange={(event) => updateCustomSay({ message: event.target.value })} placeholder="Type the message you want Neverwinter to send" rows={4} value={state.customSay.message} /><small>{state.customSay.message.length}/240 characters</small></label>
         </div>
         {messageChanged ? <p className={styles.notice} role="status">Line breaks were converted to spaces and double quotes were replaced with apostrophes so the keybind remains valid.</p> : null}
         <div className={styles.preview}><span>Generated command</span><code ref={preview} tabIndex={0}>{command}</code></div>

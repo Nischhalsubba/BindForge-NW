@@ -69,11 +69,11 @@ export function CommandLab({ onCopy }: { onCopy: (text: string, label: string, t
         <div className="lab-fields">
           <label className="key-field">
             <span>Key combination</span>
-            <input autoComplete="off" onChange={(event) => updateCommandLab({ key: event.target.value })} spellCheck={false} value={state.commandLab.key} />
+            <input aria-label="Command Lab key combination" autoComplete="off" onChange={(event) => updateCommandLab({ key: event.target.value })} spellCheck={false} value={state.commandLab.key} />
           </label>
           <label className="key-field">
             <span>Extra command text</span>
-            <input autoComplete="off" onChange={(event) => updateCommandLab({ extraText: event.target.value })} placeholder={selectedCommand.params || "Optional arguments"} value={state.commandLab.extraText} />
+            <input aria-label="Command Lab extra command text" autoComplete="off" onChange={(event) => updateCommandLab({ extraText: event.target.value })} placeholder={selectedCommand.params || "Optional arguments"} value={state.commandLab.extraText} />
           </label>
         </div>
 
