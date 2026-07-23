@@ -16,6 +16,7 @@ import "./sidebar-stabilization.css";
 import "./mobile-first.css";
 import "./production-verification.css";
 import "./open-design.css";
+import "./open-design-structure.css";
 
 const productionUrl = new URL("https://bindforge-nw.hinischalsubba.workers.dev");
 
