@@ -18,11 +18,29 @@ async function waitForHydration(page: Page) {
   await expect(page.locator(".bind-card").first()).toBeVisible();
 }
 
+async function waitForSavedSettings(page: Page, expected: { search?: string; customMessage?: string; theme?: string }) {
+  await page.waitForFunction((values) => {
+    const raw = window.localStorage.getItem("bindforge-nw:settings:v2");
+    if (!raw) return false;
+    try {
+      const saved = JSON.parse(raw) as {
+        filters?: { search?: string };
+        customSay?: { message?: string };
+      };
+      const searchMatches = values.search === undefined || saved.filters?.search === values.search;
+      const messageMatches = values.customMessage === undefined || saved.customSay?.message === values.customMessage;
+      const themeMatches = values.theme === undefined || window.localStorage.getItem("bindforge-nw:theme") === values.theme;
+      return searchMatches && messageMatches && themeMatches;
+    } catch {
+      return false;
+    }
+  }, expected);
+}
+
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => {
-    window.localStorage.clear();
-  });
   await page.goto("/");
+  await page.evaluate(() => window.localStorage.clear());
+  await page.reload();
   await expect(page.getByRole("heading", { level: 1, name: "BindForge NW" })).toBeVisible();
   await waitForHydration(page);
 });
@@ -93,6 +111,8 @@ test("persists filters, edited keys, theme, and custom say values across reload"
   await openFiltersWhenCollapsed(page);
   await page.getByLabel("Appearance").getByRole("button", { name: "Light" }).click();
   await page.getByLabel("Custom say message").fill("Group on me");
+
+  await waitForSavedSettings(page, { search: "bard", customMessage: "Group on me", theme: "light" });
   await expect(page.locator(".local-save-status").getByText("Saved automatically", { exact: true })).toBeVisible();
 
   await page.reload();
@@ -101,12 +121,13 @@ test("persists filters, edited keys, theme, and custom say values across reload"
   await openFiltersWhenCollapsed(page);
   await expect(page.getByLabel("Appearance").getByRole("button", { name: "Light" })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByLabel("Custom say message")).toHaveValue("Group on me");
+  await expect(page.locator(".bind-card .key-field input").first()).toHaveValue("Ctrl+R");
 });
 
 test("clear saved data resets state without immediately recreating storage", async ({ page }) => {
   await page.getByLabel("Search keybind library").first().fill("bard");
   await openFiltersWhenCollapsed(page);
-  await expect(page.locator(".local-save-status").getByText("Saved automatically", { exact: true })).toBeVisible();
+  await waitForSavedSettings(page, { search: "bard" });
 
   page.once("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: "Clear saved data" }).click();
