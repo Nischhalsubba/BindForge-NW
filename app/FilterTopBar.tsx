@@ -11,16 +11,18 @@ export default function FilterTopBar({ resultCount }: { resultCount: number }) {
   const options = useMemo(() => actionTypes, []);
 
   return (
-    <section className="filter-top-bar" aria-label="Keybind filters and search">
-      <div className="filter-top-summary">
+    <section className="filter-top-bar" aria-label="Keybind library controls" data-testid="filter-toolbar">
+      <div className="filter-top-summary" aria-live="polite">
         <span>Keybind library</span>
-        <strong>{resultCount} keybinds</strong>
+        <strong data-testid="result-count">{resultCount} keybinds</strong>
       </div>
 
-      <label className="filter-top-search">
-        <span>Search</span>
+      <label className="filter-top-search" htmlFor="keybind-library-search">
+        <span>Search keybinds</span>
         <input
+          aria-label="Search keybind library"
           autoComplete="off"
+          id="keybind-library-search"
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Search keybinds"
           type="search"
@@ -28,9 +30,14 @@ export default function FilterTopBar({ resultCount }: { resultCount: number }) {
         />
       </label>
 
-      <label className="filter-top-select">
+      <label className="filter-top-select" htmlFor="keybind-action-filter">
         <span>Action type</span>
-        <select onChange={(event) => setActionType(event.target.value as typeof state.actionType)} value={state.actionType}>
+        <select
+          aria-label="Filter keybinds by action type"
+          id="keybind-action-filter"
+          onChange={(event) => setActionType(event.target.value as typeof state.actionType)}
+          value={state.actionType}
+        >
           {options.map((option) => (
             <option key={option} value={option}>
               {option === "All" ? "All actions" : option}
@@ -39,12 +46,12 @@ export default function FilterTopBar({ resultCount }: { resultCount: number }) {
         </select>
       </label>
 
-      <div className="filter-top-mode" aria-label="Output mode">
+      <div className="filter-top-mode" aria-label="Output mode" role="group">
         <button aria-pressed={state.mode === "bind"} onClick={() => setMode("bind")} type="button">Bind</button>
         <button aria-pressed={state.mode === "unbind"} onClick={() => setMode("unbind")} type="button">Unbind</button>
       </div>
 
-      <button className="filter-top-reset" onClick={resetFilters} type="button">Reset</button>
+      <button aria-label="Reset keybind library filters" className="filter-top-reset" onClick={resetFilters} type="button">Reset</button>
     </section>
   );
 }

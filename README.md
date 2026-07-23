@@ -11,52 +11,31 @@ A data-driven keybind preset browser, console-command explorer, safety checker, 
 ![Next.js](https://img.shields.io/badge/Next.js-16.2-000000?style=flat-square&logo=nextdotjs&logoColor=white)
 ![React](https://img.shields.io/badge/React-19.2-61DAFB?style=flat-square&logo=react&logoColor=111111)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript&logoColor=white)
-![Tailwind](https://img.shields.io/badge/Tailwind-4.2-38BDF8?style=flat-square&logo=tailwindcss&logoColor=white)
 
-![Stars](https://img.shields.io/github/stars/Nischhalsubba/BindForge-NW?style=flat-square)
-![Forks](https://img.shields.io/github/forks/Nischhalsubba/BindForge-NW?style=flat-square)
-![Issues](https://img.shields.io/github/issues/Nischhalsubba/BindForge-NW?style=flat-square)
-![Last commit](https://img.shields.io/github/last-commit/Nischhalsubba/BindForge-NW?style=flat-square)
-
-[Engineering case study](./docs/PRODUCT_AND_ENGINEERING_CASE_STUDY.md) · [Repository instructions](./AGENTS.md)
+[Engineering case study](./docs/PRODUCT_AND_ENGINEERING_CASE_STUDY.md) · [Architecture](./docs/architecture.md) · [Release checklist](./docs/release-checklist.md)
 
 </div>
 
 ## Product
 
-BindForge NW helps Neverwinter players find and generate keybind commands without searching old forum posts, wiki fragments, spreadsheets, or chat messages.
+BindForge NW helps Neverwinter players find, edit, generate, and copy practical keybind commands without searching scattered forum posts, wiki fragments, spreadsheets, or old chat messages.
 
-A player can:
-
-1. Search or browse practical presets.
-2. Filter by class, bind type, or safety level.
-3. Choose or edit a key combination.
-4. Review warnings for reserved or risky keys.
-5. Generate a bind or unbind command.
-6. Copy the result to the clipboard.
-
-## Live product statistics
-
-The application calculates its own current catalog totals directly from the source data and displays them in the interface:
-
-- bind presets from `app/data/keybindPresets.ts`
-- supported key combinations from `app/data/keyCombos.ts`
-- console commands from `app/data/commands.ts`
-
-These counters remain accurate as the data grows, unlike hard-coded README numbers that begin aging before the commit finishes.
+Players can search and filter presets, edit key combinations, review conflict warnings, switch between bind and unbind output, build custom commands, create custom chat binds, and preserve settings in the browser.
 
 ## Main capabilities
 
 | Capability | Description |
 |---|---|
-| Preset library | Ready-made binds for class, combat, utility, targeting, VIP, Bard, companion, camera, and social actions |
-| Custom builder | Select a command, enter arguments, choose a key, and generate output |
-| Bind and unbind modes | Produce either `/bind` or `/unbind` syntax |
-| Search and filters | Filter presets, commands, and key combinations independently |
-| Key normalization | Orders modifiers consistently as `ctrl`, `alt`, `shift`, then the base key |
-| Safety warnings | Flags common movement, menu, chat, mouse, Escape, and Windows shortcut conflicts |
-| Clipboard output | Copies complete commands and shows temporary confirmation |
-| SEO support | Metadata, Open Graph image, JSON-LD, robots policy, and machine-readable summary |
+| Preset library | Ready-made binds for combat, utility, class, companion, VIP, camera, social, and other actions |
+| Search and filtering | Search presets and filter by class, action type, and difficulty |
+| Bind and unbind modes | Generate `/bind` or `/unbind` output from the same shared state |
+| Command Lab | Combine supported keys with catalog commands and optional arguments |
+| Custom chat builder | Generate safe, normalized `say` message binds |
+| Conflict guidance | Warn about movement, menus, chat, mouse buttons, and reserved Windows combinations |
+| Local persistence | Save filters, keys, appearance, Command Lab, and custom-chat settings in the browser |
+| Backup tools | Export, validate, import, migrate, and clear versioned JSON settings |
+| Recovery UI | Route-level loading, not-found, and runtime-error experiences |
+| Responsive UI | Mobile-first toolbar and filter behavior with tablet and desktop enhancement |
 
 ## Command output
 
@@ -80,70 +59,30 @@ Example:
 
 ## Architecture
 
+`BindForgeProvider` is the single source of truth for user-editable application state. Components consume state and actions through `useBindForge`; they do not synchronize through document queries, mutation observers, or synthetic input events.
+
+Important areas:
+
 ```text
 app/
-├── page.tsx                 interface, state, filters, warnings, generation, clipboard
-├── data/
-│   ├── commands.ts          console-command catalog
-│   ├── keyCombos.ts         supported combinations and safety metadata
-│   └── keybindPresets.ts    ready-made player-facing binds
-├── layout.tsx               metadata, fonts, JSON-LD, application shell
-├── globals.css              visual tokens and responsive interface styling
-└── opengraph-image.tsx      dynamic 1200×630 social image
+├── BindForgeProvider.tsx       shared state, persistence, theme, backup and recovery
+├── FilterTopBar.tsx            responsive search, action filter, mode and reset controls
+├── components/
+│   ├── FilterSidebar.tsx       class, difficulty, appearance and backup controls
+│   ├── KeybindLibrary.tsx      preset filtering, grouping and editable cards
+│   ├── CommandLab.tsx          custom command generation
+│   └── CustomSayBuilder.tsx    custom chat bind generation
+├── lib/                        deterministic command, backup, clipboard and catalog helpers
+├── error.tsx                   runtime recovery
+├── loading.tsx                 route loading state
+├── not-found.tsx               missing-route recovery
+└── mobile-first.css            responsive layout and contrast corrections
 
-public/
-├── favicon.svg
-├── robots.txt
-└── llms.txt
+e2e/
+└── bindforge.spec.ts           mobile, tablet and desktop browser regression coverage
 ```
 
-`app/page.tsx` is currently the product controller. It owns filtering, selected command and key state, normalization, warning lookup, output generation, copy state, and rendering.
-
-## Data model
-
-### Presets
-
-Each preset contains:
-
-- stable identifier
-- category/type
-- class scope
-- title and plain-language explanation
-- default key
-- command string
-- search terms
-- difficulty level
-
-### Key combinations
-
-Key combinations include:
-
-- combination value
-- base key
-- modifiers
-- category
-- safety status
-- optional notes
-
-### Console commands
-
-Commands include searchable command names, bind-ready forms, aliases, parameters, and categories.
-
-## Safety model
-
-The key-warning system checks for common conflicts including:
-
-- movement and jump keys
-- targeting keys
-- interaction and loot keys
-- inventory, map, journal, and character menus
-- chat and reply keys
-- number keys used by powers or items
-- attack and camera mouse buttons
-- Escape
-- `Alt+F4`, `Alt+Tab`, and `Ctrl+Alt+Delete`
-
-Safety labels reduce avoidable mistakes but cannot guarantee that every command is harmless or valid in every game version.
+See [docs/architecture.md](./docs/architecture.md) for the detailed state and component boundaries.
 
 ## Run locally
 
@@ -159,83 +98,105 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-Verification:
+## Verification
+
+Install the browser-test tooling once when working locally:
 
 ```bash
-npm run check
-npm run start
+npm install --no-save @playwright/test@1.55.0 axe-core@4.10.2
+npx playwright install chromium
 ```
 
-`npm run check` runs linting, TypeScript validation, and a production build.
+Then run:
 
-## SEO and discoverability
+```bash
+npm run check:release
+```
 
-Implemented:
+The release check covers:
 
-- descriptive metadata and title template
-- Neverwinter-focused search keywords
-- Open Graph and Twitter metadata
-- dynamic 1200×630 social image
-- SoftwareApplication JSON-LD
-- author and repository information
-- `robots.txt`
-- `llms.txt`
+- ESLint
+- TypeScript validation
+- unit and catalog tests
+- production build
+- Playwright smoke and regression tests
+- mobile, tablet, and desktop viewport coverage
+- persistence and clear-data regression checks
+- route recovery
+- keyboard navigation
+- axe accessibility checks in dark and light appearance
 
-A canonical production URL and sitemap should be added after a public deployment is confirmed.
+GitHub Actions retains typecheck, build, and Playwright diagnostics for failed runs.
 
 ## Current status
 
 | Area | Status |
 |---|---|
 | Preset search and filtering | Implemented |
-| Command browser | Implemented |
-| Key-combination browser | Implemented |
-| Bind and unbind generation | Implemented |
-| Clipboard feedback | Implemented |
-| Reserved-key warnings | Implemented |
-| Dynamic Open Graph image | Implemented |
-| Automated tests | Not confirmed |
-| Public production domain | Not confirmed |
-| Browser screenshot in this pass | Not captured |
+| Command and key-combination browsers | Implemented |
+| Bind, unbind and custom-chat generation | Implemented |
+| Shared provider architecture | Implemented |
+| Browser-local persistence and backups | Implemented |
+| Route recovery | Implemented |
+| Unit and catalog tests | Implemented |
+| Playwright regression suite | Under release stabilization in PR #31 |
+| Accessibility baseline | Under release stabilization in PR #31 |
+| Mobile-first responsive layout | Under release stabilization in PR #31 |
+| Verified public production deployment | Pending |
+| Real production screenshots | Pending deployment verification |
 
-The repository thumbnail is a designed presentation asset derived from the actual Open Graph identity and application UI. It is not presented as a browser screenshot.
+## Release process
+
+A build is not ready for promotion until:
+
+1. The pull-request Quality workflow passes.
+2. The manually triggered Release verification workflow passes.
+3. Desktop, tablet, and mobile layouts are reviewed.
+4. Search, filters, output modes, persistence, backup, theme, clipboard, and recovery behavior are manually checked.
+5. The production deployment URL is opened and smoke-tested.
+6. The release record includes the commit, workflows, deployment, tester, browsers, viewports, date, and accepted limitations.
+
+See [docs/release-checklist.md](./docs/release-checklist.md).
+
+## Production deployment
+
+A verified production URL is not yet documented. After deployment:
+
+- run the production smoke checklist
+- verify metadata, Open Graph image, `robots.txt`, and `llms.txt`
+- add the canonical URL and sitemap
+- record the deployment URL and commit
+- capture real desktop and mobile screenshots
 
 ## Data maintenance
 
 Before publishing command updates:
 
-- verify the command against the current game version
-- record source and verification date
+- verify behavior against the current game version
+- record the source and verification date
 - preserve aliases and required arguments
-- mark uncertain or undocumented behavior clearly
+- clearly mark uncertain or undocumented behavior
 - review default-key conflicts
-- avoid labeling risky commands as safe
+- never describe advisory safety guidance as a guarantee
 
 ## Known limitations
 
-- Neverwinter commands can change after patches.
+- Neverwinter commands may change after patches.
 - Some commands are undocumented or inconsistently supported.
-- The application does not apply binds inside the game.
-- Players must paste generated lines themselves.
-- The safety model is advisory.
-- A verified production deployment is not documented.
-- Automated tests for normalization and generation are still needed.
+- BindForge generates text but does not apply binds inside the game.
+- Players must paste generated commands themselves.
+- Conflict and safety guidance is advisory.
+- A verified public production deployment is still pending.
 
 ## Roadmap
 
-1. Add unit tests for normalization, warning lookup, and output generation.
-2. Add browser tests for search, filtering, copy feedback, and mode switching.
-3. Record source and verification dates in the command catalog.
-4. Add import/export for personal bind collections.
-5. Add shareable preset URLs.
-6. Publish and verify a production deployment.
-7. Capture real desktop and mobile screenshots after deployment verification.
-
-## Documentation
-
-- [Product and engineering case study](./docs/PRODUCT_AND_ENGINEERING_CASE_STUDY.md)
-- [Repository instructions](./AGENTS.md)
-- [Branded repository thumbnail](./docs/assets/bindforge-nw-thumbnail.svg)
+1. Finish PR #31 browser, accessibility, and responsive verification.
+2. Run and record the manual Release verification workflow.
+3. Publish and verify the production deployment.
+4. Add the canonical URL and sitemap.
+5. Capture real desktop and mobile production screenshots.
+6. Record source and verification dates throughout the command catalog.
+7. Add shareable preset URLs and personal bind collections.
 
 ## Disclaimer
 

@@ -13,6 +13,7 @@ import "./organized-layout.css";
 import "./apple-appearance.css";
 import "./alignment-polish.css";
 import "./sidebar-stabilization.css";
+import "./mobile-first.css";
 
 export const metadata: Metadata = {
   title: {
