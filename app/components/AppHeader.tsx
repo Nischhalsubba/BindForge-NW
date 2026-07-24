@@ -38,7 +38,7 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
       <section className="hero" aria-labelledby="bindforge-title">
         <div className="hero-copy">
           <p className="hero-kicker">Free Neverwinter utility</p>
-          <h1 id="bindforge-title">Build keybinds without the guesswork.</h1>
+          <h1 id="bindforge-title"><span className="sr-only">BindForge NW: </span>Build keybinds without the guesswork.</h1>
           <p className="brand-subtitle">
             Search curated presets, edit the key, review conflicts, and copy a clean command in seconds.
           </p>
@@ -65,7 +65,7 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
           <span><strong>{consoleCommands.length}</strong> command references</span>
         </div>
         <div className={`ready-state ready-state-${feedback.state}`} role="status" aria-live="polite">
-          <Icon name={feedback.state === "error" ? "warning" : "shield"} />
+          <Icon name="shield" />
           <span><strong>{statusTitle}</strong><small>{statusDetail}</small></span>
         </div>
       </section>
