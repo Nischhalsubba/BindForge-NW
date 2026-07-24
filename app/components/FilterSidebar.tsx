@@ -17,13 +17,84 @@ export function FilterSidebar() {
 
   return (
     <>
-      <button aria-expanded={open} aria-controls="filter-panel" className="mobile-filter-button" onClick={() => setOpen((value) => !value)} type="button"><Icon name="filter" /> Filters</button>
+      <button
+        aria-expanded={open}
+        aria-controls="filter-panel"
+        className="mobile-filter-button"
+        onClick={() => setOpen((value) => !value)}
+        type="button"
+      >
+        <Icon name="filter" /> Filters
+      </button>
+
       <aside className={`filter-panel ${open ? "filter-panel-open" : ""}`} id="filter-panel">
-        <div className="filter-panel-head"><div><p className="eyebrow">Refine results</p><h2>Filters</h2></div><button className="text-button" onClick={resetFilters} type="button">Reset all</button></div>
-        <fieldset className="filter-section"><legend>Class</legend><div className="filter-options">{classFilters.map((className) => <button aria-pressed={state.className === className} className="filter-option" key={className} onClick={() => setClassName(className)} type="button"><span>{className === "All" ? "All classes" : className}</span>{state.className === className ? <span aria-hidden="true">✓</span> : null}</button>)}</div></fieldset>
-        <fieldset className="filter-section"><legend>Action type</legend><div className="filter-options compact-options">{actionFilters.map((type) => <button aria-pressed={state.actionType === type} className="filter-option" key={type} onClick={() => setActionType(type)} type="button"><span>{type === "All" ? "All actions" : type}</span>{state.actionType === type ? <span aria-hidden="true">✓</span> : null}</button>)}</div></fieldset>
-        <fieldset className="filter-section"><legend>Difficulty</legend><div className="difficulty-options">{(["All", "Easy", "Advanced", "Risky"] as const).map((item) => <button aria-pressed={state.difficulty === item} className={`difficulty-chip difficulty-${item.toLowerCase()}`} key={item} onClick={() => setDifficulty(item)} type="button">{item}</button>)}</div></fieldset>
-        <div className="filter-tip"><Icon name="shield" /><p><strong>Back up first.</strong> Save your current binds before testing unfamiliar commands.</p></div>
+        <div className="filter-panel-head">
+          <div>
+            <p className="eyebrow">Refine results</p>
+            <h2>Filters</h2>
+          </div>
+          <button className="text-button" onClick={resetFilters} type="button">
+            Reset all
+          </button>
+        </div>
+
+        <section className="filter-section" role="group" aria-labelledby="class-filter-title">
+          <h3 className="filter-section-title" id="class-filter-title">Class</h3>
+          <div className="filter-options">
+            {classFilters.map((className) => (
+              <button
+                aria-pressed={state.className === className}
+                className="filter-option"
+                key={className}
+                onClick={() => setClassName(className)}
+                type="button"
+              >
+                <span>{className === "All" ? "All classes" : className}</span>
+                {state.className === className ? <span aria-hidden="true">✓</span> : null}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="filter-section" role="group" aria-labelledby="action-filter-title">
+          <h3 className="filter-section-title" id="action-filter-title">Action type</h3>
+          <div className="filter-options compact-options">
+            {actionFilters.map((type) => (
+              <button
+                aria-pressed={state.actionType === type}
+                className="filter-option"
+                key={type}
+                onClick={() => setActionType(type)}
+                type="button"
+              >
+                <span>{type === "All" ? "All actions" : type}</span>
+                {state.actionType === type ? <span aria-hidden="true">✓</span> : null}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="filter-section" role="group" aria-labelledby="difficulty-filter-title">
+          <h3 className="filter-section-title" id="difficulty-filter-title">Difficulty</h3>
+          <div className="difficulty-options">
+            {(["All", "Easy", "Advanced", "Risky"] as const).map((item) => (
+              <button
+                aria-pressed={state.difficulty === item}
+                className={`difficulty-chip difficulty-${item.toLowerCase()}`}
+                key={item}
+                onClick={() => setDifficulty(item)}
+                type="button"
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <div className="filter-tip">
+          <Icon name="shield" />
+          <p><strong>Back up first.</strong> Save your current binds before testing unfamiliar commands.</p>
+        </div>
         <ThemeSwitcher />
         <LocalSettingsManager />
       </aside>
