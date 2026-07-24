@@ -6,45 +6,69 @@ import { Icon } from "./Icon";
 export type CopyFeedback = { state: "idle" | "copied" | "fallback" | "error"; label: string };
 
 export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
-  const title = feedback.state === "copied"
+  const statusTitle = feedback.state === "copied"
     ? `Copied ${feedback.label}`
     : feedback.state === "fallback"
-      ? `Copied ${feedback.label} with browser fallback`
+      ? `Copied ${feedback.label}`
       : feedback.state === "error"
         ? `Copy failed for ${feedback.label}`
-        : "Forge ready";
-  const detail = feedback.state === "error"
+        : "Ready when you are";
+
+  const statusDetail = feedback.state === "error"
     ? "The command is focused. Press Ctrl+C to copy it manually."
-    : "Choose a preset, review the warning, and copy the generated line.";
+    : feedback.state === "idle"
+      ? "Choose a preset, check the key, then copy the command."
+      : "The command is now on your clipboard.";
 
   return (
-    <header className="app-header">
-      <div className="brand-lockup">
-        <div className="brand-mark"><Icon name="forge" /></div>
-        <div>
-          <p className="eyebrow">Neverwinter command workspace</p>
-          <h1>BindForge NW</h1>
-          <p className="brand-subtitle">
-            Build safer keybinds without digging through old forum posts, scattered wiki entries, or someone&apos;s heroic spreadsheet from 2014.
-          </p>
-          <nav className="hero-links" aria-label="Workspace sections">
-            <a className="hero-primary-link" href="#keybind-library">Browse keybinds</a>
-            <a className="hero-secondary-link" href="#command-lab-title">Open Command Lab</a>
-            <a className="hero-secondary-link" href="#custom-say-title">Create chat bind</a>
-          </nav>
+    <header className="app-header" id="top">
+      <nav className="site-nav" aria-label="Primary navigation">
+        <a className="site-brand" href="#top" aria-label="BindForge NW home">
+          <span className="brand-mark"><Icon name="forge" /></span>
+          <span>BindForge NW</span>
+        </a>
+        <div className="site-nav-links">
+          <a href="#keybind-library">Keybinds</a>
+          <a href="#command-lab-title">Command Lab</a>
+          <a href="#custom-say-title">Chat bind</a>
         </div>
-      </div>
+        <a className="nav-source-link" href="https://github.com/Nischhalsubba/BindForge-NW">GitHub</a>
+      </nav>
 
-      <div className="header-stats" aria-label="Catalog summary">
-        <div className="stat-card"><Icon name="spark" /><span><strong>{keybindPresets.length}</strong> curated keybinds</span></div>
-        <div className="stat-card"><Icon name="keyboard" /><span><strong>{keyCombos.length}</strong> key combinations</span></div>
-        <div className="stat-card"><Icon name="code" /><span><strong>{consoleCommands.length}</strong> command references</span></div>
-      </div>
+      <section className="hero" aria-labelledby="bindforge-title">
+        <div className="hero-copy">
+          <p className="hero-kicker">Free Neverwinter utility</p>
+          <h1 id="bindforge-title">Build keybinds without the guesswork.</h1>
+          <p className="brand-subtitle">
+            Search curated presets, edit the key, review conflicts, and copy a clean command in seconds.
+          </p>
+          <div className="hero-links" aria-label="Start using BindForge">
+            <a className="hero-primary-link" href="#keybind-library">Browse keybinds</a>
+            <a className="hero-secondary-link" href="#command-lab-title">Build a custom command</a>
+          </div>
+        </div>
 
-      <div className="ready-state" role="status" aria-live="polite">
-        <Icon name="shield" />
-        <span><strong>{title}</strong><small>{detail}</small></span>
-      </div>
+        <div className="hero-demo" aria-label="Example generated command">
+          <div className="hero-demo-head">
+            <span>Generated command</span>
+            <span className="hero-demo-status">Ready to copy</span>
+          </div>
+          <code>/bind ctrl+b &quot;gensendmessage Vipaction_Bankvendor activate&quot;</code>
+          <p>Edit the key. BindForge handles the command format.</p>
+        </div>
+      </section>
+
+      <section className="hero-meta" aria-label="Catalog summary and copy status">
+        <div className="hero-stats">
+          <span><strong>{keybindPresets.length}</strong> presets</span>
+          <span><strong>{keyCombos.length}</strong> key combinations</span>
+          <span><strong>{consoleCommands.length}</strong> command references</span>
+        </div>
+        <div className={`ready-state ready-state-${feedback.state}`} role="status" aria-live="polite">
+          <Icon name={feedback.state === "error" ? "warning" : "shield"} />
+          <span><strong>{statusTitle}</strong><small>{statusDetail}</small></span>
+        </div>
+      </section>
     </header>
   );
 }
