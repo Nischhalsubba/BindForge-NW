@@ -1,0 +1,357 @@
+/* Final UI finish layer.
+   Keeps the minimal design while correcting width, control sizing, and light-theme contrast. */
+
+:root {
+  --finish-content-max: 1500px;
+  --finish-control-height: 2.875rem;
+}
+
+.app-header,
+.workspace,
+.command-lab,
+.custom-say-builder,
+.app-footer {
+  width: min(calc(100% - 2rem), var(--finish-content-max)) !important;
+}
+
+.workspace {
+  grid-template-columns: minmax(14rem, 16rem) minmax(0, 1fr) !important;
+  gap: clamp(1.25rem, 2vw, 2rem) !important;
+}
+
+.filter-top-bar {
+  grid-template-columns:
+    minmax(8.75rem, 10rem)
+    minmax(18rem, 1.4fr)
+    minmax(13rem, 0.8fr)
+    minmax(8.5rem, auto)
+    minmax(7.5rem, auto) !important;
+  align-items: end !important;
+  column-gap: 0.75rem !important;
+  row-gap: 0.75rem !important;
+  padding: 0.8rem !important;
+}
+
+.filter-top-search input,
+.filter-top-select select,
+.filter-top-mode,
+.filter-top-reset {
+  width: 100% !important;
+  height: var(--finish-control-height) !important;
+  min-height: var(--finish-control-height) !important;
+  max-height: var(--finish-control-height) !important;
+}
+
+.filter-top-mode {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch !important;
+  padding: 0.2rem !important;
+}
+
+.filter-top-mode button {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  padding: 0.55rem 0.8rem !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.filter-top-reset,
+.primary-button,
+.secondary-button,
+.local-primary-action,
+.local-secondary-action,
+.text-button {
+  min-height: var(--finish-control-height) !important;
+  padding: 0.65rem 1rem !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  line-height: 1.2 !important;
+  white-space: nowrap;
+}
+
+.card-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.card-actions button {
+  width: 100% !important;
+  min-height: var(--finish-control-height) !important;
+  padding-inline: 0.75rem !important;
+}
+
+/* Explicit light appearance colors. These selectors intentionally outrank legacy layers. */
+html:not([data-theme="dark"]),
+html[data-theme="light"] {
+  color-scheme: light;
+}
+
+html:not([data-theme="dark"]) body,
+html[data-theme="light"] body {
+  color: #18181b !important;
+  background: #f7f7f5 !important;
+}
+
+html:not([data-theme="dark"]) .site-nav,
+html:not([data-theme="dark"]) .site-brand,
+html:not([data-theme="dark"]) .site-nav a,
+html:not([data-theme="dark"]) .nav-source-link,
+html:not([data-theme="dark"]) .hero h1,
+html:not([data-theme="dark"]) .brand-subtitle,
+html:not([data-theme="dark"]) .hero-stats,
+html:not([data-theme="dark"]) .ready-state,
+html:not([data-theme="dark"]) .filter-panel,
+html:not([data-theme="dark"]) .filter-panel h2,
+html:not([data-theme="dark"]) .filter-section-title,
+html:not([data-theme="dark"]) .filter-option,
+html:not([data-theme="dark"]) .difficulty-chip,
+html:not([data-theme="dark"]) .theme-option,
+html:not([data-theme="dark"]) .filter-top-summary,
+html:not([data-theme="dark"]) .filter-top-summary strong,
+html:not([data-theme="dark"]) .filter-top-search span,
+html:not([data-theme="dark"]) .filter-top-select span,
+html:not([data-theme="dark"]) .filter-top-reset,
+html:not([data-theme="dark"]) .group-heading,
+html:not([data-theme="dark"]) .group-heading h3,
+html:not([data-theme="dark"]) .bind-card,
+html:not([data-theme="dark"]) .bind-card h4,
+html:not([data-theme="dark"]) .card-meta,
+html:not([data-theme="dark"]) .card-type,
+html:not([data-theme="dark"]) .level-pill,
+html:not([data-theme="dark"]) .key-field,
+html:not([data-theme="dark"]) .key-field > span,
+html:not([data-theme="dark"]) .key-field small,
+html:not([data-theme="dark"]) .card-copy p,
+html:not([data-theme="dark"]) .secondary-button,
+html:not([data-theme="dark"]) .local-secondary-action,
+html:not([data-theme="dark"]) .reference-panel,
+html:not([data-theme="dark"]) .reference-row,
+html:not([data-theme="dark"]) .command-lab,
+html:not([data-theme="dark"]) .custom-say-builder,
+html[data-theme="light"] .site-nav,
+html[data-theme="light"] .site-brand,
+html[data-theme="light"] .site-nav a,
+html[data-theme="light"] .nav-source-link,
+html[data-theme="light"] .hero h1,
+html[data-theme="light"] .brand-subtitle,
+html[data-theme="light"] .hero-stats,
+html[data-theme="light"] .ready-state,
+html[data-theme="light"] .filter-panel,
+html[data-theme="light"] .filter-panel h2,
+html[data-theme="light"] .filter-section-title,
+html[data-theme="light"] .filter-option,
+html[data-theme="light"] .difficulty-chip,
+html[data-theme="light"] .theme-option,
+html[data-theme="light"] .filter-top-summary,
+html[data-theme="light"] .filter-top-summary strong,
+html[data-theme="light"] .filter-top-search span,
+html[data-theme="light"] .filter-top-select span,
+html[data-theme="light"] .filter-top-reset,
+html[data-theme="light"] .group-heading,
+html[data-theme="light"] .group-heading h3,
+html[data-theme="light"] .bind-card,
+html[data-theme="light"] .bind-card h4,
+html[data-theme="light"] .card-meta,
+html[data-theme="light"] .card-type,
+html[data-theme="light"] .level-pill,
+html[data-theme="light"] .key-field,
+html[data-theme="light"] .key-field > span,
+html[data-theme="light"] .key-field small,
+html[data-theme="light"] .card-copy p,
+html[data-theme="light"] .secondary-button,
+html[data-theme="light"] .local-secondary-action,
+html[data-theme="light"] .reference-panel,
+html[data-theme="light"] .reference-row,
+html[data-theme="light"] .command-lab,
+html[data-theme="light"] .custom-say-builder {
+  color: #27272a !important;
+}
+
+html:not([data-theme="dark"]) .filter-panel,
+html:not([data-theme="dark"]) .filter-top-bar,
+html:not([data-theme="dark"]) .bind-group,
+html:not([data-theme="dark"]) .bind-card,
+html:not([data-theme="dark"]) .command-lab,
+html:not([data-theme="dark"]) .custom-say-builder,
+html:not([data-theme="dark"]) .reference-panel,
+html[data-theme="light"] .filter-panel,
+html[data-theme="light"] .filter-top-bar,
+html[data-theme="light"] .bind-group,
+html[data-theme="light"] .bind-card,
+html[data-theme="light"] .command-lab,
+html[data-theme="light"] .custom-say-builder,
+html[data-theme="light"] .reference-panel {
+  border-color: #d4d4d0 !important;
+  background: #ffffff !important;
+}
+
+html:not([data-theme="dark"]) input,
+html:not([data-theme="dark"]) select,
+html:not([data-theme="dark"]) textarea,
+html[data-theme="light"] input,
+html[data-theme="light"] select,
+html[data-theme="light"] textarea {
+  color: #18181b !important;
+  background: #ffffff !important;
+  border-color: #bfc0bc !important;
+}
+
+html:not([data-theme="dark"]) input::placeholder,
+html:not([data-theme="dark"]) textarea::placeholder,
+html[data-theme="light"] input::placeholder,
+html[data-theme="light"] textarea::placeholder {
+  color: #71717a !important;
+  opacity: 1;
+}
+
+html:not([data-theme="dark"]) .filter-top-mode,
+html[data-theme="light"] .filter-top-mode {
+  background: #ecece8 !important;
+  border-color: #d4d4d0 !important;
+}
+
+html:not([data-theme="dark"]) .filter-top-mode button,
+html[data-theme="light"] .filter-top-mode button {
+  color: #52525b !important;
+}
+
+html:not([data-theme="dark"]) .filter-top-mode button[aria-pressed="true"],
+html[data-theme="light"] .filter-top-mode button[aria-pressed="true"] {
+  color: #ffffff !important;
+  background: #18181b !important;
+}
+
+html:not([data-theme="dark"]) .primary-button,
+html:not([data-theme="dark"]) .local-primary-action,
+html[data-theme="light"] .primary-button,
+html[data-theme="light"] .local-primary-action {
+  color: #ffffff !important;
+  background: #18181b !important;
+  border-color: #18181b !important;
+}
+
+html:not([data-theme="dark"]) .secondary-button,
+html:not([data-theme="dark"]) .filter-top-reset,
+html:not([data-theme="dark"]) .local-secondary-action,
+html[data-theme="light"] .secondary-button,
+html[data-theme="light"] .filter-top-reset,
+html[data-theme="light"] .local-secondary-action {
+  color: #27272a !important;
+  background: #ffffff !important;
+  border-color: #a9aaa6 !important;
+}
+
+html:not([data-theme="dark"]) .filter-option[aria-pressed="true"],
+html:not([data-theme="dark"]) .difficulty-chip[aria-pressed="true"],
+html:not([data-theme="dark"]) .theme-option[aria-pressed="true"],
+html[data-theme="light"] .filter-option[aria-pressed="true"],
+html[data-theme="light"] .difficulty-chip[aria-pressed="true"],
+html[data-theme="light"] .theme-option[aria-pressed="true"] {
+  color: #18181b !important;
+  background: #ecece8 !important;
+  border-color: #a9aaa6 !important;
+}
+
+html:not([data-theme="dark"]) .command-preview,
+html:not([data-theme="dark"]) .lab-preview,
+html[data-theme="light"] .command-preview,
+html[data-theme="light"] .lab-preview {
+  color: #f8fafc !important;
+  background: #101827 !important;
+  border-color: #26334a !important;
+}
+
+html:not([data-theme="dark"]) .command-preview .command-label,
+html:not([data-theme="dark"]) .command-preview code,
+html:not([data-theme="dark"]) .lab-preview > span,
+html:not([data-theme="dark"]) .lab-preview code,
+html[data-theme="light"] .command-preview .command-label,
+html[data-theme="light"] .command-preview code,
+html[data-theme="light"] .lab-preview > span,
+html[data-theme="light"] .lab-preview code {
+  color: #e8eef9 !important;
+}
+
+html:not([data-theme="dark"]) .status-safe,
+html[data-theme="light"] .status-safe {
+  color: #1f5f3c !important;
+  background: #edf8f1 !important;
+  border-color: #a9d2b7 !important;
+}
+
+html:not([data-theme="dark"]) .status-warn,
+html:not([data-theme="dark"]) .status-info,
+html[data-theme="light"] .status-warn,
+html[data-theme="light"] .status-info {
+  color: #704b00 !important;
+  background: #fff7df !important;
+  border-color: #e5c875 !important;
+}
+
+html:not([data-theme="dark"]) .status-danger,
+html[data-theme="light"] .status-danger {
+  color: #8b1e2d !important;
+  background: #fff0f1 !important;
+  border-color: #e2a7ad !important;
+}
+
+@media (max-width: 1180px) {
+  .filter-top-bar {
+    grid-template-columns: minmax(8rem, 9rem) minmax(14rem, 1fr) minmax(11rem, 0.8fr) auto auto !important;
+  }
+}
+
+@media (max-width: 1020px) {
+  .filter-top-bar {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .filter-top-summary,
+  .filter-top-search {
+    grid-column: 1 / -1;
+  }
+
+  .filter-top-select,
+  .filter-top-mode,
+  .filter-top-reset {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  .workspace {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 620px) {
+  .app-header,
+  .workspace,
+  .command-lab,
+  .custom-say-builder,
+  .app-footer {
+    width: min(calc(100% - 1rem), var(--finish-content-max)) !important;
+  }
+
+  .filter-top-bar {
+    grid-template-columns: 1fr !important;
+  }
+
+  .filter-top-summary,
+  .filter-top-search,
+  .filter-top-select,
+  .filter-top-mode,
+  .filter-top-reset {
+    grid-column: 1 !important;
+  }
+
+  .card-actions {
+    grid-template-columns: 1fr !important;
+  }
+}
