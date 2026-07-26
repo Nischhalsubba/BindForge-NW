@@ -1,0 +1,212 @@
+/* Final keybind-card refinement for the minimal Open Design interface. */
+
+.bind-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)) !important;
+  gap: 0.9rem !important;
+  padding: 0.9rem !important;
+  background: transparent !important;
+}
+
+.bind-card {
+  display: grid !important;
+  grid-template-rows: auto minmax(8.5rem, auto) auto auto auto !important;
+  gap: 1rem !important;
+  min-width: 0;
+  padding: 1.1rem !important;
+  border: 1px solid var(--minimal-border, #d9d9d5) !important;
+  border-radius: 14px !important;
+  background: var(--minimal-surface, #ffffff) !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+}
+
+html[data-theme="dark"] .bind-card {
+  border-color: #2f3136 !important;
+  background: #17181b !important;
+  box-shadow: none !important;
+}
+
+.card-header {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 0.75rem !important;
+  min-width: 0;
+}
+
+.card-meta {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 0.45rem !important;
+}
+
+.card-type,
+.level-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  min-height: 1.75rem;
+  padding: 0.3rem 0.55rem !important;
+  border: 1px solid var(--minimal-border, #d9d9d5) !important;
+  border-radius: 999px !important;
+  font-size: 0.72rem !important;
+  font-weight: 650 !important;
+  line-height: 1.1 !important;
+}
+
+.card-type {
+  max-width: 48%;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.card-copy {
+  display: grid !important;
+  align-content: start !important;
+  gap: 0.55rem !important;
+}
+
+.card-copy h4 {
+  margin: 0 !important;
+  font-size: 1.06rem !important;
+  line-height: 1.28 !important;
+  letter-spacing: -0.018em !important;
+}
+
+.card-copy p {
+  margin: 0 !important;
+  color: var(--minimal-text-muted, #5f6368) !important;
+  font-size: 0.91rem !important;
+  line-height: 1.58 !important;
+}
+
+.card-editor {
+  display: grid !important;
+  gap: 0.7rem !important;
+  padding-top: 0.25rem;
+}
+
+.key-field {
+  display: grid !important;
+  gap: 0.4rem !important;
+}
+
+.key-field > span {
+  font-size: 0.78rem !important;
+  font-weight: 650 !important;
+}
+
+.key-field input {
+  width: 100%;
+  min-height: 2.75rem !important;
+  padding: 0.7rem 0.8rem !important;
+  border-radius: 10px !important;
+}
+
+.key-field small {
+  color: var(--minimal-text-muted, #5f6368) !important;
+  font-size: 0.74rem !important;
+  line-height: 1.45 !important;
+}
+
+.key-status {
+  display: grid !important;
+  grid-template-columns: auto 1fr !important;
+  align-items: start !important;
+  gap: 0.55rem !important;
+  min-height: 3.25rem;
+  padding: 0.75rem !important;
+  border-radius: 10px !important;
+  font-size: 0.76rem !important;
+  line-height: 1.45 !important;
+}
+
+.key-status .ui-icon {
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.08rem;
+}
+
+.status-safe {
+  border-color: #b9d6c2 !important;
+  background: #f2f8f4 !important;
+  color: #24553a !important;
+}
+
+.status-danger {
+  border-color: #efb4b4 !important;
+  background: #fff3f3 !important;
+  color: #8f1f2c !important;
+}
+
+html[data-theme="dark"] .status-safe {
+  border-color: #315b43 !important;
+  background: #15251c !important;
+  color: #9de0b2 !important;
+}
+
+html[data-theme="dark"] .status-danger {
+  border-color: #71343a !important;
+  background: #29171a !important;
+  color: #ffb4bd !important;
+}
+
+.command-preview {
+  display: grid !important;
+  gap: 0.65rem !important;
+  min-height: 6.5rem;
+  padding: 0.9rem !important;
+  border: 1px solid #d8e0ef !important;
+  border-radius: 11px !important;
+  background: #f7f9fc !important;
+}
+
+html[data-theme="dark"] .command-preview {
+  border-color: #293554 !important;
+  background: #111726 !important;
+}
+
+.command-preview code {
+  display: block;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  font-size: 0.79rem !important;
+  line-height: 1.55 !important;
+}
+
+.card-actions {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 0.55rem !important;
+  align-items: stretch !important;
+}
+
+.card-actions button {
+  min-height: 2.8rem !important;
+  border-radius: 10px !important;
+}
+
+.card-actions .primary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+@media (max-width: 560px) {
+  .bind-grid {
+    grid-template-columns: 1fr !important;
+    padding: 0.65rem !important;
+  }
+
+  .bind-card {
+    grid-template-rows: auto auto auto auto auto !important;
+    padding: 1rem !important;
+  }
+
+  .card-actions {
+    grid-template-columns: 1fr !important;
+  }
+
+  .card-type {
+    max-width: 55%;
+  }
+}
