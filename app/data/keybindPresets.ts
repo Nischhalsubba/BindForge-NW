@@ -18,10 +18,11 @@ import { movementAndCamera } from "./keybindPresetSections/movementAndCamera";
 import { emotes } from "./keybindPresetSections/emotes";
 import { customChatMessages } from "./keybindPresetSections/customChatMessages";
 import { bardSongs } from "./keybindPresetSections/bardSongs";
+import { suggestedKeyForIndex } from "../lib/safe-key-suggestions";
 
 export type { KeybindType, KeybindClass, KeybindPreset } from "./keybindTypes";
 
-export const keybindPresets: KeybindPreset[] = [
+const rawKeybindPresets: KeybindPreset[] = [
   ...inventoryAndConsumables,
   ...vipAndRewardFunctions,
   ...characterInstanceAndAccount,
@@ -39,3 +40,8 @@ export const keybindPresets: KeybindPreset[] = [
   ...customChatMessages,
   ...bardSongs,
 ];
+
+export const keybindPresets: KeybindPreset[] = rawKeybindPresets.map((preset, index) => ({
+  ...preset,
+  defaultKey: suggestedKeyForIndex(index),
+}));
