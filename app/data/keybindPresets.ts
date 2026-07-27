@@ -43,5 +43,5 @@ const rawKeybindPresets: KeybindPreset[] = [
 
 export const keybindPresets: KeybindPreset[] = rawKeybindPresets.map((preset, index) => ({
   ...preset,
-  defaultKey: suggestedKeyForIndex(index),
+  defaultKey: preset.preserveDefaultKey ? preset.defaultKey : suggestedKeyForIndex(index),
 }));

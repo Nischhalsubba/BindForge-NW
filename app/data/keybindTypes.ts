@@ -13,7 +13,7 @@ export type KeybindType =
   | "Risky / Testing"
   | "Social";
 
-export type KeybindClass = "Any Class" | "Bard" | "Paladin" | "Fighter / Cleric";
+export type KeybindClass = "Any Class" | "Bard" | "Paladin" | "Ranger" | "Fighter / Cleric";
 
 export type KeybindPreset = {
   id: string;
@@ -25,4 +25,5 @@ export type KeybindPreset = {
   command: string;
   searchTerms: string[];
   difficulty: "Easy" | "Advanced" | "Risky";
+  preserveDefaultKey?: boolean;
 };
