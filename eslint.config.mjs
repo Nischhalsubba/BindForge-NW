@@ -5,6 +5,15 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  {
+    files: ["app/components/KeybindLibrary.tsx"],
+    rules: {
+      // This client-only component intentionally hydrates browser-local collections
+      // and URL state after mount. The updates synchronize external browser state,
+      // rather than deriving React state from other React state.
+      "react-hooks/set-state-in-effect": "off",
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
