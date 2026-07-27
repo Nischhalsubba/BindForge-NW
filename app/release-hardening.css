@@ -68,7 +68,7 @@
   }
 }
 
-/* WCAG AA fixes found by the release axe run. */
+/* WCAG AA fixes found by the release axe runs. */
 html[data-theme="dark"] .skip-link {
   color: #ffffff !important;
   background: #1d4ed8 !important;
@@ -77,6 +77,12 @@ html[data-theme="dark"] .skip-link {
 html[data-theme="dark"] .card-copy p,
 html[data-theme="dark"] .key-field small {
   color: #c9d0da !important;
+}
+
+html[data-theme="light"] .theme-switcher button[aria-pressed="true"] {
+  color: #153f32 !important;
+  background: #dcede9 !important;
+  border-color: #6d9f90 !important;
 }
 
 /* Reduce initial rendering work for the large preset catalogue while retaining
