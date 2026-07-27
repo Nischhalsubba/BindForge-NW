@@ -29,6 +29,9 @@ jobs:
       - name: Install application dependencies
         run: npm ci
 
+      - name: Reject focused tests
+        run: npm run test:focused-guard
+
       - name: Lint application and test sources
         run: npm run lint
 
