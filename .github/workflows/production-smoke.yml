@@ -1,0 +1,63 @@
+name: Production smoke
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PRODUCTION_URL: https://neverwinterkeybind.netlify.app
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install application dependencies
+        run: npm ci
+
+      - name: Install production browser-test tooling
+        run: npm install --no-save @playwright/test@1.55.0
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Wait for production
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent --show-error --location "$PRODUCTION_URL" > /dev/null; then
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "Production did not become reachable in time."
+          exit 1
+
+      - name: Run live production smoke suite
+        run: npx playwright test --config=playwright.production.config.ts
+
+      - name: Upload production smoke report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-smoke-report
+          path: |
+            production-smoke-report/
+            test-results/
+          retention-days: 14
+          if-no-files-found: ignore
