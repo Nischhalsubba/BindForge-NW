@@ -8,6 +8,7 @@ import { CommandLab } from "./components/CommandLab";
 import { CustomSayBuilder } from "./components/CustomSayBuilder";
 import { FilterSidebar } from "./components/FilterSidebar";
 import { KeybindLibrary } from "./components/KeybindLibrary";
+import { UrlStateBridge } from "./components/UrlStateBridge";
 import { Icon } from "./components/Icon";
 
 export type CopyResultState = "copied" | "fallback" | "error";
@@ -41,6 +42,7 @@ export default function Home() {
   return (
     <main className="app-shell">
       <a className="skip-link" href="#keybind-library">Skip to keybind library</a>
+      <UrlStateBridge />
       <AppHeader feedback={feedback} />
       <section className="workspace">
         <FilterSidebar />
