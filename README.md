@@ -4,50 +4,45 @@
 
 # BindForge NW
 
-### Build Neverwinter keybinds without memorizing console commands
+### Build, review, organize, and export Neverwinter keybinds without memorizing console commands
 
-A data-driven keybind preset browser, console-command explorer, safety checker, and copy-ready `/bind` or `/unbind` generator.
+A data-driven preset browser, conflict planner, command explorer, collection manager, and copy-ready `/bind` or `/unbind` generator.
 
 ![Next.js](https://img.shields.io/badge/Next.js-16.2-000000?style=flat-square&logo=nextdotjs&logoColor=white)
 ![React](https://img.shields.io/badge/React-19.2-61DAFB?style=flat-square&logo=react&logoColor=111111)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript&logoColor=white)
 
-[Engineering case study](./docs/PRODUCT_AND_ENGINEERING_CASE_STUDY.md) · [Architecture](./docs/architecture.md) · [Release checklist](./docs/release-checklist.md)
+[Live application](https://neverwinterkeybind.netlify.app) · [Engineering case study](./docs/PRODUCT_AND_ENGINEERING_CASE_STUDY.md) · [Architecture](./docs/architecture.md) · [Release status](./docs/RELEASE_STATUS.md)
 
 </div>
 
 ## Product
 
-BindForge NW helps Neverwinter players find, edit, generate, and copy practical keybind commands without searching scattered forum posts, wiki fragments, spreadsheets, or old chat messages.
-
-Players can search and filter presets, edit key combinations, review conflict warnings, switch between bind and unbind output, build custom commands, create custom chat binds, and preserve settings in the browser.
+BindForge NW helps Neverwinter players find, edit, validate, organize, share, and export practical keybind commands without searching scattered forum posts, wiki fragments, spreadsheets, or old chat messages.
 
 ## Main capabilities
 
 | Capability | Description |
 |---|---|
-| Preset library | Ready-made binds for combat, utility, class, companion, VIP, camera, social, and other actions |
-| Search and filtering | Search presets and filter by class, action type, and difficulty |
+| Preset library | Searchable binds for combat, utility, class, companion, VIP, camera, social, and other actions |
+| Conflict planner | Duplicate detection, common native-key warnings, intentional-override guidance, and next-safer-key replacement |
+| Bulk bind packs | Select visible presets, copy bind/unbind packs, and download text files |
+| Favourites and collections | Save favourites and named local collections in the browser |
+| Shareable views | Copy URLs for a selected preset, collection, and active filters |
+| Provenance | Source type, confidence, verification date, game-version notes, and provenance filtering |
+| Advanced browsing | Card or compact view, sorting, collapsible groups, collection filtering, safety filtering, and search highlighting |
 | Bind and unbind modes | Generate `/bind` or `/unbind` output from the same shared state |
 | Command Lab | Combine supported keys with catalog commands and optional arguments |
 | Custom chat builder | Generate safe, normalized `say` message binds |
-| Conflict guidance | Warn about movement, menus, chat, mouse buttons, and reserved Windows combinations |
-| Local persistence | Save filters, keys, appearance, Command Lab, and custom-chat settings in the browser |
+| Local persistence | Save filters, keys, appearance, Command Lab, custom chat, favourites, collections, and library preferences |
 | Backup tools | Export, validate, import, migrate, and clear versioned JSON settings |
-| Recovery UI | Route-level loading, not-found, and runtime-error experiences |
-| Responsive UI | Mobile-first toolbar and filter behavior with tablet and desktop enhancement |
+| Responsive UI | Mobile, tablet, and desktop layouts with keyboard and reduced-motion support |
+| Copy feedback | Local copied states, global toast feedback, fallback handling, errors, and accessible announcements |
 
 ## Command output
 
-Bind mode:
-
 ```text
 /bind <key> <command> <optional arguments>
-```
-
-Unbind mode:
-
-```text
 /unbind <key>
 ```
 
@@ -56,33 +51,6 @@ Example:
 ```text
 /bind ctrl+b gensendmessage Vipaction_Bankvendor activate
 ```
-
-## Architecture
-
-`BindForgeProvider` is the single source of truth for user-editable application state. Components consume state and actions through `useBindForge`; they do not synchronize through document queries, mutation observers, or synthetic input events.
-
-Important areas:
-
-```text
-app/
-├── BindForgeProvider.tsx       shared state, persistence, theme, backup and recovery
-├── FilterTopBar.tsx            responsive search, action filter, mode and reset controls
-├── components/
-│   ├── FilterSidebar.tsx       class, difficulty, appearance and backup controls
-│   ├── KeybindLibrary.tsx      preset filtering, grouping and editable cards
-│   ├── CommandLab.tsx          custom command generation
-│   └── CustomSayBuilder.tsx    custom chat bind generation
-├── lib/                        deterministic command, backup, clipboard and catalog helpers
-├── error.tsx                   runtime recovery
-├── loading.tsx                 route loading state
-├── not-found.tsx               missing-route recovery
-└── mobile-first.css            responsive layout and contrast corrections
-
-e2e/
-└── bindforge.spec.ts           mobile, tablet and desktop browser regression coverage
-```
-
-See [docs/architecture.md](./docs/architecture.md) for the detailed state and component boundaries.
 
 ## Run locally
 
@@ -100,103 +68,58 @@ Open `http://localhost:3000`.
 
 ## Verification
 
-Install the browser-test tooling once when working locally:
+Install browser-test tooling once when working locally:
 
 ```bash
 npm install --no-save @playwright/test@1.55.0 axe-core@4.10.2
 npx playwright install chromium
 ```
 
-Then run:
+Run the complete local release gate:
 
 ```bash
 npm run check:release
 ```
 
-The release check covers:
+The release gate covers ESLint, TypeScript, unit and catalog tests, production build, mobile/tablet/desktop Playwright checks, persistence, recovery, keyboard navigation, and dark/light axe accessibility checks.
 
-- ESLint
-- TypeScript validation
-- unit and catalog tests
-- production build
-- Playwright smoke and regression tests
-- mobile, tablet, and desktop viewport coverage
-- persistence and clear-data regression checks
-- route recovery
-- keyboard navigation
-- axe accessibility checks in dark and light appearance
+The dedicated `Production smoke` workflow verifies the live Netlify domain, primary search/filter journey, canonical and Open Graph URLs, `robots.txt`, sitemap, skip navigation, and theme controls.
 
-GitHub Actions retains typecheck, build, and Playwright diagnostics for failed runs.
+## Production
 
-## Current status
+- Canonical URL: `https://neverwinterkeybind.netlify.app`
+- Netlify deploys `main` automatically.
+- Cloudflare Workers provides an additional production-compatible deployment path.
+- Current release evidence and accepted limitations are recorded in [docs/RELEASE_STATUS.md](./docs/RELEASE_STATUS.md).
 
-| Area | Status |
-|---|---|
-| Preset search and filtering | Implemented |
-| Command and key-combination browsers | Implemented |
-| Bind, unbind and custom-chat generation | Implemented |
-| Shared provider architecture | Implemented |
-| Browser-local persistence and backups | Implemented |
-| Route recovery | Implemented |
-| Unit and catalog tests | Implemented |
-| Playwright regression suite | Under release stabilization in PR #31 |
-| Accessibility baseline | Under release stabilization in PR #31 |
-| Mobile-first responsive layout | Under release stabilization in PR #31 |
-| Verified public production deployment | Pending |
-| Real production screenshots | Pending deployment verification |
+## Stylesheet architecture
 
-## Release process
-
-A build is not ready for promotion until:
-
-1. The pull-request Quality workflow passes.
-2. The manually triggered Release verification workflow passes.
-3. Desktop, tablet, and mobile layouts are reviewed.
-4. Search, filters, output modes, persistence, backup, theme, clipboard, and recovery behavior are manually checked.
-5. The production deployment URL is opened and smoke-tested.
-6. The release record includes the commit, workflows, deployment, tester, browsers, viewports, date, and accepted limitations.
-
-See [docs/release-checklist.md](./docs/release-checklist.md).
-
-## Production deployment
-
-A verified production URL is not yet documented. After deployment:
-
-- run the production smoke checklist
-- verify metadata, Open Graph image, `robots.txt`, and `llms.txt`
-- add the canonical URL and sitemap
-- record the deployment URL and commit
-- capture real desktop and mobile screenshots
+Application code imports one authoritative stylesheet entrypoint: `app/app.css`. It controls the order of legacy visual layers and the final product layer in one location, avoiding scattered imports in React code. Historical layers remain isolated so regressions can be traced and removed safely over time without silently changing the approved design.
 
 ## Data maintenance
 
 Before publishing command updates:
 
-- verify behavior against the current game version
-- record the source and verification date
+- verify behavior against the current Neverwinter version
+- record a source URL when available
+- record a verification date
 - preserve aliases and required arguments
 - clearly mark uncertain or undocumented behavior
 - review default-key conflicts
 - never describe advisory safety guidance as a guarantee
 
+## Branch protection
+
+Required checks and merge protections are documented in [docs/BRANCH_PROTECTION.md](./docs/BRANCH_PROTECTION.md). Pull requests should not merge until Quality, Production smoke, and deployment previews are green.
+
 ## Known limitations
 
-- Neverwinter commands may change after patches.
+- Neverwinter commands can change after patches.
 - Some commands are undocumented or inconsistently supported.
-- BindForge generates text but does not apply binds inside the game.
+- BindForge generates text but cannot apply binds inside the game.
 - Players must paste generated commands themselves.
-- Conflict and safety guidance is advisory.
-- A verified public production deployment is still pending.
-
-## Roadmap
-
-1. Finish PR #31 browser, accessibility, and responsive verification.
-2. Run and record the manual Release verification workflow.
-3. Publish and verify the production deployment.
-4. Add the canonical URL and sitemap.
-5. Capture real desktop and mobile production screenshots.
-6. Record source and verification dates throughout the command catalog.
-7. Add shareable preset URLs and personal bind collections.
+- Conflict guidance is advisory because personal in-game remaps are not readable by a browser.
+- Favourites and collections are browser-local unless exported or shared.
 
 ## Disclaimer
 

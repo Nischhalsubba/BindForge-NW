@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 const productionUrl = "https://neverwinterkeybind.netlify.app";
+const normalizeUrl = (value: string | null) => value?.replace(/\/$/, "") ?? "";
 
 async function openFiltersWhenCollapsed(page: import("@playwright/test").Page) {
   const toggle = page.getByRole("button", { name: "Filters", exact: true });
@@ -35,8 +36,10 @@ test("production homepage supports the primary keybind journey", async ({ page }
 test("production metadata and crawl files use the Netlify canonical domain", async ({ page, request }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
 
-  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", `${productionUrl}/`);
-  await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", `${productionUrl}/`);
+  const canonical = await page.locator('link[rel="canonical"]').getAttribute("href");
+  const openGraph = await page.locator('meta[property="og:url"]').getAttribute("content");
+  expect(normalizeUrl(canonical)).toBe(productionUrl);
+  expect(normalizeUrl(openGraph)).toBe(productionUrl);
 
   const robots = await request.get("/robots.txt");
   expect(robots.ok()).toBeTruthy();
@@ -49,11 +52,13 @@ test("production metadata and crawl files use the Netlify canonical domain", asy
 
 test("production theme controls and keyboard skip link remain usable", async ({ page }) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.locator("body").click({ position: { x: 1, y: 1 } });
+  await page.keyboard.press("Home");
   await page.keyboard.press("Tab");
   const skipLink = page.getByRole("link", { name: "Skip to keybind library" });
   await expect(skipLink).toBeFocused();
   await skipLink.press("Enter");
-  await expect(page.locator("#keybind-library")).toBeInViewport();
+  await expect(page.locator("#keybind-library")).toBeFocused();
 
   await openFiltersWhenCollapsed(page);
   const appearance = page.getByLabel("Appearance");
