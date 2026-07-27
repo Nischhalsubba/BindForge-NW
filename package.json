@@ -1,6 +1,6 @@
 {
   "name": "bindforge-nw",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "private": true,
   "description": "A Neverwinter keybind builder, console-command browser, safety checker, and copy-ready bind or unbind generator.",
   "author": "Nischhal Raj Subba",
