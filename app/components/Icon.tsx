@@ -1,4 +1,4 @@
-export type IconName = "forge" | "search" | "keyboard" | "code" | "shield" | "copy" | "reset" | "filter" | "spark";
+export type IconName = "forge" | "search" | "keyboard" | "code" | "shield" | "warning" | "copy" | "reset" | "filter" | "spark";
 
 export function Icon({ name }: { name: IconName }) {
   const paths = {
@@ -7,6 +7,7 @@ export function Icon({ name }: { name: IconName }) {
     keyboard: <path d="M3 6h18v12H3V6Zm4 4h.01M10 10h.01M13 10h.01M16 10h.01M7 13h.01M10 13h.01M13 13h4M7 16h10" />,
     code: <path d="m8 9-4 3 4 3m8-6 4 3-4 3m-2-8-4 10" />,
     shield: <path d="M12 3 5 6v5c0 5 3.5 8 7 10 3.5-2 7-5 7-10V6l-7-3Zm-3 9 2 2 4-4" />,
+    warning: <path d="M12 3 2.8 19h18.4L12 3Zm0 5v5m0 3h.01" />,
     copy: <path d="M8 8h11v11H8V8Zm-3 8H4V5h11v1" />,
     reset: <path d="M20 11a8 8 0 1 0-2.34 5.66M20 4v7h-7" />,
     filter: <path d="M4 6h16M7 12h10m-7 6h4" />,

@@ -1,0 +1,103 @@
+/* Final release hardening layer.
+   This file intentionally loads last and neutralizes obsolete layout experiments
+   without changing the current minimal visual direction. */
+
+/* The legacy full-width filter dock left grid placement rules behind after the
+   product returned to a compact sidebar. Restore one normal document flow so
+   filter controls and backup tools cannot overlap or intercept each other. */
+.filter-panel,
+.filter-panel.filter-panel-open {
+  grid-template-columns: none !important;
+  grid-auto-flow: row !important;
+  align-content: start !important;
+}
+
+.filter-panel > *,
+.filter-panel .filter-section,
+.filter-panel .filter-tip,
+.filter-panel .theme-switcher,
+.filter-panel .local-backup-card,
+.filter-panel .local-save-status,
+.filter-panel .local-backup-actions,
+.filter-panel .local-privacy-note {
+  position: static !important;
+  inset: auto !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  height: auto !important;
+  transform: none !important;
+}
+
+.filter-panel .local-backup-card {
+  display: block !important;
+}
+
+.filter-panel .local-save-status,
+.filter-panel .local-backup-actions,
+.filter-panel .local-privacy-note {
+  margin-top: 0.75rem !important;
+}
+
+@media (min-width: 901px) {
+  .filter-panel,
+  .filter-panel.filter-panel-open {
+    display: block !important;
+    max-height: calc(100vh - 2.25rem) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    scrollbar-gutter: stable;
+  }
+}
+
+@media (max-width: 900px) {
+  .filter-panel,
+  .filter-panel.filter-panel-open {
+    position: static !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .filter-panel:not(.filter-panel-open) {
+    display: none !important;
+  }
+
+  .filter-panel.filter-panel-open {
+    display: block !important;
+  }
+}
+
+/* WCAG AA fixes found by the release axe runs. */
+html[data-theme="dark"] .skip-link {
+  color: #ffffff !important;
+  background: #1d4ed8 !important;
+}
+
+html[data-theme="dark"] .card-copy p,
+html[data-theme="dark"] .key-field small {
+  color: #c9d0da !important;
+}
+
+html[data-theme="light"] .theme-switcher button[aria-pressed="true"] {
+  color: #153f32 !important;
+  background: #dcede9 !important;
+  border-color: #6d9f90 !important;
+}
+
+/* Reduce initial rendering work for the large preset catalogue while retaining
+   the complete DOM, search behaviour, keyboard access, and accessible content. */
+.bind-group {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 760px;
+}
+
+.bind-card {
+  contain: layout paint style;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filter-panel > * {
+    transform: none !important;
+  }
+}
