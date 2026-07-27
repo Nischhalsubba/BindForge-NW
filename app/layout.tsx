@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import packageInfo from "../package.json";
 import { BindForgeProvider } from "./BindForgeProvider";
 import "./data/catalogIntegrity";
 import "./globals.css";
@@ -96,7 +97,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     operatingSystem: "Any operating system with a modern web browser",
     description:
       "A browser-based Neverwinter keybind builder for searching presets, console commands, and key combinations and generating copy-ready bind and unbind commands.",
-    softwareVersion: "0.8.2",
+    softwareVersion: packageInfo.version,
     isAccessibleForFree: true,
     author: {
       "@type": "Person",

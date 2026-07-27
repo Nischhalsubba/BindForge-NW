@@ -42,6 +42,9 @@ const rawKeybindPresets: KeybindPreset[] = [
 ];
 
 export const keybindPresets: KeybindPreset[] = rawKeybindPresets.map((preset, index) => ({
+  sourceType: "community",
+  confidence: preset.difficulty === "Risky" ? "experimental" : "community-tested",
+  gameVersion: "Current behavior should be rechecked after Neverwinter patches",
   ...preset,
   defaultKey: preset.preserveDefaultKey ? preset.defaultKey : suggestedKeyForIndex(index),
 }));

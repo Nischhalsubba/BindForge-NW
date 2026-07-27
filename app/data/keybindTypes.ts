@@ -14,6 +14,8 @@ export type KeybindType =
   | "Social";
 
 export type KeybindClass = "Any Class" | "Bard" | "Paladin" | "Ranger" | "Fighter / Cleric";
+export type PresetSourceType = "official" | "wiki" | "community" | "user-submitted";
+export type PresetConfidence = "verified" | "community-tested" | "experimental";
 
 export type KeybindPreset = {
   id: string;
@@ -26,4 +28,11 @@ export type KeybindPreset = {
   searchTerms: string[];
   difficulty: "Easy" | "Advanced" | "Risky";
   preserveDefaultKey?: boolean;
+  intentionalNativeOverride?: boolean;
+  sourceType?: PresetSourceType;
+  sourceUrl?: string;
+  verifiedAt?: string;
+  gameVersion?: string;
+  confidence?: PresetConfidence;
+  notes?: string;
 };
