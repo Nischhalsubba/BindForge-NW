@@ -40,7 +40,10 @@ export function UrlStateBridge() {
     });
 
     return () => window.cancelAnimationFrame(frame);
-  }, [setActionType, setClassName, setDifficulty, setSearch]);
+    // URL parameters are intentionally consumed once. Reapplying them after every
+    // provider update would overwrite the user's changes during the session.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return null;
 }
