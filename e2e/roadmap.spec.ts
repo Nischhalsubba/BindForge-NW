@@ -27,7 +27,7 @@ test("advanced browsing changes view, sorting, provenance, and collapsed groups"
   await expect(collapse).toHaveText("Expand");
 });
 
-test("selection builds packs and named local collections", async ({ page, context }) => {
+test("selection builds packs, local collections, and portable links", async ({ page, context }) => {
   const firstSelect = page.getByText("Select", { exact: true }).first();
   await firstSelect.click();
   await expect(page.getByText("1 selected", { exact: true })).toBeVisible();
@@ -40,7 +40,9 @@ test("selection builds packs and named local collections", async ({ page, contex
   await expect(page.getByLabel("Browse collection")).toHaveValue("My raid setup");
 
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
-  await page.getByRole("button", { name: "Copy share link" }).click();
+  await page.getByRole("button", { name: "Copy portable link" }).click();
+  await expect(page).toHaveURL(/collection=My\+raid\+setup/);
+  await expect(page).toHaveURL(/ids=/);
   await expect(page.getByRole("status").filter({ hasText: "Copied" })).toBeVisible();
 });
 
