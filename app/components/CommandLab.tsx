@@ -1,17 +1,20 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useBindForge } from "../BindForgeProvider";
 import { consoleCommands } from "../data/commands";
 import { keyCombos } from "../data/keyCombos";
 import type { ConsoleCommand } from "../data/commands";
 import type { KeyCombo } from "../data/keyCombos";
 import { buildCustomLine } from "../lib/keybind-core.mjs";
+import type { CopyResultState } from "../page";
 import { Icon } from "./Icon";
 
 const commandCategories = ["All", ...Array.from(new Set(consoleCommands.map((command) => command.category)))];
 const comboCategories = ["All", ...Array.from(new Set(keyCombos.map((combo) => combo.category)))];
 const statusLabels: Record<KeyCombo["status"], string> = { core: "Recommended", candidate: "Test first", avoid: "Risky" };
+type CopyHandler = (text: string, label: string, target: HTMLElement | null) => Promise<CopyResultState>;
+type CopyState = "idle" | "copying" | CopyResultState;
 
 function normalizeText(value: string) {
   return value.trim().toLowerCase();
@@ -21,9 +24,11 @@ function commandLabel(command: ConsoleCommand) {
   return `${command.command}${command.params ? ` ${command.params}` : ""}`;
 }
 
-export function CommandLab({ onCopy }: { onCopy: (text: string, label: string, target: HTMLElement | null) => void }) {
+export function CommandLab({ onCopy }: { onCopy: CopyHandler }) {
   const { state, updateCommandLab } = useBindForge();
   const preview = useRef<HTMLElement>(null);
+  const resetTimer = useRef<number | null>(null);
+  const [copyState, setCopyState] = useState<CopyState>("idle");
   const selectedCommand = consoleCommands.find((command) => command.id === state.commandLab.commandId) ?? consoleCommands[0];
   const line = buildCustomLine(state.commandLab.key, selectedCommand.bindCommand, state.commandLab.extraText, state.mode);
 
@@ -48,7 +53,24 @@ export function CommandLab({ onCopy }: { onCopy: (text: string, label: string, t
       commandId: command.id,
       extraText: command.params && !/[<>]| or | to /i.test(command.params) ? command.params : "",
     });
+    setCopyState("idle");
   }
+
+  async function handleCopy() {
+    setCopyState("copying");
+    const result = await onCopy(line, "custom command", preview.current);
+    setCopyState(result);
+    if (resetTimer.current) window.clearTimeout(resetTimer.current);
+    resetTimer.current = window.setTimeout(() => setCopyState("idle"), result === "error" ? 4200 : 2200);
+  }
+
+  const copyLabel = copyState === "copying"
+    ? "Copying…"
+    : copyState === "copied" || copyState === "fallback"
+      ? "Copied"
+      : copyState === "error"
+        ? "Try again"
+        : "Copy custom command";
 
   return (
     <section className="command-lab" aria-labelledby="command-lab-title">
@@ -56,12 +78,13 @@ export function CommandLab({ onCopy }: { onCopy: (text: string, label: string, t
         <p className="eyebrow">Advanced workspace</p>
         <h2 id="command-lab-title">Build your own command</h2>
         <p>Combine a supported key with any catalog command. Test carefully; community commands may change after patches.</p>
-        <div className="lab-preview">
+        <div className={`lab-preview ${copyState === "copied" || copyState === "fallback" ? "is-copied" : ""}`}>
           <span>Generated command</span>
           <code aria-label="Generated custom command" ref={preview} tabIndex={0}>{line}</code>
-          <button className="primary-button" onClick={() => onCopy(line, "custom command", preview.current)} type="button">
-            <Icon name="copy" /> Copy custom command
+          <button className={`primary-button copy-action copy-action-${copyState}`} disabled={copyState === "copying"} onClick={() => { void handleCopy(); }} type="button">
+            <Icon name={copyState === "error" ? "warning" : copyState === "copied" || copyState === "fallback" ? "shield" : "copy"} /> {copyLabel}
           </button>
+          <p aria-live="polite" className="sr-only">{copyState === "copied" || copyState === "fallback" ? "Custom command copied." : copyState === "error" ? "Copy failed for the custom command." : ""}</p>
         </div>
       </div>
 
@@ -69,11 +92,11 @@ export function CommandLab({ onCopy }: { onCopy: (text: string, label: string, t
         <div className="lab-fields">
           <label className="key-field">
             <span>Key combination</span>
-            <input aria-label="Command Lab key combination" autoComplete="off" onChange={(event) => updateCommandLab({ key: event.target.value })} spellCheck={false} value={state.commandLab.key} />
+            <input aria-label="Command Lab key combination" autoComplete="off" onChange={(event) => { updateCommandLab({ key: event.target.value }); setCopyState("idle"); }} spellCheck={false} value={state.commandLab.key} />
           </label>
           <label className="key-field">
             <span>Extra command text</span>
-            <input aria-label="Command Lab extra command text" autoComplete="off" onChange={(event) => updateCommandLab({ extraText: event.target.value })} placeholder={selectedCommand.params || "Optional arguments"} value={state.commandLab.extraText} />
+            <input aria-label="Command Lab extra command text" autoComplete="off" onChange={(event) => { updateCommandLab({ extraText: event.target.value }); setCopyState("idle"); }} placeholder={selectedCommand.params || "Optional arguments"} value={state.commandLab.extraText} />
           </label>
         </div>
 
@@ -96,7 +119,7 @@ export function CommandLab({ onCopy }: { onCopy: (text: string, label: string, t
             </div>
             <div className="reference-list">
               {filteredCombos.length ? filteredCombos.map((combo) => (
-                <button className="reference-row" key={combo.combo} onClick={() => updateCommandLab({ key: combo.combo })} type="button">
+                <button aria-pressed={state.commandLab.key === combo.combo} className="reference-row" key={combo.combo} onClick={() => { updateCommandLab({ key: combo.combo }); setCopyState("idle"); }} type="button">
                   <span>{combo.combo}</span>
                   <strong data-status={combo.status}>{statusLabels[combo.status]}</strong>
                 </button>
@@ -119,7 +142,7 @@ export function CommandLab({ onCopy }: { onCopy: (text: string, label: string, t
             </div>
             <div className="reference-list">
               {filteredCommands.length ? filteredCommands.map((command) => (
-                <button className="reference-row command-row" key={`${command.id}-${command.category}-${command.params}`} onClick={() => chooseCommand(command)} type="button">
+                <button aria-pressed={selectedCommand.id === command.id} className="reference-row command-row" key={`${command.id}-${command.category}-${command.params}`} onClick={() => chooseCommand(command)} type="button">
                   <span>{command.command}</span>
                   <small>{commandLabel(command)}</small>
                 </button>
