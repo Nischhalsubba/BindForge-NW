@@ -3,7 +3,8 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { useBindForge } from "../BindForgeProvider";
 import { keybindPresets } from "../data/keybindPresets";
-import type { KeybindPreset, KeybindType, PresetConfidence, PresetSourceType } from "../data/keybindPresets";
+import type { KeybindPreset, KeybindType } from "../data/keybindPresets";
+import type { PresetConfidence, PresetSourceType } from "../data/keybindTypes";
 import { baseKey, buildPresetLine, normalizeCombo } from "../lib/keybind-core.mjs";
 import { normalizedKey } from "../lib/safe-key-suggestions";
 import type { CopyResultState } from "../page";
@@ -68,7 +69,7 @@ function highlight(value: string, query: string) {
   const needle = query.trim();
   if (!needle) return value;
   const expression = new RegExp(`(${needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "ig");
-  return value.split(expression).map((part, index) => expression.test(part) ? <mark key={`${part}-${index}`}>{part}</mark> : <Fragment key={`${part}-${index}`}>{part}</Fragment>);
+  return value.split(expression).map((part, index) => part.toLowerCase() === needle.toLowerCase() ? <mark key={`${part}-${index}`}>{part}</mark> : <Fragment key={`${part}-${index}`}>{part}</Fragment>);
 }
 function readStoredLibraryState(): StoredLibraryState {
   try {
@@ -81,7 +82,7 @@ function readStoredLibraryState(): StoredLibraryState {
       viewMode: parsed.viewMode === "compact" ? "compact" : "cards",
       sortMode: ["recommended", "title", "difficulty", "class"].includes(parsed.sortMode ?? "") ? parsed.sortMode as SortMode : "recommended",
       collapsedGroups: Array.isArray(parsed.collapsedGroups) ? parsed.collapsedGroups : [],
-      provenanceFilter: typeof parsed.provenanceFilter === "string" ? parsed.provenanceFilter : "all",
+      provenanceFilter: typeof parsed.provenanceFilter === "string" ? parsed.provenanceFilter as ProvenanceFilter : "all",
       safeOnly: Boolean(parsed.safeOnly),
     };
   } catch {
@@ -256,7 +257,8 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     if (state.className !== "All") params.set("class", state.className);
     if (state.actionType !== "All") params.set("type", state.actionType);
     if (state.difficulty !== "All") params.set("difficulty", state.difficulty);
-    const url = `${window.location.origin}${window.location.pathname}${params.size ? `?${params}` : ""}#keybind-library`;
+    const queryString = params.toString();
+    const url = `${window.location.origin}${window.location.pathname}${queryString ? `?${queryString}` : ""}#keybind-library`;
     window.history.replaceState(null, "", url);
     await onCopy(url, "Shareable BindForge view", null);
   }
