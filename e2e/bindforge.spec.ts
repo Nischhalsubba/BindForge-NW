@@ -104,9 +104,12 @@ test("Command Lab and custom say builder generate normalized commands", async ({
 });
 
 test("persists filters, edited keys, theme, and custom say values across reload", async ({ page }) => {
-  const firstKey = page.locator(".bind-card .key-field input").first();
-  await expect(firstKey).toBeVisible();
-  await firstKey.fill("Ctrl+R");
+  const bardCard = page.locator(".bind-card").filter({ has: page.getByText("Bard", { exact: true }) }).first();
+  await expect(bardCard).toBeVisible();
+  const presetTitle = (await bardCard.locator("h4").textContent())?.trim();
+  expect(presetTitle).toBeTruthy();
+  await bardCard.locator(".key-field input").fill("Ctrl+R");
+
   await page.getByLabel("Search keybind library").first().fill("bard");
   await openFiltersWhenCollapsed(page);
   await page.getByLabel("Appearance").getByRole("button", { name: "Light" }).click();
@@ -121,7 +124,11 @@ test("persists filters, edited keys, theme, and custom say values across reload"
   await openFiltersWhenCollapsed(page);
   await expect(page.getByLabel("Appearance").getByRole("button", { name: "Light" })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByLabel("Custom say message")).toHaveValue("Group on me");
-  await expect(page.locator(".bind-card .key-field input").first()).toHaveValue("Ctrl+R");
+
+  const restoredCard = page.locator(".bind-card").filter({
+    has: page.getByRole("heading", { name: presetTitle!, exact: true }),
+  });
+  await expect(restoredCard.locator(".key-field input")).toHaveValue("Ctrl+R");
 });
 
 test("clear saved data resets state without immediately recreating storage", async ({ page }) => {
