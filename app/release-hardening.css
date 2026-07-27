@@ -74,7 +74,8 @@ html[data-theme="dark"] .skip-link {
   background: #1d4ed8 !important;
 }
 
-html[data-theme="dark"] .card-copy p {
+html[data-theme="dark"] .card-copy p,
+html[data-theme="dark"] .key-field small {
   color: #c9d0da !important;
 }
 
