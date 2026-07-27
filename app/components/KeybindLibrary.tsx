@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useBindForge } from "../BindForgeProvider";
 import { keybindPresets } from "../data/keybindPresets";
 import type { KeybindPreset, KeybindType } from "../data/keybindPresets";
 import { baseKey, buildPresetLine, normalizeCombo } from "../lib/keybind-core.mjs";
 import { normalizedKey } from "../lib/safe-key-suggestions";
+import type { CopyResultState } from "../page";
 import FilterTopBar from "../FilterTopBar";
 import { Icon } from "./Icon";
 
@@ -22,13 +23,18 @@ const warnings: Array<{ keys: string[]; message: string; level: "info" | "warn" 
   { keys: ["alt+f4", "alt+tab", "ctrl+alt+delete"], message: "This combination is reserved by Windows. Avoid using it.", level: "danger" },
 ];
 
+type CopyHandler = (text: string, label: string, target: HTMLElement | null) => Promise<CopyResultState>;
+type CardCopyState = "idle" | "copying" | CopyResultState;
+
 function normalizeText(value: string) { return value.trim().toLowerCase(); }
 function warningForKey(value: string) { const combo = normalizeCombo(value); const key = baseKey(value); return warnings.find((item) => item.keys.includes(combo) || item.keys.includes(key)); }
 function groupedPresets(presets: KeybindPreset[]) { return presets.reduce<Record<string, KeybindPreset[]>>((groups, preset) => { const key = `${preset.type} · ${preset.className}`; groups[key] = [...(groups[key] ?? []), preset]; return groups; }, {}); }
 
-function KeybindCard({ preset, duplicate, onCopy }: { preset: KeybindPreset; duplicate: boolean; onCopy: (text: string, label: string, target: HTMLElement | null) => void }) {
+function KeybindCard({ preset, duplicate, onCopy }: { preset: KeybindPreset; duplicate: boolean; onCopy: CopyHandler }) {
   const { state, setKey, resetKey } = useBindForge();
   const preview = useRef<HTMLElement>(null);
+  const resetTimer = useRef<number | null>(null);
+  const [copyState, setCopyState] = useState<CardCopyState>("idle");
   const keyValue = state.keys[preset.id] ?? preset.defaultKey;
   const line = buildPresetLine(preset, keyValue, state.mode);
   const warning = warningForKey(keyValue);
@@ -36,8 +42,24 @@ function KeybindCard({ preset, duplicate, onCopy }: { preset: KeybindPreset; dup
     ? { level: "danger" as const, message: "This key is already used by another BindForge preset." }
     : warning ?? { level: "safe" as const, message: "No common native-key conflict detected. Check your personal in-game bindings before applying." };
 
+  async function handleCopy() {
+    setCopyState("copying");
+    const result = await onCopy(line, preset.title, preview.current);
+    setCopyState(result);
+    if (resetTimer.current) window.clearTimeout(resetTimer.current);
+    resetTimer.current = window.setTimeout(() => setCopyState("idle"), result === "error" ? 4200 : 2200);
+  }
+
+  const copyLabel = copyState === "copying"
+    ? "Copying…"
+    : copyState === "copied" || copyState === "fallback"
+      ? "Copied"
+      : copyState === "error"
+        ? "Try again"
+        : "Copy command";
+
   return (
-    <article className="bind-card">
+    <article className={`bind-card ${copyState === "copied" || copyState === "fallback" ? "is-copied" : ""}`}>
       <header className="card-header">
         <div className="card-meta">
           <span className={`level-pill level-${preset.difficulty.toLowerCase()}`}>{preset.difficulty}</span>
@@ -69,14 +91,23 @@ function KeybindCard({ preset, duplicate, onCopy }: { preset: KeybindPreset; dup
       </div>
 
       <div className="card-actions">
-        <button className="primary-button" disabled={duplicate} onClick={() => onCopy(line, preset.title, preview.current)} type="button"><Icon name="copy" /> Copy command</button>
-        <button className="secondary-button" onClick={() => resetKey(preset.id)} type="button"><Icon name="reset" /> Reset suggestion</button>
+        <button
+          aria-label={`${copyLabel}: ${preset.title}`}
+          className={`primary-button copy-action copy-action-${copyState}`}
+          disabled={duplicate || copyState === "copying"}
+          onClick={() => { void handleCopy(); }}
+          type="button"
+        >
+          <Icon name={copyState === "error" ? "warning" : copyState === "copied" || copyState === "fallback" ? "shield" : "copy"} /> {copyLabel}
+        </button>
+        <button className="secondary-button" onClick={() => { resetKey(preset.id); setCopyState("idle"); }} type="button"><Icon name="reset" /> Reset suggestion</button>
       </div>
+      <p aria-live="polite" className="sr-only">{copyState === "copied" || copyState === "fallback" ? `${preset.title} copied.` : copyState === "error" ? `Copy failed for ${preset.title}.` : ""}</p>
     </article>
   );
 }
 
-export function KeybindLibrary({ onCopy }: { onCopy: (text: string, label: string, target: HTMLElement | null) => void }) {
+export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   const { state, resetFilters } = useBindForge();
   const filtered = useMemo(() => {
     const query = normalizeText(state.search);
