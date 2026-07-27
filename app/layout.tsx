@@ -21,6 +21,7 @@ import "./open-design-structure.css";
 import "./minimal-ui.css";
 import "./card-refinement.css";
 import "./ui-finish.css";
+import "./microinteractions.css";
 
 const productionUrl = new URL("https://bindforge-nw.hinischalsubba.workers.dev");
 
