@@ -1,0 +1,28 @@
+@import "./globals.css";
+@import "./local-settings.css";
+@import "./theme.css";
+@import "./apple-theme.css";
+@import "./sidebar-spacing.css";
+@import "./filter-dock.css";
+@import "./sticky-filter-dock.css";
+@import "./split-filter-layout.css";
+@import "./organized-layout.css";
+@import "./apple-appearance.css";
+@import "./alignment-polish.css";
+@import "./sidebar-stabilization.css";
+@import "./mobile-first.css";
+@import "./production-verification.css";
+@import "./open-design.css";
+@import "./open-design-structure.css";
+@import "./minimal-ui.css";
+@import "./card-refinement.css";
+@import "./ui-finish.css";
+@import "./microinteractions.css";
+@import "./release-hardening.css";
+@import "./final-roadmap.css";
+
+/*
+ * Authoritative style entrypoint.
+ * Historical layers remain isolated for safe regression tracing, but component code
+ * imports only this file and the cascade order is controlled in one place.
+ */
