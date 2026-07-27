@@ -22,8 +22,9 @@ import "./minimal-ui.css";
 import "./card-refinement.css";
 import "./ui-finish.css";
 import "./microinteractions.css";
+import "./release-hardening.css";
 
-const productionUrl = new URL("https://bindforge-nw.hinischalsubba.workers.dev");
+const productionUrl = new URL("https://neverwinterkeybind.netlify.app");
 
 export const metadata: Metadata = {
   metadataBase: productionUrl,
