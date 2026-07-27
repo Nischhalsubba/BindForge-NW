@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import packageInfo from "../package.json";
 import { BindForgeProvider } from "./BindForgeProvider";
+import { ServiceWorkerRegistration } from "./components/ServiceWorkerRegistration";
 import "./data/catalogIntegrity";
 import "./app.css";
 
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  manifest: "/manifest.webmanifest",
   title: {
     default: "BindForge NW | Neverwinter Keybind Builder",
     template: "%s | BindForge NW",
@@ -54,7 +56,7 @@ export const metadata: Metadata = {
     description: "Search presets and generate copy-ready Neverwinter keybind commands.",
     images: ["/opengraph-image"],
   },
-  icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
+  icons: { icon: "/favicon.svg", shortcut: "/favicon.svg", apple: "/favicon.svg" },
 };
 
 const structuredData = {
@@ -86,6 +88,7 @@ const structuredData = {
     "Class, action, and difficulty filtering",
     "Reserved and risky key warnings",
     "Keyboard-accessible responsive interface",
+    "Installable offline application shell",
   ],
 };
 
@@ -94,6 +97,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en">
       <body>
         <script dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} type="application/ld+json" />
+        <ServiceWorkerRegistration />
         <BindForgeProvider>{children}</BindForgeProvider>
       </body>
     </html>
