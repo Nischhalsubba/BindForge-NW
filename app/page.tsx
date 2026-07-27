@@ -8,6 +8,7 @@ import { CommandLab } from "./components/CommandLab";
 import { CustomSayBuilder } from "./components/CustomSayBuilder";
 import { FilterSidebar } from "./components/FilterSidebar";
 import { KeybindLibrary } from "./components/KeybindLibrary";
+import { PortableSharePanel } from "./components/PortableSharePanel";
 import { UrlStateBridge } from "./components/UrlStateBridge";
 import { Icon } from "./components/Icon";
 
@@ -48,6 +49,7 @@ export default function Home() {
         <FilterSidebar />
         <KeybindLibrary onCopy={copyText} />
       </section>
+      <PortableSharePanel onCopy={copyText} />
       <CommandLab onCopy={copyText} />
       <CustomSayBuilder />
       <footer className="app-footer"><p>BindForge NW is a community utility. Commands may change between Neverwinter patches.</p><a href="https://github.com/Nischhalsubba/BindForge-NW">View source on GitHub</a></footer>
