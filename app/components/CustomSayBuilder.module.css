@@ -106,7 +106,7 @@
 .preview > span {
   display: block;
   margin-bottom: 0.6rem;
-  color: var(--text-muted);
+  color: #a7afbc;
   font-size: 0.7rem;
   font-weight: 850;
   letter-spacing: 0.08em;
