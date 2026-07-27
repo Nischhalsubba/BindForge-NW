@@ -27,7 +27,7 @@ export function FilterSidebar() {
         <Icon name="filter" /> Filters
       </button>
 
-      <aside className={`filter-panel ${open ? "filter-panel-open" : ""}`} id="filter-panel">
+      <div className={`filter-panel ${open ? "filter-panel-open" : ""}`} id="filter-panel">
         <div className="filter-panel-head">
           <div>
             <p className="eyebrow">Refine results</p>
@@ -97,7 +97,7 @@ export function FilterSidebar() {
         </div>
         <ThemeSwitcher />
         <LocalSettingsManager />
-      </aside>
+      </div>
     </>
   );
 }
