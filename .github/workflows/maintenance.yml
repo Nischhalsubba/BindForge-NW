@@ -42,7 +42,7 @@ jobs:
           cp catalog-health.json maintenance-report/catalog-health.json 2>/dev/null || true
       - name: Upload maintenance evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: maintenance-summary
           path: maintenance-report/
