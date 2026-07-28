@@ -1,0 +1,36 @@
+@import "../mobile-first.css";
+@import "../production-verification.css";
+@import "../release-hardening.css";
+@import "../final-roadmap.css";
+
+/* Shared breakpoints: mobile < 680px, tablet 680px-1050px, desktop > 1050px. */
+@media (max-width: 1050px) {
+  .workspace {
+    padding-inline: var(--space-4);
+  }
+}
+
+@media (max-width: 680px) {
+  .workspace {
+    padding-inline: var(--space-3);
+  }
+
+  :where(button, input:not([type="checkbox"]):not([type="radio"]), select) {
+    min-height: var(--control-height);
+  }
+
+  .app-footer {
+    padding-inline: var(--space-3);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

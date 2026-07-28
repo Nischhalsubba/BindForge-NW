@@ -1,29 +1,15 @@
-@import "./globals.css";
-@import "./local-settings.css";
-@import "./theme.css";
-@import "./apple-theme.css";
-@import "./sidebar-spacing.css";
-@import "./filter-dock.css";
-@import "./sticky-filter-dock.css";
-@import "./split-filter-layout.css";
-@import "./organized-layout.css";
-@import "./apple-appearance.css";
-@import "./alignment-polish.css";
-@import "./sidebar-stabilization.css";
-@import "./mobile-first.css";
-@import "./production-verification.css";
-@import "./open-design.css";
-@import "./open-design-structure.css";
-@import "./minimal-ui.css";
-@import "./card-refinement.css";
-@import "./ui-finish.css";
-@import "./microinteractions.css";
-@import "./release-hardening.css";
-@import "./final-roadmap.css";
-@import "./library-ui-refinement.css";
+@layer tokens, base, theme, layout, components, responsive;
+
+@import "./styles/tokens.css" layer(tokens);
+@import "./globals.css" layer(base);
+@import "./theme.css" layer(theme);
+@import "./apple-theme.css" layer(theme);
+@import "./styles/layout.css" layer(layout);
+@import "./styles/components.css" layer(components);
+@import "./styles/responsive.css" layer(responsive);
 
 /*
  * Authoritative style entrypoint.
- * Historical layers remain isolated for safe regression tracing, but component code
- * imports only this file and the cascade order is controlled in one place.
+ * Global rules are loaded through six ordered layers. New component-specific work
+ * should use a CSS module rather than adding another global override stylesheet.
  */
