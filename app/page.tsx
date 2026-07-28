@@ -52,7 +52,10 @@ export default function Home() {
       <PortableSharePanel onCopy={copyText} />
       <CommandLab onCopy={copyText} />
       <CustomSayBuilder />
-      <footer className="app-footer"><p>BindForge NW is a community utility. Commands may change between Neverwinter patches.</p><a href="https://github.com/Nischhalsubba/BindForge-NW">View source on GitHub</a></footer>
+      <footer className="app-footer">
+        <p>BindForge NW is a community utility. Commands may change between Neverwinter patches.</p>
+        <p>Designed and developed by <strong>Archew</strong>.</p>
+      </footer>
 
       <div
         aria-atomic="true"
