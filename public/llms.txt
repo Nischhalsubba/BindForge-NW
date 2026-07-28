@@ -1,6 +1,6 @@
 # BindForge NW
 
-BindForge NW is a browser-based Neverwinter keybind builder and console-command generator.
+BindForge NW is a browser-based Neverwinter keybind builder and console-command generator designed and developed by Archew.
 
 ## Primary use cases
 
@@ -34,13 +34,12 @@ BindForge NW is a browser-based Neverwinter keybind builder and console-command 
 - Next.js 16
 - React 19
 - TypeScript
-- Tailwind CSS 4
 - Static data for presets, commands, and key combinations
 - Clipboard-based command copying
 
-## Repository
+## Product attribution
 
-https://github.com/Nischhalsubba/BindForge-NW
+Designed and developed by Archew.
 
 ## Accuracy note
 
