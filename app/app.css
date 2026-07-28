@@ -1,18 +1,6 @@
-@layer tokens, base, theme, layout, components, responsive;
-
-@import "./styles/tokens.css" layer(tokens);
-@import "./globals.css" layer(base);
-@import "./theme.css" layer(theme);
-@import "./apple-theme.css" layer(theme);
-@import "./styles/layout.css" layer(layout);
-@import "./styles/components.css" layer(components);
-@import "./styles/responsive.css" layer(responsive);
-@import "./editorial-theme.css";
-@import "./workbench-theme.css";
+@import "./atelier-zero.css";
 
 /*
- * Authoritative style entrypoint.
- * Global rules are loaded through six ordered layers. Component-specific work
- * remains in CSS modules, while the final editorial files define the public
- * Atelier-inspired shell and the task-focused workbench treatment.
+ * BindForge NW now uses one canonical visual source.
+ * Component modules cover only local layout details and consume these tokens.
  */
