@@ -8,10 +8,11 @@
 @import "./styles/components.css" layer(components);
 @import "./styles/responsive.css" layer(responsive);
 @import "./editorial-theme.css";
+@import "./workbench-theme.css";
 
 /*
  * Authoritative style entrypoint.
- * Global rules are loaded through six ordered layers. New component-specific work
- * should use a CSS module rather than adding another global override stylesheet.
- * The final editorial theme maps the existing UI onto the Atelier-inspired visual system.
+ * Global rules are loaded through six ordered layers. Component-specific work
+ * remains in CSS modules, while the final editorial files define the public
+ * Atelier-inspired shell and the task-focused workbench treatment.
  */

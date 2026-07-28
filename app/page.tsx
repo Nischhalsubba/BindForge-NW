@@ -47,16 +47,46 @@ export default function Home() {
       <UrlStateBridge />
       <AppHeader feedback={feedback} />
       <SettingsPanel />
-      <section className="workspace">
+
+      <section className="workbench-intro" aria-labelledby="workbench-title">
+        <div className="workbench-intro-index" aria-hidden="true">
+          <span>01</span>
+          <span>The workbench</span>
+        </div>
+        <div className="workbench-intro-copy">
+          <p className="section-kicker">Catalog · planner · generator</p>
+          <h2 id="workbench-title">Find the command. Shape the key. Ship the bind<span>.</span></h2>
+        </div>
+        <p className="workbench-intro-note">
+          Saved keys, filters, favourites, and collections remain in this browser unless you export or share them.
+        </p>
+      </section>
+
+      <section className="workspace" aria-label="Keybind workbench">
         <FilterSidebar />
         <KeybindLibrary onCopy={copyText} />
       </section>
+
       <PortableSharePanel onCopy={copyText} />
       <CommandLab onCopy={copyText} />
       <CustomSayBuilder />
+
       <footer className="app-footer">
-        <p>BindForge NW is a community utility. Commands may change between Neverwinter patches.</p>
-        <p>Designed and developed by <strong>Archew</strong>.</p>
+        <div className="footer-grid">
+          <section>
+            <span>Independent utility</span>
+            <p>BindForge NW is a community-made tool for preparing Neverwinter keybind commands.</p>
+          </section>
+          <section>
+            <span>Use responsibly</span>
+            <p>Commands can change after game updates. Back up existing binds before testing unfamiliar setups.</p>
+          </section>
+          <section>
+            <span>Studio</span>
+            <p>Designed and developed by <strong>Archew</strong>.</p>
+          </section>
+        </div>
+        <p className="footer-signoff">Forge carefully. Copy confidently.</p>
       </footer>
 
       <div
