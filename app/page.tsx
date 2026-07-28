@@ -9,11 +9,22 @@ import { CustomSayBuilder } from "./components/CustomSayBuilder";
 import { FilterSidebar } from "./components/FilterSidebar";
 import { KeybindLibrary } from "./components/KeybindLibrary";
 import { PortableSharePanel } from "./components/PortableSharePanel";
+import { RevealController } from "./components/RevealController";
 import { SettingsPanel } from "./components/SettingsPanel";
 import { UrlStateBridge } from "./components/UrlStateBridge";
 import { Icon } from "./components/Icon";
 
 export type CopyResultState = "copied" | "fallback" | "error";
+
+function SectionRule({ roman, meta, page }: { roman: string; meta: string; page: string }) {
+  return (
+    <div className="section-rule" aria-hidden="true">
+      <span className="roman">{roman}.</span>
+      <span>{meta}</span>
+      <span>{page} / 004</span>
+    </div>
+  );
+}
 
 export default function Home() {
   const [feedback, setFeedback] = useState<CopyFeedback>({ state: "idle", label: "" });
@@ -43,63 +54,52 @@ export default function Home() {
 
   return (
     <main className="app-shell">
+      <RevealController />
       <a className="skip-link" href="#keybind-library">Skip to keybind library</a>
+      <div className="side-rail left" aria-hidden="true"><span>BindForge NW · Field Manual</span></div>
+      <div className="side-rail right" aria-hidden="true"><span>Neverwinter Command Systems · MMXXVI</span></div>
       <UrlStateBridge />
       <AppHeader feedback={feedback} />
       <SettingsPanel />
 
-      <section className="workbench-intro" aria-labelledby="workbench-title">
-        <div className="workbench-intro-index" aria-hidden="true">
-          <span>01</span>
-          <span>The workbench</span>
+      <section className="workbench-intro" aria-labelledby="workbench-title" data-reveal>
+        <SectionRule roman="II" meta="Catalogue / planner / generator" page="002" />
+        <div className="workbench-intro-grid">
+          <div>
+            <p className="label">The workbench</p>
+            <h2 className="display" id="workbench-title">Find the command. Shape the <em>key</em>. Ship the bind<span className="dot">.</span></h2>
+          </div>
+          <p className="lead">Saved keys, filters, favourites, and collections remain in this browser unless you export or share them. The interface is dense because the task is real, not because dashboards enjoy collecting boxes.</p>
         </div>
-        <div className="workbench-intro-copy">
-          <p className="section-kicker">Catalog · planner · generator</p>
-          <h2 id="workbench-title">Find the command. Shape the key. Ship the bind<span>.</span></h2>
-        </div>
-        <p className="workbench-intro-note">
-          Saved keys, filters, favourites, and collections remain in this browser unless you export or share them.
-        </p>
       </section>
 
-      <section className="workspace" aria-label="Keybind workbench">
+      <section className="workspace" aria-label="Keybind workbench" data-reveal>
         <FilterSidebar />
         <KeybindLibrary onCopy={copyText} />
       </section>
 
-      <PortableSharePanel onCopy={copyText} />
-      <CommandLab onCopy={copyText} />
-      <CustomSayBuilder />
+      <section className="tools-chapter" data-reveal>
+        <SectionRule roman="III" meta="Portable tools / custom composition" page="003" />
+        <PortableSharePanel onCopy={copyText} />
+        <CommandLab onCopy={copyText} />
+        <CustomSayBuilder />
+      </section>
 
-      <footer className="app-footer">
+      <footer className="app-footer" data-reveal>
+        <SectionRule roman="IV" meta="Notes / provenance / studio" page="004" />
         <div className="footer-grid">
-          <section>
-            <span>Independent utility</span>
-            <p>BindForge NW is a community-made tool for preparing Neverwinter keybind commands.</p>
-          </section>
-          <section>
-            <span>Use responsibly</span>
-            <p>Commands can change after game updates. Back up existing binds before testing unfamiliar setups.</p>
-          </section>
-          <section>
-            <span>Studio</span>
-            <p>Designed and developed by <strong>Archew</strong>.</p>
-          </section>
+          <section><span>Independent utility</span><p>BindForge NW is a community-made tool for preparing Neverwinter keybind commands.</p></section>
+          <section><span>Use responsibly</span><p>Commands can change after game updates. Back up existing binds before testing unfamiliar setups.</p></section>
+          <section><span>Local by default</span><p>Preferences and collections stay in your browser unless you export or share them.</p></section>
+          <section><span>Studio</span><p>Designed and developed by <strong>Archew</strong>.</p></section>
         </div>
-        <p className="footer-signoff">Forge carefully. Copy confidently.</p>
+        <p className="footer-mega">Bind <em>Forge</em><span>.</span></p>
+        <div className="footer-bottom"><span><i className="pulse" /> Catalogue online</span><span>FIN. · MMXXVI</span></div>
       </footer>
 
-      <div
-        aria-atomic="true"
-        aria-live="polite"
-        className={`copy-toast copy-toast-${feedback.state}`}
-        role="status"
-      >
+      <div aria-atomic="true" aria-live="polite" className={`copy-toast copy-toast-${feedback.state}`} role="status">
         {feedback.state !== "idle" ? (
-          <>
-            <span className="copy-toast-icon"><Icon name={feedback.state === "error" ? "warning" : "shield"} /></span>
-            <span><strong>{toastTitle}</strong><small>{feedback.label}</small></span>
-          </>
+          <><span className="copy-toast-icon"><Icon name={feedback.state === "error" ? "warning" : "shield"} /></span><span><strong>{toastTitle}</strong><small>{feedback.label}</small></span></>
         ) : null}
       </div>
     </main>
