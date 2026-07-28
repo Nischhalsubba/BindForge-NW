@@ -10,6 +10,12 @@ async function openFiltersWhenCollapsed(page: Page) {
   }
 }
 
+async function openSettings(page: Page) {
+  const trigger = page.getByRole("button", { name: "Settings", exact: true });
+  await trigger.click();
+  await expect(page.getByRole("dialog", { name: "Settings" })).toBeVisible();
+}
+
 async function waitForHydration(page: Page) {
   const toolbar = page.getByTestId("filter-toolbar").first();
   await expect(toolbar).toBeVisible();
@@ -23,10 +29,7 @@ async function waitForSavedSettings(page: Page, expected: { search?: string; cus
     const raw = window.localStorage.getItem("bindforge-nw:settings:v2");
     if (!raw) return false;
     try {
-      const saved = JSON.parse(raw) as {
-        filters?: { search?: string };
-        customSay?: { message?: string };
-      };
+      const saved = JSON.parse(raw) as { filters?: { search?: string }; customSay?: { message?: string } };
       const searchMatches = values.search === undefined || saved.filters?.search === values.search;
       const messageMatches = values.customMessage === undefined || saved.customSay?.message === values.customMessage;
       const themeMatches = values.theme === undefined || window.localStorage.getItem("bindforge-nw:theme") === values.theme;
@@ -49,27 +52,23 @@ test("keeps the search and action toolbar visible and filters presets", async ({
   const toolbar = page.getByTestId("filter-toolbar").first();
   const resultCount = page.getByTestId("result-count").first();
   const originalText = await resultCount.textContent();
-
   await expect(toolbar).toBeVisible();
   await expect(page.getByLabel("Filter keybinds by action type").first()).toBeVisible();
   await page.getByLabel("Search keybind library").first().fill("invocation");
   await expect(resultCount).not.toHaveText(originalText ?? "");
   await expect(resultCount).not.toHaveText("0 keybinds");
   await expect(page.locator(".bind-card").first()).toBeVisible();
-
   await page.getByRole("button", { name: "Reset keybind library filters" }).click();
   await expect(page.getByLabel("Search keybind library").first()).toHaveValue("");
 });
 
-test("class, difficulty, and action filters share provider state", async ({ page }) => {
+test("class and difficulty filters stay separate from the single action-type control", async ({ page }) => {
   await openFiltersWhenCollapsed(page);
-
   await page.getByRole("button", { name: "Bard", exact: true }).click();
   await expect(page.getByRole("button", { name: "Bard", exact: true })).toHaveAttribute("aria-pressed", "true");
-
   await page.getByRole("button", { name: "Advanced", exact: true }).click();
   await expect(page.getByRole("button", { name: "Advanced", exact: true })).toHaveAttribute("aria-pressed", "true");
-
+  await expect(page.getByText("Action type", { exact: true })).toHaveCount(1);
   await page.getByLabel("Filter keybinds by action type").first().selectOption({ label: "Bard Songs" });
   await expect(page.getByLabel("Filter keybinds by action type").first()).toHaveValue("Bard Songs");
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
@@ -79,14 +78,11 @@ test("generates bind and unbind output from shared state", async ({ page }) => {
   const firstCard = page.locator(".bind-card").first();
   const firstKey = firstCard.locator(".key-field input");
   const firstPreview = firstCard.locator(".command-preview code");
-
   await expect(firstKey).toBeVisible();
   await firstKey.fill("Left Ctrl + Shift + R");
   await expect(firstPreview).toContainText("/bind ctrl+shift+r");
-
   await page.getByRole("button", { name: "Unbind", exact: true }).click();
   await expect(firstPreview).toHaveText("/unbind ctrl+shift+r");
-
   await page.getByRole("button", { name: "Bind", exact: true }).click();
   await expect(firstPreview).toContainText("/bind ctrl+shift+r");
 });
@@ -95,7 +91,6 @@ test("Command Lab and custom say builder generate normalized commands", async ({
   const commandLab = page.getByRole("region", { name: "Build your own command" });
   await commandLab.getByLabel("Command Lab key combination").fill("Alt + F2");
   await expect(commandLab.getByLabel("Generated custom command")).toContainText("/bind alt+f2");
-
   const customSay = page.getByRole("region", { name: "Create your own say message" });
   await customSay.getByLabel("Custom message key combination").fill("Ctrl + F1");
   await customSay.getByLabel("Custom say message").fill('Group\n"now"');
@@ -109,40 +104,68 @@ test("persists filters, edited keys, theme, and custom say values across reload"
   const presetTitle = (await bardCard.locator("h4").textContent())?.trim();
   expect(presetTitle).toBeTruthy();
   await bardCard.locator(".key-field input").fill("Ctrl+R");
-
   await page.getByLabel("Search keybind library").first().fill("bard");
-  await openFiltersWhenCollapsed(page);
+  await openSettings(page);
   await page.getByLabel("Appearance").getByRole("button", { name: "Light" }).click();
+  await page.getByRole("button", { name: "Close settings" }).last().click();
   await page.getByLabel("Custom say message").fill("Group on me");
-
   await waitForSavedSettings(page, { search: "bard", customMessage: "Group on me", theme: "light" });
+  await openSettings(page);
   await expect(page.locator(".local-save-status").getByText("Saved automatically", { exact: true })).toBeVisible();
-
+  await page.getByRole("button", { name: "Close settings" }).last().click();
   await page.reload();
   await waitForHydration(page);
   await expect(page.getByLabel("Search keybind library").first()).toHaveValue("bard");
-  await openFiltersWhenCollapsed(page);
+  await openSettings(page);
   await expect(page.getByLabel("Appearance").getByRole("button", { name: "Light" })).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "Close settings" }).last().click();
   await expect(page.getByLabel("Custom say message")).toHaveValue("Group on me");
-
-  const restoredCard = page.locator(".bind-card").filter({
-    has: page.getByRole("heading", { name: presetTitle!, exact: true }),
-  });
+  const restoredCard = page.locator(".bind-card").filter({ has: page.getByRole("heading", { name: presetTitle!, exact: true }) });
   await expect(restoredCard.locator(".key-field input")).toHaveValue("Ctrl+R");
 });
 
-test("clear saved data resets state without immediately recreating storage", async ({ page }) => {
+test("clear saved data remains available from Settings", async ({ page }) => {
   await page.getByLabel("Search keybind library").first().fill("bard");
-  await openFiltersWhenCollapsed(page);
   await waitForSavedSettings(page, { search: "bard" });
-
+  await openSettings(page);
   page.once("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: "Clear saved data" }).click();
   await expect(page.getByLabel("Search keybind library").first()).toHaveValue("");
   await expect(page.locator(".local-save-status").getByText("Saved data cleared", { exact: true })).toBeVisible();
-
   const stored = await page.evaluate(() => window.localStorage.getItem("bindforge-nw:settings:v2"));
   expect(stored).toBeNull();
+});
+
+test("mobile filter drawer closes with Show results and restores focus", async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.includes("mobile") && !testInfo.project.name.includes("tablet"), "Drawer behavior is for narrow viewports");
+  const trigger = page.getByRole("button", { name: "Filters", exact: true });
+  await trigger.click();
+  const drawer = page.getByRole("dialog", { name: "Filters" });
+  await expect(drawer).toBeVisible();
+  await expect(page.getByRole("button", { name: "Close filters" }).last()).toBeFocused();
+  await drawer.getByRole("button", { name: "Bard", exact: true }).click();
+  await drawer.getByRole("button", { name: "Show results" }).click();
+  await expect(drawer).toBeHidden();
+  await expect(trigger).toBeFocused();
+});
+
+test("mobile filter drawer closes with Escape", async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.includes("mobile") && !testInfo.project.name.includes("tablet"), "Drawer behavior is for narrow viewports");
+  const trigger = page.getByRole("button", { name: "Filters", exact: true });
+  await trigger.click();
+  await expect(page.getByRole("dialog", { name: "Filters" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog", { name: "Filters" })).toBeHidden();
+  await expect(trigger).toBeFocused();
+});
+
+test("Settings closes with Escape and restores focus", async ({ page }) => {
+  const trigger = page.getByRole("button", { name: "Settings", exact: true });
+  await trigger.click();
+  await expect(page.getByRole("dialog", { name: "Settings" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog", { name: "Settings" })).toBeHidden();
+  await expect(trigger).toBeFocused();
 });
 
 test("renders the route not-found recovery page", async ({ page }) => {
@@ -167,12 +190,13 @@ test("keeps essential controls inside the viewport", async ({ page }) => {
   expect(toolbarBox!.x + toolbarBox!.width).toBeLessThanOrEqual(viewport!.width + 1);
   await expect(page.getByLabel("Search keybind library").first()).toBeVisible();
   await expect(page.getByLabel("Filter keybinds by action type").first()).toBeVisible();
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
 });
 
 test("meets the axe accessibility baseline in dark and light themes", async ({ page }) => {
   await page.addScriptTag({ content: axe.source });
-  await openFiltersWhenCollapsed(page);
-
+  await openSettings(page);
   async function violations() {
     return page.evaluate(async () => {
       const axeApi = (window as unknown as { axe: { run: (context?: unknown, options?: unknown) => Promise<{ violations: unknown[] }> } }).axe;
@@ -180,11 +204,9 @@ test("meets the axe accessibility baseline in dark and light themes", async ({ p
       return results.violations;
     });
   }
-
   await page.getByLabel("Appearance").getByRole("button", { name: "Dark" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   expect(await violations()).toEqual([]);
-
   await page.getByLabel("Appearance").getByRole("button", { name: "Light" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   expect(await violations()).toEqual([]);
