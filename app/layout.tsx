@@ -5,17 +5,17 @@ import "./data/catalogIntegrity";
 import "./app.css";
 
 const productionUrl = new URL("https://neverwinterkeybind.netlify.app");
-const socialImageUrl = new URL("/opengraph-image?v=20260728-archew", productionUrl).toString();
-const socialTitle = "BindForge NW | Neverwinter Keybind Builder";
+const socialImageUrl = new URL("/opengraph-image?v=20260728-neverwinter-keybind", productionUrl).toString();
+const socialTitle = "Neverwinter Keybind | Keybind Builder";
 const socialDescription =
   "Search presets, choose safer key combinations, and generate copy-ready Neverwinter bind or unbind commands.";
 
 export const metadata: Metadata = {
   metadataBase: productionUrl,
   alternates: { canonical: productionUrl.toString() },
-  title: { default: socialTitle, template: "%s | BindForge NW" },
+  title: { default: socialTitle, template: "%s | Neverwinter Keybind" },
   description: socialDescription,
-  applicationName: "BindForge NW",
+  applicationName: "Neverwinter Keybind",
   keywords: [
     "Neverwinter keybind builder",
     "Neverwinter bind commands",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: productionUrl.toString(),
-    siteName: "BindForge NW",
+    siteName: "Neverwinter Keybind",
     title: socialTitle,
     description: socialDescription,
     images: [{
@@ -51,14 +51,14 @@ export const metadata: Metadata = {
       width: 1200,
       height: 630,
       type: "image/png",
-      alt: "BindForge NW Neverwinter keybind builder showing a generated command preview",
+      alt: "Neverwinter Keybind builder showing a generated command preview",
     }],
   },
   twitter: {
     card: "summary_large_image",
     title: socialTitle,
     description: socialDescription,
-    images: [{ url: socialImageUrl, alt: "BindForge NW Neverwinter keybind builder preview" }],
+    images: [{ url: socialImageUrl, alt: "Neverwinter Keybind builder preview" }],
   },
   other: {
     "og:image": socialImageUrl,
@@ -68,13 +68,17 @@ export const metadata: Metadata = {
     "og:image:height": "630",
     "twitter:image": socialImageUrl,
   },
-  icons: { icon: "/favicon.svg", shortcut: "/favicon.svg", apple: "/favicon.svg" },
+  icons: {
+    icon: [{ url: "/neverwinter-keybind-logo.svg", type: "image/svg+xml" }],
+    shortcut: "/neverwinter-keybind-logo.svg",
+    apple: "/neverwinter-keybind-logo.svg",
+  },
 };
 
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  name: "BindForge NW",
+  name: "Neverwinter Keybind",
   url: `${productionUrl}/`,
   applicationCategory: "GameApplication",
   applicationSubCategory: "Neverwinter keybind builder and console command generator",
