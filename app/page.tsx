@@ -69,7 +69,7 @@ export default function Home() {
             <p className="label">The workbench</p>
             <h2 className="display" id="workbench-title">Find the command. Shape the <em>key</em>. Ship the bind<span className="dot">.</span></h2>
           </div>
-          <p className="lead">Saved keys, filters, favourites, and collections remain in this browser unless you export or share them. The interface is dense because the task is real, not because dashboards enjoy collecting boxes.</p>
+          <p className="lead">Saved keys, filters, favourites, and collections remain in this browser unless you export or share them. The dense workspace keeps advanced controls close without obscuring the primary copy flow.</p>
         </div>
       </section>
 
