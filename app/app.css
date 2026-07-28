@@ -1,6 +1,7 @@
 @import "./atelier-zero.css";
+@import "./ui-fixes.css";
 
 /*
- * BindForge NW now uses one canonical visual source.
- * Component modules cover only local layout details and consume these tokens.
+ * BindForge NW uses Atelier Zero as the canonical visual source.
+ * Focused production fixes load last so they remain isolated and reviewable.
  */
