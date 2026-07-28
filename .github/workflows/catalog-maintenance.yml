@@ -1,0 +1,44 @@
+name: Catalog maintenance
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "app/data/**"
+      - "scripts/catalog-health.mjs"
+      - "package.json"
+      - ".github/workflows/catalog-maintenance.yml"
+  push:
+    branches: [main]
+    paths:
+      - "app/data/**"
+      - "scripts/catalog-health.mjs"
+      - "package.json"
+  schedule:
+    - cron: "47 2 * * 2"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  catalog-health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Generate catalog health report
+        run: npm run catalog:health
+      - name: Upload catalog health report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: catalog-health
+          path: catalog-health.json
+          retention-days: 30
+          if-no-files-found: error

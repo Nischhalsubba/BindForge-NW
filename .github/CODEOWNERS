@@ -1,0 +1,10 @@
+# Default ownership
+* @Nischhalsubba
+
+# High-risk areas
+/.github/ @Nischhalsubba
+/app/data/ @Nischhalsubba
+/scripts/ @Nischhalsubba
+/netlify.toml @Nischhalsubba
+/package.json @Nischhalsubba
+/package-lock.json @Nischhalsubba
