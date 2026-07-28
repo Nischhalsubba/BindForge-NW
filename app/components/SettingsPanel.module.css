@@ -1,0 +1,150 @@
+.root {
+  display: flex;
+  justify-content: flex-end;
+  margin: .75rem 0 0;
+}
+
+.trigger {
+  min-height: 2.75rem;
+  padding: .65rem 1rem;
+  border: 1px solid var(--border, #34435d);
+  border-radius: .8rem;
+  background: var(--surface, #111a2b);
+  color: var(--text, #f4f7fb);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  border: 0;
+  background: rgba(3, 8, 18, .68);
+  cursor: default;
+}
+
+.panel {
+  position: relative;
+  z-index: 1;
+  width: min(34rem, 100%);
+  height: 100%;
+  overflow-y: auto;
+  border-left: 1px solid var(--border, #34435d);
+  background: var(--background, #09111f);
+  color: var(--text, #f4f7fb);
+  box-shadow: -1rem 0 3rem rgba(0, 0, 0, .28);
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  border-bottom: 1px solid var(--border, #34435d);
+  background: var(--background, #09111f);
+}
+
+.header p,
+.header h2,
+.sectionHeading h3,
+.sectionHeading p {
+  margin: 0;
+}
+
+.header p {
+  color: var(--text-muted, #a9b5c9);
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.header h2 {
+  margin-top: .2rem;
+  font-size: 1.35rem;
+}
+
+.close {
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--border, #34435d);
+  border-radius: 50%;
+  background: var(--surface, #111a2b);
+  color: inherit;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.content {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.section {
+  padding: 1rem;
+  border: 1px solid var(--border, #34435d);
+  border-radius: 1rem;
+  background: var(--surface, #111a2b);
+}
+
+.sectionHeading {
+  margin-bottom: .9rem;
+}
+
+.sectionHeading h3 {
+  font-size: 1rem;
+}
+
+.sectionHeading p {
+  margin-top: .25rem;
+  color: var(--text-muted, #a9b5c9);
+  font-size: .86rem;
+}
+
+.section :global(.theme-switcher),
+.section :global(.local-backup-card) {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.section :global(.theme-switcher legend) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .root {
+    margin-top: .5rem;
+  }
+
+  .trigger {
+    width: 100%;
+  }
+
+  .panel {
+    width: 100%;
+    border-left: 0;
+  }
+}
