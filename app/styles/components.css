@@ -1,0 +1,86 @@
+@import "../local-settings.css";
+@import "../apple-appearance.css";
+@import "../minimal-ui.css";
+@import "../card-refinement.css";
+@import "../ui-finish.css";
+@import "../microinteractions.css";
+@import "../library-ui-refinement.css";
+
+:where(button, input, select, textarea) {
+  font: inherit;
+}
+
+:where(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  min-height: var(--control-height);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-text);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+:where(input:not([type="checkbox"]):not([type="radio"]), textarea) {
+  padding-inline: var(--space-3);
+}
+
+:where(select) {
+  padding: 0 2.4rem 0 var(--space-3);
+}
+
+:where(input, select, textarea, button):focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  box-shadow: var(--shadow-focus);
+}
+
+:where(input, select, textarea):disabled {
+  cursor: not-allowed;
+  opacity: .58;
+}
+
+:where(button) {
+  min-height: var(--control-height);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  font-weight: 750;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+}
+
+:where(button:not(:disabled)):hover {
+  border-color: var(--color-primary);
+  background: var(--color-surface-soft);
+}
+
+:where(button:not(:disabled)):active {
+  transform: translateY(1px);
+}
+
+:where(button:disabled) {
+  cursor: not-allowed;
+  opacity: .48;
+}
+
+.primary-button,
+button[data-variant="primary"] {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-primary-ink);
+}
+
+.secondary-button,
+button[data-variant="secondary"] {
+  background: var(--color-surface-raised);
+}
+
+button[data-variant="danger"],
+.danger-button {
+  border-color: color-mix(in srgb, var(--color-danger) 70%, var(--color-border));
+  background: color-mix(in srgb, var(--color-danger) 14%, var(--color-surface));
+  color: var(--color-danger);
+}
+
+:where(input[type="checkbox"], input[type="radio"]) {
+  accent-color: var(--color-primary);
+}
