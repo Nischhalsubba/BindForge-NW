@@ -1,7 +1,7 @@
 .mobileTrigger { display: none; width: 100%; min-height: 44px; padding: 10px 16px; border: 1px solid var(--line-strong); border-radius: 999px; background: transparent; color: var(--ink); font: 500 13px var(--sans); cursor: pointer; }
-.desktopPanel { min-width: 0; }
+.desktopPanel { position: sticky; top: 24px; align-self: start; min-width: 0; max-height: calc(100vh - 48px); overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
 .content { display: grid; gap: 24px; }
-.desktopPanel .content { position: sticky; top: 94px; padding: 22px 18px; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--line); }
+.desktopPanel .content { position: static; padding: 22px 18px; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--paper) 94%, transparent); }
 .head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
 .head p,.head h2,.section h3,.tip p { margin: 0; }
 .head p { color: var(--coral); font: 500 9px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
