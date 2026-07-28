@@ -15,7 +15,7 @@ permissions:
 jobs:
   smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     env:
       PRODUCTION_URL: ${{ github.event_name == 'pull_request' && format('https://deploy-preview-{0}--neverwinterkeybind.netlify.app', github.event.pull_request.number) || 'https://neverwinterkeybind.netlify.app' }}
     steps:
@@ -32,7 +32,7 @@ jobs:
         run: npm ci
 
       - name: Install production browser-test tooling
-        run: npm install --no-save @playwright/test@1.55.0
+        run: npm install --no-save @playwright/test@1.55.0 axe-core@4.10.2
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
@@ -49,16 +49,19 @@ jobs:
           echo "Deployment target did not become reachable in time."
           exit 1
 
-      - name: Run deployment smoke suite
+      - name: Verify production HTTP and metadata contract
+        run: node scripts/verify-production.mjs "$PRODUCTION_URL"
+
+      - name: Run deployment release-proof suite
         run: npx playwright test --config=playwright.production.config.ts
 
-      - name: Upload production smoke report
+      - name: Upload production release evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: production-smoke-report
+          name: production-release-evidence-${{ github.run_number }}
           path: |
             production-smoke-report/
             test-results/
-          retention-days: 14
+          retention-days: 30
           if-no-files-found: ignore
