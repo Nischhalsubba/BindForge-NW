@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "nodejs";
-export const alt = "BindForge NW Neverwinter keybind builder and command generator";
+export const alt = "BindForge NW Neverwinter keybind builder designed and developed by Archew";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -80,6 +80,7 @@ export default function OpenGraphImage() {
                 </div>
               ))}
             </div>
+            <div style={{ fontSize: "18px", color: "#8fd0ff", fontWeight: 700 }}>Designed and developed by Archew</div>
           </div>
           <div
             style={{
