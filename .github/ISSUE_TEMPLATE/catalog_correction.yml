@@ -1,0 +1,41 @@
+name: Catalog correction
+description: Correct or reverify a Neverwinter preset or command
+title: "Catalog: "
+labels: [catalog]
+body:
+  - type: input
+    id: preset
+    attributes:
+      label: Preset ID or title
+    validations:
+      required: true
+  - type: textarea
+    id: correction
+    attributes:
+      label: Proposed correction
+      description: Include the exact command, arguments, aliases, or wording that should change.
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Public source URL
+  - type: input
+    id: verified
+    attributes:
+      label: Verification date
+      placeholder: YYYY-MM-DD
+  - type: dropdown
+    id: confidence
+    attributes:
+      label: Confidence
+      options:
+        - verified
+        - community-tested
+        - experimental
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Observed game behavior and version
