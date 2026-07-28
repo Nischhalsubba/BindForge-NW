@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import packageInfo from "../package.json";
 import { BindForgeProvider } from "./BindForgeProvider";
-import { ServiceWorkerRegistration } from "./components/ServiceWorkerRegistration";
 import "./data/catalogIntegrity";
 import "./app.css";
 
@@ -13,14 +12,8 @@ const socialDescription =
 
 export const metadata: Metadata = {
   metadataBase: productionUrl,
-  alternates: {
-    canonical: productionUrl.toString(),
-  },
-  manifest: "/manifest.webmanifest",
-  title: {
-    default: socialTitle,
-    template: "%s | BindForge NW",
-  },
+  alternates: { canonical: productionUrl.toString() },
+  title: { default: socialTitle, template: "%s | BindForge NW" },
   description: socialDescription,
   applicationName: "BindForge NW",
   keywords: [
@@ -52,16 +45,14 @@ export const metadata: Metadata = {
     siteName: "BindForge NW",
     title: socialTitle,
     description: socialDescription,
-    images: [
-      {
-        url: socialImageUrl,
-        secureUrl: socialImageUrl,
-        width: 1200,
-        height: 630,
-        type: "image/png",
-        alt: "BindForge NW Neverwinter keybind builder showing a generated command preview",
-      },
-    ],
+    images: [{
+      url: socialImageUrl,
+      secureUrl: socialImageUrl,
+      width: 1200,
+      height: 630,
+      type: "image/png",
+      alt: "BindForge NW Neverwinter keybind builder showing a generated command preview",
+    }],
   },
   twitter: {
     card: "summary_large_image",
@@ -110,7 +101,6 @@ const structuredData = {
     "Class, action, and difficulty filtering",
     "Reserved and risky key warnings",
     "Keyboard-accessible responsive interface",
-    "Installable offline application shell",
   ],
 };
 
@@ -119,7 +109,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en">
       <body>
         <script dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} type="application/ld+json" />
-        <ServiceWorkerRegistration />
         <BindForgeProvider>{children}</BindForgeProvider>
       </body>
     </html>

@@ -16,11 +16,27 @@
   }
 
   :where(button, input:not([type="checkbox"]):not([type="radio"]), select) {
-    min-height: var(--control-height);
+    min-height: max(44px, var(--control-height));
+  }
+
+  :where(.icon-text-button, .mobile-filter-button, .settings-trigger, .dialog-close, .group-heading-actions button) {
+    min-width: 44px;
+    min-height: 44px;
   }
 
   .app-footer {
     padding-inline: var(--space-3);
+  }
+}
+
+@media (pointer: coarse) {
+  :where(button, [role="button"], input:not([type="checkbox"]):not([type="radio"]), select) {
+    min-height: 44px;
+  }
+
+  :where(input[type="checkbox"], input[type="radio"]) {
+    width: 1.25rem;
+    height: 1.25rem;
   }
 }
 
