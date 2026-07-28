@@ -24,12 +24,15 @@
 .summary strong { font-size: 1rem; }
 .summary span { color: var(--text-muted, #9aa8bf); font-size: .82rem; }
 
-.secondary label {
+.secondary label,
+.collectionRow label {
   display: grid;
-  gap: .35rem;
+  gap: .4rem;
   min-width: 0;
+  color: var(--text, #f7f8fb);
   font-size: .75rem;
   font-weight: 700;
+  letter-spacing: .01em;
 }
 
 .secondary select,
@@ -37,16 +40,81 @@
 .collectionRow input {
   width: 100%;
   min-width: 0;
+  min-height: 2.75rem;
+  box-sizing: border-box;
+  border: 1px solid var(--border-strong, #3a4862);
+  border-radius: .75rem;
+  background-color: var(--surface-raised, #1c2230);
+  color: var(--text, #f7f8fb);
+  font: inherit;
+  font-size: .9rem;
+  font-weight: 600;
+  line-height: 1.2;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.secondary select,
+.collectionRow select {
+  appearance: none;
+  padding: .7rem 2.4rem .7rem .8rem;
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    calc(100% - 1rem) 50%,
+    calc(100% - .72rem) 50%;
+  background-size: .36rem .36rem, .36rem .36rem;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+.collectionRow input {
+  padding: .7rem .8rem;
+}
+
+.collectionRow input::placeholder {
+  color: var(--text-muted, #9aa8bf);
+  opacity: .85;
+}
+
+.secondary select:hover,
+.collectionRow select:hover,
+.collectionRow input:hover {
+  border-color: var(--accent, #77a8ff);
+  background-color: var(--surface-hover, #222a3a);
+}
+
+.secondary select:focus-visible,
+.collectionRow select:focus-visible,
+.collectionRow input:focus-visible {
+  outline: none;
+  border-color: var(--accent, #77a8ff);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent, #77a8ff) 25%, transparent);
+}
+
+.secondary select:disabled,
+.collectionRow select:disabled,
+.collectionRow input:disabled {
+  cursor: not-allowed;
+  opacity: .58;
 }
 
 .safeToggle {
   display: flex !important;
   align-items: center;
-  gap: .5rem !important;
+  gap: .55rem !important;
   min-height: 2.75rem;
   padding: .65rem .75rem;
-  border: 1px solid var(--border, #2d3a53);
+  border: 1px solid var(--border-strong, #3a4862);
   border-radius: .75rem;
+  background: var(--surface-raised, #1c2230);
+}
+
+.safeToggle input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--accent, #77a8ff);
 }
 
 .packPanel {
@@ -68,6 +136,15 @@
   color: inherit;
   text-align: left;
   cursor: pointer;
+}
+
+.packSummary:hover {
+  background: var(--surface-hover, #1a202c);
+}
+
+.packSummary:focus-visible {
+  outline: 2px solid var(--accent, #77a8ff);
+  outline-offset: -3px;
 }
 
 .packSummary > span:first-child {
@@ -92,8 +169,8 @@
 
 .packBody {
   display: grid;
-  gap: .8rem;
-  padding: .9rem 1rem 1rem;
+  gap: .9rem;
+  padding: 1rem;
   border-top: 1px solid var(--border, #2d3a53);
 }
 
@@ -106,27 +183,60 @@
 }
 
 .collectionRow label {
-  display: grid;
   flex: 1 1 13rem;
-  gap: .35rem;
   min-width: 10rem;
-  font-size: .75rem;
-  font-weight: 700;
 }
 
-.collectionRow input { flex: 1 1 13rem; }
+.collectionRow input {
+  flex: 1 1 13rem;
+}
+
 .collectionRow button,
-.packActions button { min-height: 2.65rem; }
+.packActions button {
+  min-height: 2.65rem;
+  padding: .65rem .85rem;
+  border: 1px solid var(--border-strong, #3a4862);
+  border-radius: .7rem;
+  background: var(--surface-raised, #1c2230);
+  color: var(--text, #f7f8fb);
+  font: inherit;
+  font-size: .85rem;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease, opacity 160ms ease;
+}
+
+.collectionRow button:hover:not(:disabled),
+.packActions button:hover:not(:disabled) {
+  border-color: var(--accent, #77a8ff);
+  background: var(--surface-hover, #222a3a);
+}
+
+.collectionRow button:focus-visible,
+.packActions button:focus-visible {
+  outline: none;
+  border-color: var(--accent, #77a8ff);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent, #77a8ff) 25%, transparent);
+}
+
+.collectionRow button:disabled,
+.packActions button:disabled {
+  cursor: not-allowed;
+  opacity: .42;
+}
 
 .primary {
-  background: var(--text, #f7f8fb);
-  color: var(--surface, #151922);
+  border-color: var(--text, #f7f8fb) !important;
+  background: var(--text, #f7f8fb) !important;
+  color: var(--surface, #151922) !important;
 }
 
 @media (max-width: 1050px) {
   .secondary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
   .summary { grid-column: 1 / -1; }
 }
 
@@ -135,10 +245,16 @@
     grid-template-columns: 1fr;
     padding: .8rem;
   }
+
   .summary { grid-column: auto; }
   .packSummary { padding: .85rem; }
   .packBody { padding: .85rem; }
+
   .collectionRow > *,
-  .packActions > * { width: 100%; }
+  .packActions > * {
+    width: 100%;
+    flex-basis: 100%;
+  }
+
   .collectionRow label { min-width: 0; }
 }
