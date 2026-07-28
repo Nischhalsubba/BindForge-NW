@@ -29,9 +29,11 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
       </div>
 
       <nav className="site-nav" aria-label="Primary navigation">
-        <a className="site-brand" href="#top" aria-label="BindForge NW home">
-          <span className="brand-mark"><Icon name="forge" /></span>
-          <span className="brand-copy"><b>BindForge NW</b><small>Command field manual</small></span>
+        <a className="site-brand" href="#top" aria-label="Neverwinter Keybind home">
+          <span className="brand-mark">
+            <img src="/neverwinter-keybind-logo.svg" alt="" width="56" height="56" aria-hidden="true" />
+          </span>
+          <span className="brand-copy"><b>Neverwinter Keybind</b><small>Command field manual</small></span>
         </a>
         <div className="site-nav-links">
           <a href="#keybind-library">Library <span>01</span></a>
@@ -41,16 +43,16 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
         <a className="nav-cta" href="#keybind-library">Open workbench</a>
       </nav>
 
-      <section className="hero" aria-labelledby="bindforge-title" data-reveal>
+      <section className="hero" aria-labelledby="neverwinter-keybind-title" data-reveal>
         <div className="hero-copy">
           <p className="label">I. Neverwinter command utility</p>
-          <h1 className="display" id="bindforge-title">
+          <h1 className="display" id="neverwinter-keybind-title">
             Build <em>keybinds</em> with clarity<span className="dot">.</span>
           </h1>
           <p className="lead">
             Search the catalogue, shape a safer key combination, review conflicts, and copy a clean bind without memorising arcane console syntax.
           </p>
-          <div className="hero-actions" aria-label="Start using BindForge">
+          <div className="hero-actions" aria-label="Start using Neverwinter Keybind">
             <a className="btn btn-primary" href="#keybind-library">Browse keybinds ↗</a>
             <a className="btn btn-ghost" href="#command-lab-title">Compose a command</a>
           </div>
@@ -66,13 +68,13 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
           <span className="corner corner-tr" aria-hidden="true" />
           <span className="corner corner-bl" aria-hidden="true" />
           <span className="corner corner-br" aria-hidden="true" />
-          <div className="plate-meta"><span>Plate Nº 01</span><span>BF-NW / 2026</span></div>
+          <div className="plate-meta"><span>Plate Nº 01</span><span>NWK / 2026</span></div>
           <div className="command-specimen">
             <p>Generated command</p>
             <code>/bind ctrl+b &quot;gensendmessage Vipaction_Bankvendor activate&quot;</code>
-            <small>Edit the key. BindForge preserves the command format.</small>
+            <small>Edit the key. Neverwinter Keybind preserves the command format.</small>
           </div>
-          <ol className="hero-index" aria-label="How BindForge works">
+          <ol className="hero-index" aria-label="How Neverwinter Keybind works">
             <li><span>01</span><b>Find</b><small>Search presets.</small></li>
             <li><span>02</span><b>Adjust</b><small>Choose a key.</small></li>
             <li><span>03</span><b>Review</b><small>Check conflicts.</small></li>
