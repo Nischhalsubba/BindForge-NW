@@ -4,17 +4,23 @@ import { useEffect } from "react";
 
 export function ServiceWorkerRegistration() {
   useEffect(() => {
-    if (!("serviceWorker" in navigator) || process.env.NODE_ENV !== "production") return;
+    if (process.env.NODE_ENV !== "production") return;
 
-    const register = () => {
-      navigator.serviceWorker.register("/sw.js").catch(() => {
-        // Offline support is an enhancement. A registration failure must not
-        // interrupt the keybind workflow or produce a blocking UI error.
-      });
-    };
+    async function removeLegacyOfflineCache() {
+      if ("serviceWorker" in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map((registration) => registration.unregister()));
+      }
 
-    window.addEventListener("load", register, { once: true });
-    return () => window.removeEventListener("load", register);
+      if ("caches" in window) {
+        const cacheNames = await window.caches.keys();
+        await Promise.all(cacheNames.filter((name) => name.startsWith("bindforge-nw-")).map((name) => window.caches.delete(name)));
+      }
+    }
+
+    void removeLegacyOfflineCache().catch(() => {
+      // Cache cleanup is best-effort and must never interrupt the app.
+    });
   }, []);
 
   return null;
