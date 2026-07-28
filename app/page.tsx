@@ -9,6 +9,7 @@ import { CustomSayBuilder } from "./components/CustomSayBuilder";
 import { FilterSidebar } from "./components/FilterSidebar";
 import { KeybindLibrary } from "./components/KeybindLibrary";
 import { PortableSharePanel } from "./components/PortableSharePanel";
+import { SettingsPanel } from "./components/SettingsPanel";
 import { UrlStateBridge } from "./components/UrlStateBridge";
 import { Icon } from "./components/Icon";
 
@@ -45,6 +46,7 @@ export default function Home() {
       <a className="skip-link" href="#keybind-library">Skip to keybind library</a>
       <UrlStateBridge />
       <AppHeader feedback={feedback} />
+      <SettingsPanel />
       <section className="workspace">
         <FilterSidebar />
         <KeybindLibrary onCopy={copyText} />
