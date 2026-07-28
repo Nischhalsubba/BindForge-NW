@@ -30,13 +30,13 @@ BindForge NW helps Neverwinter players find, edit, validate, organize, share, an
 | Favourites and collections | Save favourites and named local collections in the browser |
 | Shareable views | Copy URLs for a selected preset, collection, and active filters |
 | Provenance | Source type, confidence, verification date, game-version notes, and provenance filtering |
-| Advanced browsing | Card or compact view, sorting, collapsible groups, collection filtering, safety filtering, and search highlighting |
+| Advanced browsing | Card or compact view, sorting, collapsible groups, progressive group rendering, collection filtering, safety filtering, and search highlighting |
 | Bind and unbind modes | Generate `/bind` or `/unbind` output from the same shared state |
 | Command Lab | Combine supported keys with catalog commands and optional arguments |
 | Custom chat builder | Generate safe, normalized `say` message binds |
 | Local persistence | Save filters, keys, appearance, Command Lab, custom chat, favourites, collections, and library preferences |
 | Backup tools | Export, validate, import, migrate, and clear versioned JSON settings |
-| Responsive UI | Mobile, tablet, and desktop layouts with keyboard and reduced-motion support |
+| Responsive UI | Mobile, tablet, and desktop layouts with keyboard, touch-target, and reduced-motion support |
 | Copy feedback | Local copied states, global toast feedback, fallback handling, errors, and accessible announcements |
 
 ## Command output
@@ -81,20 +81,27 @@ Run the complete local release gate:
 npm run check:release
 ```
 
-The release gate covers ESLint, TypeScript, unit and catalog tests, production build, mobile/tablet/desktop Playwright checks, persistence, recovery, keyboard navigation, and dark/light axe accessibility checks.
+The Quality gate covers ESLint, TypeScript, unit and catalog tests, production build, mobile/tablet/desktop Playwright checks, persistence, recovery, keyboard navigation, card and compact layouts, progressive rendering, retired-PWA protection, and dark/light axe accessibility checks.
 
-The dedicated `Production smoke` workflow verifies the live Netlify domain, primary search/filter journey, canonical and Open Graph URLs, `robots.txt`, sitemap, skip navigation, and theme controls.
+The `Production smoke` workflow verifies a deploy preview for pull requests and the canonical Netlify domain after merge. It exercises the critical user journeys, captures desktop/tablet/mobile screenshots, fails on runtime errors and overflow, verifies accessibility and touch targets, and uploads the release evidence as an artifact.
+
+The scheduled `Production monitor` workflow checks the live homepage, canonical and Open Graph metadata, social image, robots, sitemap, security headers, and retired service-worker endpoint every day. The same contract can be run manually:
+
+```bash
+node scripts/verify-production.mjs https://neverwinterkeybind.netlify.app
+```
 
 ## Production
 
 - Canonical URL: `https://neverwinterkeybind.netlify.app`
 - Netlify deploys `main` automatically.
 - Cloudflare Workers provides an additional production-compatible deployment path.
-- Current release evidence and accepted limitations are recorded in [docs/RELEASE_STATUS.md](./docs/RELEASE_STATUS.md).
+- Offline/PWA support is intentionally not part of the current release.
+- Current evidence, rollback criteria, and accepted limitations are recorded in [docs/RELEASE_STATUS.md](./docs/RELEASE_STATUS.md) and [docs/phase-9-10-release-proof.md](./docs/phase-9-10-release-proof.md).
 
 ## Stylesheet architecture
 
-Application code imports one authoritative stylesheet entrypoint: `app/app.css`. It controls the order of legacy visual layers and the final product layer in one location, avoiding scattered imports in React code. Historical layers remain isolated so regressions can be traced and removed safely over time without silently changing the approved design.
+Application code imports one authoritative stylesheet entrypoint: `app/app.css`, organized into tokens, base, theme, layout, components, and responsive layers. Component CSS modules remain limited to isolated interactive surfaces.
 
 ## Data maintenance
 
@@ -120,11 +127,12 @@ Required checks and merge protections are documented in [docs/BRANCH_PROTECTION.
 - Players must paste generated commands themselves.
 - Conflict guidance is advisory because personal in-game remaps are not readable by a browser.
 - Favourites and collections are browser-local unless exported or shared.
+- Offline installation is intentionally unsupported in the current release.
 
 ## Disclaimer
 
 BindForge NW is an independent community project. It is not affiliated with or endorsed by Cryptic Studios, Arc Games, Gearbox Publishing, or the Neverwinter rights holders. Game names, commands, and related assets belong to their respective owners.
 
-## Author
+## Studio
 
-Designed and developed by [Nischhal Raj Subba](https://github.com/Nischhalsubba).
+Designed and developed by Archew.
