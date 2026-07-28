@@ -1,0 +1,26 @@
+@import "../organized-layout.css";
+@import "../open-design-structure.css";
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.workspace {
+  width: min(100%, var(--content-width));
+  margin-inline: auto;
+  padding-inline: clamp(var(--space-3), 2vw, var(--space-5));
+}
+
+.app-header,
+.app-footer {
+  width: min(100%, var(--content-width));
+  margin-inline: auto;
+}
+
+.library,
+.bind-group,
+.bind-card,
+.command-lab,
+.custom-say-builder {
+  min-width: 0;
+}
