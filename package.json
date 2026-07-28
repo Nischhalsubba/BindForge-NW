@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "A Neverwinter keybind builder, console-command browser, conflict planner, collection manager, and copy-ready bind-pack generator.",
-  "author": "Nischhal Raj Subba",
+  "author": "Archew",
   "license": "UNLICENSED",
   "type": "module",
   "engines": {
