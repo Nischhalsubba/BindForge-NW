@@ -16,6 +16,8 @@ import type { KeybindSafetyStatus } from "./KeybindCard";
 import { WorkspaceControls } from "./WorkspaceControls";
 
 const LIBRARY_SETTINGS_KEY = "bindforge-nw:library:v1";
+const INITIAL_VISIBLE_GROUPS = keybindPresets.length;
+const GROUP_BATCH_SIZE = 3;
 
 const typeOrder: KeybindType[] = [
   "Invocation / Character", "Targeting", "VIP Services", "Bard Songs", "Animation Cancel", "Combat",
@@ -114,6 +116,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [activeCollection, setActiveCollection] = useState("all");
   const [collectionName, setCollectionName] = useState("");
+  const [visibleGroupCount, setVisibleGroupCount] = useState(INITIAL_VISIBLE_GROUPS);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -130,6 +133,10 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     if (!hydrated) return;
     try { window.localStorage.setItem(LIBRARY_SETTINGS_KEY, JSON.stringify(library)); } catch { /* session only */ }
   }, [hydrated, library]);
+
+  useEffect(() => {
+    setVisibleGroupCount(INITIAL_VISIBLE_GROUPS);
+  }, [state.search, state.className, state.actionType, state.difficulty, activeCollection, library.provenanceFilter, library.safeOnly, library.sortMode]);
 
   const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
   const favouriteSet = useMemo(() => new Set(library.favourites), [library.favourites]);
@@ -165,10 +172,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   }, [activeCollection, keyUseCounts, library.collections, library.favourites, library.provenanceFilter, library.safeOnly, library.sortMode, state.actionType, state.className, state.difficulty, state.keys, state.search]);
 
   const groupedEntries = useMemo(() => Object.entries(groupedPresets(filtered)), [filtered]);
-  const visibleGroups = groupedEntries;
-  const collapsedVisibleGroups = visibleGroups.filter(([groupName]) => library.collapsedGroups.includes(groupName));
-  const collapsedVisibleCount = collapsedVisibleGroups.length;
-  const hiddenPresetCount = collapsedVisibleGroups.reduce((count, [, presets]) => count + presets.length, 0);
+  const visibleGroups = groupedEntries.slice(0, visibleGroupCount);
   const selectedPresets = useMemo(() => keybindPresets.filter((preset) => selectedSet.has(preset.id)), [selectedSet]);
   const conflictCount = useMemo(() => filtered.filter((preset) => {
     const value = state.keys[preset.id] ?? preset.defaultKey;
@@ -222,26 +226,14 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
 
       {filtered.length ? (
         <>
-          <div className={`group-visibility-status ${collapsedVisibleCount ? "is-collapsed" : "is-expanded"}`}>
-            <div aria-live="polite">
-              <strong>{collapsedVisibleCount ? `${hiddenPresetCount} keybind${hiddenPresetCount === 1 ? " is" : "s are"} hidden` : `All ${filtered.length} matching keybinds are expanded`}</strong>
-              <small>{collapsedVisibleCount ? `${collapsedVisibleCount} collapsed ${collapsedVisibleCount === 1 ? "group" : "groups"}. All ${groupedEntries.length} matching groups are listed below.` : `${groupedEntries.length} ${groupedEntries.length === 1 ? "group is" : "groups are"} visible. Collapse a group only when you want to shorten the page.`}</small>
-            </div>
-            {collapsedVisibleCount ? <button className="secondary-button" onClick={() => patchLibrary({ collapsedGroups: [] })} type="button">Expand all keybind groups</button> : null}
-          </div>
-
           <div className="group-stack">
             {visibleGroups.map(([groupName, presets]) => {
               const collapsed = library.collapsedGroups.includes(groupName);
               return (
-                <section className={`bind-group${collapsed ? " is-collapsed" : ""}`} key={groupName}>
+                <section className="bind-group" key={groupName}>
                   <div className="group-heading">
-                    <div><h3>{groupName}</h3><p>{collapsed ? `${presets.length} ${presets.length === 1 ? "keybind is" : "keybinds are"} hidden in this collapsed group` : "Copy-ready presets with editable keys"}</p></div>
-                    <div className="group-heading-actions">
-                      {collapsed ? <span className="collapsed-state-badge">Collapsed</span> : null}
-                      <span>{presets.length} {presets.length === 1 ? "bind" : "binds"}</span>
-                      <button aria-expanded={!collapsed} className="icon-text-button" onClick={() => toggleGroup(groupName)} type="button">{collapsed ? `Expand ${presets.length} keybind${presets.length === 1 ? "" : "s"}` : "Collapse group"}</button>
-                    </div>
+                    <div><h3>{groupName}</h3><p>Copy-ready presets with editable keys</p></div>
+                    <div className="group-heading-actions"><span>{presets.length} {presets.length === 1 ? "bind" : "binds"}</span><button aria-expanded={!collapsed} className="icon-text-button" onClick={() => toggleGroup(groupName)} type="button">{collapsed ? "Expand" : "Collapse"}</button></div>
                   </div>
                   {collapsed ? null : (
                     <div className="bind-grid">
@@ -270,6 +262,13 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
               );
             })}
           </div>
+          {visibleGroupCount < groupedEntries.length ? (
+            <div className="load-more-groups">
+              <p>Showing {visibleGroups.length} of {groupedEntries.length} groups. More groups stay unloaded until requested.</p>
+              <button className="secondary-button" onClick={() => setVisibleGroupCount((count) => Math.min(groupedEntries.length, count + GROUP_BATCH_SIZE))} type="button">Show more groups</button>
+              <button className="text-button" onClick={() => setVisibleGroupCount(groupedEntries.length)} type="button">Expand all groups</button>
+            </div>
+          ) : null}
         </>
       ) : (
         <div className="empty-state"><div className="empty-icon"><Icon name="search" /></div><h3>No matching keybinds</h3><p>Try a broader search, collection, provenance option, or safety filter.</p><button className="primary-button" onClick={() => { resetFilters(); setActiveCollection("all"); patchLibrary({ provenanceFilter: "all", safeOnly: false }); }} type="button">Clear filters</button></div>
