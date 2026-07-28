@@ -32,7 +32,7 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
           <a href="#command-lab-title">Command Lab</a>
           <a href="#custom-say-title">Chat bind</a>
         </div>
-        <a className="nav-source-link" href="https://github.com/Nischhalsubba/BindForge-NW">GitHub</a>
+        <span className="nav-source-link" aria-label="Designed and developed by Archew">By Archew</span>
       </nav>
 
       <section className="hero" aria-labelledby="bindforge-title">
