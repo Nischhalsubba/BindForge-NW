@@ -25,13 +25,24 @@ export default function OpenGraphImage() {
         <div style={{ display: "flex", width: "100%", gap: "48px", alignItems: "center", zIndex: 1 }}>
           <div style={{ display: "flex", flexDirection: "column", width: "58%", gap: "24px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-              <img
-                src="https://neverwinterkeybind.netlify.app/neverwinter-keybind-logo.svg"
-                width="96"
-                height="96"
-                alt=""
-                style={{ borderRadius: "22px" }}
-              />
+              <div
+                style={{
+                  width: "96px",
+                  height: "96px",
+                  borderRadius: "22px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "#15140f",
+                  color: "#efe7d2",
+                  border: "3px solid #ed6f5c",
+                  fontSize: "34px",
+                  fontWeight: 900,
+                  letterSpacing: "-0.06em",
+                }}
+              >
+                NW
+              </div>
               <div style={{ display: "flex", flexDirection: "column" }}>
                 <span style={{ fontSize: "18px", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8b8676" }}>
                   Neverwinter utility
