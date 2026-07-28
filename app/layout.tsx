@@ -6,7 +6,7 @@ import "./data/catalogIntegrity";
 import "./app.css";
 
 const productionUrl = new URL("https://neverwinterkeybind.netlify.app");
-const socialImageUrl = new URL("/opengraph-image?v=20260728", productionUrl).toString();
+const socialImageUrl = new URL("/opengraph-image?v=20260728-archew", productionUrl).toString();
 const socialTitle = "BindForge NW | Neverwinter Keybind Builder";
 const socialDescription =
   "Search presets, choose safer key combinations, and generate copy-ready Neverwinter bind or unbind commands.";
@@ -30,9 +30,9 @@ export const metadata: Metadata = {
     "Neverwinter Bard song binds",
     "Neverwinter command generator",
   ],
-  authors: [{ name: "Nischhal Raj Subba", url: "https://github.com/Nischhalsubba" }],
-  creator: "Nischhal Raj Subba",
-  publisher: "Nischhal Raj Subba",
+  authors: [{ name: "Archew" }],
+  creator: "Archew",
+  publisher: "Archew",
   category: "gaming tools",
   robots: {
     index: true,
@@ -91,8 +91,9 @@ const structuredData = {
   description: "A browser-based Neverwinter keybind builder for searching presets, console commands, and key combinations and generating copy-ready bind and unbind commands.",
   softwareVersion: packageInfo.version,
   isAccessibleForFree: true,
-  author: { "@type": "Person", name: "Nischhal Raj Subba", url: "https://github.com/Nischhalsubba" },
-  codeRepository: "https://github.com/Nischhalsubba/BindForge-NW",
+  author: { "@type": "Organization", name: "Archew" },
+  creator: { "@type": "Organization", name: "Archew" },
+  publisher: { "@type": "Organization", name: "Archew" },
   featureList: [
     "Neverwinter keybind preset library",
     "Editable key-combination previews",
