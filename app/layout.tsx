@@ -6,19 +6,22 @@ import "./data/catalogIntegrity";
 import "./app.css";
 
 const productionUrl = new URL("https://neverwinterkeybind.netlify.app");
+const socialImageUrl = new URL("/opengraph-image?v=20260728", productionUrl).toString();
+const socialTitle = "BindForge NW | Neverwinter Keybind Builder";
+const socialDescription =
+  "Search presets, choose safer key combinations, and generate copy-ready Neverwinter bind or unbind commands.";
 
 export const metadata: Metadata = {
   metadataBase: productionUrl,
   alternates: {
-    canonical: "/",
+    canonical: productionUrl.toString(),
   },
   manifest: "/manifest.webmanifest",
   title: {
-    default: "BindForge NW | Neverwinter Keybind Builder",
+    default: socialTitle,
     template: "%s | BindForge NW",
   },
-  description:
-    "Search, review, and generate copy-ready Neverwinter keybind and unbind commands with editable key combinations and conflict warnings.",
+  description: socialDescription,
   applicationName: "BindForge NW",
   keywords: [
     "Neverwinter keybind builder",
@@ -44,17 +47,35 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    url: "/",
+    locale: "en_US",
+    url: productionUrl.toString(),
     siteName: "BindForge NW",
-    title: "BindForge NW | Neverwinter Keybind Builder",
-    description: "Find safer key combinations and generate copy-ready Neverwinter bind or unbind commands.",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "BindForge NW Neverwinter keybind builder and command generator" }],
+    title: socialTitle,
+    description: socialDescription,
+    images: [
+      {
+        url: socialImageUrl,
+        secureUrl: socialImageUrl,
+        width: 1200,
+        height: 630,
+        type: "image/png",
+        alt: "BindForge NW Neverwinter keybind builder showing a generated command preview",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "BindForge NW | Neverwinter Keybind Builder",
-    description: "Search presets and generate copy-ready Neverwinter keybind commands.",
-    images: ["/opengraph-image"],
+    title: socialTitle,
+    description: socialDescription,
+    images: [{ url: socialImageUrl, alt: "BindForge NW Neverwinter keybind builder preview" }],
+  },
+  other: {
+    "og:image": socialImageUrl,
+    "og:image:secure_url": socialImageUrl,
+    "og:image:type": "image/png",
+    "og:image:width": "1200",
+    "og:image:height": "630",
+    "twitter:image": socialImageUrl,
   },
   icons: { icon: "/favicon.svg", shortcut: "/favicon.svg", apple: "/favicon.svg" },
 };
