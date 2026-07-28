@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "nodejs";
-export const alt = "BindForge NW Neverwinter keybind builder designed and developed by Archew";
+export const alt = "Neverwinter Keybind builder designed and developed by Archew";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -13,66 +13,46 @@ export default function OpenGraphImage() {
           width: "100%",
           height: "100%",
           display: "flex",
-          background: "linear-gradient(135deg, #07111f 0%, #12263f 55%, #173a55 100%)",
-          color: "#f8fbff",
+          background: "#efe7d2",
+          color: "#15140f",
           fontFamily: "Arial, sans-serif",
           padding: "54px",
           position: "relative",
           overflow: "hidden",
         }}
       >
-        <div
-          style={{
-            position: "absolute",
-            width: "360px",
-            height: "360px",
-            borderRadius: "999px",
-            background: "rgba(73, 172, 255, 0.12)",
-            right: "-80px",
-            top: "-90px",
-          }}
-        />
-        <div style={{ display: "flex", width: "100%", gap: "48px", alignItems: "center" }}>
-          <div style={{ display: "flex", flexDirection: "column", width: "57%", gap: "24px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "18px" }}>
-              <div
-                style={{
-                  width: "70px",
-                  height: "70px",
-                  borderRadius: "18px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: "#56b4ff",
-                  color: "#06111e",
-                  fontSize: "26px",
-                  fontWeight: 900,
-                }}
-              >
-                BF
-              </div>
+        <div style={{ position: "absolute", inset: "24px", border: "1px solid rgba(21,20,15,.18)" }} />
+        <div style={{ display: "flex", width: "100%", gap: "48px", alignItems: "center", zIndex: 1 }}>
+          <div style={{ display: "flex", flexDirection: "column", width: "58%", gap: "24px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+              <img
+                src="https://neverwinterkeybind.netlify.app/neverwinter-keybind-logo.svg"
+                width="96"
+                height="96"
+                alt=""
+                style={{ borderRadius: "22px" }}
+              />
               <div style={{ display: "flex", flexDirection: "column" }}>
-                <span style={{ fontSize: "20px", letterSpacing: "0.22em", textTransform: "uppercase", color: "#8fd0ff" }}>
+                <span style={{ fontSize: "18px", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8b8676" }}>
                   Neverwinter utility
                 </span>
-                <span style={{ fontSize: "48px", fontWeight: 900, letterSpacing: "-0.04em" }}>BindForge NW</span>
+                <span style={{ fontSize: "46px", fontWeight: 900, letterSpacing: "-0.04em" }}>Neverwinter Keybind</span>
               </div>
             </div>
-            <div style={{ fontSize: "54px", fontWeight: 900, lineHeight: 1.03, letterSpacing: "-0.05em" }}>
-              Build a keybind without memorizing commands.
+            <div style={{ fontSize: "62px", fontWeight: 900, lineHeight: 0.98, letterSpacing: "-0.055em" }}>
+              Build keybinds with clarity<span style={{ color: "#ed6f5c" }}>.</span>
             </div>
-            <div style={{ fontSize: "24px", lineHeight: 1.45, color: "#c8d9e8" }}>
-              Search presets, choose a key, review safety warnings, and copy a ready-to-paste bind or unbind line.
+            <div style={{ fontSize: "24px", lineHeight: 1.45, color: "#5a5448" }}>
+              Search presets, choose a safer key, review conflicts, and copy a ready-to-paste bind or unbind command.
             </div>
             <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-              {["Class presets", "Console commands", "Safe key combos", "Bind / Unbind"].map((label) => (
+              {["Preset library", "Conflict guidance", "Command lab", "Bind / Unbind"].map((label) => (
                 <div
                   key={label}
                   style={{
                     padding: "10px 16px",
                     borderRadius: "999px",
-                    background: "rgba(255,255,255,0.08)",
-                    border: "1px solid rgba(255,255,255,0.16)",
+                    border: "1px solid rgba(21,20,15,.2)",
                     fontSize: "17px",
                   }}
                 >
@@ -80,41 +60,38 @@ export default function OpenGraphImage() {
                 </div>
               ))}
             </div>
-            <div style={{ fontSize: "18px", color: "#8fd0ff", fontWeight: 700 }}>Designed and developed by Archew</div>
+            <div style={{ fontSize: "17px", color: "#8b8676", fontWeight: 700 }}>Designed and developed by Archew</div>
           </div>
           <div
             style={{
-              width: "43%",
+              width: "42%",
               minHeight: "470px",
-              borderRadius: "26px",
-              border: "1px solid rgba(255,255,255,0.18)",
-              background: "rgba(4, 12, 22, 0.76)",
-              padding: "24px",
+              border: "1px solid rgba(21,20,15,.16)",
+              background: "#ece4cf",
+              padding: "30px",
               display: "flex",
               flexDirection: "column",
-              gap: "18px",
-              boxShadow: "0 30px 70px rgba(0,0,0,0.35)",
+              gap: "20px",
+              boxShadow: "22px 22px 0 rgba(237,111,92,.18)",
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: "15px", letterSpacing: "0.16em", textTransform: "uppercase", color: "#8fd0ff" }}>
+              <span style={{ fontSize: "15px", letterSpacing: "0.16em", textTransform: "uppercase", color: "#8b8676" }}>
                 Generated command
               </span>
-              <span style={{ padding: "7px 11px", borderRadius: "999px", background: "#143d2c", color: "#9cf1bd", fontSize: "14px" }}>
-                Safe
+              <span style={{ padding: "7px 11px", borderRadius: "999px", background: "#6e7448", color: "#f7f1de", fontSize: "14px" }}>
+                Ready
               </span>
             </div>
             <div
               style={{
                 display: "flex",
-                padding: "22px",
-                borderRadius: "16px",
-                background: "#07101b",
-                border: "1px solid #2b506e",
+                padding: "24px",
+                background: "#15140f",
                 fontFamily: "monospace",
-                fontSize: "24px",
-                lineHeight: 1.4,
-                color: "#dff3ff",
+                fontSize: "23px",
+                lineHeight: 1.45,
+                color: "#f7f1de",
               }}
             >
               /bind ctrl+b gensendmessage Vipaction_Bankvendor activate
@@ -130,13 +107,12 @@ export default function OpenGraphImage() {
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
-                  padding: "14px 16px",
-                  borderRadius: "14px",
-                  background: "rgba(255,255,255,0.05)",
+                  padding: "14px 0",
+                  borderBottom: "1px solid rgba(21,20,15,.12)",
                   fontSize: "18px",
                 }}
               >
-                <span style={{ color: "#91a8bb" }}>{label}</span>
+                <span style={{ color: "#8b8676" }}>{label}</span>
                 <span style={{ fontWeight: 700 }}>{value}</span>
               </div>
             ))}
@@ -146,9 +122,9 @@ export default function OpenGraphImage() {
                 display: "flex",
                 justifyContent: "center",
                 padding: "16px",
-                borderRadius: "14px",
-                background: "#56b4ff",
-                color: "#06111e",
+                borderRadius: "999px",
+                background: "#ed6f5c",
+                color: "#ffffff",
                 fontWeight: 900,
                 fontSize: "19px",
               }}
