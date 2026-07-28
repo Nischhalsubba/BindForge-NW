@@ -1,39 +1,55 @@
-import { readFile, writeFile } from "node:fs/promises";
+import { readdir, readFile, writeFile } from "node:fs/promises";
 
-const sourcePath = new URL("../app/data/keybindPresets.ts", import.meta.url);
+const sectionsDirectory = new URL("../app/data/keybindPresetSections/", import.meta.url);
 const outputPath = new URL("../catalog-health.json", import.meta.url);
-const source = await readFile(sourcePath, "utf8");
+const files = (await readdir(sectionsDirectory)).filter((name) => name.endsWith(".ts")).sort();
+const presets = [];
 
-const objectBlocks = [...source.matchAll(/\{[\s\S]*?\n\s*\},?/g)].map((match) => match[0]);
-const presets = objectBlocks
-  .map((block) => ({
-    id: block.match(/\bid:\s*["'`]([^"'`]+)["'`]/)?.[1],
-    title: block.match(/\btitle:\s*["'`]([^"'`]+)["'`]/)?.[1],
-    command: block.match(/\bcommand:\s*["'`]([^"'`]+)["'`]/)?.[1],
-    sourceUrl: block.match(/\bsourceUrl:\s*["'`]([^"'`]+)["'`]/)?.[1],
-    verifiedAt: block.match(/\bverifiedAt:\s*["'`]([^"'`]+)["'`]/)?.[1],
-    confidence: block.match(/\bconfidence:\s*["'`]([^"'`]+)["'`]/)?.[1],
-    difficulty: block.match(/\bdifficulty:\s*["'`]([^"'`]+)["'`]/)?.[1],
-  }))
-  .filter((preset) => preset.id && preset.command);
+for (const file of files) {
+  const source = await readFile(new URL(file, sectionsDirectory), "utf8");
+  const start = source.indexOf("[");
+  const end = source.lastIndexOf("]");
+  if (start < 0 || end <= start) throw new Error(`Unable to locate preset array in ${file}`);
+  const parsed = JSON.parse(source.slice(start, end + 1));
+  if (!Array.isArray(parsed)) throw new Error(`Preset section ${file} did not contain an array`);
+  for (const preset of parsed) presets.push({ ...preset, sectionFile: file });
+}
 
-const duplicateIds = [...new Set(presets.filter((preset, index) => presets.findIndex((item) => item.id === preset.id) !== index).map((preset) => preset.id))];
-const duplicateCommands = [...new Set(presets.filter((preset, index) => presets.findIndex((item) => item.command === preset.command) !== index).map((preset) => preset.command))];
-const missingSource = presets.filter((preset) => !preset.sourceUrl).map(({ id, title }) => ({ id, title }));
-const missingVerificationDate = presets.filter((preset) => !preset.verifiedAt).map(({ id, title }) => ({ id, title }));
-const invalidVerificationDates = presets.filter((preset) => preset.verifiedAt && !/^\d{4}-\d{2}-\d{2}$/.test(preset.verifiedAt)).map(({ id, verifiedAt }) => ({ id, verifiedAt }));
-const riskyWithoutExperimentalFlag = presets.filter((preset) => preset.difficulty === "Risky" && preset.confidence !== "experimental").map(({ id, title, confidence }) => ({ id, title, confidence }));
+const duplicateValues = (field) => [...new Set(presets.filter((preset, index) => presets.findIndex((item) => item[field] === preset[field]) !== index).map((preset) => preset[field]).filter(Boolean))];
+const inferredSourceType = (preset) => {
+  const evidence = `${preset.plainEnglish ?? ""} ${preset.notes ?? ""}`.toLowerCase();
+  if (preset.sourceType) return preset.sourceType;
+  if (evidence.includes("wiki supplied") || evidence.includes("wiki-supplied")) return "wiki";
+  if (evidence.includes("user supplied") || evidence.includes("user-submitted")) return "user-submitted";
+  return "community";
+};
+
+const normalized = presets.map((preset) => ({
+  ...preset,
+  sourceType: inferredSourceType(preset),
+  confidence: preset.confidence ?? (preset.difficulty === "Risky" ? "experimental" : "community-tested"),
+}));
+
+const duplicateIds = duplicateValues("id");
+const duplicateCommands = duplicateValues("command");
+const missingSource = normalized.filter((preset) => !preset.sourceUrl).map(({ id, title, sourceType, sectionFile }) => ({ id, title, sourceType, sectionFile }));
+const missingVerificationDate = normalized.filter((preset) => !preset.verifiedAt).map(({ id, title, sectionFile }) => ({ id, title, sectionFile }));
+const invalidVerificationDates = normalized.filter((preset) => preset.verifiedAt && !/^\d{4}-\d{2}-\d{2}$/.test(preset.verifiedAt)).map(({ id, verifiedAt, sectionFile }) => ({ id, verifiedAt, sectionFile }));
+const riskyWithoutExperimentalFlag = normalized.filter((preset) => preset.difficulty === "Risky" && preset.confidence !== "experimental").map(({ id, title, confidence, sectionFile }) => ({ id, title, confidence, sectionFile }));
+const missingRequiredFields = normalized.filter((preset) => !preset.id || !preset.title || !preset.command || !preset.plainEnglish || !preset.defaultKey || !preset.difficulty).map(({ id, title, sectionFile }) => ({ id, title, sectionFile }));
 
 const report = {
   generatedAt: new Date().toISOString(),
-  presetCount: presets.length,
+  sectionCount: files.length,
+  presetCount: normalized.length,
   coverage: {
-    sourceUrlPercent: presets.length ? Math.round(((presets.length - missingSource.length) / presets.length) * 100) : 0,
-    verifiedAtPercent: presets.length ? Math.round(((presets.length - missingVerificationDate.length) / presets.length) * 100) : 0,
+    sourceUrlPercent: normalized.length ? Math.round(((normalized.length - missingSource.length) / normalized.length) * 100) : 0,
+    verifiedAtPercent: normalized.length ? Math.round(((normalized.length - missingVerificationDate.length) / normalized.length) * 100) : 0,
   },
   findings: {
     duplicateIds,
     duplicateCommands,
+    missingRequiredFields,
     missingSource,
     missingVerificationDate,
     invalidVerificationDates,
@@ -44,7 +60,6 @@ const report = {
 await writeFile(outputPath, `${JSON.stringify(report, null, 2)}\n`);
 console.log(JSON.stringify(report, null, 2));
 
-// Existing provenance gaps remain visible in the report but do not block unrelated work.
-// Duplicate IDs and malformed verification dates are structural failures and block CI.
-const blocking = duplicateIds.length + invalidVerificationDates.length;
+// Provenance gaps are reported without blocking unrelated work. Structural catalog corruption blocks CI.
+const blocking = duplicateIds.length + missingRequiredFields.length + invalidVerificationDates.length;
 if (blocking > 0) process.exitCode = 1;
