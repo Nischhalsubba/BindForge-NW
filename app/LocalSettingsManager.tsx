@@ -30,7 +30,7 @@ export default function LocalSettingsManager() {
         <button onClick={() => fileInput.current?.click()} type="button">Import backup</button>
         <button className={styles.danger} onClick={clearSavedData} type="button">Clear saved data</button>
       </div>
-      <input accept="application/json,.json" aria-label="Import a BindForge backup file" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importBackup(file); event.target.value = ""; }} ref={fileInput} type="file" />
+      <input accept="application/json,.json" aria-label="Import a Neverwinter Keybind backup file" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importBackup(file); event.target.value = ""; }} ref={fileInput} type="file" />
       <p className={styles.privacy}>Stored only in this browser. Clearing site data removes it unless you export a backup file.</p>
     </section>
   );

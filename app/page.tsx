@@ -56,7 +56,7 @@ export default function Home() {
     <main className="app-shell">
       <RevealController />
       <a className="skip-link" href="#keybind-library">Skip to keybind library</a>
-      <div className="side-rail left" aria-hidden="true"><span>BindForge NW · Field Manual</span></div>
+      <div className="side-rail left" aria-hidden="true"><span>Neverwinter Keybind · Field Manual</span></div>
       <div className="side-rail right" aria-hidden="true"><span>Neverwinter Command Systems · MMXXVI</span></div>
       <UrlStateBridge />
       <AppHeader feedback={feedback} />
@@ -88,12 +88,12 @@ export default function Home() {
       <footer className="app-footer" data-reveal>
         <SectionRule roman="IV" meta="Notes / provenance / studio" page="004" />
         <div className="footer-grid">
-          <section><span>Independent utility</span><p>BindForge NW is a community-made tool for preparing Neverwinter keybind commands.</p></section>
+          <section><span>Independent utility</span><p>Neverwinter Keybind is a community-made tool for preparing Neverwinter keybind commands.</p></section>
           <section><span>Use responsibly</span><p>Commands can change after game updates. Back up existing binds before testing unfamiliar setups.</p></section>
           <section><span>Local by default</span><p>Preferences and collections stay in your browser unless you export or share them.</p></section>
           <section><span>Studio</span><p>Designed and developed by <strong>Archew</strong>.</p></section>
         </div>
-        <p className="footer-mega">Bind <em>Forge</em><span>.</span></p>
+        <p className="footer-mega">Neverwinter <em>Keybind</em><span>.</span></p>
         <div className="footer-bottom"><span><i className="pulse" /> Catalogue online</span><span>FIN. · MMXXVI</span></div>
       </footer>
 

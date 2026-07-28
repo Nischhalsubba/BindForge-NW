@@ -1,6 +1,25 @@
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M22 19.2727C22 20.779 20.779 22 19.2727 22H14.7273C13.221 22 12 20.779 12 19.2727V12H19.2727C20.779 12 22 13.221 22 14.7273V19.2727Z" fill="#68C4FF"/>
-<path d="M20 2C21.1046 2 22 2.89543 22 4V7C22 8.10457 21.1046 9 20 9H17C15.8954 9 15 8.10457 15 7V4C15 2.89543 15.8954 2 17 2H20Z" fill="#0C79D8"/>
-<path d="M7 15C8.10457 15 9 15.8954 9 17V20C9 21.1046 8.10457 22 7 22H4C2.89543 22 2 21.1046 2 20V17C2 15.8954 2.89543 15 4 15H7Z" fill="#0C79D8"/>
-<path d="M12 12H4.72727C3.22104 12 2 10.779 2 9.27273V4.72727C2 3.22104 3.22104 2 4.72727 2H9.27273C10.779 2 12 3.22104 12 4.72727V12Z" fill="#2E9EFF"/>
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gold" x1="64" y1="28" x2="196" y2="224" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF3C4"/>
+      <stop offset="0.46" stop-color="#E9B94A"/>
+      <stop offset="1" stop-color="#B67A22"/>
+    </linearGradient>
+    <linearGradient id="coral" x1="104" y1="65" x2="151" y2="111" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F08E7C"/>
+      <stop offset="1" stop-color="#ED6F5C"/>
+    </linearGradient>
+  </defs>
+  <rect x="5" y="5" width="246" height="246" rx="54" fill="#15140F" stroke="url(#gold)" stroke-width="6"/>
+  <path d="M28 87L54 68V54L91 74L128 106L165 74L202 54V68L228 87V201C195 190 163 194 128 223C93 194 61 190 28 201V87Z" fill="#0C0C09" stroke="url(#gold)" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M43 94L65 80V71L98 88L128 111L158 88L191 71V80L213 94V181C180 176 153 187 128 207C103 187 76 176 43 181V94Z" stroke="#F7F1DE" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M49 152C79 145 104 154 128 174C152 154 177 145 207 152" stroke="url(#gold)" stroke-width="5" stroke-linecap="round"/>
+  <path d="M49 171C80 163 104 171 128 192C152 171 176 163 207 171" stroke="#F7F1DE" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="128" cy="78" r="38" fill="#15140F" stroke="url(#gold)" stroke-width="8"/>
+  <path d="M128 48L136 70L158 78L136 86L128 108L120 86L98 78L120 70L128 48Z" fill="url(#coral)" stroke="#F7B09E" stroke-width="2"/>
+  <path d="M121 110H135V176H121V110Z" fill="url(#gold)" stroke="#F7F1DE" stroke-width="2"/>
+  <rect x="118" y="106" width="20" height="9" rx="4.5" fill="#E9B94A" stroke="#F7F1DE" stroke-width="2"/>
+  <path d="M135 148H158V162H147V171H135V148Z" fill="url(#gold)" stroke="#F7F1DE" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M128 176L137 188L128 204L119 188L128 176Z" fill="url(#gold)" stroke="#F7F1DE" stroke-width="2"/>
+  <path d="M128 204L135 218L128 235L121 218L128 204Z" fill="url(#gold)" stroke="#F7F1DE" stroke-width="2"/>
 </svg>

@@ -1,7 +1,8 @@
 @import "./atelier-zero.css";
 @import "./ui-fixes.css";
+@import "./branding.css";
 
 /*
- * BindForge NW uses Atelier Zero as the canonical visual source.
- * Focused production fixes load last so they remain isolated and reviewable.
+ * Neverwinter Keybind uses Atelier Zero as the canonical visual source.
+ * Focused production and identity layers load last so they remain isolated and reviewable.
  */
