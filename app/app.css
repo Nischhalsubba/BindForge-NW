@@ -7,9 +7,11 @@
 @import "./styles/layout.css" layer(layout);
 @import "./styles/components.css" layer(components);
 @import "./styles/responsive.css" layer(responsive);
+@import "./editorial-theme.css";
 
 /*
  * Authoritative style entrypoint.
  * Global rules are loaded through six ordered layers. New component-specific work
  * should use a CSS module rather than adding another global override stylesheet.
+ * The final editorial theme maps the existing UI onto the Atelier-inspired visual system.
  */
