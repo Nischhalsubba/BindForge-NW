@@ -73,7 +73,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="workspace" aria-label="Keybind workbench" data-reveal>
+      <section className="workspace" aria-label="Keybind workbench">
         <FilterSidebar />
         <KeybindLibrary onCopy={copyText} />
       </section>
