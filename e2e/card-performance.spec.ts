@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
+import type { Page } from "@playwright/test";
 
-async function waitForLibrary(page: Parameters<typeof test>[0]["page"]) {
+async function waitForLibrary(page: Page) {
   await page.goto("/");
   await page.evaluate(() => window.localStorage.clear());
   await page.reload();
@@ -34,8 +35,7 @@ test("mounts details only after the user requests them", async ({ page }) => {
 });
 
 test("progressively renders groups and can reveal more", async ({ page }) => {
-  const initialGroups = page.locator(".bind-group");
-  await expect(initialGroups).toHaveCount(2);
+  await expect(page.locator(".bind-group")).toHaveCount(2);
   await expect(page.getByRole("button", { name: "Show more groups" })).toBeVisible();
 
   await page.getByRole("button", { name: "Show more groups" }).click();
@@ -50,7 +50,8 @@ test("resets progressive rendering when a filter changes", async ({ page }) => {
   await expect(page.locator(".bind-group")).toHaveCount(5);
 
   await page.getByLabel("Search keybind library").fill("bard");
-  await expect(page.locator(".bind-group").count()).resolves.toBeLessThanOrEqual(2);
+  await page.waitForTimeout(50);
+  expect(await page.locator(".bind-group").count()).toBeLessThanOrEqual(2);
 });
 
 test("does not introduce horizontal overflow on mobile", async ({ page }) => {
