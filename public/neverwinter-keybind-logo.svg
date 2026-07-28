@@ -1,0 +1,43 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gold" x1="64" y1="28" x2="196" y2="224" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF3C4"/>
+      <stop offset="0.46" stop-color="#E9B94A"/>
+      <stop offset="1" stop-color="#B67A22"/>
+    </linearGradient>
+    <linearGradient id="coral" x1="104" y1="65" x2="151" y2="111" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F08E7C"/>
+      <stop offset="1" stop-color="#ED6F5C"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#000000" flood-opacity="0.34"/>
+    </filter>
+  </defs>
+  <rect x="5" y="5" width="246" height="246" rx="54" fill="#15140F" stroke="url(#gold)" stroke-width="6"/>
+  <rect x="14" y="14" width="228" height="228" rx="45" stroke="#F7F1DE" stroke-opacity="0.22" stroke-width="2"/>
+  <g filter="url(#shadow)">
+    <path d="M28 87L54 68V54L91 74L128 106L165 74L202 54V68L228 87V201C195 190 163 194 128 223C93 194 61 190 28 201V87Z" fill="#0C0C09" stroke="url(#gold)" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M43 94L65 80V71L98 88L128 111L158 88L191 71V80L213 94V181C180 176 153 187 128 207C103 187 76 176 43 181V94Z" stroke="#F7F1DE" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M49 152C79 145 104 154 128 174C152 154 177 145 207 152" stroke="url(#gold)" stroke-width="5" stroke-linecap="round"/>
+    <path d="M49 171C80 163 104 171 128 192C152 171 176 163 207 171" stroke="#F7F1DE" stroke-opacity="0.88" stroke-width="4" stroke-linecap="round"/>
+    <path d="M128 111V207" stroke="#E9B94A" stroke-opacity="0.7" stroke-width="2"/>
+    <circle cx="128" cy="78" r="38" fill="#15140F" stroke="url(#gold)" stroke-width="8"/>
+    <circle cx="128" cy="78" r="29" stroke="#F7F1DE" stroke-opacity="0.28" stroke-width="2"/>
+    <path d="M128 48L136 70L158 78L136 86L128 108L120 86L98 78L120 70L128 48Z" fill="url(#coral)" stroke="#F7B09E" stroke-width="2"/>
+    <path d="M128 18L135 31L128 45L121 31L128 18Z" fill="url(#gold)" stroke="#F7F1DE" stroke-width="2"/>
+    <path d="M96 78L106 73L116 78L106 83L96 78Z" fill="url(#gold)"/>
+    <path d="M160 78L150 73L140 78L150 83L160 78Z" fill="url(#gold)"/>
+    <path d="M121 110H135V176H121V110Z" fill="url(#gold)" stroke="#F7F1DE" stroke-width="2"/>
+    <rect x="118" y="106" width="20" height="9" rx="4.5" fill="#E9B94A" stroke="#F7F1DE" stroke-width="2"/>
+    <rect x="118" y="117" width="20" height="8" rx="4" fill="#B67A22" stroke="#F7F1DE" stroke-width="1.5"/>
+    <path d="M135 148H158V162H147V171H135V148Z" fill="url(#gold)" stroke="#F7F1DE" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M128 176L137 188L128 204L119 188L128 176Z" fill="url(#gold)" stroke="#F7F1DE" stroke-width="2"/>
+    <path d="M128 204L135 218L128 235L121 218L128 204Z" fill="url(#gold)" stroke="#F7F1DE" stroke-width="2"/>
+    <g fill="#E9B94A">
+      <path d="M72 54L75 61L82 64L75 67L72 74L69 67L62 64L69 61L72 54Z"/>
+      <path d="M185 59L188 66L195 69L188 72L185 79L182 72L175 69L182 66L185 59Z"/>
+      <path d="M83 102L86 108L92 111L86 114L83 120L80 114L74 111L80 108L83 102Z"/>
+      <path d="M178 101L181 107L187 110L181 113L178 119L175 113L169 110L175 107L178 101Z"/>
+    </g>
+  </g>
+</svg>
