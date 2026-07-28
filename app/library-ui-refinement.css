@@ -1,123 +1,150 @@
-/* Final library UI refinements. Loaded last so these rules remain authoritative. */
+/* Authoritative library workspace rules. Loaded last. */
 
-/* Give Appearance its own breathing room after the safety note. */
 .filter-panel .theme-switcher {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--border, #2d3a53);
+  display: block;
+  clear: both;
+  margin: 1.25rem 0 0 !important;
+  padding: 1.1rem 0 0 !important;
+  border: 0;
+  border-top: 1px solid var(--border, #2d3a53) !important;
 }
 
 .filter-panel .theme-switcher legend {
-  margin-bottom: .7rem;
+  float: none;
+  width: 100%;
+  margin: 0 0 .75rem !important;
+  padding: 0;
 }
 
-/* Treat the planner, collections, and bulk actions as one control deck. */
 .library-planner,
 .collection-toolbar,
 .bulk-toolbar {
-  margin: 0;
-  border-radius: 0;
-  box-shadow: none;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
 }
 
 .library-planner {
-  margin-top: 1rem;
+  margin-top: 1rem !important;
+  border-radius: 1rem 1rem 0 0 !important;
   align-items: center;
-  border-radius: 1rem 1rem 0 0;
 }
 
 .collection-toolbar,
 .bulk-toolbar {
-  border-top: 0;
+  border-top: 0 !important;
 }
 
 .bulk-toolbar {
-  border-radius: 0 0 1rem 1rem;
+  border-radius: 0 0 1rem 1rem !important;
 }
 
 .library-planner > div:first-child {
-  min-width: 16rem;
+  min-width: 0;
+  flex: 1 1 22rem;
 }
 
 .library-planner h2 {
-  font-size: 1.15rem;
+  margin: .15rem 0 .2rem;
+  font-size: 1.05rem;
 }
 
 .library-planner > div:first-child > p:last-child {
-  max-width: 38rem;
+  max-width: 36rem;
   color: var(--text-muted, #9aa8bf);
-  font-size: .88rem;
+  font-size: .85rem;
 }
 
 .planner-controls {
+  flex: 1 1 28rem;
   justify-content: flex-end;
 }
 
 .collection-toolbar,
 .bulk-toolbar {
-  padding-block: .8rem;
+  padding-block: .75rem !important;
 }
 
 .collection-toolbar input {
   flex: 1 1 14rem;
-  min-width: 11rem;
+  min-width: 10rem;
 }
 
 .active-filter-row {
-  margin-top: .8rem;
+  margin-top: .75rem;
 }
 
-/* Compact mode should reduce height, not crush three complex columns together. */
-.library-compact .bind-grid {
-  grid-template-columns: 1fr;
+/* Compact means one readable row per preset, never several squeezed cards. */
+.library.library-compact .bind-grid {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: .8rem !important;
 }
 
-.library-compact .bind-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(18rem, .85fr);
+.library.library-compact .bind-card,
+.library.library-compact .bind-card-compact {
+  display: grid !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  grid-template-columns: minmax(15rem, .9fr) minmax(18rem, 1.1fr) !important;
   grid-template-areas:
     "header header"
     "copy editor"
     "provenance editor"
     "preview preview"
-    "actions actions";
-  gap: .75rem 1rem;
-  align-items: start;
-  padding: 1rem;
-  overflow: hidden;
+    "actions actions" !important;
+  gap: .75rem 1rem !important;
+  align-items: start !important;
+  padding: 1rem !important;
+  overflow: hidden !important;
 }
 
-.library-compact .card-header { grid-area: header; }
-.library-compact .card-copy { grid-area: copy; min-width: 0; }
-.library-compact .provenance-row { grid-area: provenance; min-width: 0; }
-.library-compact .card-editor { grid-area: editor; min-width: 0; }
-.library-compact .command-preview { grid-area: preview; min-width: 0; }
-.library-compact .card-actions { grid-area: actions; }
+.library.library-compact .card-header { grid-area: header !important; min-width: 0; }
+.library.library-compact .card-copy { grid-area: copy !important; min-width: 0 !important; }
+.library.library-compact .provenance-row { grid-area: provenance !important; min-width: 0 !important; }
+.library.library-compact .card-editor { grid-area: editor !important; min-width: 0 !important; }
+.library.library-compact .command-preview { grid-area: preview !important; min-width: 0 !important; }
+.library.library-compact .card-actions { grid-area: actions !important; min-width: 0 !important; }
 
-.library-compact .card-copy h4,
-.library-compact .card-copy p,
-.library-compact .command-preview code,
-.library-compact .key-status span,
-.library-compact .key-field small {
-  overflow-wrap: anywhere;
-}
-
-.library-compact .key-field input,
-.library-compact .command-preview code {
-  width: 100%;
+.library.library-compact .card-copy h4,
+.library.library-compact .card-copy p,
+.library.library-compact .command-preview code,
+.library.library-compact .key-status span,
+.library.library-compact .key-field small,
+.library.library-compact .provenance-row > * {
   min-width: 0;
-  max-width: 100%;
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+  writing-mode: horizontal-tb !important;
+  white-space: normal !important;
 }
 
-.library-compact .command-preview code {
-  display: block;
-  white-space: pre-wrap;
+.library.library-compact .card-copy h4 {
+  font-size: 1rem;
+  line-height: 1.25;
 }
 
-.library-compact .card-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .65rem;
+.library.library-compact .key-field,
+.library.library-compact .key-field input,
+.library.library-compact .command-preview,
+.library.library-compact .command-preview code,
+.library.library-compact .key-status {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.library.library-compact .command-preview code {
+  display: block !important;
+  white-space: pre-wrap !important;
+  overflow-x: auto;
+}
+
+.library.library-compact .card-actions {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: .65rem !important;
 }
 
 @media (max-width: 1100px) {
@@ -131,12 +158,13 @@
   }
 }
 
-@media (max-width: 820px) {
-  .library-compact .bind-card {
-    display: block;
+@media (max-width: 900px) {
+  .library.library-compact .bind-card,
+  .library.library-compact .bind-card-compact {
+    display: block !important;
   }
 
-  .library-compact .bind-card > * + * {
+  .library.library-compact .bind-card > * + * {
     margin-top: .75rem;
   }
 }
@@ -145,15 +173,7 @@
   .library-planner,
   .collection-toolbar,
   .bulk-toolbar {
-    padding: .85rem;
-  }
-
-  .library-planner {
-    border-radius: .9rem .9rem 0 0;
-  }
-
-  .bulk-toolbar {
-    border-radius: 0 0 .9rem .9rem;
+    padding: .85rem !important;
   }
 
   .planner-controls > label,
