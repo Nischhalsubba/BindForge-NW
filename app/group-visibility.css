@@ -1,0 +1,80 @@
+/* Make collapsed keybind groups explicit and recoverable. */
+
+.group-visibility-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bone) 82%, transparent);
+}
+
+.group-visibility-status > div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.group-visibility-status strong {
+  font: 700 0.95rem var(--sans);
+  color: var(--ink);
+}
+
+.group-visibility-status small {
+  color: var(--ink-mute);
+  font: 400 0.72rem/1.45 var(--mono);
+}
+
+.group-visibility-status.is-collapsed {
+  border-color: color-mix(in srgb, var(--coral) 52%, var(--line));
+  background: color-mix(in srgb, var(--coral) 8%, var(--bone));
+}
+
+.bind-group.is-collapsed {
+  padding: 1rem 1.1rem;
+  border: 1px dashed color-mix(in srgb, var(--coral) 48%, var(--line-strong));
+  background: color-mix(in srgb, var(--paper-warm) 70%, transparent);
+}
+
+.bind-group.is-collapsed .group-heading {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.bind-group.is-collapsed .group-heading p {
+  color: var(--coral);
+}
+
+.collapsed-state-badge {
+  padding: 0.35rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--coral) 58%, var(--line));
+  border-radius: 999px;
+  color: var(--coral);
+  background: color-mix(in srgb, var(--coral) 8%, transparent);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 880px) {
+  .group-visibility-status {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .group-visibility-status .secondary-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 560px) {
+  .group-heading-actions {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .bind-group.is-collapsed {
+    padding: 0.9rem;
+  }
+}
