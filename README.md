@@ -1,28 +1,59 @@
-<div align="center">
-
-<img src="./docs/assets/bindforge-nw-thumbnail.svg" width="100%" alt="BindForge NW branded repository thumbnail" />
-
-# BindForge NW
-
 <!-- interactive-readme-standard:start -->
 
-> [!NOTE]
-> **Branch-specific documentation:** this section is maintained for [`agent/complete-improvement-roadmap`](https://github.com/Nischhalsubba/BindForge-NW/tree/agent/complete-improvement-roadmap). It is generated from the files present on this branch and preserves the project-authored README below.
+<div align="center">
 
-<details open>
-<summary><strong>Interactive repository guide</strong></summary>
+# BindForge-NW
 
-## Branch overview
+**Branch-aware technical guide for [`agent/complete-improvement-roadmap`](https://github.com/Nischhalsubba/BindForge-NW/tree/agent/complete-improvement-roadmap)**
 
-| Item | Value |
+<p><img alt="branch: agent/complete-improvement-roadmap" src="https://img.shields.io/static/v1?label=&message=branch%3A%20agent%2Fcomplete-improvement-roadmap&color=5965F2&style=flat-square"> <img alt="Next.js" src="https://img.shields.io/static/v1?label=&message=Next.js&color=24292F&style=flat-square"> <img alt="React" src="https://img.shields.io/static/v1?label=&message=React&color=24292F&style=flat-square"> <img alt="Tailwind CSS" src="https://img.shields.io/static/v1?label=&message=Tailwind%20CSS&color=24292F&style=flat-square"> <img alt="TypeScript" src="https://img.shields.io/static/v1?label=&message=TypeScript&color=24292F&style=flat-square"> <img alt="CSS" src="https://img.shields.io/static/v1?label=&message=CSS&color=24292F&style=flat-square"> <img alt="JavaScript" src="https://img.shields.io/static/v1?label=&message=JavaScript&color=24292F&style=flat-square"> <img alt="docs: branch-aware" src="https://img.shields.io/static/v1?label=&message=docs%3A%20branch-aware&color=8250DF&style=flat-square"></p>
+
+<p>
+  <a href="https://github.com/Nischhalsubba/BindForge-NW/tree/agent/complete-improvement-roadmap"><strong>Browse source</strong></a> ·
+  <a href="https://github.com/Nischhalsubba/BindForge-NW/issues"><strong>Issues</strong></a> ·
+  <a href="https://github.com/Nischhalsubba/BindForge-NW/codespaces/new?ref=agent%2Fcomplete-improvement-roadmap"><strong>Open in Codespaces</strong></a>
+</p>
+
+</div>
+
+> [!IMPORTANT]
+> This guide is generated from the files actually present on `agent/complete-improvement-roadmap`. It links to detected source paths, preserves project-authored notes, and avoids claiming components that were not found.
+
+## At a glance
+
+| Item | Detected value |
 |---|---|
-| Repository | [`Nischhalsubba/BindForge-NW`](https://github.com/Nischhalsubba/BindForge-NW) |
-| Branch | [`agent/complete-improvement-roadmap`](https://github.com/Nischhalsubba/BindForge-NW/tree/agent/complete-improvement-roadmap) |
-| Detected stack | Next.js, React, Tailwind CSS, TypeScript, CSS, JavaScript |
-| Detected manifests | package.json |
-| Documentation policy | Every maintained branch must explain purpose, setup, structure, architecture, flows, testing, delivery, security, and ownership. |
+| Purpose | A Neverwinter keybind builder, console-command browser, safety checker, and copy-ready bind or unbind generator. |
+| Branch role | Compared with `main` |
+| Stack | Next.js, React, Tailwind CSS, TypeScript, CSS, JavaScript |
+| Manifests | package.json |
+| Prerequisites | Node.js |
+| Delivery | GitHub Actions |
+| License | No license file detected |
 
-## Repository structure
+## Branch scope
+
+This branch differs from the default branch in the following detected paths:
+
+- [`README.md`](https://github.com/Nischhalsubba/BindForge-NW/blob/agent/complete-improvement-roadmap/README.md)
+
+## Quick start
+
+```bash
+npm install
+npm run dev
+npm run start
+npm run build
+npm run test
+```
+
+### Configuration surface
+
+- No committed environment example file was detected.
+
+> Never commit secrets, private keys, production credentials, customer data, or unredacted infrastructure details.
+
+## Repository map
 
 ```mermaid
 flowchart TD
@@ -48,65 +79,174 @@ flowchart TD
     ROOT --> MORE["+ 1 more top-level entries"]
 ```
 
-The diagram is generated from the branch's actual top-level files and directories. Use the branch link above for complete source navigation.
+| Responsibility | Detected source paths |
+|---|---|
+| Interface | [`app`](https://github.com/Nischhalsubba/BindForge-NW/tree/agent/complete-improvement-roadmap/app), [`public`](https://github.com/Nischhalsubba/BindForge-NW/tree/agent/complete-improvement-roadmap/public) |
+| Quality | [`tests`](https://github.com/Nischhalsubba/BindForge-NW/tree/agent/complete-improvement-roadmap/tests), [`e2e`](https://github.com/Nischhalsubba/BindForge-NW/tree/agent/complete-improvement-roadmap/e2e) |
+| Documentation | [`docs`](https://github.com/Nischhalsubba/BindForge-NW/tree/agent/complete-improvement-roadmap/docs) |
+| Delivery | [`.github`](https://github.com/Nischhalsubba/BindForge-NW/tree/agent/complete-improvement-roadmap/.github), [`scripts`](https://github.com/Nischhalsubba/BindForge-NW/tree/agent/complete-improvement-roadmap/scripts) |
 
-## Website or application structure
+## Website or application map
 
 ```mermaid
 flowchart TD
     APP["BindForge-NW"]
     APP --> R0["app"]
     APP --> R1["public"]
-    R0 --> F0["app/BindForgeProvider.tsx"]
+    R0 --> F0["app/not-found.tsx"]
     R0 --> F1["app/FilterTopBar.tsx"]
     R0 --> F2["app/LocalSettingsManager.tsx"]
-    R0 --> F3["app/ThemeSwitcher.tsx"]
-    R0 --> F4["app/components/AppHeader.tsx"]
-    R0 --> F5["app/components/CommandLab.tsx"]
-    R0 --> F6["app/components/CustomSayBuilder.tsx"]
-    R0 --> F7["app/components/FilterSidebar.tsx"]
-    R0 --> F8["app/components/Icon.tsx"]
-    R0 --> F9["app/components/KeybindLibrary.tsx"]
-    R0 --> F10["app/components/RecoveryPanel.tsx"]
-    R0 --> F11["app/error.tsx"]
+    R0 --> F3["app/loading.tsx"]
+    R0 --> F4["app/layout.tsx"]
+    R0 --> F5["app/error.tsx"]
+    R0 --> F6["app/BindForgeProvider.tsx"]
+    R0 --> F7["app/page.tsx"]
+    R0 --> F8["app/ThemeSwitcher.tsx"]
+    R0 --> F9["app/opengraph-image.tsx"]
+    R0 --> F10["app/components/AppHeader.tsx"]
+    R0 --> F11["app/components/CommandLab.tsx"]
 ```
 
-## Application and responsibility flow
+## Architecture and responsibility flow
 
 ```mermaid
 flowchart LR
-    ACTOR["User / contributor"]
-    ACTOR --> A0["Interface: app, public"]
+    USER["User / contributor"]
+    USER --> A0["Interface: app, public"]
     A0 --> A1["Quality: tests, e2e"]
     A1 --> A2["Documentation: docs"]
     A2 --> A3["Delivery: .github, scripts"]
     A3 --> DELIVERY["Delivery: GitHub Actions"]
 ```
 
-## Change-to-delivery flow
+<details>
+<summary><strong>Authentication and authorization flow</strong></summary>
 
 ```mermaid
 flowchart LR
-    CHANGE["Change on agent/complete-improvement-roadmap"]
-    CHECK["Validate: npm run dev, npm run start, npm run build, npm run test, npm run lint"]
-    REVIEW["Review documentation and architecture impact"]
-    RELEASE["Merge, release, or deploy according to this branch"]
-    CHANGE --> CHECK --> REVIEW --> RELEASE
+    USER["User"] --> SIGNIN["Sign-in or identity step"]
+    SIGNIN --> VERIFY["Verify credentials / session"]
+    VERIFY --> AUTHORIZE["Resolve permissions"]
+    AUTHORIZE --> PROTECTED["Protected feature or data"]
+    VERIFY -->|failure| RECOVER["Error or recovery path"]
 ```
 
-## README requirements for this branch
+Relevant detected files: [`app/data/catalogIntegrity.ts`](https://github.com/Nischhalsubba/BindForge-NW/blob/agent/complete-improvement-roadmap/app/data/catalogIntegrity.ts).
 
-- Explain what this branch contains and how it differs from the default branch.
-- Keep installation, configuration, usage, testing, deployment, security, support, and license information accurate.
-- Document repository, website or application, API, data, authentication, background-job, and deployment flows when they exist.
-- Prefer Mermaid diagrams and expandable `<details>` sections for visual navigation.
-- Link diagrams and modules to real source paths; never invent missing components.
-- Preserve project-specific documentation and update diagrams whenever architecture or major paths change.
-- Treat secrets, private infrastructure, customer data, and credentials as prohibited README content.
+> The diagram expresses the responsibility sequence only. Confirm exact providers, token formats, roles, and recovery behavior in the linked source.
+
+</details>
+
+## Quality, security, and operations
+
+<table>
+<tr>
+<td width="33%" valign="top">
+
+### Quality
+
+- [`tests`](https://github.com/Nischhalsubba/BindForge-NW/tree/agent/complete-improvement-roadmap/tests)
+- [`e2e`](https://github.com/Nischhalsubba/BindForge-NW/tree/agent/complete-improvement-roadmap/e2e)
+
+Detected commands:
+- `npm run dev`
+- `npm run start`
+- `npm run build`
+- `npm run test`
+- `npm run lint`
+- `npm run typecheck`
+- `npm run preview`
+
+</td>
+<td width="33%" valign="top">
+
+### Security
+
+- No dedicated security policy or automated dependency configuration was detected.
+
+Review authentication, authorization, input validation, dependency updates, secret handling, and failure recovery before release.
+
+</td>
+<td width="34%" valign="top">
+
+### Observability
+
+- No dedicated observability integration was detected automatically.
+
+Define useful logs, metrics, traces, alerts, and rollback signals for production-facing branches.
+
+</td>
+</tr>
+</table>
+
+## Delivery flow
+
+```mermaid
+flowchart LR
+    CHANGE["Change on agent/complete-improvement-roadmap"] --> CHECK["Tests and quality checks"]
+    CHECK --> REVIEW["Review architecture and documentation impact"]
+    REVIEW --> BUILD["Build or package"]
+    BUILD --> DEPLOY["Deploy or release"]
+    DEPLOY --> VERIFY["Verify health and rollback readiness"]
+```
+
+### Automation detected
+
+- [`.github/workflows/quality.yml`](https://github.com/Nischhalsubba/BindForge-NW/blob/agent/complete-improvement-roadmap/.github/workflows/quality.yml)
+- [`.github/workflows/release.yml`](https://github.com/Nischhalsubba/BindForge-NW/blob/agent/complete-improvement-roadmap/.github/workflows/release.yml)
+
+## Contribution flow
+
+```mermaid
+flowchart LR
+    FORK["Create branch"] --> CHANGE["Make focused change"]
+    CHANGE --> TEST["Run relevant checks"]
+    TEST --> DOCS["Update README and diagrams"]
+    DOCS --> PR["Open pull request"]
+    PR --> REVIEW["Review and iterate"]
+    REVIEW --> MERGE["Merge when ready"]
+```
+
+- Keep changes focused and explain architectural consequences.
+- Run the checks relevant to the changed area.
+- Update diagrams whenever routes, modules, data models, authentication, jobs, or delivery paths change.
+- Add screenshots or recordings for visual behavior changes when useful.
+- Use issues for reproducible defects and pull requests for reviewable changes.
+
+## Ownership and support
+
+| Topic | Source |
+|---|---|
+| Repository | [`Nischhalsubba/BindForge-NW`](https://github.com/Nischhalsubba/BindForge-NW) |
+| Branch | [`agent/complete-improvement-roadmap`](https://github.com/Nischhalsubba/BindForge-NW/tree/agent/complete-improvement-roadmap) |
+| Ownership | No CODEOWNERS file detected |
+| Contributing | Use the contribution flow above |
+| Support | [Open or review issues](https://github.com/Nischhalsubba/BindForge-NW/issues) |
+| License | No license file detected |
+
+<details>
+<summary><strong>Documentation maintenance checklist</strong></summary>
+
+- [ ] Purpose and branch scope are accurate.
+- [ ] Setup and configuration commands still work.
+- [ ] Repository, application, API, data, authentication, job, and deployment diagrams match the code.
+- [ ] Tests, security controls, observability, and rollback behavior are documented.
+- [ ] Links point to real files on this branch.
+- [ ] No secrets or private operational details are exposed.
 
 </details>
 
 <!-- interactive-readme-standard:end -->
+
+<!-- project-authored-notes:start -->
+<details>
+<summary><strong>Project-authored notes preserved from this branch</strong></summary>
+
+<div align="center">
+
+<img src="./docs/assets/bindforge-nw-thumbnail.svg" width="100%" alt="BindForge NW branded repository thumbnail" />
+
+# BindForge NW
 
 ### Build Neverwinter keybinds without memorizing console commands
 
@@ -309,3 +449,6 @@ BindForge NW is an independent community project. It is not affiliated with or e
 ## Author
 
 Designed and developed by [Nischhal Raj Subba](https://github.com/Nischhalsubba).
+
+</details>
+<!-- project-authored-notes:end -->
