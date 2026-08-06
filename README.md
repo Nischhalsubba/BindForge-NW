@@ -4,6 +4,93 @@
 
 # BindForge NW
 
+<!-- interactive-readme-standard:start -->
+
+> [!NOTE]
+> **Branch-specific documentation:** this section is maintained for [`agent/apple-inspired-sidebar`](https://github.com/Nischhalsubba/BindForge-NW/tree/agent/apple-inspired-sidebar). It is generated from the files present on this branch and preserves the project-authored README below.
+
+<details open>
+<summary><strong>Interactive repository guide</strong></summary>
+
+## Branch overview
+
+| Item | Value |
+|---|---|
+| Repository | [`Nischhalsubba/BindForge-NW`](https://github.com/Nischhalsubba/BindForge-NW) |
+| Branch | [`agent/apple-inspired-sidebar`](https://github.com/Nischhalsubba/BindForge-NW/tree/agent/apple-inspired-sidebar) |
+| Detected stack | Next.js, React, Tailwind CSS, TypeScript, CSS, JavaScript |
+| Detected manifests | package.json |
+| Documentation policy | Every maintained branch must explain purpose, setup, structure, architecture, flows, testing, delivery, security, and ownership. |
+
+## Repository structure
+
+```mermaid
+flowchart TD
+    ROOT["BindForge-NW / agent/apple-inspired-sidebar"]
+    ROOT --> P0["app/"]
+    ROOT --> P1["docs/"]
+    ROOT --> P2["public/"]
+    ROOT --> P3[".gitignore"]
+    ROOT --> P4["AGENTS.md"]
+    ROOT --> P5["eslint.config.mjs"]
+    ROOT --> P6["next.config.ts"]
+    ROOT --> P7["open-next.config.ts"]
+    ROOT --> P8["package-lock.json"]
+    ROOT --> P9["package.json"]
+    ROOT --> P10["postcss.config.mjs"]
+    ROOT --> P11["tsconfig.json"]
+    ROOT --> P12["wrangler.jsonc"]
+```
+
+The diagram is generated from the branch's actual top-level files and directories. Use the branch link above for complete source navigation.
+
+## Website or application structure
+
+```mermaid
+flowchart TD
+    APP["BindForge-NW"]
+    APP --> R0["app"]
+    APP --> R1["public"]
+    R0 --> F0["app/LocalSettingsManager.tsx"]
+    R0 --> F1["app/layout.tsx"]
+    R0 --> F2["app/opengraph-image.tsx"]
+    R0 --> F3["app/page.tsx"]
+```
+
+## Application and responsibility flow
+
+```mermaid
+flowchart LR
+    ACTOR["User / contributor"]
+    ACTOR --> A0["Interface: app, public"]
+    A0 --> A1["Documentation: docs"]
+```
+
+## Change-to-delivery flow
+
+```mermaid
+flowchart LR
+    CHANGE["Change on agent/apple-inspired-sidebar"]
+    CHECK["Validate: npm run dev, npm run start, npm run build, npm run lint, npm run typecheck"]
+    REVIEW["Review documentation and architecture impact"]
+    RELEASE["Merge, release, or deploy according to this branch"]
+    CHANGE --> CHECK --> REVIEW --> RELEASE
+```
+
+## README requirements for this branch
+
+- Explain what this branch contains and how it differs from the default branch.
+- Keep installation, configuration, usage, testing, deployment, security, support, and license information accurate.
+- Document repository, website or application, API, data, authentication, background-job, and deployment flows when they exist.
+- Prefer Mermaid diagrams and expandable `<details>` sections for visual navigation.
+- Link diagrams and modules to real source paths; never invent missing components.
+- Preserve project-specific documentation and update diagrams whenever architecture or major paths change.
+- Treat secrets, private infrastructure, customer data, and credentials as prohibited README content.
+
+</details>
+
+<!-- interactive-readme-standard:end -->
+
 ### Build Neverwinter keybinds without memorizing console commands
 
 A data-driven keybind preset browser, console-command explorer, safety checker, and copy-ready `/bind` or `/unbind` generator.
