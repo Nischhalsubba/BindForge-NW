@@ -4,6 +4,109 @@
 
 # BindForge NW
 
+<!-- interactive-readme-standard:start -->
+
+> [!NOTE]
+> **Branch-specific documentation:** this section is maintained for [`agent/finish-browser-accessibility-deployment`](https://github.com/Nischhalsubba/BindForge-NW/tree/agent/finish-browser-accessibility-deployment). It is generated from the files present on this branch and preserves the project-authored README below.
+
+<details open>
+<summary><strong>Interactive repository guide</strong></summary>
+
+## Branch overview
+
+| Item | Value |
+|---|---|
+| Repository | [`Nischhalsubba/BindForge-NW`](https://github.com/Nischhalsubba/BindForge-NW) |
+| Branch | [`agent/finish-browser-accessibility-deployment`](https://github.com/Nischhalsubba/BindForge-NW/tree/agent/finish-browser-accessibility-deployment) |
+| Detected stack | Next.js, React, Tailwind CSS, TypeScript, CSS, JavaScript |
+| Detected manifests | package.json |
+| Documentation policy | Every maintained branch must explain purpose, setup, structure, architecture, flows, testing, delivery, security, and ownership. |
+
+## Repository structure
+
+```mermaid
+flowchart TD
+    ROOT["BindForge-NW / agent/finish-browser-accessibility-deployment"]
+    ROOT --> P0[".github/"]
+    ROOT --> P1["app/"]
+    ROOT --> P2["docs/"]
+    ROOT --> P3["e2e/"]
+    ROOT --> P4["public/"]
+    ROOT --> P5["tests/"]
+    ROOT --> P6[".gitignore"]
+    ROOT --> P7["AGENTS.md"]
+    ROOT --> P8["eslint.config.mjs"]
+    ROOT --> P9["next.config.ts"]
+    ROOT --> P10["open-next.config.ts"]
+    ROOT --> P11["package-lock.json"]
+    ROOT --> P12["package.json"]
+    ROOT --> P13["playwright.config.ts"]
+    ROOT --> P14["postcss.config.mjs"]
+    ROOT --> P15["tsconfig.json"]
+    ROOT --> P16["tsconfig.playwright.json"]
+    ROOT --> P17["wrangler.jsonc"]
+```
+
+The diagram is generated from the branch's actual top-level files and directories. Use the branch link above for complete source navigation.
+
+## Website or application structure
+
+```mermaid
+flowchart TD
+    APP["BindForge-NW"]
+    APP --> R0["app"]
+    APP --> R1["public"]
+    R0 --> F0["app/BindForgeProvider.tsx"]
+    R0 --> F1["app/FilterTopBar.tsx"]
+    R0 --> F2["app/LocalSettingsManager.tsx"]
+    R0 --> F3["app/ThemeSwitcher.tsx"]
+    R0 --> F4["app/components/AppHeader.tsx"]
+    R0 --> F5["app/components/CommandLab.tsx"]
+    R0 --> F6["app/components/CustomSayBuilder.tsx"]
+    R0 --> F7["app/components/FilterSidebar.tsx"]
+    R0 --> F8["app/components/Icon.tsx"]
+    R0 --> F9["app/components/KeybindLibrary.tsx"]
+    R0 --> F10["app/components/RecoveryPanel.tsx"]
+    R0 --> F11["app/error.tsx"]
+```
+
+## Application and responsibility flow
+
+```mermaid
+flowchart LR
+    ACTOR["User / contributor"]
+    ACTOR --> A0["Interface: app, public"]
+    A0 --> A1["Quality: tests, e2e"]
+    A1 --> A2["Documentation: docs"]
+    A2 --> A3["Delivery: .github"]
+    A3 --> DELIVERY["Delivery: GitHub Actions"]
+```
+
+## Change-to-delivery flow
+
+```mermaid
+flowchart LR
+    CHANGE["Change on agent/finish-browser-accessibility-deployment"]
+    CHECK["Validate: npm run dev, npm run start, npm run build, npm run test, npm run lint"]
+    REVIEW["Review documentation and architecture impact"]
+    RELEASE["Merge, release, or deploy according to this branch"]
+    CHANGE --> CHECK --> REVIEW --> RELEASE
+```
+
+## README requirements for this branch
+
+- Explain what this branch contains and how it differs from the default branch.
+- Keep installation, configuration, usage, testing, deployment, security, support, and license information accurate.
+- Document repository, website or application, API, data, authentication, background-job, and deployment flows when they exist.
+- Prefer Mermaid diagrams and expandable `<details>` sections for visual navigation.
+- Link diagrams and modules to real source paths; never invent missing components.
+- Preserve project-specific documentation and update diagrams whenever architecture or major paths change.
+- Treat secrets, private infrastructure, customer data, and credentials as prohibited README content.
+
+</details>
+
+<!-- interactive-readme-standard:end -->
+
 ### Build Neverwinter keybinds without memorizing console commands
 
 A data-driven keybind preset browser, console-command explorer, safety checker, and copy-ready `/bind` or `/unbind` generator.
