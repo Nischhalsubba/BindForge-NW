@@ -4,6 +4,101 @@
 
 # BindForge NW
 
+<!-- interactive-readme-standard:start -->
+
+> [!NOTE]
+> **Branch-specific documentation:** this section is maintained for [`agent/r1-main-clipboard-resilience`](https://github.com/Nischhalsubba/BindForge-NW/tree/agent/r1-main-clipboard-resilience). It is generated from the files present on this branch and preserves the project-authored README below.
+
+<details open>
+<summary><strong>Interactive repository guide</strong></summary>
+
+## Branch overview
+
+| Item | Value |
+|---|---|
+| Repository | [`Nischhalsubba/BindForge-NW`](https://github.com/Nischhalsubba/BindForge-NW) |
+| Branch | [`agent/r1-main-clipboard-resilience`](https://github.com/Nischhalsubba/BindForge-NW/tree/agent/r1-main-clipboard-resilience) |
+| Detected stack | Next.js, React, Tailwind CSS, TypeScript, CSS, JavaScript |
+| Detected manifests | package.json |
+| Documentation policy | Every maintained branch must explain purpose, setup, structure, architecture, flows, testing, delivery, security, and ownership. |
+
+## Repository structure
+
+```mermaid
+flowchart TD
+    ROOT["BindForge-NW / agent/r1-main-clipboard-resilience"]
+    ROOT --> P0[".github/"]
+    ROOT --> P1["app/"]
+    ROOT --> P2["docs/"]
+    ROOT --> P3["public/"]
+    ROOT --> P4["tests/"]
+    ROOT --> P5[".gitignore"]
+    ROOT --> P6["AGENTS.md"]
+    ROOT --> P7["eslint.config.mjs"]
+    ROOT --> P8["next.config.ts"]
+    ROOT --> P9["open-next.config.ts"]
+    ROOT --> P10["package-lock.json"]
+    ROOT --> P11["package.json"]
+    ROOT --> P12["postcss.config.mjs"]
+    ROOT --> P13["tsconfig.json"]
+    ROOT --> P14["wrangler.jsonc"]
+```
+
+The diagram is generated from the branch's actual top-level files and directories. Use the branch link above for complete source navigation.
+
+## Website or application structure
+
+```mermaid
+flowchart TD
+    APP["BindForge-NW"]
+    APP --> R0["app"]
+    APP --> R1["public"]
+    R0 --> F0["app/FilterTopBar.tsx"]
+    R0 --> F1["app/LocalSettingsManager.tsx"]
+    R0 --> F2["app/ThemeSwitcher.tsx"]
+    R0 --> F3["app/components/CustomSayBuilder.tsx"]
+    R0 --> F4["app/layout.tsx"]
+    R0 --> F5["app/opengraph-image.tsx"]
+    R0 --> F6["app/page.tsx"]
+```
+
+## Application and responsibility flow
+
+```mermaid
+flowchart LR
+    ACTOR["User / contributor"]
+    ACTOR --> A0["Interface: app, public"]
+    A0 --> A1["Quality: tests"]
+    A1 --> A2["Documentation: docs"]
+    A2 --> A3["Delivery: .github"]
+    A3 --> DELIVERY["Delivery: GitHub Actions"]
+```
+
+## Change-to-delivery flow
+
+```mermaid
+flowchart LR
+    CHANGE["Change on agent/r1-main-clipboard-resilience"]
+    CHECK["Validate: npm run dev, npm run start, npm run build, npm run test, npm run lint"]
+    REVIEW["Review documentation and architecture impact"]
+    RELEASE["Merge, release, or deploy according to this branch"]
+    CHANGE --> CHECK --> REVIEW --> RELEASE
+```
+
+## README requirements for this branch
+
+- Explain what this branch contains and how it differs from the default branch.
+- Keep installation, configuration, usage, testing, deployment, security, support, and license information accurate.
+- Document repository, website or application, API, data, authentication, background-job, and deployment flows when they exist.
+- Prefer Mermaid diagrams and expandable `<details>` sections for visual navigation.
+- Link diagrams and modules to real source paths; never invent missing components.
+- Preserve project-specific documentation and update diagrams whenever architecture or major paths change.
+- Treat secrets, private infrastructure, customer data, and credentials as prohibited README content.
+
+</details>
+
+<!-- interactive-readme-standard:end -->
+
 ### Build Neverwinter keybinds without memorizing console commands
 
 A data-driven keybind preset browser, console-command explorer, safety checker, and copy-ready `/bind` or `/unbind` generator.
