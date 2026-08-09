@@ -6,80 +6,80 @@ Generator: `aed303eed8a536f2dda075c8be583693325aac37`
 
 | Branch | Result | Detail |
 |---|---|---|
-| `agent/add-card-unbind-toggle` | updated | Branch-specific README committed |
-| `agent/apple-inspired-sidebar` | updated | Branch-specific README committed |
-| `agent/apple-theme-and-sidebar-fixes` | updated | Branch-specific README committed |
-| `agent/apply-warm-neutral-palette` | updated | Branch-specific README committed |
-| `agent/archew-branding-cleanup` | updated | Branch-specific README committed |
-| `agent/atelier-editorial-redesign` | updated | Branch-specific README committed |
-| `agent/brand-neverwinter-keybind` | updated | Branch-specific README committed |
-| `agent/card-redesign-safe-key-suggestions` | updated | Branch-specific README committed |
-| `agent/complete-improvement-roadmap` | updated | Branch-specific README committed |
-| `agent/complete-pending-roadmap` | updated | Branch-specific README committed |
-| `agent/complete-r1-r2` | updated | Branch-specific README committed |
-| `agent/complete-r1-r2-implementation` | updated | Branch-specific README committed |
-| `agent/complete-r1-r2-pending` | updated | Branch-specific README committed |
-| `agent/complete-r1-r2-single-pr` | updated | Branch-specific README committed |
-| `agent/custom-say-message-input` | updated | Branch-specific README committed |
-| `agent/finish-all-remaining-work` | updated | Branch-specific README committed |
-| `agent/finish-browser-accessibility-deployment` | updated | Branch-specific README committed |
-| `agent/finish-r1-r2` | updated | Branch-specific README committed |
-| `agent/fix-broken-apple-layout` | updated | Branch-specific README committed |
-| `agent/fix-container-buttons-light-theme` | updated | Branch-specific README committed |
-| `agent/fix-copy-feedback-build` | updated | Branch-specific README committed |
-| `agent/fix-fieldset-title-spacing` | updated | Branch-specific README committed |
-| `agent/fix-filter-panel-head-and-legends` | updated | Branch-specific README committed |
-| `agent/fix-live-key-combination-preview` | updated | Branch-specific README committed |
-| `agent/fix-production-verification-blockers` | updated | Branch-specific README committed |
-| `agent/fix-sidebar-hover-typography` | updated | Branch-specific README committed |
-| `agent/fix-sidebar-spacing` | updated | Branch-specific README committed |
-| `agent/fix-sidebar-toolbar-alignment` | updated | Branch-specific README committed |
-| `agent/fix-spacing-and-readability` | updated | Branch-specific README committed |
-| `agent/fix-sticky-icons-hero` | updated | Branch-specific README committed |
-| `agent/full-atelier-zero-rebuild` | updated | Branch-specific README committed |
-| `agent/full-open-design-redesign` | updated | Branch-specific README committed |
-| `agent/implement-apple-design-spec` | updated | Branch-specific README committed |
-| `agent/library-ui-refinement` | updated | Branch-specific README committed |
-| `agent/minimal-open-design-redesign` | updated | Branch-specific README committed |
-| `agent/mobile-first-release-stabilization` | updated | Branch-specific README committed |
-| `agent/open-design-ui-revamp-release-verification` | updated | Branch-specific README committed |
-| `agent/organize-header-toolbar-layout` | updated | Branch-specific README committed |
-| `agent/persistent-filter-console` | updated | Branch-specific README committed |
-| `agent/phase-1-compact-view` | updated | Branch-specific README committed |
-| `agent/phase-2-workspace-controls` | updated | Branch-specific README committed |
-| `agent/phase-3-filter-settings-drawer` | updated | Branch-specific README committed |
-| `agent/phase-4-css-consolidation` | updated | Branch-specific README committed |
-| `agent/phase-5-6-card-performance` | updated | Branch-specific README committed |
-| `agent/phase-7-8-pwa-accessibility-release` | updated | Branch-specific README committed |
-| `agent/phase-9-10-release-proof` | updated | Branch-specific README committed |
-| `agent/polished-microinteractions-copy-feedback` | updated | Branch-specific README committed |
-| `agent/post-phase-10-finalization` | updated | Branch-specific README committed |
-| `agent/r1-backup-schema-v2` | updated | Branch-specific README committed |
-| `agent/r1-baseline-lint-repair` | updated | Branch-specific README committed |
-| `agent/r1-catalog-integrity` | updated | Branch-specific README committed |
-| `agent/r1-catalog-integrity-v2` | updated | Branch-specific README committed |
-| `agent/r1-main-clipboard-resilience` | updated | Branch-specific README committed |
-| `agent/r1-release-gate` | updated | Branch-specific README committed |
-| `agent/r1-stabilization-foundation` | updated | Branch-specific README committed |
-| `agent/ranger-hunter-animation-cancel` | updated | Branch-specific README committed |
-| `agent/rebuild-compact-layout` | updated | Branch-specific README committed |
-| `agent/rebuild-spacing-welcoming-theme` | updated | Branch-specific README committed |
-| `agent/record-verified-production` | updated | Branch-specific README committed |
-| `agent/recover-cloudflare-build-and-browser-gates` | updated | Branch-specific README committed |
-| `agent/redesign-bindforge-ui` | updated | Branch-specific README committed |
-| `agent/refine-colors-and-typography` | updated | Branch-specific README committed |
-| `agent/refresh-typography-color` | updated | Branch-specific README committed |
-| `agent/reimagine-filter-rail` | updated | Branch-specific README committed |
-| `agent/remove-sidebar-scrollbars` | updated | Branch-specific README committed |
-| `agent/replace-keybinds-from-markdown` | updated | Branch-specific README committed |
-| `agent/revert-apple-design` | updated | Branch-specific README committed |
-| `agent/social-share-preview` | updated | Branch-specific README committed |
-| `agent/split-filter-sidebar-topbar` | updated | Branch-specific README committed |
-| `agent/sticky-filter-control-dock` | updated | Branch-specific README committed |
-| `agent/wcag-professional-theme-spacing` | updated | Branch-specific README committed |
-| `agent/workspace-field-style-fix` | updated | Branch-specific README committed |
-| `cloudflare/workers-autoconfig` | updated | Branch-specific README committed |
-| `dependabot/github_actions/actions/setup-node-7` | updated | Branch-specific README committed |
-| `dependabot/github_actions/github/codeql-action-4.37.3` | updated | Branch-specific README committed |
-| `dependabot/npm_and_yarn/development-dependencies-80a816b6fc` | updated | Branch-specific README committed |
-| `main` | updated | Branch-specific README committed |
+| `agent/add-card-unbind-toggle` | unchanged | README already matched the standard |
+| `agent/apple-inspired-sidebar` | unchanged | README already matched the standard |
+| `agent/apple-theme-and-sidebar-fixes` | unchanged | README already matched the standard |
+| `agent/apply-warm-neutral-palette` | unchanged | README already matched the standard |
+| `agent/archew-branding-cleanup` | unchanged | README already matched the standard |
+| `agent/atelier-editorial-redesign` | unchanged | README already matched the standard |
+| `agent/brand-neverwinter-keybind` | unchanged | README already matched the standard |
+| `agent/card-redesign-safe-key-suggestions` | unchanged | README already matched the standard |
+| `agent/complete-improvement-roadmap` | unchanged | README already matched the standard |
+| `agent/complete-pending-roadmap` | unchanged | README already matched the standard |
+| `agent/complete-r1-r2` | unchanged | README already matched the standard |
+| `agent/complete-r1-r2-implementation` | unchanged | README already matched the standard |
+| `agent/complete-r1-r2-pending` | unchanged | README already matched the standard |
+| `agent/complete-r1-r2-single-pr` | unchanged | README already matched the standard |
+| `agent/custom-say-message-input` | unchanged | README already matched the standard |
+| `agent/finish-all-remaining-work` | unchanged | README already matched the standard |
+| `agent/finish-browser-accessibility-deployment` | unchanged | README already matched the standard |
+| `agent/finish-r1-r2` | unchanged | README already matched the standard |
+| `agent/fix-broken-apple-layout` | unchanged | README already matched the standard |
+| `agent/fix-container-buttons-light-theme` | unchanged | README already matched the standard |
+| `agent/fix-copy-feedback-build` | unchanged | README already matched the standard |
+| `agent/fix-fieldset-title-spacing` | unchanged | README already matched the standard |
+| `agent/fix-filter-panel-head-and-legends` | unchanged | README already matched the standard |
+| `agent/fix-live-key-combination-preview` | unchanged | README already matched the standard |
+| `agent/fix-production-verification-blockers` | unchanged | README already matched the standard |
+| `agent/fix-sidebar-hover-typography` | unchanged | README already matched the standard |
+| `agent/fix-sidebar-spacing` | unchanged | README already matched the standard |
+| `agent/fix-sidebar-toolbar-alignment` | unchanged | README already matched the standard |
+| `agent/fix-spacing-and-readability` | unchanged | README already matched the standard |
+| `agent/fix-sticky-icons-hero` | unchanged | README already matched the standard |
+| `agent/full-atelier-zero-rebuild` | unchanged | README already matched the standard |
+| `agent/full-open-design-redesign` | unchanged | README already matched the standard |
+| `agent/implement-apple-design-spec` | unchanged | README already matched the standard |
+| `agent/library-ui-refinement` | unchanged | README already matched the standard |
+| `agent/minimal-open-design-redesign` | unchanged | README already matched the standard |
+| `agent/mobile-first-release-stabilization` | unchanged | README already matched the standard |
+| `agent/open-design-ui-revamp-release-verification` | unchanged | README already matched the standard |
+| `agent/organize-header-toolbar-layout` | unchanged | README already matched the standard |
+| `agent/persistent-filter-console` | unchanged | README already matched the standard |
+| `agent/phase-1-compact-view` | unchanged | README already matched the standard |
+| `agent/phase-2-workspace-controls` | unchanged | README already matched the standard |
+| `agent/phase-3-filter-settings-drawer` | unchanged | README already matched the standard |
+| `agent/phase-4-css-consolidation` | unchanged | README already matched the standard |
+| `agent/phase-5-6-card-performance` | unchanged | README already matched the standard |
+| `agent/phase-7-8-pwa-accessibility-release` | unchanged | README already matched the standard |
+| `agent/phase-9-10-release-proof` | unchanged | README already matched the standard |
+| `agent/polished-microinteractions-copy-feedback` | unchanged | README already matched the standard |
+| `agent/post-phase-10-finalization` | unchanged | README already matched the standard |
+| `agent/r1-backup-schema-v2` | unchanged | README already matched the standard |
+| `agent/r1-baseline-lint-repair` | unchanged | README already matched the standard |
+| `agent/r1-catalog-integrity` | unchanged | README already matched the standard |
+| `agent/r1-catalog-integrity-v2` | unchanged | README already matched the standard |
+| `agent/r1-main-clipboard-resilience` | unchanged | README already matched the standard |
+| `agent/r1-release-gate` | unchanged | README already matched the standard |
+| `agent/r1-stabilization-foundation` | unchanged | README already matched the standard |
+| `agent/ranger-hunter-animation-cancel` | unchanged | README already matched the standard |
+| `agent/rebuild-compact-layout` | unchanged | README already matched the standard |
+| `agent/rebuild-spacing-welcoming-theme` | unchanged | README already matched the standard |
+| `agent/record-verified-production` | unchanged | README already matched the standard |
+| `agent/recover-cloudflare-build-and-browser-gates` | unchanged | README already matched the standard |
+| `agent/redesign-bindforge-ui` | unchanged | README already matched the standard |
+| `agent/refine-colors-and-typography` | unchanged | README already matched the standard |
+| `agent/refresh-typography-color` | unchanged | README already matched the standard |
+| `agent/reimagine-filter-rail` | unchanged | README already matched the standard |
+| `agent/remove-sidebar-scrollbars` | unchanged | README already matched the standard |
+| `agent/replace-keybinds-from-markdown` | unchanged | README already matched the standard |
+| `agent/revert-apple-design` | unchanged | README already matched the standard |
+| `agent/social-share-preview` | unchanged | README already matched the standard |
+| `agent/split-filter-sidebar-topbar` | unchanged | README already matched the standard |
+| `agent/sticky-filter-control-dock` | unchanged | README already matched the standard |
+| `agent/wcag-professional-theme-spacing` | unchanged | README already matched the standard |
+| `agent/workspace-field-style-fix` | unchanged | README already matched the standard |
+| `cloudflare/workers-autoconfig` | unchanged | README already matched the standard |
+| `dependabot/github_actions/actions/setup-node-7` | unchanged | README already matched the standard |
+| `dependabot/github_actions/github/codeql-action-4.37.3` | unchanged | README already matched the standard |
+| `dependabot/npm_and_yarn/development-dependencies-80a816b6fc` | unchanged | README already matched the standard |
+| `main` | unchanged | README already matched the standard |
