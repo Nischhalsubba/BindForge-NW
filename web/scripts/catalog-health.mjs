@@ -1,3 +1,4 @@
+// Builds a catalog-health report from the typed preset-section modules and blocks structural corruption.
 import { readdir, readFile, writeFile } from "node:fs/promises";
 
 const sectionsDirectory = new URL("../app/data/keybindPresetSections/", import.meta.url);
@@ -5,28 +6,43 @@ const outputPath = new URL("../catalog-health.json", import.meta.url);
 const files = (await readdir(sectionsDirectory)).filter((name) => name.endsWith(".ts")).sort();
 const presets = [];
 
-for (const file of files) {
-  const source = await readFile(new URL(file, sectionsDirectory), "utf8");
-  const start = source.indexOf("[");
-  const end = source.lastIndexOf("]");
-  if (start < 0 || end <= start) throw new Error(`Unable to locate preset array in ${file}`);
-  const parsed = JSON.parse(source.slice(start, end + 1));
+/** Extracts the JSON-compatible array assigned to a preset-section export. */
+function extractPresetArray(source, file) {
+  const assignment = source.match(/export\s+const\s+\w+(?:\s*:\s*[^=]+)?\s*=\s*(\[[\s\S]*\]);?\s*$/);
+  if (!assignment) throw new Error(`Unable to locate exported preset array in ${file}`);
+
+  const parsed = JSON.parse(assignment[1]);
   if (!Array.isArray(parsed)) throw new Error(`Preset section ${file} did not contain an array`);
-  for (const preset of parsed) presets.push({ ...preset, sectionFile: file });
+  return parsed;
 }
 
-const duplicateValues = (field) => [...new Set(presets.filter((preset, index) => presets.findIndex((item) => item[field] === preset[field]) !== index).map((preset) => preset[field]).filter(Boolean))];
-const inferredSourceType = (preset) => {
+for (const file of files) {
+  const source = await readFile(new URL(file, sectionsDirectory), "utf8");
+  for (const preset of extractPresetArray(source, file)) presets.push({ ...preset, sectionFile: file });
+}
+
+/** Returns repeated, non-empty values for a catalog field. */
+function duplicateValues(field) {
+  return [...new Set(
+    presets
+      .filter((preset, index) => presets.findIndex((item) => item[field] === preset[field]) !== index)
+      .map((preset) => preset[field])
+      .filter(Boolean),
+  )];
+}
+
+/** Infers provenance when an older preset does not yet declare sourceType explicitly. */
+function inferSourceType(preset) {
   const evidence = `${preset.plainEnglish ?? ""} ${preset.notes ?? ""}`.toLowerCase();
   if (preset.sourceType) return preset.sourceType;
   if (evidence.includes("wiki supplied") || evidence.includes("wiki-supplied")) return "wiki";
   if (evidence.includes("user supplied") || evidence.includes("user-submitted")) return "user-submitted";
   return "community";
-};
+}
 
 const normalized = presets.map((preset) => ({
   ...preset,
-  sourceType: inferredSourceType(preset),
+  sourceType: inferSourceType(preset),
   confidence: preset.confidence ?? (preset.difficulty === "Risky" ? "experimental" : "community-tested"),
 }));
 
