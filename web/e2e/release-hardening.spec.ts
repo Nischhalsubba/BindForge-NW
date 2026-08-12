@@ -1,7 +1,8 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import axe from "axe-core";
 
-async function prepare(page: Parameters<typeof test>[0]["page"]) {
+/** Resets browser state and waits for the keybind catalogue before each release test. */
+async function prepare(page: Page) {
   await page.goto("/");
   await page.evaluate(() => window.localStorage.clear());
   await page.reload();
