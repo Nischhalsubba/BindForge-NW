@@ -1,24 +1,25 @@
 // Builds a catalog-health report from the typed preset-section modules and blocks structural corruption.
-import { readdir, readFile, writeFile } from "node:fs/promises";
+import { readdir, writeFile } from "node:fs/promises";
 
 const sectionsDirectory = new URL("../app/data/keybindPresetSections/", import.meta.url);
 const outputPath = new URL("../catalog-health.json", import.meta.url);
 const files = (await readdir(sectionsDirectory)).filter((name) => name.endsWith(".ts")).sort();
 const presets = [];
 
-/** Extracts the JSON-compatible array assigned to a preset-section export. */
-function extractPresetArray(source, file) {
-  const assignment = source.match(/export\s+const\s+\w+(?:\s*:\s*[^=]+)?\s*=\s*(\[[\s\S]*\]);?\s*$/);
-  if (!assignment) throw new Error(`Unable to locate exported preset array in ${file}`);
+/** Loads the exported preset array from one TypeScript section module. */
+async function loadPresetArray(file) {
+  const module = await import(new URL(file, sectionsDirectory));
+  const exportedArrays = Object.values(module).filter(Array.isArray);
 
-  const parsed = JSON.parse(assignment[1]);
-  if (!Array.isArray(parsed)) throw new Error(`Preset section ${file} did not contain an array`);
-  return parsed;
+  if (exportedArrays.length !== 1) {
+    throw new Error(`Expected exactly one exported preset array in ${file}, found ${exportedArrays.length}`);
+  }
+
+  return exportedArrays[0];
 }
 
 for (const file of files) {
-  const source = await readFile(new URL(file, sectionsDirectory), "utf8");
-  for (const preset of extractPresetArray(source, file)) presets.push({ ...preset, sectionFile: file });
+  for (const preset of await loadPresetArray(file)) presets.push({ ...preset, sectionFile: file });
 }
 
 /** Returns repeated, non-empty values for a catalog field. */
