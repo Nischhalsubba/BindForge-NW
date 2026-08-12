@@ -1,0 +1,38 @@
+name: Refresh Playwright dependency
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/refresh-playwright-lock.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-lockfile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Update Playwright package metadata
+        working-directory: web
+        run: npm install --package-lock-only --save-dev @playwright/test@1.62.1
+      - name: Commit synchronized package metadata
+        run: |
+          git config user.name "Nischhal Raj Subba"
+          git config user.email "hinischalsubba@gmail.com"
+          git add web/package.json web/package-lock.json
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "Declare Playwright test dependency"
+          git push origin HEAD:main
