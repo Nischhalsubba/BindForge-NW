@@ -1,0 +1,15 @@
+{
+  "name": "bindforge-cloudflare-bootstrap",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "build": "npm --prefix web ci && npm --prefix web run build",
+    "deploy": "npm --prefix web ci && npm --prefix web run deploy",
+    "upload": "npm --prefix web ci && npm --prefix web run upload",
+    "preview": "npm --prefix web ci && npm --prefix web run preview",
+    "check": "npm --prefix web ci && npm --prefix web run check"
+  }
+}

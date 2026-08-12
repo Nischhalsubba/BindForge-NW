@@ -1,0 +1,26 @@
+// Cloudflare Workers Builds starts at the repository root; this bootstrap points deployment at the OpenNext output owned by web/.
+{
+  "$schema": "./web/node_modules/wrangler/config-schema.json",
+  "main": "./web/.open-next/worker.js",
+  "name": "bindforge-nw",
+  "compatibility_date": "2026-07-19",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "assets": {
+    "directory": "./web/.open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "bindforge-nw"
+    }
+  ],
+  "images": {
+    "binding": "IMAGES"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
