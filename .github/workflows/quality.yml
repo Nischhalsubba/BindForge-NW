@@ -1,104 +1,33 @@
 name: Quality
 
 on:
-  pull_request:
   push:
+    branches: [main]
+  pull_request:
     branches: [main]
 
 permissions:
   contents: read
 
-concurrency:
-  group: quality-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  check:
+  release-check:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: web
     steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
+      - name: Check out repository
+        uses: actions/checkout@v4
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.13.0
+          node-version: 22
           cache: npm
-
-      - name: Install application dependencies
-        run: npm ci
-
-      - name: Reject focused tests
-        run: npm run test:focused-guard
-
-      - name: Lint application and test sources
-        run: npm run lint
-
-      - name: Typecheck application
-        shell: bash
-        run: |
-          set -o pipefail
-          npm run typecheck 2>&1 | tee typecheck.log
-
-      - name: Upload application typecheck diagnostics
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: typecheck-diagnostics
-          path: typecheck.log
-          if-no-files-found: ignore
-          retention-days: 7
-
-      - name: Unit and catalog tests
-        run: npm test
-
-      - name: Production build without browser-test packages
-        shell: bash
-        run: |
-          set -o pipefail
-          npm run build 2>&1 | tee build.log
-
-      - name: Upload build diagnostics
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: build-diagnostics
-          path: build.log
-          if-no-files-found: ignore
-          retention-days: 7
-
-      - name: Install browser-test tooling after production build
-        run: npm install --no-save @playwright/test@1.55.0 axe-core@4.10.2
-
-      - name: Typecheck Playwright suite
-        shell: bash
-        run: |
-          set -o pipefail
-          npm run typecheck:browser 2>&1 | tee browser-typecheck.log
-
-      - name: Upload browser typecheck diagnostics
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: browser-typecheck-diagnostics
-          path: browser-typecheck.log
-          if-no-files-found: ignore
-          retention-days: 7
-
+          cache-dependency-path: web/package-lock.json
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-
-      - name: Playwright smoke, regression, persistence, recovery, and axe tests
-        run: npm run test:browser
-
-      - name: Upload Playwright report
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: playwright-report
-          path: |
-            playwright-report/
-            test-results/
-          if-no-files-found: ignore
-          retention-days: 14
+      - name: Run release checks
+        run: npm run check:release
