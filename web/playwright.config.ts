@@ -1,3 +1,4 @@
+// Configures BindForge browser regression coverage across mobile, tablet, and desktop without serializing the entire CI suite onto one worker.
 import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
@@ -6,7 +7,7 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 2 : undefined,
   reporter: process.env.CI ? [["html", { open: "never" }], ["list"]] : "list",
   use: {
     baseURL: "http://127.0.0.1:3000",
