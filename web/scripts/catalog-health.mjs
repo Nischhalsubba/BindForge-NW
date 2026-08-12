@@ -8,8 +8,8 @@ const presets = [];
 
 /** Loads the exported preset array from one TypeScript section module. */
 async function loadPresetArray(file) {
-  const module = await import(new URL(file, sectionsDirectory));
-  const exportedArrays = Object.values(module).filter(Array.isArray);
+  const sectionModule = await import(new URL(file, sectionsDirectory));
+  const exportedArrays = Object.values(sectionModule).filter(Array.isArray);
 
   if (exportedArrays.length !== 1) {
     throw new Error(`Expected exactly one exported preset array in ${file}, found ${exportedArrays.length}`);
