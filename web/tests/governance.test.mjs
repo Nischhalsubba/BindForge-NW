@@ -27,7 +27,10 @@ const workspaceFiles = [
   "scripts/catalog-health.mjs",
 ];
 
-const resolveFrom = (root, path) => new URL(path, root);
+/** Resolves a repository-relative path against the supplied URL root. */
+function resolveFrom(root, path) {
+  return new URL(path, root);
+}
 
 test("repository governance and application handoff files remain present", async () => {
   await Promise.all([
@@ -36,12 +39,18 @@ test("repository governance and application handoff files remain present", async
   ]);
 });
 
-test("quality workflow uses least privilege and runs inside the web workspace", async () => {
+test("quality workflow uses least privilege and runs complete checks inside the web workspace", async () => {
   const workflow = await readFile(resolveFrom(repositoryRoot, ".github/workflows/quality.yml"), "utf8");
   assert.match(workflow, /permissions:\n\s+contents: read/);
   assert.match(workflow, /working-directory: web/);
   assert.match(workflow, /cache-dependency-path: web\/package-lock\.json/);
-  assert.match(workflow, /npm run check:release/);
+  assert.match(workflow, /npm run check/);
+  assert.match(workflow, /npm run typecheck:browser/);
+  assert.match(workflow, /mobile-chromium/);
+  assert.match(workflow, /tablet-chromium/);
+  assert.match(workflow, /desktop-chromium/);
+  assert.match(workflow, /npx playwright test --project=/);
+  assert.match(workflow, /fail-fast: false/);
 });
 
 test("Dependabot tracks the relocated npm workspace and repository actions", async () => {
