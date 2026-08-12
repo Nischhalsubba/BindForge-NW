@@ -1,0 +1,8 @@
+{
+  "name": "cloudflare-workspace-proxy",
+  "version": "1.0.0",
+  "private": true,
+  "bin": {
+    "opennextjs-cloudflare": "proxy.cjs"
+  }
+}

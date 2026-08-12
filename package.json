@@ -6,10 +6,13 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "build": "npm --prefix web ci && npm --prefix web run build",
-    "deploy": "npm --prefix web ci && npm --prefix web run deploy",
-    "upload": "npm --prefix web ci && npm --prefix web run upload",
-    "preview": "npm --prefix web ci && npm --prefix web run preview",
+    "build": "opennextjs-cloudflare build",
+    "deploy": "opennextjs-cloudflare deploy",
+    "upload": "opennextjs-cloudflare upload",
+    "preview": "opennextjs-cloudflare preview",
     "check": "npm --prefix web ci && npm --prefix web run check"
+  },
+  "dependencies": {
+    "cloudflare-workspace-proxy": "file:bootstrap/cloudflare-proxy"
   }
 }
