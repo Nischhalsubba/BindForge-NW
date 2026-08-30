@@ -1,7 +1,7 @@
 [build]
   base = "web"
   command = "npm run build"
-  ignore = "if [ \"$BRANCH\" != \"main\" ]; then exit 0; else exit 1; fi"
+  ignore = "if [ \"$BRANCH\" != \"main\" ]; then exit 0; fi; git log -1 --pretty=%B \"$COMMIT_REF\" | grep -Fq '[deploy]' || exit 0; exit 1"
 
 [[headers]]
   for = "/*"
