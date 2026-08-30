@@ -1,6 +1,7 @@
 [build]
   base = "web"
   command = "npm run build"
+  ignore = "if [ \"$BRANCH\" != \"main\" ]; then exit 0; else exit 1; fi"
 
 [[headers]]
   for = "/*"
