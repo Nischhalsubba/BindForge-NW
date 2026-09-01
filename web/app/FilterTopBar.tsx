@@ -27,11 +27,15 @@ export default function FilterTopBar({ resultCount }: { resultCount: number }) {
 
       <div className="filter-top-output">
         <span>Command output</span>
-        <div className="filter-top-mode" aria-label="Output mode" role="group">
+        <div
+          aria-label="Command output mode. Switching modes changes only bind to unbind; the key and command stay intact."
+          className="filter-top-mode"
+          role="group"
+          title="Only /bind changes to /unbind. The key and full command stay intact."
+        >
           <button aria-pressed={state.mode === "bind"} onClick={() => setMode("bind")} type="button">Bind</button>
           <button aria-pressed={state.mode === "unbind"} onClick={() => setMode("unbind")} type="button">Unbind</button>
         </div>
-        <small>Only /bind changes to /unbind; the key and full command stay exactly the same.</small>
       </div>
 
       <button aria-label="Reset keybind library filters" className="filter-top-reset" onClick={resetFilters} type="button">Reset</button>
