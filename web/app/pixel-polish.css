@@ -1,0 +1,547 @@
+/*
+ * BindForge NW — precision polish layer
+ * Keeps the Atelier Zero identity while enforcing a single layout, spacing,
+ * control, and motion system across the workbench.
+ */
+
+:root {
+  --content: 1420px;
+  --control-height: 46px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --radius-card: 20px;
+  --radius-control: 12px;
+  --z-base: 1;
+  --z-sticky: 30;
+  --z-nav: 50;
+  --z-overlay: 90;
+  --motion-fast: 160ms;
+  --motion-normal: 240ms;
+  --ease-ui: cubic-bezier(.22, .61, .36, 1);
+}
+
+body {
+  text-rendering: optimizeLegibility;
+}
+
+.app-header,
+.workbench-intro,
+.workspace,
+.tools-chapter,
+.app-footer,
+.settings-anchor {
+  width: min(calc(100% - 112px), var(--content));
+}
+
+/* Editorial intro: tighter hierarchy and less dead vertical space. */
+.workbench-intro {
+  padding: clamp(76px, 7vw, 104px) 0 clamp(44px, 4vw, 60px);
+}
+
+.workbench-intro-grid {
+  grid-template-columns: minmax(0, 1.28fr) minmax(280px, .72fr);
+  gap: clamp(40px, 5vw, 80px);
+  align-items: end;
+  padding-top: clamp(34px, 3.8vw, 52px);
+}
+
+.workbench-intro .display {
+  max-width: 10.5ch;
+  font-size: clamp(44px, 5vw, 72px);
+  line-height: .94;
+  text-wrap: balance;
+}
+
+.workbench-intro .lead {
+  max-width: 36ch;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* One desktop grid for sidebar + workbench. */
+.workspace {
+  grid-template-columns: 276px minmax(0, 1fr);
+  gap: clamp(24px, 2.25vw, 34px);
+  padding-bottom: 112px;
+}
+
+.library {
+  gap: 16px;
+}
+
+/* Main command/search bar: all controls share one baseline and one height. */
+.filter-top-bar {
+  top: 16px;
+  z-index: var(--z-sticky);
+  grid-template-columns: minmax(150px, .66fr) minmax(300px, 1.8fr) minmax(220px, .92fr) 80px;
+  gap: 14px;
+  align-items: end;
+  padding: 18px;
+  overflow: visible;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--bone) 96%, transparent);
+  box-shadow: 0 14px 32px -28px rgba(21, 20, 15, .52);
+  backdrop-filter: blur(14px);
+}
+
+.filter-top-bar::before,
+.filter-top-bar::after {
+  display: none;
+}
+
+.filter-top-summary {
+  min-height: var(--control-height);
+  align-content: center;
+  gap: 2px;
+}
+
+.filter-top-summary strong {
+  font-size: 20px;
+  line-height: 1.05;
+}
+
+.filter-top-summary span,
+.filter-top-bar label > span,
+.filter-top-output > span {
+  font-size: 9px;
+  line-height: 1.2;
+  letter-spacing: .11em;
+}
+
+.filter-top-search {
+  gap: 7px;
+}
+
+.filter-top-bar input,
+.filter-top-bar select {
+  min-height: var(--control-height);
+  padding-inline: 14px;
+  border-color: var(--line-strong);
+  background: color-mix(in srgb, var(--paper) 62%, transparent);
+  font-size: 14px;
+  transition:
+    border-color var(--motion-fast) ease,
+    background-color var(--motion-fast) ease,
+    box-shadow var(--motion-fast) ease;
+}
+
+.filter-top-bar input:hover,
+.filter-top-bar select:hover {
+  border-color: color-mix(in srgb, var(--ink) 48%, transparent);
+}
+
+.filter-top-output {
+  display: grid;
+  gap: 7px;
+  align-self: end;
+}
+
+.filter-top-mode {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: var(--control-height);
+  border-color: var(--line-strong);
+}
+
+.filter-top-mode button {
+  min-width: 0;
+  min-height: calc(var(--control-height) - 2px);
+  padding: 0 16px;
+  font-size: 10.5px;
+  transition:
+    background-color var(--motion-fast) ease,
+    color var(--motion-fast) ease;
+}
+
+.filter-top-mode button + button {
+  border-left: 1px solid var(--line-strong);
+}
+
+.filter-top-mode button:not([aria-pressed='true']):hover {
+  background: color-mix(in srgb, var(--paper-dark) 58%, transparent);
+}
+
+.filter-top-reset {
+  width: 80px;
+  min-height: var(--control-height);
+  align-self: end;
+  padding: 0 10px;
+  border-color: var(--line-strong);
+  transition:
+    border-color var(--motion-fast) ease,
+    color var(--motion-fast) ease,
+    background-color var(--motion-fast) ease;
+}
+
+.filter-top-reset:hover {
+  border-color: var(--coral);
+  color: var(--coral);
+  background: color-mix(in srgb, var(--coral) 5%, transparent);
+}
+
+/* Active filters read as one compact breadcrumb row, not detached buttons. */
+.active-filter-row {
+  gap: 7px;
+  min-height: 30px;
+  align-items: center;
+  padding-top: 1px;
+}
+
+.active-filter-row span {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 11px;
+  background: color-mix(in srgb, var(--bone) 34%, transparent);
+}
+
+/* Group headings and cards share a stable 8px-derived rhythm. */
+.group-stack {
+  gap: 48px;
+}
+
+.group-heading {
+  gap: 24px;
+  margin-bottom: 20px;
+  padding: 4px 0 16px;
+  align-items: end;
+}
+
+.group-heading h3 {
+  font-size: clamp(28px, 2.45vw, 38px);
+  line-height: 1.03;
+  text-wrap: balance;
+}
+
+.group-heading p {
+  margin-top: 7px;
+  font-size: 10px;
+  letter-spacing: .075em;
+}
+
+.group-heading-actions {
+  min-height: 40px;
+  align-items: center;
+}
+
+.icon-text-button {
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    border-color var(--motion-fast) ease,
+    color var(--motion-fast) ease,
+    background-color var(--motion-fast) ease;
+}
+
+.icon-text-button:hover {
+  border-color: var(--coral);
+  color: var(--coral);
+  background: color-mix(in srgb, var(--coral) 5%, transparent);
+}
+
+.bind-grid {
+  gap: 20px;
+  align-items: stretch;
+}
+
+.bind-card {
+  gap: 18px;
+  min-height: 100%;
+  padding: 28px;
+  border-color: color-mix(in srgb, var(--ink) 11%, transparent);
+  border-radius: var(--radius-card);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--ink) 2.5%, transparent),
+    0 24px 54px -42px rgba(21, 20, 15, .4);
+  transition:
+    transform var(--motion-normal) var(--ease-ui),
+    border-color var(--motion-fast) ease,
+    box-shadow var(--motion-normal) var(--ease-ui);
+}
+
+.bind-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--ink) 18%, transparent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--ink) 3%, transparent),
+    0 28px 58px -40px rgba(21, 20, 15, .46);
+}
+
+.card-header {
+  min-height: 40px;
+  align-items: center;
+}
+
+.card-meta {
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 7px;
+  font-size: 9px;
+}
+
+.level-pill {
+  padding: 5px 9px;
+}
+
+.card-header-actions {
+  flex: 0 0 auto;
+  gap: 7px;
+}
+
+.select-preset {
+  min-height: 40px;
+  padding-inline: 4px;
+}
+
+.select-preset input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+}
+
+.card-copy h4 {
+  font-size: clamp(21px, 1.75vw, 25px);
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+.card-copy p {
+  margin-top: 10px;
+  min-height: calc(1.55em * 3);
+  color: color-mix(in srgb, var(--ink-mute) 92%, var(--ink));
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.key-field {
+  gap: 8px;
+}
+
+.key-field input {
+  min-height: var(--control-height);
+  padding-inline: 14px;
+  border-color: var(--line-strong);
+  background: color-mix(in srgb, var(--paper) 88%, var(--bone));
+}
+
+.key-status {
+  min-height: 60px;
+  align-items: center;
+  padding: 13px 14px;
+  line-height: 1.45;
+}
+
+.card-primary-actions {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.card-primary-actions .primary-button,
+.card-primary-actions .secondary-button {
+  min-height: 48px;
+}
+
+.card-primary-actions .secondary-button {
+  min-width: 112px;
+}
+
+.card-details {
+  gap: 14px;
+  padding-top: 16px;
+}
+
+.provenance-row {
+  gap: 6px;
+}
+
+.command-preview,
+.lab-preview {
+  padding: 18px 20px;
+}
+
+.command-preview code,
+.lab-preview code {
+  margin-top: 10px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+/* Quiet, precise focus feedback. */
+:where(input, select, textarea, button, a):focus-visible {
+  outline: 2px solid var(--coral);
+  outline-offset: 3px;
+}
+
+/* Keep decorative motion from claiming permanent compositor memory. */
+[data-gsap-nav] {
+  will-change: auto;
+}
+
+@media (max-width: 1279px) {
+  .app-header,
+  .workbench-intro,
+  .workspace,
+  .tools-chapter,
+  .app-footer,
+  .settings-anchor {
+    width: min(calc(100% - 72px), var(--content));
+  }
+
+  .workspace {
+    grid-template-columns: 258px minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  .filter-top-bar {
+    grid-template-columns: minmax(130px, .6fr) minmax(250px, 1.65fr) minmax(200px, .9fr) 76px;
+    gap: 10px;
+    padding: 16px;
+  }
+}
+
+@media (max-width: 1080px) {
+  .app-header,
+  .workbench-intro,
+  .workspace,
+  .tools-chapter,
+  .app-footer,
+  .settings-anchor {
+    width: min(calc(100% - 56px), var(--content));
+  }
+
+  .workbench-intro-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .workbench-intro .lead {
+    justify-self: start;
+    max-width: 52ch;
+  }
+
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-top-bar {
+    position: static;
+    grid-template-columns: minmax(150px, .7fr) minmax(260px, 1.45fr) minmax(200px, 1fr) 76px;
+  }
+}
+
+@media (max-width: 880px) {
+  .app-header,
+  .workbench-intro,
+  .workspace,
+  .tools-chapter,
+  .app-footer,
+  .settings-anchor {
+    width: calc(100% - 40px);
+  }
+
+  .workbench-intro {
+    padding-top: 68px;
+  }
+
+  .workbench-intro .display {
+    font-size: clamp(42px, 8vw, 60px);
+  }
+
+  .filter-top-bar {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .filter-top-summary,
+  .filter-top-search {
+    grid-column: 1 / -1;
+  }
+
+  .filter-top-reset {
+    width: 100%;
+  }
+
+  .bind-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card-copy p {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .app-header,
+  .workbench-intro,
+  .workspace,
+  .tools-chapter,
+  .app-footer,
+  .settings-anchor {
+    width: calc(100% - 28px);
+  }
+
+  .workbench-intro {
+    padding: 56px 0 40px;
+  }
+
+  .workbench-intro-grid {
+    padding-top: 28px;
+  }
+
+  .filter-top-bar {
+    grid-template-columns: 1fr;
+    padding: 14px;
+  }
+
+  .filter-top-summary,
+  .filter-top-search {
+    grid-column: auto;
+  }
+
+  .filter-top-mode,
+  .filter-top-reset {
+    width: 100%;
+  }
+
+  .group-heading {
+    align-items: flex-start;
+  }
+
+  .bind-card {
+    padding: 22px 20px;
+    border-radius: 16px;
+  }
+
+  .card-primary-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .card-primary-actions .secondary-button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bind-card,
+  .filter-top-mode button,
+  .filter-top-reset,
+  .icon-text-button {
+    transition: none;
+  }
+
+  .bind-card:hover {
+    transform: none;
+  }
+}
