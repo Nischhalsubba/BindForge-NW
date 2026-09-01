@@ -67,11 +67,14 @@ export default function Home() {
       <section className="workbench-intro" aria-labelledby="workbench-title" data-reveal>
         <SectionRule roman="II" meta="Catalogue / planner / generator" page="002" />
         <div className="workbench-intro-grid">
-          <div>
+          <div className="workbench-intro-aside">
             <p className="label">The workbench</p>
-            <h2 className="display" id="workbench-title">Find the command. Shape the <em>key</em>. Ship the bind<span className="dot">.</span></h2>
+            <span className="workbench-index">Search · filter · review · copy</span>
           </div>
-          <p className="lead">Saved keys, filters, favourites, and collections remain in this browser unless you export or share them. Use the sidebar to jump between the library, collections, Command Lab, and custom chat builder.</p>
+          <div className="workbench-intro-main">
+            <h2 className="display" id="workbench-title">Find the command. Shape the <em>key</em>. Ship the bind<span className="dot">.</span></h2>
+            <p className="lead">Saved keys, filters, favourites, and collections remain in this browser unless you export or share them. Use the sidebar to move between the library, collections, Command Lab, and custom chat builder.</p>
+          </div>
         </div>
       </section>
 
