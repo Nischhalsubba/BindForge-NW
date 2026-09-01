@@ -80,7 +80,7 @@ test("keeps class, action type, and difficulty in one filter panel", async ({ pa
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
 });
 
-test("changes only the command output when toggling bind and unbind", async ({ page }) => {
+test("changes only bind to unbind while preserving the key and full command", async ({ page }) => {
   const firstCard = page.locator(".bind-card").first();
   const firstKey = firstCard.locator(".key-field input");
   await expect(firstKey).toBeVisible();
@@ -90,18 +90,20 @@ test("changes only the command output when toggling bind and unbind", async ({ p
   const preview = firstCard.getByTestId("command-preview-output");
   const actionCount = await firstCard.locator(".card-primary-actions button").count();
   await expect(preview).toContainText("/bind ctrl+shift+r");
+  const bindPreview = (await preview.textContent()) ?? "";
+  expect(bindPreview).toMatch(/^\/bind ctrl\+shift\+r /);
   await expect(firstCard.getByRole("button", { name: /Copy command:/ })).toBeVisible();
   await expect(firstCard.getByRole("button", { name: /Copy original bind:/ })).toHaveCount(0);
   await expect(firstCard.getByRole("button", { name: /Copy unbind key:/ })).toHaveCount(0);
 
   await page.getByRole("button", { name: "Unbind", exact: true }).click();
   await expect(page.getByRole("button", { name: "Unbind", exact: true })).toHaveAttribute("aria-pressed", "true");
-  await expect(preview).toHaveText("/unbind ctrl+shift+r");
+  await expect(preview).toHaveText(bindPreview.replace(/^\/bind /, "/unbind "));
   expect(await firstCard.locator(".card-primary-actions button").count()).toBe(actionCount);
   await expect(firstCard.getByRole("button", { name: /Copy command:/ })).toBeVisible();
 
   await page.getByRole("button", { name: "Bind", exact: true }).click();
-  await expect(preview).toContainText("/bind ctrl+shift+r");
+  await expect(preview).toHaveText(bindPreview);
   expect(await firstCard.locator(".card-primary-actions button").count()).toBe(actionCount);
 });
 

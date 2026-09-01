@@ -57,16 +57,17 @@ export function normalizeMessage(value) {
 
 export function buildPresetLine({ defaultKey, command }, keyValue, mode = "bind") {
   const key = normalizeCombo(keyValue) || normalizeCombo(defaultKey) || "<key>";
-  return mode === "unbind" ? `/unbind ${key}` : `/bind ${key} ${String(command).trim()}`;
+  const commandText = String(command ?? "").trim();
+  const verb = mode === "unbind" ? "unbind" : "bind";
+  return `/${verb} ${key}${commandText ? ` ${commandText}` : ""}`;
 }
 
 export function buildCustomLine(keyValue, bindCommand, customArgs = "", mode = "bind") {
   const key = normalizeCombo(keyValue) || "<key>";
-  if (mode === "unbind") return `/unbind ${key}`;
-
   const command = String(bindCommand ?? "").trim();
   const args = String(customArgs ?? "").trim();
-  return `/bind ${key} ${command}${args ? ` ${args}` : ""}`.trimEnd();
+  const verb = mode === "unbind" ? "unbind" : "bind";
+  return `/${verb} ${key}${command ? ` ${command}` : ""}${args ? ` ${args}` : ""}`;
 }
 
 export function buildSayLine(keyValue, message) {

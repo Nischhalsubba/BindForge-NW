@@ -29,7 +29,7 @@ test("captures physical numpad keys and modifier combinations", async ({ page })
   await expect(input).toHaveValue("ctrl+shift+r");
 });
 
-test("bind and unbind use the same card action while only the command output changes", async ({ page, context }) => {
+test("bind and unbind keep the same full command while only the verb changes", async ({ page, context }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await waitForLibrary(page);
 
@@ -55,7 +55,7 @@ test("bind and unbind use the same card action while only the command output cha
 
   await card.getByRole("button", { name: /Copy command:/ }).click();
   const unbind = await page.evaluate(() => navigator.clipboard.readText());
-  expect(unbind).toBe("/unbind ctrl+shift+n");
+  expect(unbind).toBe(bind.replace(/^\/bind /, "/unbind "));
 });
 
 test("workspace navigation links point to the primary work areas", async ({ page }, testInfo) => {

@@ -22,19 +22,20 @@ test("returns the normalized base key", () => {
   assert.equal(baseKey("ctrl+shift+Numpad7"), "numpad7");
 });
 
-test("builds preset bind and unbind lines", () => {
+test("changes only the verb between preset bind and unbind lines", () => {
   const preset = { defaultKey: "F3", command: "invoke" };
   assert.equal(buildPresetLine(preset, " Ctrl + R ", "bind"), "/bind ctrl+r invoke");
-  assert.equal(buildPresetLine(preset, "", "unbind"), "/unbind f3");
+  assert.equal(buildPresetLine(preset, " Ctrl + R ", "unbind"), "/unbind ctrl+r invoke");
+  assert.equal(buildPresetLine(preset, "", "unbind"), "/unbind f3 invoke");
 });
 
-test("builds custom commands with optional arguments", () => {
+test("builds custom commands with optional arguments while preserving them in unbind mode", () => {
   assert.equal(
     buildCustomLine("Numpad9", "gensendmessage", "Vipaction_Bankvendor activate", "bind"),
     "/bind numpad9 gensendmessage Vipaction_Bankvendor activate",
   );
   assert.equal(buildCustomLine("F2", "invoke", "", "bind"), "/bind f2 invoke");
-  assert.equal(buildCustomLine("F2", "invoke", "ignored", "unbind"), "/unbind f2");
+  assert.equal(buildCustomLine("F2", "invoke", "ignored", "unbind"), "/unbind f2 invoke ignored");
 });
 
 test("normalizes multiline say messages and embedded quotes", () => {
