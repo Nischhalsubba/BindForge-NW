@@ -1,6 +1,6 @@
 export type IconName = "forge" | "search" | "keyboard" | "code" | "shield" | "warning" | "copy" | "reset" | "filter" | "spark" | "star" | "check" | "close";
 
-export function Icon({ name }: { name: IconName }) {
+export function Icon({ name, filled = false }: { name: IconName; filled?: boolean }) {
   const paths = {
     forge: <path d="M12 2 9 7l3 3 3-3-3-5Zm-5.5 9.5L3 15l6 6h6l6-6-3.5-3.5L15 14h-6l-2.5-2.5Z" />,
     search: <path d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />,
@@ -18,7 +18,7 @@ export function Icon({ name }: { name: IconName }) {
   };
 
   return (
-    <svg aria-hidden="true" className="ui-icon" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
+    <svg aria-hidden="true" className="ui-icon" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
       {paths[name]}
     </svg>
   );
