@@ -1,4 +1,4 @@
-export type IconName = "forge" | "search" | "keyboard" | "code" | "shield" | "warning" | "copy" | "reset" | "filter" | "spark";
+export type IconName = "forge" | "search" | "keyboard" | "code" | "shield" | "warning" | "copy" | "reset" | "filter" | "spark" | "star" | "check" | "close";
 
 export function Icon({ name }: { name: IconName }) {
   const paths = {
@@ -12,6 +12,9 @@ export function Icon({ name }: { name: IconName }) {
     reset: <path d="M20 11a8 8 0 1 0-2.34 5.66M20 4v7h-7" />,
     filter: <path d="M4 6h16M7 12h10m-7 6h4" />,
     spark: <path d="m12 3 1.4 4.6L18 9l-4.6 1.4L12 15l-1.4-4.6L6 9l4.6-1.4L12 3Zm6 11 .8 2.2L21 17l-2.2.8L18 20l-.8-2.2L15 17l2.2-.8L18 14Z" />,
+    star: <path d="m12 3 2.7 5.47 6.03.88-4.36 4.25 1.03 6-5.4-2.84-5.4 2.84 1.03-6-4.36-4.25 6.03-.88L12 3Z" />,
+    check: <path d="m5 12.5 4.2 4.2L19 7" />,
+    close: <path d="M6 6l12 12M18 6 6 18" />,
   };
 
   return (
