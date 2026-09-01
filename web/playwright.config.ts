@@ -12,9 +12,11 @@ export default defineConfig({
   use: {
     baseURL: "http://127.0.0.1:3000",
     browserName: "chromium",
-    trace: "on-first-retry",
+    // CI retains compact failure screenshots and the HTML report. Videos/traces made
+    // failed matrix artifacts hundreds of MB and prevented automated inspection.
+    trace: process.env.CI ? "off" : "on-first-retry",
     screenshot: "only-on-failure",
-    video: "retain-on-failure",
+    video: process.env.CI ? "off" : "retain-on-failure",
   },
   webServer: {
     command: "npm run start",
