@@ -58,7 +58,7 @@ test("keeps search and output controls visible while filters live together", asy
   const resultCount = page.getByTestId("result-count").first();
   const originalText = await resultCount.textContent();
   await expect(toolbar).toBeVisible();
-  await expect(toolbar.getByText("Command output", { exact: true })).toBeVisible();
+  await expect(toolbar.getByText("Command mode", { exact: true })).toBeVisible();
   await expect(toolbar.getByRole("button", { name: "Bind", exact: true })).toHaveAttribute("aria-pressed", "true");
   await expect(toolbar.getByRole("button", { name: "Unbind", exact: true })).toBeVisible();
   await page.getByLabel("Search keybind library").first().fill("invocation");
@@ -67,6 +67,18 @@ test("keeps search and output controls visible while filters live together", asy
   await expect(page.locator(".bind-card").first()).toBeVisible();
   await page.getByRole("button", { name: "Reset keybind library filters" }).click();
   await expect(page.getByLabel("Search keybind library").first()).toHaveValue("");
+});
+
+test("keeps default filter state visually quiet and reveals only active filters", async ({ page }) => {
+  await expect(page.locator(".active-filter-row")).toHaveCount(0);
+  const panel = await visibleFilterPanel(page);
+  await panel.getByRole("button", { name: "Bard", exact: true }).click();
+  const active = page.locator(".active-filter-row");
+  await expect(active).toBeVisible();
+  await expect(active).toContainText("Bard");
+  await expect(active).not.toContainText("All classes");
+  await active.getByRole("button", { name: "Clear", exact: true }).click();
+  await expect(page.locator(".active-filter-row")).toHaveCount(0);
 });
 
 test("keeps class, action type, and difficulty in one filter panel", async ({ page }) => {
@@ -78,6 +90,35 @@ test("keeps class, action type, and difficulty in one filter panel", async ({ pa
   await panel.getByLabel("Filter keybinds by action type").selectOption({ label: "Bard Songs" });
   await expect(panel.getByLabel("Filter keybinds by action type")).toHaveValue("Bard Songs");
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
+});
+
+test("aligns the desktop workbench intro with the library column", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.includes("mobile") || testInfo.project.name.includes("tablet"), "Desktop grid alignment is only visible with the persistent sidebar.");
+  const introMain = await page.locator(".workbench-intro-main").boundingBox();
+  const library = await page.locator("#keybind-library").boundingBox();
+  expect(introMain).not.toBeNull();
+  expect(library).not.toBeNull();
+  expect(Math.abs(introMain!.x - library!.x)).toBeLessThanOrEqual(2);
+  expect(Math.abs((introMain!.x + introMain!.width) - (library!.x + library!.width))).toBeLessThanOrEqual(2);
+});
+
+test("does not stretch a neighbouring card when details expand", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.includes("mobile") || testInfo.project.name.includes("tablet"), "Two-column card sizing is a desktop behavior.");
+  const group = page.locator(".bind-group").first();
+  const cards = group.locator(".bind-card");
+  await expect(cards).toHaveCount(5);
+  const first = cards.nth(0);
+  const second = cards.nth(1);
+  const secondBefore = await second.boundingBox();
+  expect(secondBefore).not.toBeNull();
+  await first.getByRole("button", { name: "Details", exact: true }).click();
+  await expect(first.getByTestId("command-preview-output")).toBeVisible();
+  const firstAfter = await first.boundingBox();
+  const secondAfter = await second.boundingBox();
+  expect(firstAfter).not.toBeNull();
+  expect(secondAfter).not.toBeNull();
+  expect(firstAfter!.height).toBeGreaterThan(secondAfter!.height);
+  expect(Math.abs(secondAfter!.height - secondBefore!.height)).toBeLessThanOrEqual(3);
 });
 
 test("changes only bind to unbind while preserving the key and full command", async ({ page }) => {
