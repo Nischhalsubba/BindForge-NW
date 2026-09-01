@@ -21,6 +21,8 @@ type CompactKeybindRowProps = {
   selected: boolean;
   favourite: boolean;
   keyValue: string;
+  line?: string;
+  mode?: "bind" | "unbind";
   status: SafetyStatus;
   copyDisabled: boolean;
   canReplace: boolean;
