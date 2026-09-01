@@ -13,7 +13,7 @@ export type KeybindType =
   | "Risky / Testing"
   | "Social";
 
-export type KeybindClass = "Any Class" | "Bard" | "Paladin" | "Ranger" | "Fighter / Cleric";
+export type KeybindClass = "Any Class" | "Bard" | "Paladin" | "Ranger" | "Fighter / Cleric" | "Warlock" | "Barbarian";
 export type PresetSourceType = "official" | "wiki" | "community" | "user-submitted";
 export type PresetConfidence = "verified" | "community-tested" | "experimental";
 

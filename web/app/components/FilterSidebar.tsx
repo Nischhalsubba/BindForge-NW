@@ -3,14 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useBindForge } from "../BindForgeProvider";
 import { keybindPresets } from "../data/keybindPresets";
-import type { KeybindClass } from "../data/keybindPresets";
+import type { KeybindClass, KeybindType } from "../data/keybindPresets";
 import { Icon } from "./Icon";
 import styles from "./FilterSidebar.module.css";
 
 const classFilters = ["All", ...Array.from(new Set(keybindPresets.map((preset) => preset.className)))] as Array<KeybindClass | "All">;
+const actionFilters = ["All", ...Array.from(new Set(keybindPresets.map((preset) => preset.type)))] as Array<KeybindType | "All">;
 
 export function FilterSidebar() {
-  const { state, setClassName, setDifficulty, resetFilters } = useBindForge();
+  const { state, setClassName, setActionType, setDifficulty, resetFilters } = useBindForge();
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -40,6 +41,7 @@ export function FilterSidebar() {
   function renderPanel(prefix: "desktop" | "drawer", includeClose: boolean) {
     const titleId = `${prefix}-filter-panel-title`;
     const classTitleId = `${prefix}-class-filter-title`;
+    const actionTitleId = `${prefix}-action-filter-title`;
     const difficultyTitleId = `${prefix}-difficulty-filter-title`;
 
     return (
@@ -71,6 +73,22 @@ export function FilterSidebar() {
               </button>
             ))}
           </div>
+        </section>
+
+        <section className={styles.section} aria-labelledby={actionTitleId}>
+          <h3 id={actionTitleId}>Action type</h3>
+          <select
+            aria-label="Filter keybinds by action type"
+            className={styles.select}
+            onChange={(event) => setActionType(event.target.value as typeof state.actionType)}
+            value={state.actionType}
+          >
+            {actionFilters.map((actionType) => (
+              <option key={actionType} value={actionType}>
+                {actionType === "All" ? "All actions" : actionType}
+              </option>
+            ))}
+          </select>
         </section>
 
         <section className={styles.section} role="group" aria-labelledby={difficultyTitleId}>

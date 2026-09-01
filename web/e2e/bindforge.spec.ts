@@ -10,6 +10,11 @@ async function openFiltersWhenCollapsed(page: Page) {
   }
 }
 
+async function visibleFilterPanel(page: Page) {
+  await openFiltersWhenCollapsed(page);
+  return page.locator("#filter-panel:visible, #mobile-filter-drawer:visible");
+}
+
 async function openSettings(page: Page) {
   const trigger = page.getByRole("button", { name: "Settings", exact: true });
   await trigger.click();
@@ -48,12 +53,12 @@ test.beforeEach(async ({ page }) => {
   await waitForHydration(page);
 });
 
-test("keeps the search and action toolbar visible and filters presets", async ({ page }) => {
+test("keeps search and output controls visible while filters live together", async ({ page }) => {
   const toolbar = page.getByTestId("filter-toolbar").first();
   const resultCount = page.getByTestId("result-count").first();
   const originalText = await resultCount.textContent();
   await expect(toolbar).toBeVisible();
-  await expect(page.getByLabel("Filter keybinds by action type").first()).toBeVisible();
+  await expect(toolbar.getByText("Command output", { exact: true })).toBeVisible();
   await page.getByLabel("Search keybind library").first().fill("invocation");
   await expect(resultCount).not.toHaveText(originalText ?? "");
   await expect(resultCount).not.toHaveText("0 keybinds");
@@ -62,29 +67,40 @@ test("keeps the search and action toolbar visible and filters presets", async ({
   await expect(page.getByLabel("Search keybind library").first()).toHaveValue("");
 });
 
-test("class and difficulty filters stay separate from the single action-type control", async ({ page }) => {
-  await openFiltersWhenCollapsed(page);
-  await page.getByRole("button", { name: "Bard", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Bard", exact: true })).toHaveAttribute("aria-pressed", "true");
-  await page.getByRole("button", { name: "Advanced", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Advanced", exact: true })).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByText("Action type", { exact: true })).toHaveCount(1);
-  await page.getByLabel("Filter keybinds by action type").first().selectOption({ label: "Bard Songs" });
-  await expect(page.getByLabel("Filter keybinds by action type").first()).toHaveValue("Bard Songs");
+test("keeps class, action type, and difficulty in one filter panel", async ({ page }) => {
+  const panel = await visibleFilterPanel(page);
+  await panel.getByRole("button", { name: "Bard", exact: true }).click();
+  await expect(panel.getByRole("button", { name: "Bard", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await panel.getByRole("button", { name: "Advanced", exact: true }).click();
+  await expect(panel.getByRole("button", { name: "Advanced", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await panel.getByLabel("Filter keybinds by action type").selectOption({ label: "Bard Songs" });
+  await expect(panel.getByLabel("Filter keybinds by action type")).toHaveValue("Bard Songs");
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
 });
 
-test("generates bind and unbind output from shared state", async ({ page }) => {
+test("generates valid unbind output and keeps the removed bind visible", async ({ page }) => {
   const firstCard = page.locator(".bind-card").first();
   const firstKey = firstCard.locator(".key-field input");
-  const firstPreview = firstCard.locator(".command-preview code");
+  const firstPreview = firstCard.getByTestId("command-preview-output");
   await expect(firstKey).toBeVisible();
   await firstKey.fill("Left Ctrl + Shift + R");
   await expect(firstPreview).toContainText("/bind ctrl+shift+r");
   await page.getByRole("button", { name: "Unbind", exact: true }).click();
   await expect(firstPreview).toHaveText("/unbind ctrl+shift+r");
+  await expect(firstCard.getByTestId("unbind-source-bind")).toContainText("/bind ctrl+shift+r");
   await page.getByRole("button", { name: "Bind", exact: true }).click();
   await expect(firstPreview).toContainText("/bind ctrl+shift+r");
+  await expect(firstCard.getByTestId("unbind-source-bind")).toHaveCount(0);
+});
+
+test("includes the submitted Warlock and Barbarian animation-cancel presets", async ({ page }) => {
+  const panel = await visibleFilterPanel(page);
+  await panel.getByLabel("Filter keybinds by action type").selectOption({ label: "Animation Cancel" });
+  await panel.getByRole("button", { name: "Warlock", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Warlock At-Will Animation Cancel: Left Click", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Warlock At-Will Animation Cancel: Right Click", exact: true })).toBeVisible();
+  await panel.getByRole("button", { name: "Barbarian", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Barbarian DPS Animation Cancel: Right Click", exact: true })).toBeVisible();
 });
 
 test("Command Lab and custom say builder generate normalized commands", async ({ page }) => {
@@ -189,7 +205,8 @@ test("keeps essential controls inside the viewport", async ({ page }) => {
   expect(toolbarBox!.x).toBeGreaterThanOrEqual(0);
   expect(toolbarBox!.x + toolbarBox!.width).toBeLessThanOrEqual(viewport!.width + 1);
   await expect(page.getByLabel("Search keybind library").first()).toBeVisible();
-  await expect(page.getByLabel("Filter keybinds by action type").first()).toBeVisible();
+  const panel = await visibleFilterPanel(page);
+  await expect(panel.getByLabel("Filter keybinds by action type")).toBeVisible();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
 });

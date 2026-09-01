@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import type { KeybindPreset } from "../data/keybindPresets";
+import { buildPresetLine } from "../lib/keybind-core.mjs";
 import type { CopyResultState } from "../page";
 import { Icon } from "./Icon";
 import styles from "./CompactKeybindRow.module.css";
@@ -59,6 +60,7 @@ export function CompactKeybindRow({
   const [copyState, setCopyState] = useState<CopyState>("idle");
   const copyButton = useRef<HTMLButtonElement>(null);
   const detailsId = `${preset.id}-compact-details`;
+  const boundLine = mode === "unbind" ? buildPresetLine(preset, keyValue, "bind") : null;
 
   async function handleCopy() {
     setCopyState("copying");
@@ -156,7 +158,13 @@ export function CompactKeybindRow({
 
           <div className={styles.commandBlock}>
             <div className={styles.commandLabel}><span>Command preview</span><span>{mode}</span></div>
-            <code tabIndex={0}>{line}</code>
+            <code data-testid="compact-command-preview-output" tabIndex={0}>{line}</code>
+            {boundLine ? (
+              <div className="unbind-context">
+                <span>Binding being removed</span>
+                <code>{boundLine}</code>
+              </div>
+            ) : null}
           </div>
 
           <div className={`${styles.fullSafety} ${styles[status.level]}`}>

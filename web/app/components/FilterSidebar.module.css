@@ -15,6 +15,8 @@
 .option { display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; min-height: 38px; padding: 8px 0; border: 0; border-bottom: 1px dotted var(--line); background: transparent; color: var(--ink-mute); text-align: left; cursor: pointer; font: 400 13px var(--body); }
 .option:hover,.option[aria-pressed='true'] { color: var(--ink); padding-left: 8px; }
 .option[aria-pressed='true']::before { content: '●'; color: var(--coral); font-size: 7px; }
+.select { width: 100%; min-height: 40px; padding: 8px 32px 8px 10px; border: 1px solid var(--line-strong); border-radius: 0; background: transparent; color: var(--ink); font: 400 12px var(--body); appearance: none; background-image: linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%); background-position: calc(100% - 15px) 50%,calc(100% - 10px) 50%; background-size: 5px 5px; background-repeat: no-repeat; }
+.select:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .difficultyOptions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .difficulty { min-height: 38px; padding: 8px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink-mute); cursor: pointer; font: 500 10px var(--mono); text-transform: uppercase; }
 .difficulty:hover { border-color: var(--ink); color: var(--ink); }
