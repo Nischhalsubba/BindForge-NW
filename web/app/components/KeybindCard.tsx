@@ -18,6 +18,7 @@ type CopyState = "idle" | "copying" | CopyResultState;
 type KeybindCardProps = {
   preset: KeybindPreset;
   keyValue: string;
+  mode?: "bind" | "unbind";
   duplicate: boolean;
   selected: boolean;
   favourite: boolean;
