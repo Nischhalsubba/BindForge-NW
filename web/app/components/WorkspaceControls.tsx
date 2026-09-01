@@ -39,25 +39,26 @@ type WorkspaceControlsProps = {
 export function WorkspaceControls(props: WorkspaceControlsProps) {
   const [packToolsOpen, setPackToolsOpen] = useState(false);
   const panelId = "collections-command-packs";
+  const reviewLabel = props.conflictCount ? `${props.conflictCount} need review` : "Safety scan clear";
 
   return (
     <div className={styles.workspace}>
       <section className={styles.secondary} aria-label="Library display and safety options" data-testid="secondary-controls">
-        <div className={styles.summary}>
-          <strong>{props.resultCount} keybinds found</strong>
-          <span>{props.conflictCount} need review</span>
+        <div className={styles.reviewSummary} aria-label={`${reviewLabel} across ${props.resultCount} visible keybinds`}>
+          <strong>{reviewLabel}</strong>
+          <span>Visible key conflicts</span>
         </div>
         <label>View<select aria-label="Library view" onChange={(event) => props.onViewModeChange(event.target.value as ViewMode)} value={props.viewMode}><option value="cards">Cards</option><option value="compact">Compact</option></select></label>
         <label>Sort<select aria-label="Sort keybinds" onChange={(event) => props.onSortModeChange(event.target.value as SortMode)} value={props.sortMode}><option value="recommended">Recommended</option><option value="title">Title</option><option value="difficulty">Difficulty</option><option value="class">Class</option></select></label>
         <label>Source<select aria-label="Filter by provenance" onChange={(event) => props.onProvenanceFilterChange(event.target.value as ProvenanceFilter)} value={props.provenanceFilter}><option value="all">All sources</option><option value="official">Official</option><option value="wiki">Wiki</option><option value="community">Community</option><option value="user-submitted">User submitted</option><option value="verified">Verified</option><option value="community-tested">Community tested</option><option value="experimental">Experimental</option></select></label>
-        <label className={styles.safeToggle}><input checked={props.safeOnly} onChange={(event) => props.onSafeOnlyChange(event.target.checked)} type="checkbox" />Safe or intentional only</label>
+        <label className={styles.safeToggle}><input checked={props.safeOnly} onChange={(event) => props.onSafeOnlyChange(event.target.checked)} type="checkbox" /><span>Safe or intentional only</span></label>
       </section>
 
       <section className={styles.packPanel} aria-labelledby="pack-tools-title" id="collections">
-        <button aria-controls={panelId} aria-expanded={packToolsOpen} className={styles.packSummary} onClick={() => setPackToolsOpen((value) => !value)} type="button">
+        <button aria-controls={panelId} aria-expanded={packToolsOpen} className={styles.packSummary} data-gsap-nav onClick={() => setPackToolsOpen((value) => !value)} type="button">
           <span><strong id="pack-tools-title">Collections &amp; command packs</strong><small>Save, share, copy, or download selected presets</small></span>
           <span className={styles.selectionBadge}>{props.selectedCount} selected</span>
-          <span aria-hidden="true">{packToolsOpen ? "−" : "+"}</span>
+          <span aria-hidden="true" className={styles.packIndicator}>{packToolsOpen ? "−" : "+"}</span>
         </button>
         {packToolsOpen ? (
           <div className={styles.packBody} id={panelId} data-testid="pack-tools-panel" data-gsap-enter>
