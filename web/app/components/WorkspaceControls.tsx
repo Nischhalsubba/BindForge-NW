@@ -54,7 +54,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
       </section>
 
       <section className={styles.packPanel} aria-labelledby="pack-tools-title" id="collections">
-        <button aria-controls={panelId} aria-expanded={packToolsOpen} className={styles.packSummary} onClick={() => setPackToolsOpen((value) => !value)} type="button">
+        <button aria-controls={panelId} aria-expanded={packToolsOpen} className={styles.packSummary} data-gsap-nav onClick={() => setPackToolsOpen((value) => !value)} type="button">
           <span><strong id="pack-tools-title">Collections &amp; command packs</strong><small>Save, share, copy, or download selected presets</small></span>
           <span className={styles.selectionBadge}>{props.selectedCount} selected</span>
           <span aria-hidden="true">{packToolsOpen ? "−" : "+"}</span>
