@@ -10,6 +10,11 @@ async function openFiltersWhenCollapsed(page: Page) {
   }
 }
 
+async function closeFiltersWhenOpen(page: Page) {
+  const showResults = page.getByRole("button", { name: "Show results", exact: true });
+  if (await showResults.isVisible()) await showResults.click();
+}
+
 async function visibleFilterPanel(page: Page) {
   await openFiltersWhenCollapsed(page);
   return page.locator("#filter-panel:visible, #mobile-filter-drawer:visible");
@@ -73,6 +78,7 @@ test("keeps default filter state visually quiet and reveals only active filters"
   await expect(page.locator(".active-filter-row")).toHaveCount(0);
   const panel = await visibleFilterPanel(page);
   await panel.getByRole("button", { name: "Bard", exact: true }).click();
+  await closeFiltersWhenOpen(page);
   const active = page.locator(".active-filter-row");
   await expect(active).toBeVisible();
   await expect(active).toContainText("Bard");
