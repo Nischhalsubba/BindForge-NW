@@ -178,6 +178,15 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     const value = state.keys[preset.id] ?? preset.defaultKey;
     return Boolean(warningForKey(value)) || (keyUseCounts[normalizedKey(value)] ?? 0) > 1;
   }).length, [filtered, keyUseCounts, state.keys]);
+  const activeFilterLabels = [
+    state.search ? `Search: ${state.search}` : null,
+    state.className !== "All" ? state.className : null,
+    state.actionType !== "All" ? state.actionType : null,
+    state.difficulty !== "All" ? state.difficulty : null,
+    activeCollection !== "all" ? (activeCollection === "favourites" ? "Favourites" : activeCollection) : null,
+    library.provenanceFilter !== "all" ? library.provenanceFilter.replace("-", " ") : null,
+    library.safeOnly ? "Safe / intentional only" : null,
+  ].filter((value): value is string => Boolean(value));
 
   function patchLibrary(patch: Partial<StoredLibraryState>) { setLibrary((current) => ({ ...current, ...patch })); }
   function toggleSelected(id: string) { setSelectedIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]); }
@@ -201,6 +210,11 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     patchLibrary({ collections: next });
     setActiveCollection("all");
   }
+  function clearActiveFilters() {
+    resetFilters();
+    setActiveCollection("all");
+    patchLibrary({ provenanceFilter: "all", safeOnly: false });
+  }
   function linesFor(mode: "bind" | "unbind") { return selectedPresets.map((preset) => buildPresetLine(preset, state.keys[preset.id] ?? preset.defaultKey, mode)).join("\n"); }
   async function copyPack(mode: "bind" | "unbind") { if (selectedPresets.length) await onCopy(linesFor(mode), `${selectedPresets.length} ${mode} commands`, null); }
   function downloadPack(mode: "bind" | "unbind") { if (selectedPresets.length) downloadText(`bindforge-${mode}-pack-${new Date().toISOString().slice(0, 10)}.txt`, `${linesFor(mode)}\n`); }
@@ -222,7 +236,13 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     <section className={`library library-${library.viewMode}`} id="keybind-library" tabIndex={-1}>
       <FilterTopBar resultCount={filtered.length} />
       <WorkspaceControls resultCount={filtered.length} conflictCount={conflictCount} viewMode={library.viewMode} sortMode={library.sortMode} provenanceFilter={library.provenanceFilter} safeOnly={library.safeOnly} selectedCount={selectedIds.length} visibleCount={filtered.length} activeCollection={activeCollection} favouritesCount={library.favourites.length} collections={library.collections} collectionName={collectionName} onViewModeChange={(value) => patchLibrary({ viewMode: value })} onSortModeChange={(value) => patchLibrary({ sortMode: value })} onProvenanceFilterChange={(value) => patchLibrary({ provenanceFilter: value })} onSafeOnlyChange={(value) => patchLibrary({ safeOnly: value })} onActiveCollectionChange={setActiveCollection} onCollectionNameChange={setCollectionName} onAddCollection={addCollection} onRemoveCollection={removeActiveCollection} onShareView={() => { void shareView(); }} onSelectVisible={() => setSelectedIds(filtered.map((preset) => preset.id))} onClearSelection={() => setSelectedIds([])} onCopyPack={(mode) => { void copyPack(mode); }} onDownloadPack={downloadPack} />
-      <div className="active-filter-row" aria-label="Active filters"><span>{state.className === "All" ? "All classes" : state.className}</span><span>{state.actionType === "All" ? "All actions" : state.actionType}</span><span>{state.difficulty === "All" ? "All difficulty levels" : state.difficulty}</span><span>{activeCollection === "all" ? "All collections" : activeCollection}</span></div>
+      {activeFilterLabels.length ? (
+        <div className="active-filter-row" aria-label="Active filters">
+          <strong>Active filters</strong>
+          {activeFilterLabels.map((label, index) => <span key={`${label}-${index}`}>{label}</span>)}
+          <button onClick={clearActiveFilters} type="button">Clear</button>
+        </div>
+      ) : null}
 
       {filtered.length ? (
         <>
@@ -271,7 +291,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
           ) : null}
         </>
       ) : (
-        <div className="empty-state"><div className="empty-icon"><Icon name="search" /></div><h3>No matching keybinds</h3><p>Try a broader search, collection, provenance option, or safety filter.</p><button className="primary-button" onClick={() => { resetFilters(); setActiveCollection("all"); patchLibrary({ provenanceFilter: "all", safeOnly: false }); }} type="button">Clear filters</button></div>
+        <div className="empty-state"><div className="empty-icon"><Icon name="search" /></div><h3>No matching keybinds</h3><p>Try a broader search, collection, provenance option, or safety filter.</p><button className="primary-button" onClick={clearActiveFilters} type="button">Clear filters</button></div>
       )}
     </section>
   );
