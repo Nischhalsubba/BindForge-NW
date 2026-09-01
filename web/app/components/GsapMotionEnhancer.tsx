@@ -8,11 +8,15 @@ type GsapMatchMedia = {
   add: (query: string, callback: () => void | (() => void)) => void;
   revert: () => void;
 };
+type GsapTimeline = {
+  from: (targets: string | Element | Element[], vars: Record<string, unknown>, position?: string) => GsapTimeline;
+};
 type GsapApi = {
   context: (callback: () => void, scope?: Element | Document) => GsapContext;
   from: (targets: string | Element | Element[], vars: Record<string, unknown>) => unknown;
   fromTo: (targets: string | Element | Element[], fromVars: Record<string, unknown>, toVars: Record<string, unknown>) => unknown;
   matchMedia: () => GsapMatchMedia;
+  timeline: (vars?: Record<string, unknown>) => GsapTimeline;
 };
 
 declare global {
@@ -31,9 +35,35 @@ export function GsapMotionEnhancer() {
     const media = gsap.matchMedia();
     media.add("(prefers-reduced-motion: no-preference)", () => {
       const context = gsap.context(() => {
-        gsap.from(".filter-top-bar", { y: -14, autoAlpha: 0, duration: 0.42, ease: "power2.out", clearProps: "transform,opacity,visibility" });
-        gsap.from("#filter-panel section", { x: -10, autoAlpha: 0, duration: 0.34, stagger: 0.045, ease: "power2.out", clearProps: "transform,opacity,visibility" });
-        gsap.from(".bind-group", { y: 16, autoAlpha: 0, duration: 0.4, stagger: 0.055, ease: "power2.out", clearProps: "transform,opacity,visibility" });
+        const entrance = gsap.timeline({ defaults: { ease: "power2.out" } });
+        entrance
+          .from(".workspace > aside, .workspace > .library", {
+            y: 10,
+            autoAlpha: 0,
+            duration: 0.36,
+            stagger: 0.055,
+            clearProps: "transform,opacity,visibility",
+          })
+          .from(".filter-top-bar", {
+            y: -8,
+            autoAlpha: 0,
+            duration: 0.3,
+            clearProps: "transform,opacity,visibility",
+          }, "<0.08")
+          .from("[data-testid='secondary-controls'], #collections", {
+            y: 8,
+            autoAlpha: 0,
+            duration: 0.3,
+            stagger: 0.04,
+            clearProps: "transform,opacity,visibility",
+          }, "<0.05")
+          .from(".bind-group:first-of-type .bind-card", {
+            y: 10,
+            autoAlpha: 0,
+            duration: 0.3,
+            stagger: 0.035,
+            clearProps: "transform,opacity,visibility",
+          }, "<0.05");
       }, document);
 
       const root = document.querySelector(".app-shell");
@@ -47,21 +77,44 @@ export function GsapMotionEnhancer() {
           }
         }
         if (targets.length) {
-          gsap.fromTo(targets, { y: 10, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.32, stagger: 0.025, ease: "power2.out", clearProps: "transform,opacity,visibility", overwrite: "auto" });
+          gsap.fromTo(
+            targets,
+            { y: 8, autoAlpha: 0 },
+            {
+              y: 0,
+              autoAlpha: 1,
+              duration: 0.28,
+              stagger: 0.025,
+              ease: "power2.out",
+              clearProps: "transform,opacity,visibility",
+              overwrite: "auto",
+            },
+          );
         }
       }) : null;
       observer?.observe(root!, { childList: true, subtree: true });
 
-      const navClick = (event: Event) => {
-        const target = event.target instanceof Element ? event.target.closest("[data-gsap-nav]") : null;
+      const interactionPulse = (event: Event) => {
+        if (!(event.target instanceof Element)) return;
+        const target = event.target.closest("[data-gsap-nav], .filter-top-mode button, .packSummary");
         if (!target) return;
-        gsap.fromTo(target, { scale: 0.96 }, { scale: 1, duration: 0.28, ease: "back.out(2)", clearProps: "transform", overwrite: "auto" });
+        gsap.fromTo(
+          target,
+          { scale: 0.985 },
+          {
+            scale: 1,
+            duration: 0.2,
+            ease: "power2.out",
+            clearProps: "transform",
+            overwrite: "auto",
+          },
+        );
       };
-      document.addEventListener("click", navClick);
+      document.addEventListener("click", interactionPulse);
 
       return () => {
         observer?.disconnect();
-        document.removeEventListener("click", navClick);
+        document.removeEventListener("click", interactionPulse);
         context.revert();
       };
     });
@@ -72,7 +125,7 @@ export function GsapMotionEnhancer() {
   return (
     <Script
       id="bindforge-gsap"
-      onLoad={() => setReady(true)}
+      onReady={() => setReady(true)}
       src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"
       strategy="afterInteractive"
     />
