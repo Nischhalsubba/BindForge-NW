@@ -2,8 +2,10 @@
 @import "./ui-fixes.css";
 @import "./branding.css";
 @import "./group-visibility.css";
+@import "./pixel-polish.css";
 
 /*
  * Neverwinter Keybind uses Atelier Zero as the canonical visual source.
- * Focused production and identity layers load last so they remain isolated and reviewable.
+ * Focused production, identity, and precision-polish layers load last so
+ * they remain isolated and reviewable.
  */
