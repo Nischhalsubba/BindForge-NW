@@ -18,7 +18,6 @@ type CopyState = "idle" | "copying" | CopyResultState;
 type KeybindCardProps = {
   preset: KeybindPreset;
   keyValue: string;
-  mode: "bind" | "unbind";
   duplicate: boolean;
   selected: boolean;
   favourite: boolean;
@@ -48,39 +47,54 @@ function provenanceLabel(preset: KeybindPreset) {
   return `${source} · ${confidence}`;
 }
 
+function copyLabel(state: CopyState, idle: string) {
+  if (state === "copying") return "Copying…";
+  if (state === "copied" || state === "fallback") return "Copied";
+  if (state === "error") return "Try again";
+  return idle;
+}
+
 function KeybindCardComponent(props: KeybindCardProps) {
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const [copyState, setCopyState] = useState<CopyState>("idle");
+  const [bindCopyState, setBindCopyState] = useState<CopyState>("idle");
+  const [unbindCopyState, setUnbindCopyState] = useState<CopyState>("idle");
   const preview = useRef<HTMLElement>(null);
   const timer = useRef<number | null>(null);
-  const line = buildPresetLine(props.preset, props.keyValue, props.mode);
-  const boundLine = props.mode === "unbind" ? buildPresetLine(props.preset, props.keyValue, "bind") : null;
+  const bindLine = buildPresetLine(props.preset, props.keyValue, "bind");
+  const unbindLine = buildPresetLine(props.preset, props.keyValue, "unbind");
   const detailsId = `${props.preset.id}-details`;
 
-  async function handleCopy() {
-    setCopyState("copying");
-    const result = await props.onCopy(line, props.preset.title, preview.current);
-    setCopyState(result);
+  function resetCopyStateAfter(result: CopyResultState) {
     if (timer.current) window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(() => setCopyState("idle"), result === "error" ? 4200 : 2200);
+    timer.current = window.setTimeout(() => {
+      setBindCopyState("idle");
+      setUnbindCopyState("idle");
+    }, result === "error" ? 4200 : 2200);
   }
 
-  async function handleOriginalBindCopy() {
-    if (!boundLine) return;
-    await props.onCopy(boundLine, `${props.preset.title} original bind`, preview.current);
+  async function handleBindCopy() {
+    setBindCopyState("copying");
+    setUnbindCopyState("idle");
+    const result = await props.onCopy(bindLine, `${props.preset.title} full bind`, preview.current);
+    setBindCopyState(result);
+    resetCopyStateAfter(result);
   }
 
-  const idleCopyLabel = props.mode === "unbind" ? "Copy unbind" : "Copy command";
-  const copyLabel = copyState === "copying"
-    ? "Copying…"
-    : copyState === "copied" || copyState === "fallback"
-      ? "Copied"
-      : copyState === "error"
-        ? "Try again"
-        : idleCopyLabel;
+  async function handleUnbindCopy() {
+    setUnbindCopyState("copying");
+    setBindCopyState("idle");
+    const result = await props.onCopy(unbindLine, `${props.preset.title} unbind key`, preview.current);
+    setUnbindCopyState(result);
+    resetCopyStateAfter(result);
+  }
+
+  const bindLabel = copyLabel(bindCopyState, "Copy full command");
+  const unbindLabel = copyLabel(unbindCopyState, "Copy unbind key");
+  const copied = bindCopyState === "copied" || bindCopyState === "fallback" || unbindCopyState === "copied" || unbindCopyState === "fallback";
+  const copyError = bindCopyState === "error" || unbindCopyState === "error";
 
   return (
-    <article className={`bind-card ${props.selected ? "is-selected" : ""} ${copyState === "copied" || copyState === "fallback" ? "is-copied" : ""}`} data-gsap-enter data-preset-id={props.preset.id}>
+    <article className={`bind-card ${props.selected ? "is-selected" : ""} ${copied ? "is-copied" : ""}`} data-gsap-enter data-preset-id={props.preset.id}>
       <header className="card-header">
         <div className="card-meta">
           <span className={`level-pill level-${props.preset.difficulty.toLowerCase()}`}>{props.preset.difficulty}</span>
@@ -107,11 +121,13 @@ function KeybindCardComponent(props: KeybindCardProps) {
         <span>{props.status.message}</span>
       </div>
 
-      <div className={`card-actions card-primary-actions ${boundLine ? "has-unbind-copy" : ""}`}>
-        <button aria-label={`${copyLabel}: ${props.preset.title}`} className={`primary-button copy-action copy-action-${copyState}`} disabled={props.duplicate || copyState === "copying"} onClick={() => { void handleCopy(); }} type="button">
-          <Icon name={copyState === "error" ? "warning" : copyState === "copied" || copyState === "fallback" ? "shield" : "copy"} /> {copyLabel}
+      <div className="card-actions card-primary-actions has-unbind-copy">
+        <button aria-label={`${bindLabel}: ${props.preset.title}`} className={`primary-button copy-action copy-action-${bindCopyState}`} disabled={props.duplicate || bindCopyState === "copying" || unbindCopyState === "copying"} onClick={() => { void handleBindCopy(); }} type="button">
+          <Icon name={bindCopyState === "error" ? "warning" : bindCopyState === "copied" || bindCopyState === "fallback" ? "shield" : "copy"} /> {bindLabel}
         </button>
-        {boundLine ? <button aria-label={`Copy original bind: ${props.preset.title}`} className="secondary-button original-bind-copy" onClick={() => { void handleOriginalBindCopy(); }} type="button"><Icon name="copy" /> Copy original bind</button> : null}
+        <button aria-label={`${unbindLabel}: ${props.preset.title}`} className="secondary-button original-bind-copy" disabled={unbindCopyState === "copying" || bindCopyState === "copying"} onClick={() => { void handleUnbindCopy(); }} type="button">
+          <Icon name={unbindCopyState === "error" ? "warning" : unbindCopyState === "copied" || unbindCopyState === "fallback" ? "shield" : "copy"} /> {unbindLabel}
+        </button>
         <button aria-controls={detailsId} aria-expanded={detailsOpen} className="secondary-button" onClick={() => setDetailsOpen((value) => !value)} type="button">
           {detailsOpen ? "Hide details" : "Details"}
         </button>
@@ -125,14 +141,12 @@ function KeybindCardComponent(props: KeybindCardProps) {
             {props.preset.sourceUrl ? <a href={props.preset.sourceUrl} rel="noreferrer" target="_blank">Source</a> : <span>Community source</span>}
           </div>
           <div className="command-preview">
-            <div className="command-label"><span>Command preview</span><span>{props.mode}</span></div>
-            <code data-testid="command-preview-output" ref={preview} tabIndex={0}>{line}</code>
-            {boundLine ? (
-              <div className="unbind-context">
-                <span>Original binding being removed</span>
-                <code data-testid="unbind-source-bind">{boundLine}</code>
-              </div>
-            ) : null}
+            <div className="command-label"><span>Full bind command</span><span>Primary</span></div>
+            <code data-testid="command-preview-output" ref={preview} tabIndex={0}>{bindLine}</code>
+            <div className="unbind-context">
+              <span>Unbind this key only</span>
+              <code data-testid="unbind-command-output">{unbindLine}</code>
+            </div>
           </div>
           <div className="card-actions card-detail-actions">
             {props.canReplace ? <button className="replacement-button" onClick={props.onReplace} type="button">Use next safer key</button> : null}
@@ -141,7 +155,7 @@ function KeybindCardComponent(props: KeybindCardProps) {
         </div>
       ) : null}
 
-      <p aria-live="polite" className="sr-only">{copyState === "copied" || copyState === "fallback" ? `${props.preset.title} copied.` : copyState === "error" ? `Copy failed for ${props.preset.title}.` : ""}</p>
+      <p aria-live="polite" className="sr-only">{copied ? `${props.preset.title} copied.` : copyError ? `Copy failed for ${props.preset.title}.` : ""}</p>
     </article>
   );
 }
