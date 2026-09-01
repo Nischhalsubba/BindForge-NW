@@ -59,6 +59,7 @@ test("keeps search and output controls visible while filters live together", asy
   const originalText = await resultCount.textContent();
   await expect(toolbar).toBeVisible();
   await expect(toolbar.getByText("Command output", { exact: true })).toBeVisible();
+  await expect(toolbar.getByText("Full bind first", { exact: true })).toBeVisible();
   await page.getByLabel("Search keybind library").first().fill("invocation");
   await expect(resultCount).not.toHaveText(originalText ?? "");
   await expect(resultCount).not.toHaveText("0 keybinds");
@@ -78,19 +79,16 @@ test("keeps class, action type, and difficulty in one filter panel", async ({ pa
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
 });
 
-test("generates valid unbind output and keeps the removed bind visible", async ({ page }) => {
+test("keeps the full bind primary and exposes unbind separately", async ({ page }) => {
   const firstCard = page.locator(".bind-card").first();
   const firstKey = firstCard.locator(".key-field input");
-  const firstPreview = firstCard.getByTestId("command-preview-output");
   await expect(firstKey).toBeVisible();
   await firstKey.fill("Left Ctrl + Shift + R");
-  await expect(firstPreview).toContainText("/bind ctrl+shift+r");
-  await page.getByRole("button", { name: "Unbind", exact: true }).click();
-  await expect(firstPreview).toHaveText("/unbind ctrl+shift+r");
-  await expect(firstCard.getByTestId("unbind-source-bind")).toContainText("/bind ctrl+shift+r");
-  await page.getByRole("button", { name: "Bind", exact: true }).click();
-  await expect(firstPreview).toContainText("/bind ctrl+shift+r");
-  await expect(firstCard.getByTestId("unbind-source-bind")).toHaveCount(0);
+  await expect(firstCard.getByRole("button", { name: /Copy full command:/ })).toBeVisible();
+  await expect(firstCard.getByRole("button", { name: /Copy unbind key:/ })).toBeVisible();
+  await firstCard.getByRole("button", { name: "Details", exact: true }).click();
+  await expect(firstCard.getByTestId("command-preview-output")).toContainText("/bind ctrl+shift+r");
+  await expect(firstCard.getByTestId("unbind-command-output")).toHaveText("/unbind ctrl+shift+r");
 });
 
 test("includes the submitted Warlock and Barbarian animation-cancel presets", async ({ page }) => {
