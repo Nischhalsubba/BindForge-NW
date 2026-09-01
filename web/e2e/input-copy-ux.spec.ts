@@ -29,21 +29,20 @@ test("captures physical numpad keys and modifier combinations", async ({ page })
   await expect(input).toHaveValue("ctrl+shift+r");
 });
 
-test("unbind mode exposes separate clipboard actions for unbind and original bind", async ({ page, context }) => {
+test("primary copy always includes the full bind command and unbind stays separate", async ({ page, context }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await waitForLibrary(page);
-  await page.getByRole("button", { name: "Unbind", exact: true }).click();
 
   const card = page.locator(".bind-card").first();
   const keyInput = card.locator("input[data-key-capture='true']");
   await keyInput.fill("ctrl+shift+n");
 
-  await card.getByRole("button", { name: /Copy original bind:/ }).click();
-  const originalBind = await page.evaluate(() => navigator.clipboard.readText());
-  expect(originalBind).toMatch(/^\/bind ctrl\+shift\+n /);
-  expect(originalBind.length).toBeGreaterThan("/bind ctrl+shift+n ".length);
+  await card.getByRole("button", { name: /Copy full command:/ }).click();
+  const fullBind = await page.evaluate(() => navigator.clipboard.readText());
+  expect(fullBind).toMatch(/^\/bind ctrl\+shift\+n /);
+  expect(fullBind.length).toBeGreaterThan("/bind ctrl+shift+n ".length);
 
-  await card.getByRole("button", { name: /Copy unbind:/ }).click();
+  await card.getByRole("button", { name: /Copy unbind key:/ }).click();
   const unbind = await page.evaluate(() => navigator.clipboard.readText());
   expect(unbind).toBe("/unbind ctrl+shift+n");
 });
