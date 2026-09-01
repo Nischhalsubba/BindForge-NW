@@ -3,7 +3,7 @@
 import { useBindForge } from "./BindForgeProvider";
 
 export default function FilterTopBar({ resultCount }: { resultCount: number }) {
-  const { state, setSearch, resetFilters } = useBindForge();
+  const { state, setMode, setSearch, resetFilters } = useBindForge();
 
   return (
     <section className="filter-top-bar" aria-label="Keybind search and output controls" data-testid="filter-toolbar">
@@ -27,8 +27,11 @@ export default function FilterTopBar({ resultCount }: { resultCount: number }) {
 
       <div className="filter-top-output">
         <span>Command output</span>
-        <strong>Full bind first</strong>
-        <small>Every card keeps the complete /bind command primary. Unbind is a separate key-only action.</small>
+        <div className="filter-top-mode" aria-label="Output mode" role="group">
+          <button aria-pressed={state.mode === "bind"} onClick={() => setMode("bind")} type="button">Bind</button>
+          <button aria-pressed={state.mode === "unbind"} onClick={() => setMode("unbind")} type="button">Unbind</button>
+        </div>
+        <small>Only the generated command mode changes; the rest of the card stays the same.</small>
       </div>
 
       <button aria-label="Reset keybind library filters" className="filter-top-reset" onClick={resetFilters} type="button">Reset</button>
