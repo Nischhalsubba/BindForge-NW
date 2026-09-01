@@ -31,9 +31,47 @@ export function GsapMotionEnhancer() {
     const media = gsap.matchMedia();
     media.add("(prefers-reduced-motion: no-preference)", () => {
       const context = gsap.context(() => {
-        gsap.from(".filter-top-bar", { y: -14, autoAlpha: 0, duration: 0.42, ease: "power2.out", clearProps: "transform,opacity,visibility" });
-        gsap.from("#filter-panel section", { x: -10, autoAlpha: 0, duration: 0.34, stagger: 0.045, ease: "power2.out", clearProps: "transform,opacity,visibility" });
-        gsap.from(".bind-group", { y: 16, autoAlpha: 0, duration: 0.4, stagger: 0.055, ease: "power2.out", clearProps: "transform,opacity,visibility" });
+        gsap.from(".workbench-intro-aside", {
+          x: -12,
+          autoAlpha: 0,
+          duration: 0.38,
+          ease: "power2.out",
+          clearProps: "transform,opacity,visibility",
+        });
+        gsap.from(".workbench-intro-main > *", {
+          y: 12,
+          autoAlpha: 0,
+          duration: 0.42,
+          stagger: 0.06,
+          ease: "power2.out",
+          clearProps: "transform,opacity,visibility",
+        });
+        gsap.from(".filter-top-bar", {
+          y: -10,
+          autoAlpha: 0,
+          duration: 0.38,
+          ease: "power2.out",
+          clearProps: "transform,opacity,visibility",
+        });
+        gsap.from("#filter-panel section", {
+          x: -8,
+          autoAlpha: 0,
+          duration: 0.3,
+          stagger: 0.035,
+          ease: "power2.out",
+          clearProps: "transform,opacity,visibility",
+        });
+        const firstGroups = Array.from(document.querySelectorAll(".bind-group")).slice(0, 4);
+        if (firstGroups.length) {
+          gsap.from(firstGroups, {
+            y: 12,
+            autoAlpha: 0,
+            duration: 0.36,
+            stagger: 0.045,
+            ease: "power2.out",
+            clearProps: "transform,opacity,visibility",
+          });
+        }
       }, document);
 
       const root = document.querySelector(".app-shell");
@@ -47,7 +85,19 @@ export function GsapMotionEnhancer() {
           }
         }
         if (targets.length) {
-          gsap.fromTo(targets, { y: 10, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.32, stagger: 0.025, ease: "power2.out", clearProps: "transform,opacity,visibility", overwrite: "auto" });
+          gsap.fromTo(
+            targets,
+            { y: 8, autoAlpha: 0 },
+            {
+              y: 0,
+              autoAlpha: 1,
+              duration: 0.28,
+              stagger: 0.02,
+              ease: "power2.out",
+              clearProps: "transform,opacity,visibility",
+              overwrite: "auto",
+            },
+          );
         }
       }) : null;
       observer?.observe(root!, { childList: true, subtree: true });
@@ -55,7 +105,11 @@ export function GsapMotionEnhancer() {
       const navClick = (event: Event) => {
         const target = event.target instanceof Element ? event.target.closest("[data-gsap-nav]") : null;
         if (!target) return;
-        gsap.fromTo(target, { scale: 0.96 }, { scale: 1, duration: 0.28, ease: "back.out(2)", clearProps: "transform", overwrite: "auto" });
+        gsap.fromTo(
+          target,
+          { scale: 0.97 },
+          { scale: 1, duration: 0.22, ease: "back.out(2)", clearProps: "transform", overwrite: "auto" },
+        );
       };
       document.addEventListener("click", navClick);
 
