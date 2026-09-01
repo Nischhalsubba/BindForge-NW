@@ -53,14 +53,14 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
         <label className={styles.safeToggle}><input checked={props.safeOnly} onChange={(event) => props.onSafeOnlyChange(event.target.checked)} type="checkbox" />Safe or intentional only</label>
       </section>
 
-      <section className={styles.packPanel} aria-labelledby="pack-tools-title">
+      <section className={styles.packPanel} aria-labelledby="pack-tools-title" id="collections">
         <button aria-controls={panelId} aria-expanded={packToolsOpen} className={styles.packSummary} onClick={() => setPackToolsOpen((value) => !value)} type="button">
           <span><strong id="pack-tools-title">Collections &amp; command packs</strong><small>Save, share, copy, or download selected presets</small></span>
           <span className={styles.selectionBadge}>{props.selectedCount} selected</span>
           <span aria-hidden="true">{packToolsOpen ? "−" : "+"}</span>
         </button>
         {packToolsOpen ? (
-          <div className={styles.packBody} id={panelId} data-testid="pack-tools-panel">
+          <div className={styles.packBody} id={panelId} data-testid="pack-tools-panel" data-gsap-enter>
             <div className={styles.collectionRow}>
               <label>Collection<select aria-label="Browse collection" onChange={(event) => props.onActiveCollectionChange(event.target.value)} value={props.activeCollection}><option value="all">All presets</option><option value="favourites">Favourites ({props.favouritesCount})</option>{Object.keys(props.collections).sort().map((name) => <option key={name} value={name}>{name} ({props.collections[name].length})</option>)}</select></label>
               <input aria-label="New collection name" onChange={(event) => props.onCollectionNameChange(event.target.value)} placeholder="New collection name" value={props.collectionName} />

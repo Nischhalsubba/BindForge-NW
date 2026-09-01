@@ -9,6 +9,7 @@ import type { KeyCombo } from "../data/keyCombos";
 import { buildCustomLine } from "../lib/keybind-core.mjs";
 import type { CopyResultState } from "../page";
 import { Icon } from "./Icon";
+import { KeyCaptureInput } from "./KeyCaptureInput";
 
 const commandCategories = ["All", ...Array.from(new Set(consoleCommands.map((command) => command.category)))];
 const comboCategories = ["All", ...Array.from(new Set(keyCombos.map((combo) => combo.category)))];
@@ -31,6 +32,7 @@ export function CommandLab({ onCopy }: { onCopy: CopyHandler }) {
   const [copyState, setCopyState] = useState<CopyState>("idle");
   const selectedCommand = consoleCommands.find((command) => command.id === state.commandLab.commandId) ?? consoleCommands[0];
   const line = buildCustomLine(state.commandLab.key, selectedCommand.bindCommand, state.commandLab.extraText, state.mode);
+  const boundLine = state.mode === "unbind" ? buildCustomLine(state.commandLab.key, selectedCommand.bindCommand, state.commandLab.extraText, "bind") : null;
 
   const filteredCommands = useMemo(() => {
     const query = normalizeText(state.commandLab.commandSearch);
@@ -64,16 +66,22 @@ export function CommandLab({ onCopy }: { onCopy: CopyHandler }) {
     resetTimer.current = window.setTimeout(() => setCopyState("idle"), result === "error" ? 4200 : 2200);
   }
 
+  async function handleOriginalBindCopy() {
+    if (!boundLine) return;
+    await onCopy(boundLine, "custom original bind", preview.current);
+  }
+
+  const idleCopyLabel = state.mode === "unbind" ? "Copy unbind" : "Copy custom command";
   const copyLabel = copyState === "copying"
     ? "Copying…"
     : copyState === "copied" || copyState === "fallback"
       ? "Copied"
       : copyState === "error"
         ? "Try again"
-        : "Copy custom command";
+        : idleCopyLabel;
 
   return (
-    <section className="command-lab" aria-labelledby="command-lab-title">
+    <section className="command-lab" aria-labelledby="command-lab-title" id="command-lab">
       <div className="command-lab-intro">
         <p className="eyebrow">Advanced workspace</p>
         <h2 id="command-lab-title">Build your own command</h2>
@@ -81,9 +89,13 @@ export function CommandLab({ onCopy }: { onCopy: CopyHandler }) {
         <div className={`lab-preview ${copyState === "copied" || copyState === "fallback" ? "is-copied" : ""}`}>
           <span>Generated command</span>
           <code aria-label="Generated custom command" ref={preview} tabIndex={0}>{line}</code>
-          <button className={`primary-button copy-action copy-action-${copyState}`} disabled={copyState === "copying"} onClick={() => { void handleCopy(); }} type="button">
-            <Icon name={copyState === "error" ? "warning" : copyState === "copied" || copyState === "fallback" ? "shield" : "copy"} /> {copyLabel}
-          </button>
+          {boundLine ? <div className="unbind-context"><span>Original binding being removed</span><code>{boundLine}</code></div> : null}
+          <div className="lab-copy-actions">
+            <button className={`primary-button copy-action copy-action-${copyState}`} disabled={copyState === "copying"} onClick={() => { void handleCopy(); }} type="button">
+              <Icon name={copyState === "error" ? "warning" : copyState === "copied" || copyState === "fallback" ? "shield" : "copy"} /> {copyLabel}
+            </button>
+            {boundLine ? <button className="secondary-button" onClick={() => { void handleOriginalBindCopy(); }} type="button"><Icon name="copy" /> Copy original bind</button> : null}
+          </div>
           <p aria-live="polite" className="sr-only">{copyState === "copied" || copyState === "fallback" ? "Custom command copied." : copyState === "error" ? "Copy failed for the custom command." : ""}</p>
         </div>
       </div>
@@ -92,7 +104,7 @@ export function CommandLab({ onCopy }: { onCopy: CopyHandler }) {
         <div className="lab-fields">
           <label className="key-field">
             <span>Key combination</span>
-            <input aria-label="Command Lab key combination" autoComplete="off" onChange={(event) => { updateCommandLab({ key: event.target.value }); setCopyState("idle"); }} spellCheck={false} value={state.commandLab.key} />
+            <KeyCaptureInput aria-label="Command Lab key combination" autoComplete="off" onValueChange={(value) => { updateCommandLab({ key: value }); setCopyState("idle"); }} value={state.commandLab.key} />
           </label>
           <label className="key-field">
             <span>Extra command text</span>

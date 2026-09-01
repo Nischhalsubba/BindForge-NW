@@ -7,6 +7,7 @@ import type { CopyFeedback } from "./components/AppHeader";
 import { CommandLab } from "./components/CommandLab";
 import { CustomSayBuilder } from "./components/CustomSayBuilder";
 import { FilterSidebar } from "./components/FilterSidebar";
+import { GsapMotionEnhancer } from "./components/GsapMotionEnhancer";
 import { KeybindLibrary } from "./components/KeybindLibrary";
 import { PortableSharePanel } from "./components/PortableSharePanel";
 import { RevealController } from "./components/RevealController";
@@ -54,6 +55,7 @@ export default function Home() {
 
   return (
     <main className="app-shell">
+      <GsapMotionEnhancer />
       <RevealController />
       <a className="skip-link" href="#keybind-library">Skip to keybind library</a>
       <div className="side-rail left" aria-hidden="true"><span>Neverwinter Keybind · Field Manual</span></div>
@@ -69,7 +71,7 @@ export default function Home() {
             <p className="label">The workbench</p>
             <h2 className="display" id="workbench-title">Find the command. Shape the <em>key</em>. Ship the bind<span className="dot">.</span></h2>
           </div>
-          <p className="lead">Saved keys, filters, favourites, and collections remain in this browser unless you export or share them. The dense workspace keeps advanced controls close without obscuring the primary copy flow.</p>
+          <p className="lead">Saved keys, filters, favourites, and collections remain in this browser unless you export or share them. Use the sidebar to jump between the library, collections, Command Lab, and custom chat builder.</p>
         </div>
       </section>
 
