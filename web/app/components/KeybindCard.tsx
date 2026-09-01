@@ -53,6 +53,7 @@ function KeybindCardComponent(props: KeybindCardProps) {
   const preview = useRef<HTMLElement>(null);
   const timer = useRef<number | null>(null);
   const line = buildPresetLine(props.preset, props.keyValue, props.mode);
+  const boundLine = props.mode === "unbind" ? buildPresetLine(props.preset, props.keyValue, "bind") : null;
   const detailsId = `${props.preset.id}-details`;
 
   async function handleCopy() {
@@ -117,7 +118,13 @@ function KeybindCardComponent(props: KeybindCardProps) {
           </div>
           <div className="command-preview">
             <div className="command-label"><span>Command preview</span><span>{props.mode}</span></div>
-            <code ref={preview} tabIndex={0}>{line}</code>
+            <code data-testid="command-preview-output" ref={preview} tabIndex={0}>{line}</code>
+            {boundLine ? (
+              <div className="unbind-context">
+                <span>Binding being removed</span>
+                <code data-testid="unbind-source-bind">{boundLine}</code>
+              </div>
+            ) : null}
           </div>
           <div className="card-actions card-detail-actions">
             {props.canReplace ? <button className="replacement-button" onClick={props.onReplace} type="button">Use next safer key</button> : null}
