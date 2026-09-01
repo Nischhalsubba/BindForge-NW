@@ -31,7 +31,7 @@ export default function FilterTopBar({ resultCount }: { resultCount: number }) {
           <button aria-pressed={state.mode === "bind"} onClick={() => setMode("bind")} type="button">Bind</button>
           <button aria-pressed={state.mode === "unbind"} onClick={() => setMode("unbind")} type="button">Unbind</button>
         </div>
-        <small>Only the generated command mode changes; the rest of the card stays the same.</small>
+        <small>Only /bind changes to /unbind; the key and full command stay exactly the same.</small>
       </div>
 
       <button aria-label="Reset keybind library filters" className="filter-top-reset" onClick={resetFilters} type="button">Reset</button>
