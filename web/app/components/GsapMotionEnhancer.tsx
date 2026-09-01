@@ -96,7 +96,7 @@ export function GsapMotionEnhancer() {
 
       const interactionPulse = (event: Event) => {
         if (!(event.target instanceof Element)) return;
-        const target = event.target.closest("[data-gsap-nav], .filter-top-mode button, .packSummary");
+        const target = event.target.closest("[data-gsap-nav], .filter-top-mode button");
         if (!target) return;
         gsap.fromTo(
           target,
