@@ -77,6 +77,16 @@
   content: 'NWK / 01';
 }
 
+/* The editorial footer remains oversized without forcing the document wider than the viewport. */
+.footer-mega {
+  max-width: 100%;
+  font-size: clamp(2.75rem, 10vw, 9.25rem);
+  line-height: .84;
+  white-space: normal;
+  text-wrap: balance;
+  overflow-wrap: normal;
+}
+
 @media (prefers-color-scheme: dark) {
   .brand-mark {
     border-color: color-mix(in srgb, var(--mustard) 82%, var(--bone));
@@ -122,5 +132,9 @@ html[data-theme='system'] .brand-mark {
 
   .brand-copy small {
     display: none;
+  }
+
+  .footer-mega {
+    font-size: clamp(2.35rem, 13vw, 4rem);
   }
 }
