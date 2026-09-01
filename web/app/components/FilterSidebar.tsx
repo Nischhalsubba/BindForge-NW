@@ -9,6 +9,12 @@ import styles from "./FilterSidebar.module.css";
 
 const classFilters = ["All", ...Array.from(new Set(keybindPresets.map((preset) => preset.className)))] as Array<KeybindClass | "All">;
 const actionFilters = ["All", ...Array.from(new Set(keybindPresets.map((preset) => preset.type)))] as Array<KeybindType | "All">;
+const workspaceLinks = [
+  { href: "#keybind-library", label: "Browse keybinds" },
+  { href: "#collections", label: "Collections" },
+  { href: "#command-lab", label: "Command Lab" },
+  { href: "#custom-say", label: "Say builder" },
+];
 
 export function FilterSidebar() {
   const { state, setClassName, setActionType, setDifficulty, resetFilters } = useBindForge();
@@ -40,6 +46,7 @@ export function FilterSidebar() {
 
   function renderPanel(prefix: "desktop" | "drawer", includeClose: boolean) {
     const titleId = `${prefix}-filter-panel-title`;
+    const navigationTitleId = `${prefix}-navigation-title`;
     const classTitleId = `${prefix}-class-filter-title`;
     const actionTitleId = `${prefix}-action-filter-title`;
     const difficultyTitleId = `${prefix}-difficulty-filter-title`;
@@ -56,6 +63,15 @@ export function FilterSidebar() {
             {includeClose ? <button aria-label="Close filters" className={styles.close} onClick={closeDrawer} ref={closeRef} type="button">×</button> : null}
           </div>
         </div>
+
+        <nav className={`${styles.section} ${styles.navigation}`} aria-labelledby={navigationTitleId}>
+          <h3 id={navigationTitleId}>Jump to</h3>
+          <div className={styles.navigationGrid}>
+            {workspaceLinks.map((link) => (
+              <a data-gsap-nav href={link.href} key={link.href} onClick={includeClose ? closeDrawer : undefined}>{link.label}</a>
+            ))}
+          </div>
+        </nav>
 
         <section className={styles.section} role="group" aria-labelledby={classTitleId}>
           <h3 id={classTitleId}>Class</h3>
@@ -126,7 +142,7 @@ export function FilterSidebar() {
         ref={triggerRef}
         type="button"
       >
-        <Icon name="filter" /> Filters
+        <Icon name="filter" /> Filters &amp; navigation
       </button>
 
       <aside aria-labelledby="desktop-filter-panel-title" className={styles.desktopPanel} id="filter-panel">
@@ -134,7 +150,7 @@ export function FilterSidebar() {
       </aside>
 
       {open ? (
-        <div className={styles.drawerLayer} data-testid="filter-drawer-layer">
+        <div className={styles.drawerLayer} data-testid="filter-drawer-layer" data-gsap-enter>
           <button aria-label="Close filters" className={styles.backdrop} onClick={closeDrawer} type="button" />
           <aside aria-labelledby="drawer-filter-panel-title" aria-modal="true" className={styles.drawer} id="mobile-filter-drawer" role="dialog">
             {renderPanel("drawer", true)}

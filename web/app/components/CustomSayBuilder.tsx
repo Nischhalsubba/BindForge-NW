@@ -4,9 +4,10 @@ import { useMemo, useRef, useState } from "react";
 import { useBindForge } from "../BindForgeProvider";
 import { buildSayLine, normalizeCombo, normalizeMessage } from "../lib/keybind-core.mjs";
 import { copyTextSafely } from "../lib/clipboard";
+import { KeyCaptureInput } from "./KeyCaptureInput";
 import styles from "./CustomSayBuilder.module.css";
 
- type CopyState = "idle" | "copying" | "copied" | "fallback" | "error";
+type CopyState = "idle" | "copying" | "copied" | "fallback" | "error";
 
 export function CustomSayBuilder() {
   const { state, updateCustomSay } = useBindForge();
@@ -38,11 +39,11 @@ export function CustomSayBuilder() {
         : "Copy custom message bind";
 
   return (
-    <section className={styles.builder} aria-labelledby="custom-say-title">
+    <section className={styles.builder} aria-labelledby="custom-say-title" id="custom-say">
       <div className={styles.intro}><p className={styles.eyebrow}>Custom chat keybind</p><h2 id="custom-say-title">Create your own say message</h2><p>Choose a key and type any message. BindForge keeps the required command syntax intact and updates the preview immediately.</p></div>
       <div className={`${styles.panel} ${copyState === "copied" || copyState === "fallback" ? "is-copied" : ""}`}>
         <div className={styles.fields}>
-          <label><span>Key combination</span><input aria-label="Custom message key combination" autoComplete="off" onChange={(event) => { updateCustomSay({ key: event.target.value }); setCopyState("idle"); }} placeholder="F1, Numpad7, Ctrl+R" spellCheck={false} value={state.customSay.key} /><small>Use a key that is not already important to your controls.</small></label>
+          <label><span>Key combination</span><KeyCaptureInput aria-label="Custom message key combination" autoComplete="off" onValueChange={(value) => { updateCustomSay({ key: value }); setCopyState("idle"); }} placeholder="Press F1, Numpad7, Ctrl+R…" value={state.customSay.key} /><small>Click the field and press the physical key or combo you want to bind.</small></label>
           <label><span>Message</span><textarea aria-label="Custom say message" maxLength={240} onChange={(event) => { updateCustomSay({ message: event.target.value }); setCopyState("idle"); }} placeholder="Type the message you want Neverwinter to send" rows={4} value={state.customSay.message} /><small>{state.customSay.message.length}/240 characters</small></label>
         </div>
         {messageChanged ? <p className={styles.notice} role="status">Line breaks were converted to spaces and double quotes were replaced with apostrophes so the keybind remains valid.</p> : null}

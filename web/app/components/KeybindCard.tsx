@@ -5,6 +5,7 @@ import type { KeybindPreset } from "../data/keybindPresets";
 import { buildPresetLine } from "../lib/keybind-core.mjs";
 import type { CopyResultState } from "../page";
 import { Icon } from "./Icon";
+import { KeyCaptureInput } from "./KeyCaptureInput";
 
 export type KeybindSafetyStatus = {
   level: "safe" | "info" | "warn" | "danger";
@@ -64,16 +65,22 @@ function KeybindCardComponent(props: KeybindCardProps) {
     timer.current = window.setTimeout(() => setCopyState("idle"), result === "error" ? 4200 : 2200);
   }
 
+  async function handleOriginalBindCopy() {
+    if (!boundLine) return;
+    await props.onCopy(boundLine, `${props.preset.title} original bind`, preview.current);
+  }
+
+  const idleCopyLabel = props.mode === "unbind" ? "Copy unbind" : "Copy command";
   const copyLabel = copyState === "copying"
     ? "Copying…"
     : copyState === "copied" || copyState === "fallback"
       ? "Copied"
       : copyState === "error"
         ? "Try again"
-        : "Copy command";
+        : idleCopyLabel;
 
   return (
-    <article className={`bind-card ${props.selected ? "is-selected" : ""} ${copyState === "copied" || copyState === "fallback" ? "is-copied" : ""}`} data-preset-id={props.preset.id}>
+    <article className={`bind-card ${props.selected ? "is-selected" : ""} ${copyState === "copied" || copyState === "fallback" ? "is-copied" : ""}`} data-gsap-enter data-preset-id={props.preset.id}>
       <header className="card-header">
         <div className="card-meta">
           <span className={`level-pill level-${props.preset.difficulty.toLowerCase()}`}>{props.preset.difficulty}</span>
@@ -91,8 +98,8 @@ function KeybindCardComponent(props: KeybindCardProps) {
       </div>
 
       <label className="key-field">
-        <span>Suggested key combination</span>
-        <input aria-label={`Key combination for ${props.preset.title}`} onChange={(event) => props.onKeyChange(event.target.value)} spellCheck={false} value={props.keyValue} />
+        <span>Key combination</span>
+        <KeyCaptureInput aria-label={`Key combination for ${props.preset.title}`} onValueChange={props.onKeyChange} value={props.keyValue} />
       </label>
 
       <div className={`key-status status-${props.status.level}`}>
@@ -100,17 +107,18 @@ function KeybindCardComponent(props: KeybindCardProps) {
         <span>{props.status.message}</span>
       </div>
 
-      <div className="card-actions card-primary-actions">
+      <div className={`card-actions card-primary-actions ${boundLine ? "has-unbind-copy" : ""}`}>
         <button aria-label={`${copyLabel}: ${props.preset.title}`} className={`primary-button copy-action copy-action-${copyState}`} disabled={props.duplicate || copyState === "copying"} onClick={() => { void handleCopy(); }} type="button">
           <Icon name={copyState === "error" ? "warning" : copyState === "copied" || copyState === "fallback" ? "shield" : "copy"} /> {copyLabel}
         </button>
+        {boundLine ? <button aria-label={`Copy original bind: ${props.preset.title}`} className="secondary-button original-bind-copy" onClick={() => { void handleOriginalBindCopy(); }} type="button"><Icon name="copy" /> Copy original bind</button> : null}
         <button aria-controls={detailsId} aria-expanded={detailsOpen} className="secondary-button" onClick={() => setDetailsOpen((value) => !value)} type="button">
           {detailsOpen ? "Hide details" : "Details"}
         </button>
       </div>
 
       {detailsOpen ? (
-        <div className="card-details" id={detailsId}>
+        <div className="card-details" data-gsap-enter id={detailsId}>
           <div className="provenance-row" aria-label="Preset provenance">
             <span>{provenanceLabel(props.preset)}</span>
             {props.preset.verifiedAt ? <span>Checked {props.preset.verifiedAt}</span> : <span>Verification date pending</span>}
@@ -121,7 +129,7 @@ function KeybindCardComponent(props: KeybindCardProps) {
             <code data-testid="command-preview-output" ref={preview} tabIndex={0}>{line}</code>
             {boundLine ? (
               <div className="unbind-context">
-                <span>Binding being removed</span>
+                <span>Original binding being removed</span>
                 <code data-testid="unbind-source-bind">{boundLine}</code>
               </div>
             ) : null}

@@ -5,6 +5,7 @@ import type { KeybindPreset } from "../data/keybindPresets";
 import { buildPresetLine } from "../lib/keybind-core.mjs";
 import type { CopyResultState } from "../page";
 import { Icon } from "./Icon";
+import { KeyCaptureInput } from "./KeyCaptureInput";
 import styles from "./CompactKeybindRow.module.css";
 
 type CopyHandler = (text: string, label: string, target: HTMLElement | null) => Promise<CopyResultState>;
@@ -69,17 +70,24 @@ export function CompactKeybindRow({
     window.setTimeout(() => setCopyState("idle"), result === "error" ? 4200 : 2200);
   }
 
+  async function handleOriginalBindCopy() {
+    if (!boundLine) return;
+    await onCopy(boundLine, `${preset.title} original bind`, copyButton.current);
+  }
+
+  const idleCopyLabel = mode === "unbind" ? "Copy unbind" : "Copy";
   const copyLabel = copyState === "copying"
     ? "Copying…"
     : copyState === "copied" || copyState === "fallback"
       ? "Copied"
       : copyState === "error"
         ? "Try again"
-        : "Copy";
+        : idleCopyLabel;
 
   return (
     <article
       className={`${styles.row} ${selected ? styles.selected : ""} ${copyState === "copied" || copyState === "fallback" ? styles.copied : ""}`}
+      data-gsap-enter
       data-preset-id={preset.id}
       data-testid="compact-bind-row"
     >
@@ -94,12 +102,7 @@ export function CompactKeybindRow({
 
         <label className={styles.keyField}>
           <span>Key combination</span>
-          <input
-            aria-label={`Key combination for ${preset.title}`}
-            onChange={(event) => onKeyChange(event.target.value)}
-            spellCheck={false}
-            value={keyValue}
-          />
+          <KeyCaptureInput aria-label={`Key combination for ${preset.title}`} onValueChange={onKeyChange} value={keyValue} />
         </label>
 
         <div className={`${styles.safety} ${styles[status.level]}`} data-level={status.level}>
@@ -132,6 +135,7 @@ export function CompactKeybindRow({
             <Icon name={copyState === "error" ? "warning" : copyState === "copied" || copyState === "fallback" ? "shield" : "copy"} />
             {copyLabel}
           </button>
+          {boundLine ? <button aria-label={`Copy original bind: ${preset.title}`} onClick={() => { void handleOriginalBindCopy(); }} type="button">Copy bind</button> : null}
           <button
             aria-controls={detailsId}
             aria-expanded={expanded}
@@ -145,7 +149,7 @@ export function CompactKeybindRow({
       </div>
 
       {expanded ? (
-        <div className={styles.details} id={detailsId}>
+        <div className={styles.details} data-gsap-enter id={detailsId}>
           <div className={styles.description}>
             <p>{preset.plainEnglish}</p>
             <div className={styles.provenance} aria-label="Preset provenance">
@@ -161,7 +165,7 @@ export function CompactKeybindRow({
             <code data-testid="compact-command-preview-output" tabIndex={0}>{line}</code>
             {boundLine ? (
               <div className="unbind-context">
-                <span>Binding being removed</span>
+                <span>Original binding being removed</span>
                 <code>{boundLine}</code>
               </div>
             ) : null}

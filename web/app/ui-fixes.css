@@ -46,6 +46,18 @@
   padding-inline: 1.1rem;
 }
 
+.card-primary-actions.has-unbind-copy {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.card-primary-actions.has-unbind-copy > :last-child {
+  grid-column: 1 / -1;
+}
+
+.original-bind-copy {
+  white-space: nowrap;
+}
+
 /* 2. Make the library toolbar a sealed sticky paper strip. */
 .filter-top-bar {
   top: 0;
@@ -68,6 +80,12 @@
   font: 500 9.5px var(--mono);
   letter-spacing: .08em;
   text-transform: uppercase;
+}
+
+.filter-top-output small {
+  max-width: 17rem;
+  color: var(--ink-faint);
+  font: 400 9px/1.35 var(--body);
 }
 
 .filter-top-bar::before {
@@ -96,6 +114,29 @@
   pointer-events: none;
 }
 
+/* Physical-key capture: quiet by default, explicit when focused. */
+input[data-key-capture='true'] {
+  transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+}
+
+input[data-key-capture='true']:focus {
+  border-color: var(--coral) !important;
+  background: color-mix(in srgb, var(--paper) 88%, var(--coral) 12%) !important;
+  box-shadow: 0 0 0 3px rgba(237, 111, 92, .12);
+  outline: 0;
+}
+
+.key-capture-hint {
+  display: none;
+  margin-top: 2px;
+  color: var(--ink-faint);
+  font: 400 9px/1.4 var(--body);
+}
+
+input[data-key-capture='true']:focus + .key-capture-hint {
+  display: block;
+}
+
 .unbind-context {
   display: grid;
   gap: 6px;
@@ -114,6 +155,28 @@
 .unbind-context code {
   margin-top: 0 !important;
   color: color-mix(in srgb, var(--paper) 78%, transparent);
+}
+
+.lab-copy-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lab-copy-actions > button {
+  flex: 1 1 12rem;
+}
+
+#keybind-library,
+#collections,
+#command-lab,
+#custom-say {
+  scroll-margin-top: 96px;
+}
+
+[data-gsap-nav] {
+  transform-origin: center;
+  will-change: transform;
 }
 
 /* 3. Give the hero a stronger editorial focal point. */
@@ -283,6 +346,14 @@
     grid-column: auto;
   }
 
+  .card-primary-actions.has-unbind-copy {
+    grid-template-columns: 1fr;
+  }
+
+  .card-primary-actions.has-unbind-copy > :last-child {
+    grid-column: auto;
+  }
+
   .hero .display {
     font-size: clamp(3.4rem, 15vw, 5rem);
   }
@@ -294,4 +365,10 @@
   .command-specimen {
     margin-top: 4.5rem;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  input[data-key-capture='true'],
+  [data-gsap-nav] { transition: none; }
 }
