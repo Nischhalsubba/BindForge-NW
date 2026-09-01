@@ -25,22 +25,13 @@ function commandLabel(command: ConsoleCommand) {
   return `${command.command}${command.params ? ` ${command.params}` : ""}`;
 }
 
-function labelFor(state: CopyState, idle: string) {
-  if (state === "copying") return "Copying…";
-  if (state === "copied" || state === "fallback") return "Copied";
-  if (state === "error") return "Try again";
-  return idle;
-}
-
 export function CommandLab({ onCopy }: { onCopy: CopyHandler }) {
   const { state, updateCommandLab } = useBindForge();
   const preview = useRef<HTMLElement>(null);
   const resetTimer = useRef<number | null>(null);
-  const [bindCopyState, setBindCopyState] = useState<CopyState>("idle");
-  const [unbindCopyState, setUnbindCopyState] = useState<CopyState>("idle");
+  const [copyState, setCopyState] = useState<CopyState>("idle");
   const selectedCommand = consoleCommands.find((command) => command.id === state.commandLab.commandId) ?? consoleCommands[0];
-  const bindLine = buildCustomLine(state.commandLab.key, selectedCommand.bindCommand, state.commandLab.extraText, "bind");
-  const unbindLine = buildCustomLine(state.commandLab.key, selectedCommand.bindCommand, state.commandLab.extraText, "unbind");
+  const line = buildCustomLine(state.commandLab.key, selectedCommand.bindCommand, state.commandLab.extraText, state.mode);
 
   const filteredCommands = useMemo(() => {
     const query = normalizeText(state.commandLab.commandSearch);
@@ -63,37 +54,24 @@ export function CommandLab({ onCopy }: { onCopy: CopyHandler }) {
       commandId: command.id,
       extraText: command.params && !/[<>]| or | to /i.test(command.params) ? command.params : "",
     });
-    setBindCopyState("idle");
-    setUnbindCopyState("idle");
+    setCopyState("idle");
   }
 
-  function resetCopyStateAfter(result: CopyResultState) {
+  async function handleCopy() {
+    setCopyState("copying");
+    const result = await onCopy(line, "custom command", preview.current);
+    setCopyState(result);
     if (resetTimer.current) window.clearTimeout(resetTimer.current);
-    resetTimer.current = window.setTimeout(() => {
-      setBindCopyState("idle");
-      setUnbindCopyState("idle");
-    }, result === "error" ? 4200 : 2200);
+    resetTimer.current = window.setTimeout(() => setCopyState("idle"), result === "error" ? 4200 : 2200);
   }
 
-  async function handleBindCopy() {
-    setBindCopyState("copying");
-    setUnbindCopyState("idle");
-    const result = await onCopy(bindLine, "custom full bind", preview.current);
-    setBindCopyState(result);
-    resetCopyStateAfter(result);
-  }
-
-  async function handleUnbindCopy() {
-    setUnbindCopyState("copying");
-    setBindCopyState("idle");
-    const result = await onCopy(unbindLine, "custom unbind key", preview.current);
-    setUnbindCopyState(result);
-    resetCopyStateAfter(result);
-  }
-
-  const bindLabel = labelFor(bindCopyState, "Copy full command");
-  const unbindLabel = labelFor(unbindCopyState, "Copy unbind key");
-  const copied = bindCopyState === "copied" || bindCopyState === "fallback" || unbindCopyState === "copied" || unbindCopyState === "fallback";
+  const copyLabel = copyState === "copying"
+    ? "Copying…"
+    : copyState === "copied" || copyState === "fallback"
+      ? "Copied"
+      : copyState === "error"
+        ? "Try again"
+        : "Copy custom command";
 
   return (
     <section className="command-lab" aria-labelledby="command-lab-title" id="command-lab">
@@ -101,17 +79,15 @@ export function CommandLab({ onCopy }: { onCopy: CopyHandler }) {
         <p className="eyebrow">Advanced workspace</p>
         <h2 id="command-lab-title">Build your own command</h2>
         <p>Combine a supported key with any catalog command. Test carefully; community commands may change after patches.</p>
-        <div className={`lab-preview ${copied ? "is-copied" : ""}`}>
-          <span>Generated full bind</span>
-          <code aria-label="Generated custom command" ref={preview} tabIndex={0}>{bindLine}</code>
-          <div className="unbind-context"><span>Unbind this key only</span><code>{unbindLine}</code></div>
+        <div className={`lab-preview ${copyState === "copied" || copyState === "fallback" ? "is-copied" : ""}`}>
+          <span>Generated command</span>
+          <code aria-label="Generated custom command" ref={preview} tabIndex={0}>{line}</code>
           <div className="lab-copy-actions">
-            <button className={`primary-button copy-action copy-action-${bindCopyState}`} disabled={bindCopyState === "copying" || unbindCopyState === "copying"} onClick={() => { void handleBindCopy(); }} type="button">
-              <Icon name={bindCopyState === "error" ? "warning" : bindCopyState === "copied" || bindCopyState === "fallback" ? "shield" : "copy"} /> {bindLabel}
+            <button className={`primary-button copy-action copy-action-${copyState}`} disabled={copyState === "copying"} onClick={() => { void handleCopy(); }} type="button">
+              <Icon name={copyState === "error" ? "warning" : copyState === "copied" || copyState === "fallback" ? "shield" : "copy"} /> {copyLabel}
             </button>
-            <button className="secondary-button" disabled={unbindCopyState === "copying" || bindCopyState === "copying"} onClick={() => { void handleUnbindCopy(); }} type="button"><Icon name={unbindCopyState === "error" ? "warning" : unbindCopyState === "copied" || unbindCopyState === "fallback" ? "shield" : "copy"} /> {unbindLabel}</button>
           </div>
-          <p aria-live="polite" className="sr-only">{copied ? "Custom command copied." : bindCopyState === "error" || unbindCopyState === "error" ? "Copy failed for the custom command." : ""}</p>
+          <p aria-live="polite" className="sr-only">{copyState === "copied" || copyState === "fallback" ? "Custom command copied." : copyState === "error" ? "Copy failed for the custom command." : ""}</p>
         </div>
       </div>
 
@@ -119,11 +95,11 @@ export function CommandLab({ onCopy }: { onCopy: CopyHandler }) {
         <div className="lab-fields">
           <label className="key-field">
             <span>Key combination</span>
-            <KeyCaptureInput aria-label="Command Lab key combination" autoComplete="off" onValueChange={(value) => { updateCommandLab({ key: value }); setBindCopyState("idle"); setUnbindCopyState("idle"); }} value={state.commandLab.key} />
+            <KeyCaptureInput aria-label="Command Lab key combination" autoComplete="off" onValueChange={(value) => { updateCommandLab({ key: value }); setCopyState("idle"); }} value={state.commandLab.key} />
           </label>
           <label className="key-field">
             <span>Extra command text</span>
-            <input aria-label="Command Lab extra command text" autoComplete="off" onChange={(event) => { updateCommandLab({ extraText: event.target.value }); setBindCopyState("idle"); setUnbindCopyState("idle"); }} placeholder={selectedCommand.params || "Optional arguments"} value={state.commandLab.extraText} />
+            <input aria-label="Command Lab extra command text" autoComplete="off" onChange={(event) => { updateCommandLab({ extraText: event.target.value }); setCopyState("idle"); }} placeholder={selectedCommand.params || "Optional arguments"} value={state.commandLab.extraText} />
           </label>
         </div>
 
@@ -146,7 +122,7 @@ export function CommandLab({ onCopy }: { onCopy: CopyHandler }) {
             </div>
             <div className="reference-list">
               {filteredCombos.length ? filteredCombos.map((combo) => (
-                <button aria-pressed={state.commandLab.key === combo.combo} className="reference-row" key={combo.combo} onClick={() => { updateCommandLab({ key: combo.combo }); setBindCopyState("idle"); setUnbindCopyState("idle"); }} type="button">
+                <button aria-pressed={state.commandLab.key === combo.combo} className="reference-row" key={combo.combo} onClick={() => { updateCommandLab({ key: combo.combo }); setCopyState("idle"); }} type="button">
                   <span>{combo.combo}</span>
                   <strong data-status={combo.status}>{statusLabels[combo.status]}</strong>
                 </button>

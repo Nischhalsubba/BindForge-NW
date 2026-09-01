@@ -2,7 +2,6 @@
 
 import { useRef, useState } from "react";
 import type { KeybindPreset } from "../data/keybindPresets";
-import { buildPresetLine } from "../lib/keybind-core.mjs";
 import type { CopyResultState } from "../page";
 import { Icon } from "./Icon";
 import { KeyCaptureInput } from "./KeyCaptureInput";
@@ -21,8 +20,8 @@ type CompactKeybindRowProps = {
   selected: boolean;
   favourite: boolean;
   keyValue: string;
-  line?: string;
-  mode?: "bind" | "unbind";
+  line: string;
+  mode: "bind" | "unbind";
   status: SafetyStatus;
   copyDisabled: boolean;
   canReplace: boolean;
@@ -40,18 +39,13 @@ function shortSafetyLabel(status: SafetyStatus) {
   return "Review this key";
 }
 
-function labelFor(state: CopyState, idle: string) {
-  if (state === "copying") return "Copying…";
-  if (state === "copied" || state === "fallback") return "Copied";
-  if (state === "error") return "Try again";
-  return idle;
-}
-
 export function CompactKeybindRow({
   preset,
   selected,
   favourite,
   keyValue,
+  line,
+  mode,
   status,
   copyDisabled,
   canReplace,
@@ -63,36 +57,28 @@ export function CompactKeybindRow({
   onReplace,
 }: CompactKeybindRowProps) {
   const [expanded, setExpanded] = useState(false);
-  const [bindCopyState, setBindCopyState] = useState<CopyState>("idle");
-  const [unbindCopyState, setUnbindCopyState] = useState<CopyState>("idle");
+  const [copyState, setCopyState] = useState<CopyState>("idle");
   const copyButton = useRef<HTMLButtonElement>(null);
   const detailsId = `${preset.id}-compact-details`;
-  const bindLine = buildPresetLine(preset, keyValue, "bind");
-  const unbindLine = buildPresetLine(preset, keyValue, "unbind");
 
-  async function handleBindCopy() {
-    setBindCopyState("copying");
-    setUnbindCopyState("idle");
-    const result = await onCopy(bindLine, `${preset.title} full bind`, copyButton.current);
-    setBindCopyState(result);
-    window.setTimeout(() => setBindCopyState("idle"), result === "error" ? 4200 : 2200);
+  async function handleCopy() {
+    setCopyState("copying");
+    const result = await onCopy(line, preset.title, copyButton.current);
+    setCopyState(result);
+    window.setTimeout(() => setCopyState("idle"), result === "error" ? 4200 : 2200);
   }
 
-  async function handleUnbindCopy() {
-    setUnbindCopyState("copying");
-    setBindCopyState("idle");
-    const result = await onCopy(unbindLine, `${preset.title} unbind key`, copyButton.current);
-    setUnbindCopyState(result);
-    window.setTimeout(() => setUnbindCopyState("idle"), result === "error" ? 4200 : 2200);
-  }
-
-  const bindLabel = labelFor(bindCopyState, "Copy full command");
-  const unbindLabel = labelFor(unbindCopyState, "Copy unbind key");
-  const copied = bindCopyState === "copied" || bindCopyState === "fallback" || unbindCopyState === "copied" || unbindCopyState === "fallback";
+  const copyLabel = copyState === "copying"
+    ? "Copying…"
+    : copyState === "copied" || copyState === "fallback"
+      ? "Copied"
+      : copyState === "error"
+        ? "Try again"
+        : "Copy";
 
   return (
     <article
-      className={`${styles.row} ${selected ? styles.selected : ""} ${copied ? styles.copied : ""}`}
+      className={`${styles.row} ${selected ? styles.selected : ""} ${copyState === "copied" || copyState === "fallback" ? styles.copied : ""}`}
       data-gsap-enter
       data-preset-id={preset.id}
       data-testid="compact-bind-row"
@@ -131,17 +117,16 @@ export function CompactKeybindRow({
             <span>Select</span>
           </label>
           <button
-            aria-label={`${bindLabel}: ${preset.title}`}
+            aria-label={`${copyLabel}: ${preset.title}`}
             className={styles.copyButton}
-            disabled={copyDisabled || bindCopyState === "copying" || unbindCopyState === "copying"}
-            onClick={() => { void handleBindCopy(); }}
+            disabled={copyDisabled || copyState === "copying"}
+            onClick={() => { void handleCopy(); }}
             ref={copyButton}
             type="button"
           >
-            <Icon name={bindCopyState === "error" ? "warning" : bindCopyState === "copied" || bindCopyState === "fallback" ? "shield" : "copy"} />
-            {bindLabel}
+            <Icon name={copyState === "error" ? "warning" : copyState === "copied" || copyState === "fallback" ? "shield" : "copy"} />
+            {copyLabel}
           </button>
-          <button aria-label={`${unbindLabel}: ${preset.title}`} disabled={unbindCopyState === "copying" || bindCopyState === "copying"} onClick={() => { void handleUnbindCopy(); }} type="button">{unbindLabel}</button>
           <button
             aria-controls={detailsId}
             aria-expanded={expanded}
@@ -167,12 +152,8 @@ export function CompactKeybindRow({
           </div>
 
           <div className={styles.commandBlock}>
-            <div className={styles.commandLabel}><span>Full bind command</span><span>Primary</span></div>
-            <code data-testid="compact-command-preview-output" tabIndex={0}>{bindLine}</code>
-            <div className="unbind-context">
-              <span>Unbind this key only</span>
-              <code>{unbindLine}</code>
-            </div>
+            <div className={styles.commandLabel}><span>Command preview</span><span>{mode}</span></div>
+            <code data-testid="compact-command-preview-output" tabIndex={0}>{line}</code>
           </div>
 
           <div className={`${styles.fullSafety} ${styles[status.level]}`}>
@@ -188,7 +169,7 @@ export function CompactKeybindRow({
       ) : null}
 
       <p aria-live="polite" className="sr-only">
-        {copied ? `${preset.title} copied.` : bindCopyState === "error" || unbindCopyState === "error" ? `Copy failed for ${preset.title}.` : ""}
+        {copyState === "copied" || copyState === "fallback" ? `${preset.title} copied.` : copyState === "error" ? `Copy failed for ${preset.title}.` : ""}
       </p>
     </article>
   );
