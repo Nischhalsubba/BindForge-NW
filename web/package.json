@@ -21,7 +21,7 @@
     "test:browser": "playwright test",
     "test:browser:report": "playwright show-report",
     "catalog:health": "node scripts/catalog-health.mjs",
-    "security:audit": "npm audit --omit=dev --audit-level=high",
+    "security:audit": "npm audit --audit-level=low",
     "check": "npm run test:focused-guard && npm run lint && npm run typecheck && npm run test && npm run catalog:health && npm run build",
     "check:release": "npm run check && npm run typecheck:browser && npm run test:browser",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
