@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import LocalSettingsManager from "../LocalSettingsManager";
 import ThemeSwitcher from "../ThemeSwitcher";
+import { AccessibilityPreferences } from "../AccessibilityPreferences";
 import styles from "./SettingsPanel.module.css";
 
 export function SettingsPanel() {
@@ -53,16 +54,20 @@ export function SettingsPanel() {
         <button aria-label="Dismiss settings" className={styles.backdrop} onClick={closePanel} type="button" />
         <section aria-labelledby="settings-title" aria-modal="true" className={styles.panel} id="app-settings-panel" role="dialog">
           <header className={styles.header}>
-            <div><p>Preferences and data</p><h2 id="settings-title">Local archive</h2></div>
+            <div><p>Preferences and local data</p><h2 id="settings-title">Local archive</h2></div>
             <button aria-label="Close settings" className={styles.close} onClick={closePanel} ref={closeRef} type="button">×</button>
           </header>
           <div className={styles.content}>
             <section className={styles.section} aria-labelledby="appearance-settings-title">
-              <div className={styles.sectionHeading}><h3 id="appearance-settings-title">Appearance</h3><p>Choose the theme used by this browser.</p></div>
+              <div className={styles.sectionHeading}><h3 id="appearance-settings-title">Appearance</h3><p>Choose the light, dark, or system theme used by this browser.</p></div>
               <ThemeSwitcher />
             </section>
+            <section className={styles.section} aria-labelledby="accessibility-settings-title">
+              <div className={styles.sectionHeading}><h3 id="accessibility-settings-title">Accessibility &amp; experience</h3><p>Adjust reading size, spacing, motion, assistance, and how much technical detail BindForge shows.</p></div>
+              <AccessibilityPreferences />
+            </section>
             <section className={styles.section} aria-labelledby="backup-settings-title">
-              <div className={styles.sectionHeading}><h3 id="backup-settings-title">Data and backup</h3><p>Export, restore, or clear your locally saved setup.</p></div>
+              <div className={styles.sectionHeading}><h3 id="backup-settings-title">Data and backup</h3><p>Export, restore, or clear your locally saved setup and preferences.</p></div>
               <LocalSettingsManager />
             </section>
           </div>

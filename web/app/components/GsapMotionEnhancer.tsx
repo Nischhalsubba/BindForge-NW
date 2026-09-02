@@ -2,6 +2,7 @@
 
 import Script from "next/script";
 import { useEffect, useState } from "react";
+import { useBindForge } from "../BindForgeProvider";
 
 type GsapContext = { revert: () => void };
 type GsapMatchMedia = {
@@ -26,11 +27,13 @@ declare global {
 }
 
 export function GsapMotionEnhancer() {
+  const { hydrated, state } = useBindForge();
   const [ready, setReady] = useState(false);
+  const reducedMotion = state.preferences.reducedMotion;
 
   useEffect(() => {
     const gsap = window.gsap;
-    if (!ready || !gsap) return;
+    if (!hydrated || reducedMotion || !ready || !gsap) return;
 
     const media = gsap.matchMedia();
     media.add("(prefers-reduced-motion: no-preference)", () => {
@@ -120,7 +123,9 @@ export function GsapMotionEnhancer() {
     });
 
     return () => media.revert();
-  }, [ready]);
+  }, [hydrated, ready, reducedMotion]);
+
+  if (!hydrated || reducedMotion) return null;
 
   return (
     <Script
