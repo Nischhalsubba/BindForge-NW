@@ -44,3 +44,24 @@
   white-space: normal;
   overflow-wrap: normal;
 }
+
+/* Primary workflow layout: preserve the visual system while shortening the old long-page shell. */
+.app-header { padding-bottom: 44px; }
+.hero { min-height: min(680px, calc(100vh - 150px)); padding-top: 48px; }
+.hero-plate { min-height: 520px; padding-top: 48px; padding-bottom: 34px; }
+.command-specimen { margin-top: 54px; }
+.hero-index { margin-top: 48px; }
+.app-footer { margin-top: 54px; }
+
+@media (max-width: 1080px) {
+  .hero { min-height: auto; padding-top: 40px; }
+  .hero-plate { min-height: 500px; }
+}
+
+@media (max-width: 560px) {
+  .app-header { padding-bottom: 42px; }
+  .hero { padding-top: 32px; }
+  .hero-plate { min-height: 470px; }
+  .command-specimen { margin-top: 42px; }
+  .hero-index { margin-top: 42px; }
+}

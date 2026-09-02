@@ -10,10 +10,10 @@ import styles from "./FilterSidebar.module.css";
 const classFilters = ["All", ...Array.from(new Set(keybindPresets.map((preset) => preset.className)))] as Array<KeybindClass | "All">;
 const actionFilters = ["All", ...Array.from(new Set(keybindPresets.map((preset) => preset.type)))] as Array<KeybindType | "All">;
 const workspaceLinks = [
-  { href: "#keybind-library", label: "Browse keybinds" },
-  { href: "#collections", label: "Collections" },
-  { href: "#command-lab", label: "Command Lab" },
-  { href: "#custom-say", label: "Say builder" },
+  { href: "#search-keybinds", label: "Search keybinds" },
+  { href: "#compose-keybind", label: "Compose keybind" },
+  { href: "#build-command", label: "Build command" },
+  { href: "#say-message", label: "Say message" },
 ];
 
 export function FilterSidebar() {

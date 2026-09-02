@@ -21,6 +21,11 @@ async function openSettings(page: Page) {
   await expect(page.getByRole("dialog", { name: "Local archive" })).toBeVisible();
 }
 
+async function openPrimaryTool(page: Page, name: "Search existing keybinds" | "Compose your own keybind" | "Build your own command" | "Create your own say message") {
+  await page.getByRole("tab", { name, exact: true }).click();
+  await expect(page.getByRole("tabpanel", { name })).toBeVisible();
+}
+
 async function waitForHydration(page: Page) {
   const toolbar = page.getByTestId("filter-toolbar").first();
   await expect(toolbar).toBeVisible();
@@ -49,8 +54,23 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await page.evaluate(() => window.localStorage.clear());
   await page.reload();
-  await expect(page.getByRole("heading", { level: 1, name: /Build keybinds with clarity/ })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /Find it. Build it. Bind it/ })).toBeVisible();
   await waitForHydration(page);
+});
+
+test("keeps all four primary workflows one click away", async ({ page }) => {
+  const tabs = page.getByRole("tablist", { name: "Primary keybind tools" });
+  await expect(tabs).toBeVisible();
+  await expect(tabs.getByRole("tab", { name: "Search existing keybinds", exact: true })).toHaveAttribute("aria-selected", "true");
+
+  await openPrimaryTool(page, "Compose your own keybind");
+  await expect(page.getByRole("heading", { name: "Compose your own keybind", exact: true })).toBeVisible();
+  await openPrimaryTool(page, "Build your own command");
+  await expect(page.getByRole("region", { name: "Build your own command" })).toBeVisible();
+  await openPrimaryTool(page, "Create your own say message");
+  await expect(page.getByRole("region", { name: "Create your own say message" })).toBeVisible();
+  await openPrimaryTool(page, "Search existing keybinds");
+  await expect(page.getByLabel("Search keybind library").first()).toBeVisible();
 });
 
 test("keeps search and output controls visible while filters live together", async ({ page }) => {
@@ -118,9 +138,12 @@ test("includes the submitted Warlock and Barbarian animation-cancel presets", as
 });
 
 test("Command Lab and custom say builder generate normalized commands", async ({ page }) => {
+  await openPrimaryTool(page, "Build your own command");
   const commandLab = page.getByRole("region", { name: "Build your own command" });
   await commandLab.getByLabel("Command Lab key combination").fill("Alt + F2");
   await expect(commandLab.getByLabel("Generated custom command")).toContainText("/bind alt+f2");
+
+  await openPrimaryTool(page, "Create your own say message");
   const customSay = page.getByRole("region", { name: "Create your own say message" });
   await customSay.getByLabel("Custom message key combination").fill("Ctrl + F1");
   await customSay.getByLabel("Custom say message").fill('Group\n"now"');
@@ -138,18 +161,22 @@ test("persists filters, edited keys, theme, and custom say values across reload"
   await openSettings(page);
   await page.getByLabel("Appearance").getByRole("button", { name: "Light" }).click();
   await page.getByRole("button", { name: "Close settings" }).last().click();
+  await openPrimaryTool(page, "Create your own say message");
   await page.getByLabel("Custom say message").fill("Group on me");
   await waitForSavedSettings(page, { search: "bard", customMessage: "Group on me", theme: "light" });
   await openSettings(page);
   await expect(page.locator(".local-save-status").getByText("Saved automatically", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Close settings" }).last().click();
   await page.reload();
+  await openPrimaryTool(page, "Search existing keybinds");
   await waitForHydration(page);
   await expect(page.getByLabel("Search keybind library").first()).toHaveValue("bard");
   await openSettings(page);
   await expect(page.getByLabel("Appearance").getByRole("button", { name: "Light" })).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "Close settings" }).last().click();
+  await openPrimaryTool(page, "Create your own say message");
   await expect(page.getByLabel("Custom say message")).toHaveValue("Group on me");
+  await openPrimaryTool(page, "Search existing keybinds");
   const restoredCard = page.locator(".bind-card").filter({ has: page.getByRole("heading", { name: presetTitle!, exact: true }) });
   await expect(restoredCard.locator(".key-field input")).toHaveValue("Ctrl+R");
 });
@@ -206,9 +233,9 @@ test("renders the route not-found recovery page", async ({ page }) => {
 
 test("supports keyboard navigation with visible focus", async ({ page }) => {
   await page.keyboard.press("Tab");
-  await expect(page.getByRole("link", { name: "Skip to keybind library" })).toBeFocused();
+  await expect(page.getByRole("link", { name: "Skip to primary tools" })).toBeFocused();
   await page.keyboard.press("Enter");
-  await expect(page.locator("#keybind-library")).toBeInViewport();
+  await expect(page.locator("#primary-workspace")).toBeInViewport();
 });
 
 test("keeps essential controls inside the viewport", async ({ page }) => {

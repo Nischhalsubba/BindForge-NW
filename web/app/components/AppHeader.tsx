@@ -17,7 +17,7 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
   const statusDetail = feedback.state === "error"
     ? "The command is focused. Press Ctrl+C to copy it manually."
     : feedback.state === "idle"
-      ? "Choose a preset, review the key, then copy the command."
+      ? "Search an existing bind or open one of the three builders below."
       : "The command is now on your clipboard.";
 
   return (
@@ -36,25 +36,26 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
           <span className="brand-copy"><b>Neverwinter Keybind</b><small>Command field manual</small></span>
         </a>
         <div className="site-nav-links">
-          <a href="#keybind-library">Library <span>01</span></a>
-          <a href="#command-lab-title">Command lab <span>02</span></a>
-          <a href="#custom-say-title">Chat bind <span>03</span></a>
+          <a href="#search-keybinds">Search <span>01</span></a>
+          <a href="#compose-keybind">Compose <span>02</span></a>
+          <a href="#build-command">Command <span>03</span></a>
+          <a href="#say-message">Say <span>04</span></a>
         </div>
-        <a className="nav-cta" href="#keybind-library">Open workbench</a>
+        <a className="nav-cta" href="#compose-keybind">Create keybind</a>
       </nav>
 
       <section className="hero" aria-labelledby="neverwinter-keybind-title" data-reveal>
         <div className="hero-copy">
           <p className="label">I. Neverwinter command utility</p>
           <h1 className="display" id="neverwinter-keybind-title">
-            Build <em>keybinds</em> with clarity<span className="dot">.</span>
+            Find it. Build it. <em>Bind it</em><span className="dot">.</span>
           </h1>
           <p className="lead">
-            Search the catalogue, shape a safer key combination, review conflicts, and copy a clean bind without memorising arcane console syntax.
+            Search existing keybinds or jump straight into composing a multi-action bind, building a command, or creating a custom say message.
           </p>
           <div className="hero-actions" aria-label="Start using Neverwinter Keybind">
-            <a className="btn btn-primary" href="#keybind-library">Browse keybinds ↗</a>
-            <a className="btn btn-ghost" href="#command-lab-title">Compose a command</a>
+            <a className="btn btn-primary" href="#search-keybinds">Search keybinds ↗</a>
+            <a className="btn btn-ghost" href="#compose-keybind">Compose a keybind</a>
           </div>
           <div className="hero-stats" aria-label="Catalogue summary">
             <span><i>01</i><strong>{keybindPresets.length}</strong><small>Curated presets</small></span>
@@ -63,24 +64,24 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
           </div>
         </div>
 
-        <div className="hero-plate" aria-label="Example generated command">
+        <div className="hero-plate" aria-label="Primary Neverwinter Keybind tools">
           <span className="corner corner-tl" aria-hidden="true" />
           <span className="corner corner-tr" aria-hidden="true" />
           <span className="corner corner-bl" aria-hidden="true" />
           <span className="corner corner-br" aria-hidden="true" />
           <div className="plate-meta"><span>Plate Nº 01</span><span>NWK / 2026</span></div>
           <div className="command-specimen">
-            <p>Generated command</p>
-            <code>/bind ctrl+b &quot;gensendmessage Vipaction_Bankvendor activate&quot;</code>
-            <small>Edit the key. Neverwinter Keybind preserves the command format.</small>
+            <p>Combined keybind form</p>
+            <code>/bind lbutton &quot;+EvaluateLeftClick$$+tacticalSpecial$$+Actionleft$$+Actionright&quot;</code>
+            <small>The builders handle the command structure while you choose the key and actions.</small>
           </div>
-          <ol className="hero-index" aria-label="How Neverwinter Keybind works">
-            <li><span>01</span><b>Find</b><small>Search presets.</small></li>
-            <li><span>02</span><b>Adjust</b><small>Choose a key.</small></li>
-            <li><span>03</span><b>Review</b><small>Check conflicts.</small></li>
-            <li><span>04</span><b>Copy</b><small>Paste in game.</small></li>
+          <ol className="hero-index" aria-label="Primary Neverwinter Keybind tools">
+            <li><span>01</span><b>Search</b><small>Existing keybinds.</small></li>
+            <li><span>02</span><b>Compose</b><small>Multi-action binds.</small></li>
+            <li><span>03</span><b>Command</b><small>Build a command.</small></li>
+            <li><span>04</span><b>Say</b><small>Create chat binds.</small></li>
           </ol>
-          <div className={`ready-state ready-state-${feedback.state}`} role="status" aria-live="polite">
+          <div className={`ready-state ready-state-${feedback.state}`} aria-live="polite">
             <Icon name="shield" />
             <span><strong>{statusTitle}</strong><small>{statusDetail}</small></span>
           </div>
