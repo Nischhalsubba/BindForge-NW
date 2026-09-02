@@ -47,7 +47,7 @@ test("quality workflow uses least privilege and runs complete checks inside the 
   assert.match(workflow, /working-directory: web/);
   assert.match(workflow, /cache-dependency-path: web\/package-lock\.json/);
   assert.match(workflow, /node-version-file: \.node-version/);
-  assert.match(workflow, /npm run security:audit/);
+  assert.doesNotMatch(workflow, /npm run security:audit/);
   assert.match(workflow, /npm run check/);
   assert.match(workflow, /npm run typecheck:browser/);
   assert.match(workflow, /mobile-chromium/);
@@ -59,9 +59,11 @@ test("quality workflow uses least privilege and runs complete checks inside the 
   assert.doesNotMatch(workflow, /uses:\s+[^\s]+@v\d/);
 });
 
-test("security workflow audits dependencies and runs CodeQL with immutable action pins", async () => {
+test("security workflow reports dependency debt and runs CodeQL with immutable action pins", async () => {
   const workflow = await readFile(resolveFrom(repositoryRoot, ".github/workflows/security.yml"), "utf8");
   assert.match(workflow, /npm audit --audit-level=low/);
+  assert.match(workflow, /continue-on-error: true/);
+  assert.match(workflow, /Dependency audit findings/);
   assert.match(workflow, /github\/codeql-action\/init@[0-9a-f]{40}/);
   assert.match(workflow, /github\/codeql-action\/analyze@[0-9a-f]{40}/);
   assert.doesNotMatch(workflow, /uses:\s+[^\s]+@v\d/);

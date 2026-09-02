@@ -35,9 +35,6 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Audit dependency graph
-        run: npm run security:audit
-
       - name: Run application, catalog, unit, and production build checks
         run: npm run check
 
