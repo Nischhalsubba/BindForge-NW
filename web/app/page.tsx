@@ -1,20 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { copyTextSafely } from "./lib/clipboard";
 import { AppHeader } from "./components/AppHeader";
 import type { CopyFeedback } from "./components/AppHeader";
-import { CommandLab } from "./components/CommandLab";
-import { CustomSayBuilder } from "./components/CustomSayBuilder";
-import { FilterSidebar } from "./components/FilterSidebar";
 import { GsapMotionEnhancer } from "./components/GsapMotionEnhancer";
-import { KeybindLibrary } from "./components/KeybindLibrary";
-import { PortableSharePanel } from "./components/PortableSharePanel";
+import { Icon } from "./components/Icon";
+import { PrimaryWorkspace } from "./components/PrimaryWorkspace";
 import { RevealController } from "./components/RevealController";
 import { SettingsPanel } from "./components/SettingsPanel";
 import { UrlStateBridge } from "./components/UrlStateBridge";
-import { VerifiedBindBuilder } from "./components/VerifiedBindBuilder";
-import { Icon } from "./components/Icon";
+import { copyTextSafely } from "./lib/clipboard";
 
 export type CopyResultState = "copied" | "fallback" | "error";
 
@@ -23,7 +18,7 @@ function SectionRule({ roman, meta, page }: { roman: string; meta: string; page:
     <div className="section-rule" aria-hidden="true">
       <span className="roman">{roman}.</span>
       <span>{meta}</span>
-      <span>{page} / 004</span>
+      <span>{page} / 003</span>
     </div>
   );
 }
@@ -58,39 +53,17 @@ export default function Home() {
     <main className="app-shell">
       <GsapMotionEnhancer />
       <RevealController />
-      <a className="skip-link" href="#keybind-library">Skip to keybind library</a>
+      <a className="skip-link" href="#primary-workspace">Skip to primary tools</a>
       <div className="side-rail left" aria-hidden="true"><span>Neverwinter Keybind · Field Manual</span></div>
       <div className="side-rail right" aria-hidden="true"><span>Neverwinter Command Systems · MMXXVI</span></div>
       <UrlStateBridge />
       <AppHeader feedback={feedback} />
       <SettingsPanel />
 
-      <section className="workbench-intro" aria-labelledby="workbench-title" data-reveal>
-        <SectionRule roman="II" meta="Catalogue / planner / generator" page="002" />
-        <div className="workbench-intro-grid">
-          <div>
-            <p className="label">The workbench</p>
-            <h2 className="display" id="workbench-title">Find the command. Shape the <em>key</em>. Ship the bind<span className="dot">.</span></h2>
-          </div>
-          <p className="lead">Saved keys, filters, favourites, and collections remain in this browser unless you export or share them. Use the sidebar to jump between the library, collections, Command Lab, and custom chat builder.</p>
-        </div>
-      </section>
-
-      <section className="workspace" aria-label="Keybind workbench">
-        <FilterSidebar />
-        <KeybindLibrary onCopy={copyText} />
-      </section>
-
-      <section className="tools-chapter" data-reveal>
-        <SectionRule roman="III" meta="Portable tools / custom composition" page="003" />
-        <PortableSharePanel onCopy={copyText} />
-        <VerifiedBindBuilder onCopy={copyText} />
-        <CommandLab onCopy={copyText} />
-        <CustomSayBuilder />
-      </section>
+      <PrimaryWorkspace onCopy={copyText} />
 
       <footer className="app-footer" data-reveal>
-        <SectionRule roman="IV" meta="Notes / provenance / studio" page="004" />
+        <SectionRule roman="III" meta="Notes / provenance / studio" page="003" />
         <div className="footer-grid">
           <section><span>Independent utility</span><p>Neverwinter Keybind is a community-made tool for preparing Neverwinter keybind commands.</p></section>
           <section><span>Use responsibly</span><p>Commands can change after game updates. Back up existing binds before testing unfamiliar setups.</p></section>
