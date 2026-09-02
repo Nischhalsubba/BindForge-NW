@@ -59,6 +59,42 @@ test("design tokens define shared controls, spacing, radii, and semantic colors"
   }
 });
 
+test("final accessibility foundation governs readable type, targets, focus, and motion", () => {
+  for (const token of [
+    "--type-meta: 0.8125rem",
+    "--type-label: 0.875rem",
+    "--type-body: 1rem",
+    "--control-min: 44px",
+    "--control-primary: 48px",
+    "--touch-gap: 8px",
+    "--focus-ring-width: 3px",
+    "--focus-ring-offset: 3px",
+  ]) {
+    assert.match(appCss, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+
+  assert.match(appCss, /\.icon-text-button,\s*\n\.select-preset\s*\{\s*\n\s*min-height:\s*var\(--control-min\)/);
+  assert.match(appCss, /:focus-visible\s*\{[\s\S]*outline:\s*var\(--focus-ring-width\)/);
+  assert.match(appCss, /@media \(forced-colors: active\)/);
+  assert.match(appCss, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(appCss, /animation-duration:\s*0\.01ms !important/);
+  assert.match(appCss, /text-size-adjust:\s*100%/);
+});
+
+test("functional microcopy is promoted to the accessible type scale", () => {
+  for (const selector of [
+    ".brand-copy small",
+    ".filter-top-output small",
+    ".group-heading p",
+    ".card-meta",
+    ".key-capture-hint",
+  ]) {
+    assert.match(appCss, new RegExp(selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+  assert.match(appCss, /font-size:\s*var\(--type-meta\)/);
+  assert.match(appCss, /\.card-copy p\s*\{\s*\n\s*font-size:\s*var\(--type-body\)/);
+});
+
 test("responsive layer documents only the shared tablet and mobile breakpoints", () => {
   const breakpoints = [...responsiveCss.matchAll(/@media \(max-width: (\d+)px\)/g)].map((match) => Number(match[1]));
   assert.deepEqual(breakpoints, [1050, 680]);
