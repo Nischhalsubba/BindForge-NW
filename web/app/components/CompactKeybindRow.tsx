@@ -168,7 +168,19 @@ export function CompactKeybindRow({
           </div>
 
           <div className={styles.detailActions}>
-            {canReplace && directReplacement ? <button data-replacement-key={directReplacement} onClick={() => onKeyChange(directReplacement)} type="button">Use next safer key</button> : null}
+            {canReplace && directReplacement ? (
+              <button
+                data-replacement-key={directReplacement}
+                onClick={() => onKeyChange(directReplacement)}
+                onPointerDown={(event) => {
+                  event.preventDefault();
+                  onKeyChange(directReplacement);
+                }}
+                type="button"
+              >
+                Use next safer key
+              </button>
+            ) : null}
             <button onClick={onReset} type="button"><Icon name="reset" /> Reset suggestion</button>
           </div>
         </div>
