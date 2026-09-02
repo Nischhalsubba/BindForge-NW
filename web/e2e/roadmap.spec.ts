@@ -84,6 +84,7 @@ test("favourites, search highlighting, and safer replacement remain available", 
   const keyField = visibleRow.getByLabel(/Key combination for/);
   await keyField.fill("w");
   await expect(keyField).toHaveValue("w");
+  await expect(visibleRow.getByTestId("compact-command-preview-output")).toContainText("/bind w ");
 
   const replacement = visibleRow.getByRole("button", { name: "Use next safer key" });
   await expect(replacement).toBeVisible();
