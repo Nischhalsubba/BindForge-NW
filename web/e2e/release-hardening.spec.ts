@@ -59,10 +59,10 @@ test("meets touch-target geometry on narrow coarse-style layouts", async ({ page
 });
 
 test("keeps functional microcopy readable and keyboard focus strongly visible", async ({ page }) => {
-  const brandDescriptor = page.locator(".brand-copy small").first();
-  await expect(brandDescriptor).toBeVisible();
-  const descriptorSize = await brandDescriptor.evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
-  expect(descriptorSize).toBeGreaterThanOrEqual(13);
+  const searchLabel = page.locator('label[for="keybind-library-search"] > span');
+  await expect(searchLabel).toBeVisible();
+  const labelSize = await searchLabel.evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
+  expect(labelSize).toBeGreaterThanOrEqual(13);
 
   const search = page.getByLabel("Search keybind library");
   await search.focus();
