@@ -9,3 +9,38 @@
  * Focused production, identity, and precision-polish layers load last so
  * they remain isolated and reviewable.
  */
+
+/*
+ * Responsive geometry hardening.
+ * These are layout invariants rather than a second visual system: grid
+ * children may shrink, the command toolbar stays in document flow, and the
+ * editorial footer wordmark never becomes wider than the viewport.
+ */
+.app-shell,
+.app-header,
+.hero,
+.hero > *,
+.workbench-intro,
+.workbench-intro-grid > *,
+.workspace,
+.workspace > *,
+.library,
+.library > *,
+.filter-top-bar > *,
+.tools-chapter,
+.app-footer {
+  min-width: 0;
+}
+
+.filter-top-bar {
+  position: static;
+  top: auto;
+}
+
+.footer-mega {
+  max-width: 100%;
+  font-size: clamp(44px, 9vw, 136px);
+  line-height: .84;
+  white-space: normal;
+  overflow-wrap: normal;
+}
