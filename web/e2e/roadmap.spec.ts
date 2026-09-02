@@ -1,12 +1,5 @@
 import { expect, test } from "@playwright/test";
 
-async function openFiltersWhenCollapsed(page: import("@playwright/test").Page) {
-  const toggle = page.getByRole("button", { name: "Filters & navigation", exact: true });
-  if (await toggle.isVisible()) {
-    if (await toggle.getAttribute("aria-expanded") !== "true") await toggle.click();
-  }
-}
-
 function secondaryControls(page: import("@playwright/test").Page) {
   return page.locator('[data-testid="secondary-controls"]:visible').first();
 }
@@ -33,7 +26,7 @@ test.beforeEach(async ({ page }) => {
 test("advanced browsing changes view, sorting, provenance, and collapsed groups", async ({ page }) => {
   await expect(libraryView(page)).toHaveValue("cards");
   await libraryView(page).selectOption("compact");
-  await expect(page.locator("#keybind-library")).toHaveClass(/library-compact/);
+  await expect(page.locator("#keybind-library:visible")).toHaveClass(/library-compact/);
 
   const secondary = secondaryControls(page);
   await secondary.getByLabel("Sort keybinds").selectOption("title");
@@ -81,7 +74,6 @@ test("favourites, search highlighting, and safer replacement remain available", 
   await page.getByLabel("Search keybind library").first().fill("invoke");
   await expect(page.locator("mark").first()).toBeVisible();
 
-  await openFiltersWhenCollapsed(page);
   const visibleCard = page.locator(".bind-card:visible").first();
   const keyField = visibleCard.getByLabel(/Key combination for/);
   await keyField.fill("w");

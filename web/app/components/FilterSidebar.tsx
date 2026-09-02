@@ -147,7 +147,7 @@ export function FilterSidebar() {
   const drawer = open && typeof document !== "undefined"
     ? createPortal(
       <div className={styles.drawerLayer} data-testid="filter-drawer-layer" data-gsap-enter>
-        <button aria-label="Close filters" className={styles.backdrop} onClick={closeDrawer} type="button" />
+        <button aria-label="Dismiss filters" className={styles.backdrop} onClick={closeDrawer} type="button" />
         <div aria-labelledby="drawer-filter-panel-title" aria-modal="true" className={styles.drawer} id="mobile-filter-drawer" role="dialog">
           {renderPanel("drawer", true)}
           <div className={styles.drawerFooter}>
