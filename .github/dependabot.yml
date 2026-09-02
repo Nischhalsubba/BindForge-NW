@@ -9,9 +9,6 @@ updates:
       timezone: Asia/Kathmandu
     open-pull-requests-limit: 5
     versioning-strategy: increase-if-necessary
-    labels:
-      - dependencies
-      - maintenance
     commit-message:
       prefix: deps
     groups:
@@ -34,8 +31,5 @@ updates:
       time: "04:30"
       timezone: Asia/Kathmandu
     open-pull-requests-limit: 5
-    labels:
-      - dependencies
-      - maintenance
     commit-message:
       prefix: ci
