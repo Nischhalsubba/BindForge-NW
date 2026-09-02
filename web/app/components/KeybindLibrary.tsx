@@ -179,15 +179,17 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   function toggleGroup(groupName: string) { patchLibrary({ collapsedGroups: library.collapsedGroups.includes(groupName) ? library.collapsedGroups.filter((item) => item !== groupName) : [...library.collapsedGroups, groupName] }); }
   function replacementFor(preset: KeybindPreset) {
     const currentKey = normalizeCombo(state.keys[preset.id] ?? preset.defaultKey);
-    const used = new Set(
-      keybindPresets
-        .filter((item) => item.id !== preset.id)
-        .map((item) => normalizeCombo(state.keys[item.id] ?? item.defaultKey)),
-    );
-    return SAFE_KEY_SUGGESTIONS.find((candidate) => {
-      const normalizedCandidate = normalizeCombo(candidate);
-      return normalizedCandidate !== currentKey && !used.has(normalizedCandidate) && !warningForKey(candidate);
-    }) ?? preset.defaultKey;
+    const usageCounts = keybindPresets.reduce<Record<string, number>>((counts, item) => {
+      if (item.id === preset.id) return counts;
+      const key = normalizeCombo(state.keys[item.id] ?? item.defaultKey);
+      if (key) counts[key] = (counts[key] ?? 0) + 1;
+      return counts;
+    }, {});
+    const alternatives = SAFE_KEY_SUGGESTIONS
+      .map((candidate) => ({ candidate, key: normalizeCombo(candidate), count: usageCounts[normalizeCombo(candidate)] ?? 0 }))
+      .filter(({ candidate, key }) => key !== currentKey && !warningForKey(candidate))
+      .sort((left, right) => left.count - right.count);
+    return alternatives[0]?.candidate ?? preset.defaultKey;
   }
   function addCollection() {
     const name = collectionName.trim();
