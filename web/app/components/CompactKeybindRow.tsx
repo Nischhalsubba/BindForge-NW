@@ -25,12 +25,12 @@ type CompactKeybindRowProps = {
   status: SafetyStatus;
   copyDisabled: boolean;
   canReplace: boolean;
+  replacementKey: string | null;
   onKeyChange: (value: string) => void;
   onCopy: CopyHandler;
   onSelect: () => void;
   onFavourite: () => void;
   onReset: () => void;
-  onReplace: () => void;
 };
 
 function shortSafetyLabel(status: SafetyStatus) {
@@ -49,12 +49,12 @@ export function CompactKeybindRow({
   status,
   copyDisabled,
   canReplace,
+  replacementKey,
   onKeyChange,
   onCopy,
   onSelect,
   onFavourite,
   onReset,
-  onReplace,
 }: CompactKeybindRowProps) {
   const [expanded, setExpanded] = useState(false);
   const [copyState, setCopyState] = useState<CopyState>("idle");
@@ -162,7 +162,7 @@ export function CompactKeybindRow({
           </div>
 
           <div className={styles.detailActions}>
-            {canReplace ? <button onClick={onReplace} type="button">Use next safer key</button> : null}
+            {canReplace && replacementKey ? <button data-replacement-key={replacementKey} onClick={() => onKeyChange(replacementKey)} type="button">Use next safer key</button> : null}
             <button onClick={onReset} type="button"><Icon name="reset" /> Reset suggestion</button>
           </div>
         </div>
