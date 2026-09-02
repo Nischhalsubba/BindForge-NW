@@ -43,7 +43,7 @@ export function CustomSayBuilder() {
       <div className={styles.intro}>
         <p className={styles.eyebrow}>Custom chat keybind</p>
         <h2 id="custom-say-title">Create your own say message</h2>
-        <p>Choose a key and type the message you want to send. BindForge formats a ready-to-copy Neverwinter <code>say</code> bind as you type.</p>
+        <p>Choose a key and type the message you want to send. BindForge formats a ready-to-copy Neverwinter <strong>say</strong> bind as you type.</p>
       </div>
       <div className={`${styles.panel} ${copyState === "copied" || copyState === "fallback" ? "is-copied" : ""}`}>
         <div className={styles.fields}>

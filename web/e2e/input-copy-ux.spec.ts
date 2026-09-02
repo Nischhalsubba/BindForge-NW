@@ -3,12 +3,12 @@ import { expect, test } from "@playwright/test";
 async function waitForLibrary(page: import("@playwright/test").Page) {
   await page.goto("/");
   await expect(page.getByTestId("filter-toolbar").first()).toBeVisible();
-  await expect(page.locator(".bind-card").first()).toBeVisible();
+  await expect(page.locator(".bind-card:visible").first()).toBeVisible();
 }
 
 test("captures physical numpad keys and modifier combinations", async ({ page }) => {
   await waitForLibrary(page);
-  const input = page.locator("input[data-key-capture='true']").first();
+  const input = page.locator("input[data-key-capture='true']:visible").first();
   await input.focus();
 
   await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
@@ -33,9 +33,9 @@ test("bind and unbind keep the same full command while only the verb changes", a
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await waitForLibrary(page);
 
-  const card = page.locator(".bind-card").first();
+  const card = page.locator(".bind-card:visible").first();
   const keyInput = card.locator("input[data-key-capture='true']");
-  await keyInput.fill("ctrl+shift+alt+q");
+  await keyInput.fill("ctrl+shift+alt+numpad9");
 
   const copyButton = card.getByRole("button", { name: /Copy command:/ });
   await expect(copyButton).toBeVisible();
@@ -45,8 +45,8 @@ test("bind and unbind keep the same full command while only the verb changes", a
 
   await copyButton.click();
   const bind = await page.evaluate(() => navigator.clipboard.readText());
-  expect(bind).toMatch(/^\/bind ctrl\+shift\+alt\+q /);
-  expect(bind.length).toBeGreaterThan("/bind ctrl+shift+alt+q ".length);
+  expect(bind).toMatch(/^\/bind ctrl\+shift\+alt\+numpad9 /);
+  expect(bind.length).toBeGreaterThan("/bind ctrl+shift+alt+numpad9 ".length);
 
   await page.getByRole("button", { name: "Unbind", exact: true }).click();
   await expect(page.getByRole("button", { name: "Unbind", exact: true })).toHaveAttribute("aria-pressed", "true");
