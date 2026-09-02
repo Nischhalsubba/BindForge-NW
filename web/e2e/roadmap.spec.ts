@@ -74,15 +74,17 @@ test("favourites, search highlighting, and safer replacement remain available", 
   await page.getByLabel("Search keybind library").first().fill("invoke");
   await expect(page.locator("mark").first()).toBeVisible();
 
-  const visibleCard = page.locator(".bind-card:visible").first();
-  const keyField = visibleCard.getByLabel(/Key combination for/);
+  await libraryView(page).selectOption("compact");
+  await expect(page.locator("#keybind-library:visible")).toHaveClass(/library-compact/);
+  const visibleRow = page.getByTestId("compact-bind-row").first();
+  const keyField = visibleRow.getByLabel(/Key combination for/);
   await keyField.fill("w");
   await expect(keyField).toHaveValue("w");
-  await expect(visibleCard.getByText("This key is commonly used for movement or jumping.", { exact: true })).toBeVisible();
+  await expect(visibleRow.getByText("Review this key", { exact: true })).toBeVisible();
 
-  await visibleCard.getByRole("button", { name: "Details", exact: true }).click();
-  await expect(visibleCard.getByRole("button", { name: "Hide details", exact: true })).toBeVisible();
-  const replacement = visibleCard.getByRole("button", { name: "Use next safer key" });
+  await visibleRow.getByRole("button", { name: "Expand details", exact: true }).click();
+  await expect(visibleRow.getByRole("button", { name: "Hide details", exact: true })).toBeVisible();
+  const replacement = visibleRow.getByRole("button", { name: "Use next safer key" });
   await expect(replacement).toBeVisible();
   await replacement.click();
   await expect(keyField).not.toHaveValue("w");
