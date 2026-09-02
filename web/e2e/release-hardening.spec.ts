@@ -59,7 +59,7 @@ test("meets touch-target geometry on narrow coarse-style layouts", async ({ page
 });
 
 test("keeps functional microcopy readable and keyboard focus strongly visible", async ({ page }) => {
-  const searchLabel = page.locator('label[for="keybind-library-search"] > span');
+  const searchLabel = page.locator('label[for="keybind-library-search"] > span:visible').first();
   await expect(searchLabel).toBeVisible();
   const labelSize = await searchLabel.evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
   expect(labelSize).toBeGreaterThanOrEqual(13);
