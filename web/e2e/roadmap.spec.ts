@@ -77,7 +77,11 @@ test("favourites, search highlighting, and safer replacement remain available", 
   const visibleCard = page.locator(".bind-card:visible").first();
   const keyField = visibleCard.getByLabel(/Key combination for/);
   await keyField.fill("w");
+  await expect(keyField).toHaveValue("w");
+  await expect(visibleCard.getByText("This key is commonly used for movement or jumping.", { exact: true })).toBeVisible();
+
   await visibleCard.getByRole("button", { name: "Details", exact: true }).click();
+  await expect(visibleCard.getByRole("button", { name: "Hide details", exact: true })).toBeVisible();
   const replacement = visibleCard.getByRole("button", { name: "Use next safer key" });
   await expect(replacement).toBeVisible();
   await replacement.click();
