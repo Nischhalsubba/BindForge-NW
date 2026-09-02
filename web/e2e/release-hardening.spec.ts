@@ -58,6 +58,28 @@ test("meets touch-target geometry on narrow coarse-style layouts", async ({ page
   }
 });
 
+test("keeps functional microcopy readable and keyboard focus strongly visible", async ({ page }) => {
+  const brandDescriptor = page.locator(".brand-copy small").first();
+  await expect(brandDescriptor).toBeVisible();
+  const descriptorSize = await brandDescriptor.evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
+  expect(descriptorSize).toBeGreaterThanOrEqual(13);
+
+  const search = page.getByLabel("Search keybind library");
+  await search.focus();
+  await expect(search).toBeFocused();
+  const focusStyle = await search.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      width: Number.parseFloat(style.outlineWidth),
+      style: style.outlineStyle,
+      offset: Number.parseFloat(style.outlineOffset),
+    };
+  });
+  expect(focusStyle.width).toBeGreaterThanOrEqual(3);
+  expect(focusStyle.style).not.toBe("none");
+  expect(focusStyle.offset).toBeGreaterThanOrEqual(3);
+});
+
 test("passes axe with drawers, settings, and card details open", async ({ page }, testInfo) => {
   await page.addScriptTag({ content: axe.source });
   if (testInfo.project.name.includes("mobile") || testInfo.project.name.includes("tablet")) {
