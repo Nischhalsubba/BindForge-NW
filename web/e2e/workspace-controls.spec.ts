@@ -7,13 +7,22 @@ async function waitForWorkspace(page: import("@playwright/test").Page) {
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
 }
 
+async function visibleFilterPanel(page: import("@playwright/test").Page) {
+  const trigger = page.getByRole("button", { name: "Filters & navigation", exact: true });
+  if (await trigger.isVisible()) {
+    if (await trigger.getAttribute("aria-expanded") !== "true") await trigger.click();
+  }
+  return page.locator("#filter-panel:visible, #mobile-filter-drawer:visible");
+}
+
 test.beforeEach(async ({ page }) => {
   await waitForWorkspace(page);
 });
 
 test("keeps primary actions visible and secondary controls distinct", async ({ page }) => {
   await expect(page.getByLabel("Search keybind library").first()).toBeVisible();
-  await expect(page.getByLabel("Filter keybinds by action type").first()).toBeVisible();
+  const filters = await visibleFilterPanel(page);
+  await expect(filters.getByLabel("Filter keybinds by action type")).toBeVisible();
   await expect(page.getByRole("button", { name: "Bind", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Unbind", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Reset keybind library filters" })).toBeVisible();

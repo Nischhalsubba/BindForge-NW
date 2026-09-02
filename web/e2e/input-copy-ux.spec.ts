@@ -35,17 +35,18 @@ test("bind and unbind keep the same full command while only the verb changes", a
 
   const card = page.locator(".bind-card").first();
   const keyInput = card.locator("input[data-key-capture='true']");
-  await keyInput.fill("ctrl+shift+n");
+  await keyInput.fill("ctrl+shift+alt+q");
 
   const copyButton = card.getByRole("button", { name: /Copy command:/ });
   await expect(copyButton).toBeVisible();
+  await expect(copyButton).toBeEnabled();
   await expect(card.getByRole("button", { name: /Copy unbind key:/ })).toHaveCount(0);
   await expect(card.getByRole("button", { name: /Copy original bind:/ })).toHaveCount(0);
 
   await copyButton.click();
   const bind = await page.evaluate(() => navigator.clipboard.readText());
-  expect(bind).toMatch(/^\/bind ctrl\+shift\+n /);
-  expect(bind.length).toBeGreaterThan("/bind ctrl+shift+n ".length);
+  expect(bind).toMatch(/^\/bind ctrl\+shift\+alt\+q /);
+  expect(bind.length).toBeGreaterThan("/bind ctrl+shift+alt+q ".length);
 
   await page.getByRole("button", { name: "Unbind", exact: true }).click();
   await expect(page.getByRole("button", { name: "Unbind", exact: true })).toHaveAttribute("aria-pressed", "true");
@@ -61,8 +62,9 @@ test("bind and unbind keep the same full command while only the verb changes", a
 test("workspace navigation links point to the primary work areas", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name.includes("mobile") || testInfo.project.name.includes("tablet"), "Desktop sidebar navigation is hidden on narrow layouts.");
   await waitForLibrary(page);
-  await expect(page.getByRole("link", { name: "Browse keybinds" })).toHaveAttribute("href", "#keybind-library");
-  await expect(page.getByRole("link", { name: "Collections" })).toHaveAttribute("href", "#collections");
-  await expect(page.getByRole("link", { name: "Command Lab" })).toHaveAttribute("href", "#command-lab");
-  await expect(page.getByRole("link", { name: "Say builder" })).toHaveAttribute("href", "#custom-say");
+  const sidebar = page.locator("#filter-panel");
+  await expect(sidebar.getByRole("link", { name: "Browse keybinds", exact: true })).toHaveAttribute("href", "#keybind-library");
+  await expect(sidebar.getByRole("link", { name: "Collections", exact: true })).toHaveAttribute("href", "#collections");
+  await expect(sidebar.getByRole("link", { name: "Command Lab", exact: true })).toHaveAttribute("href", "#command-lab");
+  await expect(sidebar.getByRole("link", { name: "Say builder", exact: true })).toHaveAttribute("href", "#custom-say");
 });
