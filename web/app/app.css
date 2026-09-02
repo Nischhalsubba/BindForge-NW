@@ -10,13 +10,142 @@
  * they remain isolated and reviewable.
  */
 
-/* Keep the established palette while raising frequently used muted/accent text to WCAG AA contrast. */
+/*
+ * Accessibility foundation.
+ * This final layer owns the cross-product readability and interaction
+ * invariants used by every current and future experience mode.
+ */
 :root {
+  /* Keep the established palette while raising muted/accent text to WCAG AA contrast. */
   --ink-faint: #676254;
   --coral: #a84b3d;
   --coral-soft: #bd6253;
   --primary-hover: #923d32;
   --color-primary-hover: #923d32;
+
+  /* Accessible type scale for functional UI copy. */
+  --type-meta: 0.8125rem;
+  --type-label: 0.875rem;
+  --type-control: 0.9375rem;
+  --type-body: 1rem;
+  --type-body-large: 1.125rem;
+
+  /* Interaction geometry. */
+  --control-min: 44px;
+  --control-primary: 48px;
+  --touch-gap: 8px;
+
+  /* Focus and motion are semantic product tokens rather than per-component guesses. */
+  --focus-ring-color: var(--color-focus, var(--coral));
+  --focus-ring-width: 3px;
+  --focus-ring-offset: 3px;
+  --motion-fast: 160ms;
+  --motion-normal: 240ms;
+  --motion-slow: 360ms;
+  --ease-ui: cubic-bezier(.22, .61, .36, 1);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-size: var(--type-body);
+  line-height: 1.6;
+}
+
+/* Functional microcopy must remain readable without zooming or leaning into the screen. */
+.topbar,
+.section-rule,
+.brand-copy small,
+.site-nav-links a span,
+.label,
+.hero-stats small,
+.plate-meta,
+.command-specimen p,
+.hero-index span,
+.hero-index small,
+.ready-state small,
+.filter-top-summary span,
+.filter-top-bar label > span,
+.filter-top-output > span,
+.filter-top-output small,
+.group-heading p,
+.card-meta,
+.key-capture-hint,
+.unbind-context > span {
+  font-size: var(--type-meta);
+}
+
+.site-nav-links a,
+.nav-cta,
+.btn,
+.primary-button,
+.secondary-button,
+.text-button,
+.filter-top-mode button {
+  font-size: var(--type-label);
+}
+
+.filter-top-bar input,
+.filter-top-bar select,
+.card-copy p {
+  font-size: var(--type-body);
+}
+
+.command-preview code,
+.lab-preview code {
+  font-size: var(--type-meta);
+}
+
+/* Minimum WCAG-friendly target geometry for discrete interactive controls. */
+button,
+select,
+input:not([type='checkbox']):not([type='radio']):not([type='hidden']),
+textarea,
+.site-nav-links a,
+.nav-cta,
+.icon-text-button,
+.select-preset {
+  min-height: var(--control-min);
+}
+
+.card-primary-actions .primary-button,
+.card-primary-actions .secondary-button {
+  min-height: var(--control-primary);
+}
+
+.site-nav-links,
+.hero-actions,
+.card-header-actions,
+.card-primary-actions,
+.lab-copy-actions {
+  column-gap: max(var(--touch-gap), 0.5rem);
+}
+
+/* One strong, predictable keyboard focus treatment across native and ARIA controls. */
+:where(
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  summary,
+  [role='button'],
+  [role='tab'],
+  [role='checkbox'],
+  [tabindex]:not([tabindex='-1'])
+):focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  box-shadow: none;
+}
+
+/* Preserve native check/radio size while keeping their labelled rows comfortably tappable. */
+label:has(> input[type='checkbox']),
+label:has(> input[type='radio']) {
+  min-height: var(--control-min);
 }
 
 /*
@@ -78,4 +207,60 @@
   .hero-plate { min-height: 470px; }
   .command-specimen { margin-top: 42px; }
   .hero-index { margin-top: 42px; }
+
+  .btn,
+  .primary-button,
+  .secondary-button,
+  .nav-cta,
+  .filter-top-bar input,
+  .filter-top-bar select,
+  .filter-top-mode button,
+  .filter-top-reset {
+    min-height: var(--control-primary);
+  }
+}
+
+/* Forced-colour users keep visible boundaries and focus instead of inheriting decorative paper effects. */
+@media (forced-colors: active) {
+  :where(a, button, input, select, textarea, summary):focus-visible {
+    outline-color: Highlight;
+  }
+
+  button,
+  input,
+  select,
+  textarea,
+  .bind-card,
+  .filter-top-bar,
+  .command-preview,
+  .lab-preview {
+    border-color: CanvasText;
+  }
+
+  .pulse,
+  body::before {
+    display: none;
+  }
+}
+
+/* Reduced motion is a product-wide preference, not a component-by-component courtesy. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .bind-card:hover,
+  .btn:hover,
+  .primary-button:hover:not(:disabled) {
+    transform: none;
+  }
 }
