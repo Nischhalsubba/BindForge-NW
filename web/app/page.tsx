@@ -13,6 +13,7 @@ import { PortableSharePanel } from "./components/PortableSharePanel";
 import { RevealController } from "./components/RevealController";
 import { SettingsPanel } from "./components/SettingsPanel";
 import { UrlStateBridge } from "./components/UrlStateBridge";
+import { VerifiedBindBuilder } from "./components/VerifiedBindBuilder";
 import { Icon } from "./components/Icon";
 
 export type CopyResultState = "copied" | "fallback" | "error";
@@ -83,6 +84,7 @@ export default function Home() {
       <section className="tools-chapter" data-reveal>
         <SectionRule roman="III" meta="Portable tools / custom composition" page="003" />
         <PortableSharePanel onCopy={copyText} />
+        <VerifiedBindBuilder onCopy={copyText} />
         <CommandLab onCopy={copyText} />
         <CustomSayBuilder />
       </section>
