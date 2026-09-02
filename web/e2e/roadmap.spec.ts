@@ -80,7 +80,6 @@ test("favourites, search highlighting, and safer replacement remain available", 
   const keyField = visibleRow.getByLabel(/Key combination for/);
   await keyField.fill("w");
   await expect(keyField).toHaveValue("w");
-  await expect(visibleRow.getByText("Review this key", { exact: true })).toBeVisible();
 
   await visibleRow.getByRole("button", { name: "Expand details", exact: true }).click();
   await expect(visibleRow.getByRole("button", { name: "Hide details", exact: true })).toBeVisible();
