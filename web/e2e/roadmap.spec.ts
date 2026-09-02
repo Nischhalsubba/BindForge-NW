@@ -77,12 +77,14 @@ test("favourites, search highlighting, and safer replacement remain available", 
   await libraryView(page).selectOption("compact");
   await expect(page.locator("#keybind-library:visible")).toHaveClass(/library-compact/);
   const visibleRow = page.getByTestId("compact-bind-row").first();
+
+  await visibleRow.getByRole("button", { name: "Expand details", exact: true }).click();
+  await expect(visibleRow.getByRole("button", { name: "Hide details", exact: true })).toBeVisible();
+
   const keyField = visibleRow.getByLabel(/Key combination for/);
   await keyField.fill("w");
   await expect(keyField).toHaveValue("w");
 
-  await visibleRow.getByRole("button", { name: "Expand details", exact: true }).click();
-  await expect(visibleRow.getByRole("button", { name: "Hide details", exact: true })).toBeVisible();
   const replacement = visibleRow.getByRole("button", { name: "Use next safer key" });
   await expect(replacement).toBeVisible();
   await replacement.click();
