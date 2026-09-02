@@ -27,14 +27,11 @@
 }
 
 .tabs {
-  position: sticky;
-  top: 0;
-  z-index: 46;
+  position: static;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   border-block: 1px solid var(--line-strong);
   background: color-mix(in srgb, var(--paper) 95%, transparent);
-  backdrop-filter: blur(12px);
 }
 
 .tab {
