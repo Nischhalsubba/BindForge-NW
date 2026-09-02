@@ -81,7 +81,7 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
             <li><span>03</span><b>Command</b><small>Build a command.</small></li>
             <li><span>04</span><b>Say</b><small>Create chat binds.</small></li>
           </ol>
-          <div className={`ready-state ready-state-${feedback.state}`} role="status" aria-live="polite">
+          <div className={`ready-state ready-state-${feedback.state}`} aria-live="polite">
             <Icon name="shield" />
             <span><strong>{statusTitle}</strong><small>{statusDetail}</small></span>
           </div>
