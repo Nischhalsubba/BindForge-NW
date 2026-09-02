@@ -103,7 +103,7 @@ export function VerifiedBindBuilder({ onCopy }: { onCopy: CopyHandler }) {
         <div>
           <p className={styles.eyebrow}>Verified custom builder</p>
           <h2 id="verified-bind-builder-title">Compose your own keybind</h2>
-          <p className={styles.intro}>Choose a key, stack screenshot-verified Neverwinter actions in the order you want, and the builder inserts the <code>$$</code> chain syntax for you.</p>
+          <p className={styles.intro}>Choose a key, add verified actions, arrange them in the order you want, and copy the finished Neverwinter bind. The builder inserts the <code>$$</code> separators automatically.</p>
         </div>
         <div className={styles.verificationBadge}><Icon name="shield" /><span><strong>{verifiedKeybindActions.length}</strong> screenshot-verified actions</span></div>
       </header>
@@ -112,7 +112,7 @@ export function VerifiedBindBuilder({ onCopy }: { onCopy: CopyHandler }) {
         <section className={styles.keyPanel} aria-labelledby="bind-key-title">
           <div className={styles.panelHeading}>
             <span>01</span>
-            <div><h3 id="bind-key-title">Assign a key</h3><p>Press a keyboard key or type the exact Neverwinter key token.</p></div>
+            <div><h3 id="bind-key-title">Choose a key</h3><p>Press a keyboard key or enter the exact Neverwinter key token.</p></div>
           </div>
           <KeyCaptureInput
             aria-label="Key for combined Neverwinter bind"
@@ -131,14 +131,14 @@ export function VerifiedBindBuilder({ onCopy }: { onCopy: CopyHandler }) {
         <section className={styles.previewPanel} aria-labelledby="bind-preview-title">
           <div className={styles.panelHeading}>
             <span>03</span>
-            <div><h3 id="bind-preview-title">Generated bind</h3><p>Nothing is emitted until both a key and at least one command are present.</p></div>
+            <div><h3 id="bind-preview-title">Generated bind</h3><p>The preview becomes copy-ready after you choose a key and add at least one action.</p></div>
           </div>
           <code className={styles.preview} ref={preview} tabIndex={0}>{line}</code>
           <div className={styles.previewActions}>
             <button className={styles.copyButton} disabled={!canCopy || copyState === "copying"} onClick={() => { void copyLine(); }} type="button"><Icon name="copy" /> {copyLabel}</button>
             <button className={styles.resetButton} onClick={reset} type="button"><Icon name="reset" /> Reset builder</button>
           </div>
-          <p className={styles.syntaxNote}>One action uses the normal single-command bind form. Two or more actions are quoted and joined with <code>$$</code>.</p>
+          <p className={styles.syntaxNote}>Actions are emitted in the order shown, wrapped in quotes, and joined with <code>$$</code>. Custom fragments stay clearly marked as unverified.</p>
         </section>
       </div>
 
@@ -146,10 +146,10 @@ export function VerifiedBindBuilder({ onCopy }: { onCopy: CopyHandler }) {
         <section className={styles.catalogPanel} aria-labelledby="verified-actions-title">
           <div className={styles.panelHeading}>
             <span>02</span>
-            <div><h3 id="verified-actions-title">Add verified actions</h3><p>Only mappings captured directly from the in-game Settings tooltips appear here.</p></div>
+            <div><h3 id="verified-actions-title">Add verified actions</h3><p>Search the action name or command, then click an action to add it to your bind.</p></div>
           </div>
           <div className={styles.filters}>
-            <label><span>Search</span><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Action or command" /></label>
+            <label><span>Search</span><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search actions or commands" /></label>
             <label><span>Category</span><select value={category} onChange={(event) => setCategory(event.target.value)}><option>All</option>{verifiedActionCategories.map((item) => <option key={item}>{item}</option>)}</select></label>
           </div>
           <div className={styles.resultMeta}><span>{filteredActions.length} actions shown</span><span>Duplicates allowed</span></div>
@@ -161,14 +161,14 @@ export function VerifiedBindBuilder({ onCopy }: { onCopy: CopyHandler }) {
                 <b aria-hidden="true">+</b>
               </button>
             ))}
-            {!filteredActions.length ? <p className={styles.empty}>No verified action matches these filters.</p> : null}
+            {!filteredActions.length ? <p className={styles.empty}>No verified action matches those filters. Try a different term or category.</p> : null}
           </div>
         </section>
 
         <section className={styles.chainPanel} aria-labelledby="command-chain-title">
           <div className={styles.panelHeading}>
             <span>→</span>
-            <div><h3 id="command-chain-title">Command chain</h3><p>Execution order runs from top to bottom.</p></div>
+            <div><h3 id="command-chain-title">Your action order</h3><p>Neverwinter receives these fragments from top to bottom.</p></div>
           </div>
           <ol className={styles.chainList}>
             {chain.map((item, index) => (
@@ -183,11 +183,11 @@ export function VerifiedBindBuilder({ onCopy }: { onCopy: CopyHandler }) {
               </li>
             ))}
           </ol>
-          {!chain.length ? <div className={styles.chainEmpty}><Icon name="code" /><strong>No actions added yet</strong><span>Choose commands from the verified catalogue on the left.</span></div> : null}
+          {!chain.length ? <div className={styles.chainEmpty}><Icon name="code" /><strong>No actions added yet</strong><span>Choose an action from the verified list to start your bind.</span></div> : null}
 
           <details className={styles.advanced}>
             <summary>Advanced exact fragment</summary>
-            <p>Use this only when you already know the exact fragment. Custom values are kept separate from screenshot-verified actions and are never presented as verified.</p>
+            <p>Use this only when you already know the exact fragment. Custom values remain separate from screenshot-verified actions and are never presented as verified.</p>
             <div className={styles.customRow}>
               <input aria-label="Exact custom bind fragment" value={customFragment} onChange={(event) => { setCustomFragment(event.target.value); setCustomError(""); }} placeholder="Example: ++actionleft" />
               <button onClick={addCustom} type="button">Add exact fragment</button>
