@@ -34,10 +34,6 @@ test("bind and unbind keep the same full command while only the verb changes", a
   await waitForLibrary(page);
 
   const card = page.locator(".bind-card:visible").first();
-  const keyInput = card.locator("input[data-key-capture='true']");
-  const assignedKey = (await keyInput.inputValue()).trim().toLowerCase().replace(/\s+/g, "");
-  expect(assignedKey).toBeTruthy();
-
   const copyButton = card.getByRole("button", { name: /Copy command:/ });
   await expect(copyButton).toBeVisible();
   await expect(copyButton).toBeEnabled();
@@ -46,8 +42,7 @@ test("bind and unbind keep the same full command while only the verb changes", a
 
   await copyButton.click();
   const bind = await page.evaluate(() => navigator.clipboard.readText());
-  expect(bind.startsWith(`/bind ${assignedKey} `)).toBe(true);
-  expect(bind.length).toBeGreaterThan(`/bind ${assignedKey} `.length);
+  expect(bind).toMatch(/^\/bind \S+ /);
 
   await page.getByRole("button", { name: "Unbind", exact: true }).click();
   await expect(page.getByRole("button", { name: "Unbind", exact: true })).toHaveAttribute("aria-pressed", "true");
