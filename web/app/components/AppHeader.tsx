@@ -15,10 +15,10 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
         : "Workbench ready";
 
   const statusDetail = feedback.state === "error"
-    ? "The command is focused. Press Ctrl+C to copy it manually."
+    ? "The generated bind is focused. Press Ctrl+C to copy it manually."
     : feedback.state === "idle"
-      ? "Search an existing bind or open one of the three builders below."
-      : "The command is now on your clipboard.";
+      ? "Search an existing keybind or choose one of the three builders below."
+      : "The generated bind is now on your clipboard.";
 
   return (
     <header className="app-header" id="top">
@@ -51,7 +51,7 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
             Find it. Build it. <em>Bind it</em><span className="dot">.</span>
           </h1>
           <p className="lead">
-            Search existing keybinds or jump straight into composing a multi-action bind, building a command, or creating a custom say message.
+            Search a ready-made keybind or build exactly what you need with the verified composer, command builder, and say-message tool.
           </p>
           <div className="hero-actions" aria-label="Start using Neverwinter Keybind">
             <a className="btn btn-primary" href="#search-keybinds">Search keybinds ↗</a>
@@ -73,13 +73,13 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
           <div className="command-specimen">
             <p>Combined keybind form</p>
             <code>/bind lbutton &quot;+EvaluateLeftClick$$+tacticalSpecial$$+Actionleft$$+Actionright&quot;</code>
-            <small>The builders handle the command structure while you choose the key and actions.</small>
+            <small>Choose the key and actions. BindForge handles the command structure.</small>
           </div>
           <ol className="hero-index" aria-label="Primary Neverwinter Keybind tools">
-            <li><span>01</span><b>Search</b><small>Existing keybinds.</small></li>
-            <li><span>02</span><b>Compose</b><small>Multi-action binds.</small></li>
-            <li><span>03</span><b>Command</b><small>Build a command.</small></li>
-            <li><span>04</span><b>Say</b><small>Create chat binds.</small></li>
+            <li><span>01</span><b>Search</b><small>Find existing keybinds.</small></li>
+            <li><span>02</span><b>Compose</b><small>Combine verified actions.</small></li>
+            <li><span>03</span><b>Command</b><small>Bind a supported command.</small></li>
+            <li><span>04</span><b>Say</b><small>Create a chat bind.</small></li>
           </ol>
           <div className={`ready-state ready-state-${feedback.state}`} aria-live="polite">
             <Icon name="shield" />

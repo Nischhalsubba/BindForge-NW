@@ -59,7 +59,7 @@ export function CommandLab({ onCopy }: { onCopy: CopyHandler }) {
 
   async function handleCopy() {
     setCopyState("copying");
-    const result = await onCopy(line, "custom command", preview.current);
+    const result = await onCopy(line, "command bind", preview.current);
     setCopyState(result);
     if (resetTimer.current) window.clearTimeout(resetTimer.current);
     resetTimer.current = window.setTimeout(() => setCopyState("idle"), result === "error" ? 4200 : 2200);
@@ -71,34 +71,34 @@ export function CommandLab({ onCopy }: { onCopy: CopyHandler }) {
       ? "Copied"
       : copyState === "error"
         ? "Try again"
-        : "Copy custom command";
+        : "Copy bind";
 
   return (
     <section className="command-lab" aria-labelledby="command-lab-title" id="command-lab">
       <div className="command-lab-intro">
-        <p className="eyebrow">Advanced workspace</p>
+        <p className="eyebrow">Advanced command builder</p>
         <h2 id="command-lab-title">Build your own command</h2>
-        <p>Combine a supported key with any catalog command. Test carefully; community commands may change after patches.</p>
+        <p>Bind a key to a supported Neverwinter command. Choose from the reference lists below and add arguments only when the selected command needs them.</p>
         <div className={`lab-preview ${copyState === "copied" || copyState === "fallback" ? "is-copied" : ""}`}>
-          <span>Generated command</span>
+          <span>Generated bind</span>
           <code aria-label="Generated custom command" ref={preview} tabIndex={0}>{line}</code>
           <div className="lab-copy-actions">
             <button className={`primary-button copy-action copy-action-${copyState}`} disabled={copyState === "copying"} onClick={() => { void handleCopy(); }} type="button">
               <Icon name={copyState === "error" ? "warning" : copyState === "copied" || copyState === "fallback" ? "shield" : "copy"} /> {copyLabel}
             </button>
           </div>
-          <p aria-live="polite" className="sr-only">{copyState === "copied" || copyState === "fallback" ? "Custom command copied." : copyState === "error" ? "Copy failed for the custom command." : ""}</p>
+          <p aria-live="polite" className="sr-only">{copyState === "copied" || copyState === "fallback" ? "Command bind copied." : copyState === "error" ? "Copy failed for the command bind." : ""}</p>
         </div>
       </div>
 
       <div className="lab-builder">
         <div className="lab-fields">
           <label className="key-field">
-            <span>Key combination</span>
+            <span>Choose a key</span>
             <KeyCaptureInput aria-label="Command Lab key combination" autoComplete="off" onValueChange={(value) => { updateCommandLab({ key: value }); setCopyState("idle"); }} value={state.commandLab.key} />
           </label>
           <label className="key-field">
-            <span>Extra command text</span>
+            <span>Command arguments</span>
             <input aria-label="Command Lab extra command text" autoComplete="off" onChange={(event) => { updateCommandLab({ extraText: event.target.value }); setCopyState("idle"); }} placeholder={selectedCommand.params || "Optional arguments"} value={state.commandLab.extraText} />
           </label>
         </div>
@@ -107,11 +107,11 @@ export function CommandLab({ onCopy }: { onCopy: CopyHandler }) {
           <section className="reference-panel" aria-labelledby="key-combinations-title">
             <div className="reference-heading">
               <div>
-                <h3 id="key-combinations-title">Key combinations</h3>
+                <h3 id="key-combinations-title">Known key combinations</h3>
                 <p aria-live="polite">{filteredCombos.length} shown</p>
               </div>
               <label className="checkbox-label">
-                <input checked={state.commandLab.showRisky} onChange={(event) => updateCommandLab({ showRisky: event.target.checked })} type="checkbox" /> Show risky
+                <input checked={state.commandLab.showRisky} onChange={(event) => updateCommandLab({ showRisky: event.target.checked })} type="checkbox" /> Include risky
               </label>
             </div>
             <div className="reference-controls">
@@ -133,7 +133,7 @@ export function CommandLab({ onCopy }: { onCopy: CopyHandler }) {
           <section className="reference-panel" aria-labelledby="wiki-commands-title">
             <div className="reference-heading">
               <div>
-                <h3 id="wiki-commands-title">Wiki commands</h3>
+                <h3 id="wiki-commands-title">Supported commands</h3>
                 <p aria-live="polite">{filteredCommands.length} shown</p>
               </div>
             </div>
@@ -149,7 +149,7 @@ export function CommandLab({ onCopy }: { onCopy: CopyHandler }) {
                   <span>{command.command}</span>
                   <small>{commandLabel(command)}</small>
                 </button>
-              )) : <p className="reference-empty" role="status">No commands match these filters.</p>}
+              )) : <p className="reference-empty" role="status">No supported commands match these filters.</p>}
             </div>
           </section>
         </div>
