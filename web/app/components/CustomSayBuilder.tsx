@@ -36,23 +36,35 @@ export function CustomSayBuilder() {
       ? "Copied"
       : copyState === "error"
         ? "Try again"
-        : "Copy custom message bind";
+        : "Copy say bind";
 
   return (
     <section className={styles.builder} aria-labelledby="custom-say-title" id="custom-say">
-      <div className={styles.intro}><p className={styles.eyebrow}>Custom chat keybind</p><h2 id="custom-say-title">Create your own say message</h2><p>Choose a key and type any message. BindForge keeps the required command syntax intact and updates the preview immediately.</p></div>
+      <div className={styles.intro}>
+        <p className={styles.eyebrow}>Custom chat keybind</p>
+        <h2 id="custom-say-title">Create your own say message</h2>
+        <p>Choose a key and type the message you want to send. BindForge formats a ready-to-copy Neverwinter <code>say</code> bind as you type.</p>
+      </div>
       <div className={`${styles.panel} ${copyState === "copied" || copyState === "fallback" ? "is-copied" : ""}`}>
         <div className={styles.fields}>
-          <label><span>Key combination</span><KeyCaptureInput aria-label="Custom message key combination" autoComplete="off" onValueChange={(value) => { updateCustomSay({ key: value }); setCopyState("idle"); }} placeholder="Press F1, Numpad7, Ctrl+R…" value={state.customSay.key} /><small>Click the field and press the physical key or combo you want to bind.</small></label>
-          <label><span>Message</span><textarea aria-label="Custom say message" maxLength={240} onChange={(event) => { updateCustomSay({ message: event.target.value }); setCopyState("idle"); }} placeholder="Type the message you want Neverwinter to send" rows={4} value={state.customSay.message} /><small>{state.customSay.message.length}/240 characters</small></label>
+          <label>
+            <span>Choose a key</span>
+            <KeyCaptureInput aria-label="Custom message key combination" autoComplete="off" onValueChange={(value) => { updateCustomSay({ key: value }); setCopyState("idle"); }} placeholder="Press F1, Numpad7, Ctrl+R…" value={state.customSay.key} />
+            <small>Click the field, then press the key or key combination you want to bind.</small>
+          </label>
+          <label>
+            <span>Say message</span>
+            <textarea aria-label="Custom say message" maxLength={240} onChange={(event) => { updateCustomSay({ message: event.target.value }); setCopyState("idle"); }} placeholder="Type the message Neverwinter should send" rows={4} value={state.customSay.message} />
+            <small>{state.customSay.message.length}/240 characters</small>
+          </label>
         </div>
         {messageChanged ? <p className={styles.notice} role="status">Line breaks were converted to spaces and double quotes were replaced with apostrophes so the keybind remains valid.</p> : null}
-        <div className={styles.preview}><span>Generated command</span><code ref={preview} tabIndex={0}>{command}</code></div>
+        <div className={styles.preview}><span>Generated bind</span><code ref={preview} tabIndex={0}>{command}</code></div>
         <div className={styles.actions}>
           <button aria-busy={copyState === "copying"} className={`primary-button copy-action copy-action-${copyState}`} disabled={!canCopy || copyState === "copying"} onClick={() => { void copyCommand(); }} type="button">{copyLabel}</button>
-          <button className="secondary-button" onClick={() => { updateCustomSay({ key: "f1", message: "ARTIFACTS NOW" }); setCopyState("idle"); }} type="button">Reset example</button>
+          <button className="secondary-button" onClick={() => { updateCustomSay({ key: "f1", message: "ARTIFACTS NOW" }); setCopyState("idle"); }} type="button">Reset sample</button>
         </div>
-        <p aria-live="polite" className="sr-only">{copyState === "error" ? "Copy failed. Select the generated command manually." : copyState === "idle" || copyState === "copying" ? "" : "Custom message bind copied."}</p>
+        <p aria-live="polite" className="sr-only">{copyState === "error" ? "Copy failed. Select the generated bind manually." : copyState === "idle" || copyState === "copying" ? "" : "Say bind copied."}</p>
       </div>
     </section>
   );
