@@ -1,14 +1,11 @@
 import { expect, test } from "@playwright/test";
 
-async function openFiltersWhenCollapsed(page: import("@playwright/test").Page) {
-  const toggle = page.getByRole("button", { name: "Filters & navigation", exact: true });
-  if (await toggle.isVisible()) {
-    if (await toggle.getAttribute("aria-expanded") !== "true") await toggle.click();
-  }
+function secondaryControls(page: import("@playwright/test").Page) {
+  return page.locator('[data-testid="secondary-controls"]:visible').first();
 }
 
 function libraryView(page: import("@playwright/test").Page) {
-  return page.getByTestId("secondary-controls").getByLabel("Library view");
+  return secondaryControls(page).getByLabel("Library view");
 }
 
 async function openPackTools(page: import("@playwright/test").Page) {
@@ -29,21 +26,21 @@ test.beforeEach(async ({ page }) => {
 test("advanced browsing changes view, sorting, provenance, and collapsed groups", async ({ page }) => {
   await expect(libraryView(page)).toHaveValue("cards");
   await libraryView(page).selectOption("compact");
-  await expect(page.locator("#keybind-library")).toHaveClass(/library-compact/);
+  await expect(page.locator("#keybind-library:visible")).toHaveClass(/library-compact/);
 
-  const secondary = page.getByTestId("secondary-controls");
+  const secondary = secondaryControls(page);
   await secondary.getByLabel("Sort keybinds").selectOption("title");
   await secondary.getByLabel("Filter by provenance").selectOption("community-tested");
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
 
-  const firstGroup = page.locator(".bind-group").first();
+  const firstGroup = page.locator(".bind-group:visible").first();
   const collapse = firstGroup.getByRole("button", { name: "Collapse", exact: true });
   await collapse.click();
   await expect(firstGroup.getByRole("button", { name: "Expand", exact: true })).toHaveAttribute("aria-expanded", "false");
 });
 
 test("selection builds packs, local collections, and portable links", async ({ page, context }) => {
-  const firstSelect = page.locator(".bind-card").first().getByText("Select", { exact: true });
+  const firstSelect = page.locator(".bind-card:visible").first().getByText("Select", { exact: true });
   await firstSelect.click();
   await expect(page.getByText("1 selected", { exact: true })).toBeVisible();
 
@@ -64,7 +61,7 @@ test("selection builds packs, local collections, and portable links", async ({ p
 });
 
 test("favourites, search highlighting, and safer replacement remain available", async ({ page }) => {
-  const firstCard = page.locator(".bind-card").first();
+  const firstCard = page.locator(".bind-card:visible").first();
   const favourite = firstCard.locator("button.favourite-button");
   await favourite.click();
   await expect(favourite).toHaveAttribute("aria-pressed", "true");
@@ -74,13 +71,23 @@ test("favourites, search highlighting, and safer replacement remain available", 
   await expect(page.getByTestId("result-count").first()).toHaveText("1 keybinds");
 
   await panel.getByLabel("Browse collection").selectOption("all");
-  await page.getByLabel("Search keybind library").fill("invoke");
+  await page.getByLabel("Search keybind library").first().fill("invoke");
   await expect(page.locator("mark").first()).toBeVisible();
 
-  await openFiltersWhenCollapsed(page);
-  const keyField = page.getByLabel(/Key combination for/).first();
+  await libraryView(page).selectOption("compact");
+  await expect(page.locator("#keybind-library:visible")).toHaveClass(/library-compact/);
+  const visibleRow = page.getByTestId("compact-bind-row").first();
+
+  await visibleRow.getByRole("button", { name: "Expand details", exact: true }).click();
+  await expect(visibleRow.getByRole("button", { name: "Hide details", exact: true })).toBeVisible();
+
+  const keyField = visibleRow.getByLabel(/Key combination for/);
   await keyField.fill("w");
-  const replacement = page.getByRole("button", { name: "Use next safer key" }).first();
+  await expect(keyField).toHaveValue("w");
+  await expect(visibleRow.getByTestId("compact-command-preview-output")).toContainText("/bind w ");
+
+  const replacement = visibleRow.getByRole("button", { name: "Use next safer key" });
+  await expect(replacement).toBeVisible();
   await replacement.click();
   await expect(keyField).not.toHaveValue("w");
 });

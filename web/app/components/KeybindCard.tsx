@@ -2,7 +2,8 @@
 
 import { memo, useRef, useState } from "react";
 import type { KeybindPreset } from "../data/keybindPresets";
-import { buildPresetLine } from "../lib/keybind-core.mjs";
+import { buildPresetLine, normalizeCombo } from "../lib/keybind-core.mjs";
+import { SAFE_KEY_SUGGESTIONS } from "../lib/safe-key-suggestions";
 import type { CopyResultState } from "../page";
 import { Icon } from "./Icon";
 import { KeyCaptureInput } from "./KeyCaptureInput";
@@ -24,12 +25,12 @@ type KeybindCardProps = {
   favourite: boolean;
   status: KeybindSafetyStatus;
   canReplace: boolean;
+  replacementKey?: string | null;
   query: string;
   onKeyChange: (value: string) => void;
   onCopy: CopyHandler;
   onSelect: () => void;
   onFavourite: () => void;
-  onReplace: () => void;
   onReset: () => void;
 };
 
@@ -55,6 +56,10 @@ function KeybindCardComponent(props: KeybindCardProps) {
   const timer = useRef<number | null>(null);
   const line = buildPresetLine(props.preset, props.keyValue, props.mode);
   const detailsId = `${props.preset.id}-details`;
+  const currentKey = normalizeCombo(props.keyValue);
+  const directReplacement = props.replacementKey && normalizeCombo(props.replacementKey) !== currentKey
+    ? props.replacementKey
+    : SAFE_KEY_SUGGESTIONS.find((candidate) => normalizeCombo(candidate) !== currentKey) ?? null;
 
   async function handleCopy() {
     setCopyState("copying");
@@ -121,7 +126,7 @@ function KeybindCardComponent(props: KeybindCardProps) {
             <code data-testid="command-preview-output" ref={preview} tabIndex={0}>{line}</code>
           </div>
           <div className="card-actions card-detail-actions">
-            {props.canReplace ? <button className="replacement-button" onClick={props.onReplace} type="button">Use next safer key</button> : null}
+            {props.canReplace && directReplacement ? <button className="replacement-button" data-replacement-key={directReplacement} onClick={() => props.onKeyChange(directReplacement)} type="button">Use next safer key</button> : null}
             <button className="secondary-button" onClick={props.onReset} type="button"><Icon name="reset" /> Reset suggestion</button>
           </div>
         </div>

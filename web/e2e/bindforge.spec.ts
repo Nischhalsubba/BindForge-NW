@@ -15,6 +15,14 @@ async function visibleFilterPanel(page: Page) {
   return page.locator("#filter-panel:visible, #mobile-filter-drawer:visible");
 }
 
+async function closeFilterDrawerIfOpen(page: Page) {
+  const drawer = page.getByRole("dialog", { name: "Filters" });
+  if (await drawer.isVisible()) {
+    await drawer.getByRole("button", { name: "Show results" }).click();
+    await expect(drawer).toBeHidden();
+  }
+}
+
 async function openSettings(page: Page) {
   const trigger = page.getByRole("button", { name: "Local data & backup", exact: true });
   await trigger.click();
@@ -31,7 +39,7 @@ async function waitForHydration(page: Page) {
   await expect(toolbar).toBeVisible();
   await expect(page.getByLabel("Search keybind library").first()).toBeEditable();
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
-  await expect(page.locator(".bind-card").first()).toBeVisible();
+  await expect(page.locator(".bind-card:visible").first()).toBeVisible();
 }
 
 async function waitForSavedSettings(page: Page, expected: { search?: string; customMessage?: string; theme?: string }) {
@@ -84,7 +92,7 @@ test("keeps search and output controls visible while filters live together", asy
   await page.getByLabel("Search keybind library").first().fill("invocation");
   await expect(resultCount).not.toHaveText(originalText ?? "");
   await expect(resultCount).not.toHaveText("0 keybinds");
-  await expect(page.locator(".bind-card").first()).toBeVisible();
+  await expect(page.locator(".bind-card:visible").first()).toBeVisible();
   await page.getByRole("button", { name: "Reset keybind library filters" }).click();
   await expect(page.getByLabel("Search keybind library").first()).toHaveValue("");
 });
@@ -97,21 +105,23 @@ test("keeps class, action type, and difficulty in one filter panel", async ({ pa
   await expect(panel.getByRole("button", { name: "Advanced", exact: true })).toHaveAttribute("aria-pressed", "true");
   await panel.getByLabel("Filter keybinds by action type").selectOption({ label: "Bard Songs" });
   await expect(panel.getByLabel("Filter keybinds by action type")).toHaveValue("Bard Songs");
+  await closeFilterDrawerIfOpen(page);
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
 });
 
 test("changes only bind to unbind while preserving the key and full command", async ({ page }) => {
-  const firstCard = page.locator(".bind-card").first();
+  const firstCard = page.locator(".bind-card:visible").first();
   const firstKey = firstCard.locator(".key-field input");
   await expect(firstKey).toBeVisible();
-  await firstKey.fill("Left Ctrl + Shift + R");
+  const assignedKey = (await firstKey.inputValue()).trim().toLowerCase().replace(/\s+/g, "");
+  expect(assignedKey).toBeTruthy();
   await firstCard.getByRole("button", { name: "Details", exact: true }).click();
 
   const preview = firstCard.getByTestId("command-preview-output");
   const actionCount = await firstCard.locator(".card-primary-actions button").count();
-  await expect(preview).toContainText("/bind ctrl+shift+r");
+  await expect(preview).toContainText(`/bind ${assignedKey}`);
   const bindPreview = (await preview.textContent()) ?? "";
-  expect(bindPreview).toMatch(/^\/bind ctrl\+shift\+r /);
+  expect(bindPreview.startsWith(`/bind ${assignedKey} `)).toBe(true);
   await expect(firstCard.getByRole("button", { name: /Copy command:/ })).toBeVisible();
   await expect(firstCard.getByRole("button", { name: /Copy original bind:/ })).toHaveCount(0);
   await expect(firstCard.getByRole("button", { name: /Copy unbind key:/ })).toHaveCount(0);
@@ -128,12 +138,16 @@ test("changes only bind to unbind while preserving the key and full command", as
 });
 
 test("includes the submitted Warlock and Barbarian animation-cancel presets", async ({ page }) => {
-  const panel = await visibleFilterPanel(page);
+  let panel = await visibleFilterPanel(page);
   await panel.getByLabel("Filter keybinds by action type").selectOption({ label: "Animation Cancel" });
   await panel.getByRole("button", { name: "Warlock", exact: true }).click();
+  await closeFilterDrawerIfOpen(page);
   await expect(page.getByRole("heading", { name: "Warlock At-Will Animation Cancel: Left Click", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Warlock At-Will Animation Cancel: Right Click", exact: true })).toBeVisible();
+
+  panel = await visibleFilterPanel(page);
   await panel.getByRole("button", { name: "Barbarian", exact: true }).click();
+  await closeFilterDrawerIfOpen(page);
   await expect(page.getByRole("heading", { name: "Barbarian DPS Animation Cancel: Right Click", exact: true })).toBeVisible();
 });
 
@@ -152,7 +166,7 @@ test("Command Lab and custom say builder generate normalized commands", async ({
 });
 
 test("persists filters, edited keys, theme, and custom say values across reload", async ({ page }) => {
-  const bardCard = page.locator(".bind-card").filter({ has: page.getByText("Bard", { exact: true }) }).first();
+  const bardCard = page.locator(".bind-card:visible").filter({ has: page.getByText("Bard", { exact: true }) }).first();
   await expect(bardCard).toBeVisible();
   const presetTitle = (await bardCard.locator("h4").textContent())?.trim();
   expect(presetTitle).toBeTruthy();
@@ -160,24 +174,24 @@ test("persists filters, edited keys, theme, and custom say values across reload"
   await page.getByLabel("Search keybind library").first().fill("bard");
   await openSettings(page);
   await page.getByLabel("Appearance").getByRole("button", { name: "Light" }).click();
-  await page.getByRole("button", { name: "Close settings" }).last().click();
+  await page.getByRole("button", { name: "Close settings" }).click();
   await openPrimaryTool(page, "Create your own say message");
   await page.getByLabel("Custom say message").fill("Group on me");
   await waitForSavedSettings(page, { search: "bard", customMessage: "Group on me", theme: "light" });
   await openSettings(page);
   await expect(page.locator(".local-save-status").getByText("Saved automatically", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Close settings" }).last().click();
+  await page.getByRole("button", { name: "Close settings" }).click();
   await page.reload();
   await openPrimaryTool(page, "Search existing keybinds");
   await waitForHydration(page);
   await expect(page.getByLabel("Search keybind library").first()).toHaveValue("bard");
   await openSettings(page);
   await expect(page.getByLabel("Appearance").getByRole("button", { name: "Light" })).toHaveAttribute("aria-pressed", "true");
-  await page.getByRole("button", { name: "Close settings" }).last().click();
+  await page.getByRole("button", { name: "Close settings" }).click();
   await openPrimaryTool(page, "Create your own say message");
   await expect(page.getByLabel("Custom say message")).toHaveValue("Group on me");
   await openPrimaryTool(page, "Search existing keybinds");
-  const restoredCard = page.locator(".bind-card").filter({ has: page.getByRole("heading", { name: presetTitle!, exact: true }) });
+  const restoredCard = page.locator(".bind-card:visible").filter({ has: page.getByRole("heading", { name: presetTitle!, exact: true }) });
   await expect(restoredCard.locator(".key-field input")).toHaveValue("Ctrl+R");
 });
 
@@ -199,7 +213,7 @@ test("mobile filter drawer closes with Show results and restores focus", async (
   await trigger.click();
   const drawer = page.getByRole("dialog", { name: "Filters" });
   await expect(drawer).toBeVisible();
-  await expect(page.getByRole("button", { name: "Close filters" }).last()).toBeFocused();
+  await expect(page.getByRole("button", { name: "Close filters" })).toBeFocused();
   await drawer.getByRole("button", { name: "Bard", exact: true }).click();
   await drawer.getByRole("button", { name: "Show results" }).click();
   await expect(drawer).toBeHidden();

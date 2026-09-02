@@ -1,5 +1,5 @@
 const MODIFIERS = [
-  "ctrl+shift+alt",
+  "ctrl+alt+shift",
   "ctrl+shift",
   "ctrl+alt",
   "alt+shift",

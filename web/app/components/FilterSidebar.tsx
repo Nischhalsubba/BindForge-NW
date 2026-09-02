@@ -1,5 +1,6 @@
 "use client";
 
+import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import { useBindForge } from "../BindForgeProvider";
 import { keybindPresets } from "../data/keybindPresets";
@@ -25,7 +26,13 @@ export function FilterSidebar() {
   useEffect(() => {
     if (!open) return;
     const previousOverflow = document.body.style.overflow;
+    const shell = document.querySelector<HTMLElement>(".app-shell");
+    const shellHadInert = shell?.hasAttribute("inert") ?? false;
+    const previousAriaHidden = shell?.getAttribute("aria-hidden") ?? null;
+
     document.body.style.overflow = "hidden";
+    shell?.setAttribute("inert", "");
+    shell?.setAttribute("aria-hidden", "true");
     closeRef.current?.focus();
 
     function handleKeyDown(event: KeyboardEvent) {
@@ -35,6 +42,11 @@ export function FilterSidebar() {
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
+      if (shell) {
+        if (!shellHadInert) shell.removeAttribute("inert");
+        if (previousAriaHidden === null) shell.removeAttribute("aria-hidden");
+        else shell.setAttribute("aria-hidden", previousAriaHidden);
+      }
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [open]);
@@ -132,6 +144,21 @@ export function FilterSidebar() {
     );
   }
 
+  const drawer = open && typeof document !== "undefined"
+    ? createPortal(
+      <div className={styles.drawerLayer} data-testid="filter-drawer-layer" data-gsap-enter>
+        <button aria-label="Dismiss filters" className={styles.backdrop} onClick={closeDrawer} type="button" />
+        <div aria-labelledby="drawer-filter-panel-title" aria-modal="true" className={styles.drawer} id="mobile-filter-drawer" role="dialog">
+          {renderPanel("drawer", true)}
+          <div className={styles.drawerFooter}>
+            <button className={styles.showResults} onClick={closeDrawer} type="button">Show results</button>
+          </div>
+        </div>
+      </div>,
+      document.body,
+    )
+    : null;
+
   return (
     <>
       <button
@@ -148,18 +175,7 @@ export function FilterSidebar() {
       <aside aria-labelledby="desktop-filter-panel-title" className={styles.desktopPanel} id="filter-panel">
         {renderPanel("desktop", false)}
       </aside>
-
-      {open ? (
-        <div className={styles.drawerLayer} data-testid="filter-drawer-layer" data-gsap-enter>
-          <button aria-label="Close filters" className={styles.backdrop} onClick={closeDrawer} type="button" />
-          <aside aria-labelledby="drawer-filter-panel-title" aria-modal="true" className={styles.drawer} id="mobile-filter-drawer" role="dialog">
-            {renderPanel("drawer", true)}
-            <div className={styles.drawerFooter}>
-              <button className={styles.showResults} onClick={closeDrawer} type="button">Show results</button>
-            </div>
-          </aside>
-        </div>
-      ) : null}
+      {drawer}
     </>
   );
 }
