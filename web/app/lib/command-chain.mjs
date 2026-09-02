@@ -20,7 +20,6 @@ export function buildCommandChain(keyValue, fragments) {
     .map(sanitizeBindFragment)
     .filter(Boolean);
 
-  if (!cleanFragments.length) return `/bind ${key} <command>`;
-  if (cleanFragments.length === 1) return `/bind ${key} ${cleanFragments[0]}`;
+  if (!cleanFragments.length) return `/bind ${key} "<command>"`;
   return `/bind ${key} "${cleanFragments.join("$$")}"`;
 }

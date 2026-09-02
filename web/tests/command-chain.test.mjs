@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { buildCommandChain, sanitizeBindFragment, validateCustomFragment } from "../app/lib/command-chain.mjs";
 
-test("builds a single-command bind without changing the fragment", () => {
-  assert.equal(buildCommandChain("lbutton", ["+EvaluateLeftClick"]), "/bind lbutton +EvaluateLeftClick");
+test("builds a single-command bind in the same quoted command form", () => {
+  assert.equal(buildCommandChain("lbutton", ["+EvaluateLeftClick"]), '/bind lbutton "+EvaluateLeftClick"');
 });
 
 test("joins combined commands with $$ inside one quoted command chain", () => {
