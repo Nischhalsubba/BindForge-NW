@@ -12,9 +12,10 @@ export default defineConfig({
   use: {
     baseURL: "http://127.0.0.1:3000",
     browserName: "chromium",
-    trace: "on-first-retry",
+    // Screenshots are sufficient for layout/UX regressions and keep CI artifacts small enough to inspect.
+    trace: "off",
     screenshot: "only-on-failure",
-    video: "retain-on-failure",
+    video: "off",
   },
   webServer: {
     command: "npm run start",

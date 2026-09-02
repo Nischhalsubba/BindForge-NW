@@ -60,7 +60,7 @@ export function FilterSidebar() {
           </div>
           <div className={styles.headActions}>
             <button className={styles.reset} onClick={resetFilters} type="button">Reset all</button>
-            {includeClose ? <button aria-label="Close filters" className={styles.close} onClick={closeDrawer} ref={closeRef} type="button">×</button> : null}
+            {includeClose ? <button aria-label="Close filters" className={styles.close} onClick={closeDrawer} ref={closeRef} type="button"><Icon name="close" /></button> : null}
           </div>
         </div>
 
@@ -85,7 +85,7 @@ export function FilterSidebar() {
                 type="button"
               >
                 <span>{className === "All" ? "All classes" : className}</span>
-                {state.className === className ? <span aria-hidden="true">✓</span> : null}
+                {state.className === className ? <span aria-hidden="true"><Icon name="check" /></span> : <span aria-hidden="true" />}
               </button>
             ))}
           </div>

@@ -5,6 +5,7 @@ import test from "node:test";
 
 const appCss = await readFile(new URL("../app/app.css", import.meta.url), "utf8");
 const atelierCss = await readFile(new URL("../app/atelier-zero.css", import.meta.url), "utf8");
+const precisionCss = await readFile(new URL("../app/pixel-polish.css", import.meta.url), "utf8");
 const tokensCss = await readFile(new URL("../app/styles/tokens.css", import.meta.url), "utf8");
 const responsiveCss = await readFile(new URL("../app/styles/responsive.css", import.meta.url), "utf8");
 
@@ -18,7 +19,7 @@ const historicalEntrypoints = [
   "open-design.css",
 ];
 
-test("global CSS uses Atelier Zero as the canonical visual entrypoint", () => {
+test("global CSS keeps Atelier Zero canonical with one governed precision layer", () => {
   const imports = [...appCss.matchAll(/@import\s+"([^"]+)"/g)].map((match) => match[1]);
 
   assert.deepEqual(imports, [
@@ -26,10 +27,14 @@ test("global CSS uses Atelier Zero as the canonical visual entrypoint", () => {
     "./ui-fixes.css",
     "./branding.css",
     "./group-visibility.css",
+    "./pixel-polish.css",
   ]);
   assert.match(appCss, /Atelier Zero as the canonical visual source/);
   assert.match(atelierCss, /--color-bg:/);
   assert.match(atelierCss, /--control-height:/);
+  assert.match(precisionCss, /--control-height:\s*46px/);
+  assert.match(precisionCss, /--z-sticky:/);
+  assert.match(precisionCss, /prefers-reduced-motion:\s*reduce/);
 });
 
 test("removed historical overrides are not imported", () => {

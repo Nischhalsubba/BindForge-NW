@@ -110,7 +110,7 @@ export function CompactKeybindRow({
             onClick={onFavourite}
             type="button"
           >
-            {favourite ? "★" : "☆"}
+            <Icon name="star" />
           </button>
           <label className={styles.selectControl}>
             <input checked={selected} onChange={onSelect} type="checkbox" />

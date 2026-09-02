@@ -2,10 +2,14 @@ import { expect, test } from "@playwright/test";
 
 const viewportWidths = [360, 390, 768, 1024, 1440] as const;
 
+function libraryView(page: import("@playwright/test").Page) {
+  return page.getByTestId("secondary-controls").getByLabel("Library view");
+}
+
 async function openCompactView(page: import("@playwright/test").Page) {
   await page.goto("/");
-  await expect(page.getByLabel("Library view")).toBeVisible();
-  await page.getByLabel("Library view").selectOption("compact");
+  await expect(libraryView(page)).toBeVisible();
+  await libraryView(page).selectOption("compact");
   await expect(page.getByTestId("compact-bind-row").first()).toBeVisible();
 }
 
@@ -36,7 +40,7 @@ test("compact mode uses a dedicated readable row and preserves primary actions",
   await keyInput.fill("Ctrl+Shift+R");
   await expect(row.locator("code")).toContainText("ctrl+shift+r");
 
-  await page.getByLabel("Library view").selectOption("cards");
+  await libraryView(page).selectOption("cards");
   await expect(page.getByTestId("compact-bind-row")).toHaveCount(0);
   await expect(page.locator(".bind-card").first()).toBeVisible();
 });

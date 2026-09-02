@@ -16,7 +16,7 @@ test.beforeEach(async ({ page }) => {
 test("keeps primary card information visible and secondary information collapsed", async ({ page }) => {
   const card = page.locator(".bind-card").first();
   await expect(card.locator("h4")).toBeVisible();
-  await expect(card.getByText("Suggested key combination", { exact: true })).toBeVisible();
+  await expect(card.getByText("Key combination", { exact: true })).toBeVisible();
   await expect(card.getByRole("button", { name: /Copy command:/ })).toBeVisible();
   await expect(card.getByRole("button", { name: "Details", exact: true })).toBeVisible();
   await expect(card.locator(".command-preview")).toHaveCount(0);
@@ -34,24 +34,19 @@ test("mounts details only after the user requests them", async ({ page }) => {
   await expect(card.locator(".command-preview")).toHaveCount(0);
 });
 
-test("progressively renders groups and can reveal more", async ({ page }) => {
-  await expect(page.locator(".bind-group")).toHaveCount(2);
-  await expect(page.getByRole("button", { name: "Show more groups" })).toBeVisible();
-
-  await page.getByRole("button", { name: "Show more groups" }).click();
-  await expect(page.locator(".bind-group")).toHaveCount(5);
-
-  await page.getByRole("button", { name: "Expand all groups" }).click();
+test("keeps the full filtered group index available for direct navigation", async ({ page }) => {
+  const count = await page.locator(".bind-group").count();
+  expect(count).toBeGreaterThan(2);
   await expect(page.getByRole("button", { name: "Show more groups" })).toHaveCount(0);
 });
 
-test("resets progressive rendering when a filter changes", async ({ page }) => {
-  await page.getByRole("button", { name: "Show more groups" }).click();
-  await expect(page.locator(".bind-group")).toHaveCount(5);
-
+test("rebuilds the visible group index immediately when a filter changes", async ({ page }) => {
+  const before = await page.locator(".bind-group").count();
   await page.getByLabel("Search keybind library").fill("bard");
-  await page.waitForTimeout(50);
-  expect(await page.locator(".bind-group").count()).toBeLessThanOrEqual(2);
+  await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
+  const after = await page.locator(".bind-group").count();
+  expect(after).toBeGreaterThan(0);
+  expect(after).toBeLessThan(before);
 });
 
 test("does not introduce horizontal overflow on mobile", async ({ page }) => {

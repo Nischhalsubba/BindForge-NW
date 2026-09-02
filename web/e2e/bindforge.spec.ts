@@ -3,7 +3,7 @@ import type { Page } from "@playwright/test";
 import axe from "axe-core";
 
 async function openFiltersWhenCollapsed(page: Page) {
-  const toggle = page.getByRole("button", { name: "Filters", exact: true });
+  const toggle = page.getByRole("button", { name: "Filters & navigation", exact: true });
   if (await toggle.isVisible()) {
     const expanded = await toggle.getAttribute("aria-expanded");
     if (expanded !== "true") await toggle.click();
@@ -16,9 +16,9 @@ async function visibleFilterPanel(page: Page) {
 }
 
 async function openSettings(page: Page) {
-  const trigger = page.getByRole("button", { name: "Settings", exact: true });
+  const trigger = page.getByRole("button", { name: "Local data & backup", exact: true });
   await trigger.click();
-  await expect(page.getByRole("dialog", { name: "Settings" })).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "Local archive" })).toBeVisible();
 }
 
 async function waitForHydration(page: Page) {
@@ -49,7 +49,7 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await page.evaluate(() => window.localStorage.clear());
   await page.reload();
-  await expect(page.getByRole("heading", { level: 1, name: "BindForge NW" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /Build keybinds with clarity/ })).toBeVisible();
   await waitForHydration(page);
 });
 
@@ -168,7 +168,7 @@ test("clear saved data remains available from Settings", async ({ page }) => {
 
 test("mobile filter drawer closes with Show results and restores focus", async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.includes("mobile") && !testInfo.project.name.includes("tablet"), "Drawer behavior is for narrow viewports");
-  const trigger = page.getByRole("button", { name: "Filters", exact: true });
+  const trigger = page.getByRole("button", { name: "Filters & navigation", exact: true });
   await trigger.click();
   const drawer = page.getByRole("dialog", { name: "Filters" });
   await expect(drawer).toBeVisible();
@@ -181,7 +181,7 @@ test("mobile filter drawer closes with Show results and restores focus", async (
 
 test("mobile filter drawer closes with Escape", async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.includes("mobile") && !testInfo.project.name.includes("tablet"), "Drawer behavior is for narrow viewports");
-  const trigger = page.getByRole("button", { name: "Filters", exact: true });
+  const trigger = page.getByRole("button", { name: "Filters & navigation", exact: true });
   await trigger.click();
   await expect(page.getByRole("dialog", { name: "Filters" })).toBeVisible();
   await page.keyboard.press("Escape");
@@ -190,11 +190,11 @@ test("mobile filter drawer closes with Escape", async ({ page }, testInfo) => {
 });
 
 test("Settings closes with Escape and restores focus", async ({ page }) => {
-  const trigger = page.getByRole("button", { name: "Settings", exact: true });
+  const trigger = page.getByRole("button", { name: "Local data & backup", exact: true });
   await trigger.click();
-  await expect(page.getByRole("dialog", { name: "Settings" })).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "Local archive" })).toBeVisible();
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("dialog", { name: "Settings" })).toBeHidden();
+  await expect(page.getByRole("dialog", { name: "Local archive" })).toBeHidden();
   await expect(trigger).toBeFocused();
 });
 
