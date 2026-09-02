@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 async function waitForWorkspace(page: import("@playwright/test").Page) {
   await page.goto("/");
   await expect(page.getByTestId("filter-toolbar").first()).toBeVisible();
-  await expect(page.getByTestId("secondary-controls")).toBeVisible();
+  await expect(page.locator('[data-testid="secondary-controls"]:visible').first()).toBeVisible();
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
 }
 
@@ -15,6 +15,14 @@ async function visibleFilterPanel(page: import("@playwright/test").Page) {
   return page.locator("#filter-panel:visible, #mobile-filter-drawer:visible");
 }
 
+async function closeFilterDrawerIfOpen(page: import("@playwright/test").Page) {
+  const drawer = page.getByRole("dialog", { name: "Filters" });
+  if (await drawer.isVisible()) {
+    await drawer.getByRole("button", { name: "Show results" }).click();
+    await expect(drawer).toBeHidden();
+  }
+}
+
 test.beforeEach(async ({ page }) => {
   await waitForWorkspace(page);
 });
@@ -23,11 +31,13 @@ test("keeps primary actions visible and secondary controls distinct", async ({ p
   await expect(page.getByLabel("Search keybind library").first()).toBeVisible();
   const filters = await visibleFilterPanel(page);
   await expect(filters.getByLabel("Filter keybinds by action type")).toBeVisible();
+  await closeFilterDrawerIfOpen(page);
+
   await expect(page.getByRole("button", { name: "Bind", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Unbind", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Reset keybind library filters" })).toBeVisible();
 
-  const secondary = page.getByTestId("secondary-controls");
+  const secondary = page.locator('[data-testid="secondary-controls"]:visible').first();
   await expect(secondary.getByLabel("Library view")).toBeVisible();
   await expect(secondary.getByLabel("Sort keybinds")).toBeVisible();
   await expect(secondary.getByLabel("Filter by provenance")).toBeVisible();
@@ -59,7 +69,7 @@ test("keeps workspace controls within the viewport", async ({ page }) => {
   const viewport = page.viewportSize();
   expect(viewport).not.toBeNull();
 
-  for (const locator of [page.getByTestId("filter-toolbar").first(), page.getByTestId("secondary-controls"), page.getByRole("button", { name: /Collections & command packs/i })]) {
+  for (const locator of [page.getByTestId("filter-toolbar").first(), page.locator('[data-testid="secondary-controls"]:visible').first(), page.getByRole("button", { name: /Collections & command packs/i })]) {
     const box = await locator.boundingBox();
     expect(box).not.toBeNull();
     expect(box!.x).toBeGreaterThanOrEqual(0);

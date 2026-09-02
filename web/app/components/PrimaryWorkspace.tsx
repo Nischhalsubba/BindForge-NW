@@ -105,7 +105,9 @@ export function PrimaryWorkspace({ onCopy }: { onCopy: CopyHandler }) {
         : (index + (key === "ArrowRight" ? 1 : -1) + tools.length) % tools.length;
     const nextTool = tools[nextIndex];
     selectTool(nextTool);
-    document.getElementById(`primary-tab-${nextTool.view}`)?.focus({ preventScroll: true });
+    window.requestAnimationFrame(() => {
+      document.getElementById(`primary-tab-${nextTool.view}`)?.focus({ preventScroll: true });
+    });
   }
 
   return (

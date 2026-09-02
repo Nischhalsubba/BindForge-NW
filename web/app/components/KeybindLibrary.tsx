@@ -6,7 +6,7 @@ import { keybindPresets } from "../data/keybindPresets";
 import type { KeybindPreset, KeybindType } from "../data/keybindPresets";
 import type { PresetConfidence, PresetSourceType } from "../data/keybindTypes";
 import { baseKey, buildPresetLine, normalizeCombo } from "../lib/keybind-core.mjs";
-import { normalizedKey } from "../lib/safe-key-suggestions";
+import { SAFE_KEY_SUGGESTIONS, normalizedKey } from "../lib/safe-key-suggestions";
 import type { CopyResultState } from "../page";
 import FilterTopBar from "../FilterTopBar";
 import { CompactKeybindRow } from "./CompactKeybindRow";
@@ -34,12 +34,6 @@ const warnings: Array<{ keys: string[]; message: string; level: "info" | "warn" 
   { keys: ["lbutton", "rbutton", "mbutton"], message: "Mouse buttons are usually used for attacks or camera control.", level: "danger" },
   { keys: ["escape"], message: "Escape is normally used to close menus.", level: "danger" },
   { keys: ["alt+f4", "alt+tab", "ctrl+alt+delete"], message: "This combination is reserved by Windows. Avoid using it.", level: "danger" },
-];
-
-const replacementPool = [
-  ..."abcdefghijklmnopqrstuvwxyz".split("").map((key) => `ctrl+shift+alt+${key}`),
-  ...Array.from({ length: 12 }, (_, index) => `ctrl+shift+f${index + 1}`),
-  ...Array.from({ length: 10 }, (_, index) => `ctrl+alt+numpad${index}`),
 ];
 
 type CopyHandler = (text: string, label: string, target: HTMLElement | null) => Promise<CopyResultState>;
@@ -184,8 +178,18 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   function toggleFavourite(id: string) { patchLibrary({ favourites: favouriteSet.has(id) ? library.favourites.filter((item) => item !== id) : [...library.favourites, id] }); }
   function toggleGroup(groupName: string) { patchLibrary({ collapsedGroups: library.collapsedGroups.includes(groupName) ? library.collapsedGroups.filter((item) => item !== groupName) : [...library.collapsedGroups, groupName] }); }
   function replacementFor(preset: KeybindPreset) {
-    const used = new Set(Object.entries(state.keys).filter(([id]) => id !== preset.id).map(([, value]) => normalizedKey(value)));
-    return replacementPool.find((candidate) => !used.has(normalizedKey(candidate)) && !warningForKey(candidate)) ?? preset.defaultKey;
+    const currentKey = normalizeCombo(state.keys[preset.id] ?? preset.defaultKey);
+    const usageCounts = keybindPresets.reduce<Record<string, number>>((counts, item) => {
+      if (item.id === preset.id) return counts;
+      const key = normalizeCombo(state.keys[item.id] ?? item.defaultKey);
+      if (key) counts[key] = (counts[key] ?? 0) + 1;
+      return counts;
+    }, {});
+    const alternatives = SAFE_KEY_SUGGESTIONS
+      .map((candidate) => ({ candidate, key: normalizeCombo(candidate), count: usageCounts[normalizeCombo(candidate)] ?? 0 }))
+      .filter(({ candidate, key }) => key !== currentKey && !warningForKey(candidate))
+      .sort((left, right) => left.count - right.count);
+    return alternatives[0]?.candidate ?? preset.defaultKey;
   }
   function addCollection() {
     const name = collectionName.trim();

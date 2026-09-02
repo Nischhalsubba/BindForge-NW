@@ -24,7 +24,7 @@ export default function LocalSettingsManager() {
         <span className={styles.dot} aria-hidden="true" />
       </div>
       <p className={styles.copy}>Custom keys, filters, output mode, command-lab settings, and custom chat messages are saved automatically on this device.</p>
-      <div className={styles.status} role="status" aria-live="polite"><strong>{status}</strong><span>{savedLabel}</span></div>
+      <div className={`${styles.status} local-save-status`} role="status" aria-live="polite"><strong>{status}</strong><span>{savedLabel}</span></div>
       <div className={styles.actions}>
         <button className={styles.primary} onClick={exportBackup} type="button">Export backup</button>
         <button onClick={() => fileInput.current?.click()} type="button">Import backup</button>

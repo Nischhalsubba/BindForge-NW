@@ -10,6 +10,15 @@
  * they remain isolated and reviewable.
  */
 
+/* Keep the established palette while raising frequently used muted/accent text to WCAG AA contrast. */
+:root {
+  --ink-faint: #676254;
+  --coral: #a84b3d;
+  --coral-soft: #bd6253;
+  --primary-hover: #923d32;
+  --color-primary-hover: #923d32;
+}
+
 /*
  * Responsive geometry hardening.
  * These are layout invariants rather than a second visual system: grid
@@ -52,6 +61,11 @@
 .command-specimen { margin-top: 54px; }
 .hero-index { margin-top: 48px; }
 .app-footer { margin-top: 54px; }
+
+/* Keep the footer/provenance position stable when desktop users switch between the four primary tools. */
+@media (min-width: 881px) {
+  #primary-workspace-panel { min-height: 800px; }
+}
 
 @media (max-width: 1080px) {
   .hero { min-height: auto; padding-top: 40px; }

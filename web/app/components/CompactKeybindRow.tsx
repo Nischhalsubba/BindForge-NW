@@ -2,6 +2,8 @@
 
 import { useRef, useState } from "react";
 import type { KeybindPreset } from "../data/keybindPresets";
+import { normalizeCombo } from "../lib/keybind-core.mjs";
+import { SAFE_KEY_SUGGESTIONS } from "../lib/safe-key-suggestions";
 import type { CopyResultState } from "../page";
 import { Icon } from "./Icon";
 import { KeyCaptureInput } from "./KeyCaptureInput";
@@ -25,12 +27,12 @@ type CompactKeybindRowProps = {
   status: SafetyStatus;
   copyDisabled: boolean;
   canReplace: boolean;
+  replacementKey?: string | null;
   onKeyChange: (value: string) => void;
   onCopy: CopyHandler;
   onSelect: () => void;
   onFavourite: () => void;
   onReset: () => void;
-  onReplace: () => void;
 };
 
 function shortSafetyLabel(status: SafetyStatus) {
@@ -49,17 +51,21 @@ export function CompactKeybindRow({
   status,
   copyDisabled,
   canReplace,
+  replacementKey,
   onKeyChange,
   onCopy,
   onSelect,
   onFavourite,
   onReset,
-  onReplace,
 }: CompactKeybindRowProps) {
   const [expanded, setExpanded] = useState(false);
   const [copyState, setCopyState] = useState<CopyState>("idle");
   const copyButton = useRef<HTMLButtonElement>(null);
   const detailsId = `${preset.id}-compact-details`;
+  const currentKey = normalizeCombo(keyValue);
+  const directReplacement = replacementKey && normalizeCombo(replacementKey) !== currentKey
+    ? replacementKey
+    : SAFE_KEY_SUGGESTIONS.find((candidate) => normalizeCombo(candidate) !== currentKey) ?? null;
 
   async function handleCopy() {
     setCopyState("copying");
@@ -162,7 +168,19 @@ export function CompactKeybindRow({
           </div>
 
           <div className={styles.detailActions}>
-            {canReplace ? <button onClick={onReplace} type="button">Use next safer key</button> : null}
+            {canReplace && directReplacement ? (
+              <button
+                data-replacement-key={directReplacement}
+                onClick={() => onKeyChange(directReplacement)}
+                onPointerDown={(event) => {
+                  event.preventDefault();
+                  onKeyChange(directReplacement);
+                }}
+                type="button"
+              >
+                Use next safer key
+              </button>
+            ) : null}
             <button onClick={onReset} type="button"><Icon name="reset" /> Reset suggestion</button>
           </div>
         </div>
