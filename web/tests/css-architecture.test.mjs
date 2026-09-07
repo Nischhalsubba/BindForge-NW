@@ -6,6 +6,7 @@ import test from "node:test";
 const appCss = await readFile(new URL("../app/app.css", import.meta.url), "utf8");
 const atelierCss = await readFile(new URL("../app/atelier-zero.css", import.meta.url), "utf8");
 const precisionCss = await readFile(new URL("../app/pixel-polish.css", import.meta.url), "utf8");
+const preferencesCss = await readFile(new URL("../app/preferences.css", import.meta.url), "utf8");
 const tokensCss = await readFile(new URL("../app/styles/tokens.css", import.meta.url), "utf8");
 const responsiveCss = await readFile(new URL("../app/styles/responsive.css", import.meta.url), "utf8");
 
@@ -19,7 +20,7 @@ const historicalEntrypoints = [
   "open-design.css",
 ];
 
-test("global CSS keeps Atelier Zero canonical with one governed precision layer", () => {
+test("global CSS keeps Atelier Zero canonical with governed precision and preference layers", () => {
   const imports = [...appCss.matchAll(/@import\s+"([^"]+)"/g)].map((match) => match[1]);
 
   assert.deepEqual(imports, [
@@ -28,6 +29,7 @@ test("global CSS keeps Atelier Zero canonical with one governed precision layer"
     "./branding.css",
     "./group-visibility.css",
     "./pixel-polish.css",
+    "./preferences.css",
   ]);
   assert.match(appCss, /Atelier Zero as the canonical visual source/);
   assert.match(atelierCss, /--color-bg:/);
@@ -79,6 +81,15 @@ test("final accessibility foundation governs readable type, targets, focus, and 
   assert.match(appCss, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(appCss, /animation-duration:\s*0\.01ms !important/);
   assert.match(appCss, /text-size-adjust:\s*100%/);
+});
+
+test("preference layer supports theme, readable text scaling, large controls, contrast, and explicit reduced motion", () => {
+  assert.match(preferencesCss, /html\[data-theme='dark'\]/);
+  assert.match(preferencesCss, /html\[data-text-size='large'\]\s*\{\s*font-size:\s*112\.5%/);
+  assert.match(preferencesCss, /html\[data-text-size='extra-large'\]\s*\{\s*font-size:\s*125%/);
+  assert.match(preferencesCss, /html\[data-large-controls='true'\][\s\S]*--control-primary:\s*52px/);
+  assert.match(preferencesCss, /html\[data-contrast='high'\][\s\S]*--focus-ring-width:\s*4px/);
+  assert.match(preferencesCss, /html\[data-motion='reduced'\]/);
 });
 
 test("functional microcopy is promoted to the accessible type scale", () => {

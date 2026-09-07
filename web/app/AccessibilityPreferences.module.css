@@ -1,0 +1,15 @@
+.root { display: grid; gap: 28px; }
+.choiceGroup,.toggles { min-width: 0; margin: 0; padding: 0; border: 0; }
+.choiceGroup legend,.toggles legend { margin-bottom: 10px; color: var(--ink); font: 700 14px var(--sans); }
+.choiceGrid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+.choice { min-height: 72px; display: grid; gap: 5px; align-content: center; padding: 12px 14px; border: 1px solid var(--line-strong); border-radius: 10px; background: transparent; color: var(--ink); text-align: left; }
+.choice strong { font: 700 14px var(--sans); }
+.choice span { color: var(--ink-mute); font: 400 13px/1.4 var(--body); }
+.choice[aria-pressed='true'] { border-color: var(--coral); background: color-mix(in srgb,var(--coral) 9%,var(--paper)); box-shadow: inset 3px 0 0 var(--coral); }
+.toggles { display: grid; gap: 8px; }
+.toggle { min-height: 56px; display: flex; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: color-mix(in srgb,var(--bone) 66%,transparent); cursor: pointer; }
+.toggle input { width: 20px; height: 20px; flex: 0 0 20px; accent-color: var(--coral); }
+.toggle span { display: grid; gap: 3px; }
+.toggle strong { color: var(--ink); font: 700 14px var(--sans); }
+.toggle small { color: var(--ink-mute); font: 400 13px/1.4 var(--body); }
+@media (max-width:560px) { .choiceGrid { grid-template-columns: 1fr; }.choice { min-height: 68px; } }

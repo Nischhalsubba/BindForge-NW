@@ -1,4 +1,4 @@
-export const BACKUP_VERSION = 2;
+export const BACKUP_VERSION = 3;
 export const MAX_BACKUP_BYTES = 256 * 1024;
 
 const LIMITS = {
@@ -10,6 +10,12 @@ const LIMITS = {
   extraText: 2000,
   customMessage: 240,
 };
+
+const EXPERIENCE_LEVELS = ["simple", "standard", "advanced"];
+const THEMES = ["system", "light", "dark"];
+const TEXT_SIZES = ["small", "default", "large", "extra-large"];
+const DENSITIES = ["comfortable", "standard", "compact"];
+const CONTRAST_LEVELS = ["standard", "high"];
 
 function isRecord(value) {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -32,6 +38,12 @@ function readBoolean(value, fallback, label) {
   return { ok: true, value };
 }
 
+function readEnum(value, fallback, label, allowed) {
+  if (value === undefined) return { ok: true, value: fallback };
+  if (typeof value !== "string" || !allowed.includes(value)) return fail(`${label} is invalid.`);
+  return { ok: true, value };
+}
+
 function readMode(value, fallback) {
   if (value === undefined) return { ok: true, value: fallback };
   if (value !== "bind" && value !== "unbind") return fail("Output mode must be bind or unbind.");
@@ -40,29 +52,52 @@ function readMode(value, fallback) {
 
 function readSavedAt(value, fallback) {
   if (value === undefined || value === "") return { ok: true, value: fallback };
-  if (typeof value !== "string" || Number.isNaN(Date.parse(value))) {
-    return fail("Saved date is invalid.");
-  }
+  if (typeof value !== "string" || Number.isNaN(Date.parse(value))) return fail("Saved date is invalid.");
   return { ok: true, value };
 }
 
 function readKeys(value) {
   if (value === undefined) return { ok: true, value: {} };
   if (!isRecord(value)) return fail("Saved keys must be an object.");
-
   const entries = Object.entries(value);
   if (entries.length > LIMITS.savedKeys) return fail("Backup contains too many saved keys.");
-
   const keys = {};
   for (const [id, keyValue] of entries) {
     if (!id || id.length > LIMITS.keyName) return fail("A saved key identifier is invalid.");
-    if (typeof keyValue !== "string" || keyValue.length > LIMITS.keyValue) {
-      return fail(`Saved key ${id} is invalid.`);
-    }
+    if (typeof keyValue !== "string" || keyValue.length > LIMITS.keyValue) return fail(`Saved key ${id} is invalid.`);
     keys[id] = keyValue;
   }
-
   return { ok: true, value: keys };
+}
+
+export function createDefaultPreferences() {
+  return {
+    experience: "simple",
+    theme: "system",
+    textSize: "default",
+    density: "standard",
+    contrast: "standard",
+    largeControls: false,
+    reducedMotion: false,
+    explainTerms: true,
+    confirmRisky: true,
+    showRawCommands: false,
+  };
+}
+
+export function createLegacyPreferences() {
+  return {
+    experience: "standard",
+    theme: "system",
+    textSize: "default",
+    density: "standard",
+    contrast: "standard",
+    largeControls: false,
+    reducedMotion: false,
+    explainTerms: false,
+    confirmRisky: true,
+    showRawCommands: true,
+  };
 }
 
 export function createDefaultBackup(savedAt = new Date(0).toISOString()) {
@@ -70,13 +105,7 @@ export function createDefaultBackup(savedAt = new Date(0).toISOString()) {
     version: BACKUP_VERSION,
     savedAt,
     keys: {},
-    filters: {
-      className: "All",
-      actionType: "All",
-      difficulty: "All",
-      search: "",
-      mode: "bind",
-    },
+    filters: { className: "All", actionType: "All", difficulty: "All", search: "", mode: "bind" },
     commandLab: {
       key: "ctrl+b",
       extraText: "Vipaction_Bankvendor activate",
@@ -86,44 +115,25 @@ export function createDefaultBackup(savedAt = new Date(0).toISOString()) {
       commandCategory: "All",
       showRisky: false,
     },
-    customSay: {
-      key: "f1",
-      message: "ARTIFACTS NOW",
-    },
+    customSay: { key: "f1", message: "ARTIFACTS NOW" },
+    preferences: createDefaultPreferences(),
   };
 }
 
 function readFilters(value, defaults) {
   if (value === undefined) return { ok: true, value: { ...defaults } };
   if (!isRecord(value)) return fail("Filters must be an object.");
-
-  const className = readString(value.className, defaults.className, "Class filter", LIMITS.shortText);
-  if (!className.ok) return className;
-  const actionType = readString(value.actionType, defaults.actionType, "Action filter", LIMITS.shortText);
-  if (!actionType.ok) return actionType;
-  const difficulty = readString(value.difficulty, defaults.difficulty, "Difficulty filter", LIMITS.shortText);
-  if (!difficulty.ok) return difficulty;
-  const search = readString(value.search, defaults.search, "Preset search", LIMITS.searchText);
-  if (!search.ok) return search;
-  const mode = readMode(value.mode, defaults.mode);
-  if (!mode.ok) return mode;
-
-  return {
-    ok: true,
-    value: {
-      className: className.value,
-      actionType: actionType.value,
-      difficulty: difficulty.value,
-      search: search.value,
-      mode: mode.value,
-    },
-  };
+  const className = readString(value.className, defaults.className, "Class filter", LIMITS.shortText); if (!className.ok) return className;
+  const actionType = readString(value.actionType, defaults.actionType, "Action filter", LIMITS.shortText); if (!actionType.ok) return actionType;
+  const difficulty = readString(value.difficulty, defaults.difficulty, "Difficulty filter", LIMITS.shortText); if (!difficulty.ok) return difficulty;
+  const search = readString(value.search, defaults.search, "Preset search", LIMITS.searchText); if (!search.ok) return search;
+  const mode = readMode(value.mode, defaults.mode); if (!mode.ok) return mode;
+  return { ok: true, value: { className: className.value, actionType: actionType.value, difficulty: difficulty.value, search: search.value, mode: mode.value } };
 }
 
 function readCommandLab(value, defaults) {
   if (value === undefined) return { ok: true, value: { ...defaults } };
   if (!isRecord(value)) return fail("Command Lab settings must be an object.");
-
   const fields = [
     ["key", "Command Lab key", LIMITS.keyValue],
     ["extraText", "Command Lab extra text", LIMITS.extraText],
@@ -132,65 +142,66 @@ function readCommandLab(value, defaults) {
     ["commandSearch", "Command search", LIMITS.searchText],
     ["commandCategory", "Command category", LIMITS.shortText],
   ];
-
   const result = {};
   for (const [field, label, maxLength] of fields) {
     const parsed = readString(value[field], defaults[field], label, maxLength);
     if (!parsed.ok) return parsed;
     result[field] = parsed.value;
   }
-
   const showRisky = readBoolean(value.showRisky, defaults.showRisky, "Show risky keys");
   if (!showRisky.ok) return showRisky;
   result.showRisky = showRisky.value;
-
   return { ok: true, value: result };
 }
 
 function readCustomSay(value, defaults) {
   if (value === undefined) return { ok: true, value: { ...defaults } };
   if (!isRecord(value)) return fail("Custom say settings must be an object.");
-
-  const key = readString(value.key, defaults.key, "Custom say key", LIMITS.keyValue);
-  if (!key.ok) return key;
-  const message = readString(value.message, defaults.message, "Custom say message", LIMITS.customMessage);
-  if (!message.ok) return message;
-
+  const key = readString(value.key, defaults.key, "Custom say key", LIMITS.keyValue); if (!key.ok) return key;
+  const message = readString(value.message, defaults.message, "Custom say message", LIMITS.customMessage); if (!message.ok) return message;
   return { ok: true, value: { key: key.value, message: message.value } };
+}
+
+function readPreferences(value, defaults) {
+  if (value === undefined) return { ok: true, value: { ...defaults } };
+  if (!isRecord(value)) return fail("Preferences must be an object.");
+  const experience = readEnum(value.experience, defaults.experience, "Experience level", EXPERIENCE_LEVELS); if (!experience.ok) return experience;
+  const theme = readEnum(value.theme, defaults.theme, "Theme preference", THEMES); if (!theme.ok) return theme;
+  const textSize = readEnum(value.textSize, defaults.textSize, "Text size", TEXT_SIZES); if (!textSize.ok) return textSize;
+  const density = readEnum(value.density, defaults.density, "Interface density", DENSITIES); if (!density.ok) return density;
+  const contrast = readEnum(value.contrast, defaults.contrast, "Contrast preference", CONTRAST_LEVELS); if (!contrast.ok) return contrast;
+  const result = { experience: experience.value, theme: theme.value, textSize: textSize.value, density: density.value, contrast: contrast.value };
+  for (const [field, label] of [
+    ["largeControls", "Large controls"],
+    ["reducedMotion", "Reduced motion"],
+    ["explainTerms", "Explain technical terms"],
+    ["confirmRisky", "Confirm risky commands"],
+    ["showRawCommands", "Show raw commands"],
+  ]) {
+    const parsed = readBoolean(value[field], defaults[field], label);
+    if (!parsed.ok) return parsed;
+    result[field] = parsed.value;
+  }
+  return { ok: true, value: result };
 }
 
 export function parseBackupValue(input, options = {}) {
   if (!isRecord(input)) return fail("Backup must contain a JSON object.");
-
   const version = input.version;
-  if (version !== 1 && version !== BACKUP_VERSION) {
-    return fail("Unsupported BindForge backup version.");
-  }
-
+  if (version !== 1 && version !== 2 && version !== BACKUP_VERSION) return fail("Unsupported BindForge backup version.");
   const now = options.now ?? new Date().toISOString();
   const defaults = createDefaultBackup(new Date(0).toISOString());
-  const savedAt = readSavedAt(input.savedAt, now);
-  if (!savedAt.ok) return savedAt;
-  const keys = readKeys(input.keys);
-  if (!keys.ok) return keys;
-  const filters = readFilters(input.filters, defaults.filters);
-  if (!filters.ok) return filters;
-  const commandLab = readCommandLab(input.commandLab, defaults.commandLab);
-  if (!commandLab.ok) return commandLab;
-  const customSay = readCustomSay(version === 1 ? undefined : input.customSay, defaults.customSay);
-  if (!customSay.ok) return customSay;
-
+  const savedAt = readSavedAt(input.savedAt, now); if (!savedAt.ok) return savedAt;
+  const keys = readKeys(input.keys); if (!keys.ok) return keys;
+  const filters = readFilters(input.filters, defaults.filters); if (!filters.ok) return filters;
+  const commandLab = readCommandLab(input.commandLab, defaults.commandLab); if (!commandLab.ok) return commandLab;
+  const customSay = readCustomSay(version === 1 ? undefined : input.customSay, defaults.customSay); if (!customSay.ok) return customSay;
+  const preferenceDefaults = version === BACKUP_VERSION ? defaults.preferences : createLegacyPreferences();
+  const preferences = readPreferences(version === BACKUP_VERSION ? input.preferences : undefined, preferenceDefaults); if (!preferences.ok) return preferences;
   return {
     ok: true,
-    value: {
-      version: BACKUP_VERSION,
-      savedAt: savedAt.value,
-      keys: keys.value,
-      filters: filters.value,
-      commandLab: commandLab.value,
-      customSay: customSay.value,
-    },
-    migratedFrom: version === 1 ? 1 : null,
+    value: { version: BACKUP_VERSION, savedAt: savedAt.value, keys: keys.value, filters: filters.value, commandLab: commandLab.value, customSay: customSay.value, preferences: preferences.value },
+    migratedFrom: version === BACKUP_VERSION ? null : version,
   };
 }
 
@@ -198,10 +209,5 @@ export function parseBackupJson(text, options = {}) {
   if (typeof text !== "string") return fail("Backup content must be text.");
   const byteLength = new TextEncoder().encode(text).byteLength;
   if (byteLength > MAX_BACKUP_BYTES) return fail("Backup file is larger than 256 KB.");
-
-  try {
-    return parseBackupValue(JSON.parse(text), options);
-  } catch {
-    return fail("Backup is not valid JSON.");
-  }
+  try { return parseBackupValue(JSON.parse(text), options); } catch { return fail("Backup is not valid JSON."); }
 }

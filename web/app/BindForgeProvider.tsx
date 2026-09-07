@@ -13,10 +13,11 @@ import { keybindPresets } from "./data/keybindPresets";
 import {
   MAX_BACKUP_BYTES,
   createDefaultBackup,
+  createDefaultPreferences,
   parseBackupJson,
   parseBackupValue,
 } from "./lib/backup-schema.mjs";
-import type { SavedSettingsV2 } from "./lib/backup-schema.mjs";
+import type { SavedSettingsV3 } from "./lib/backup-schema.mjs";
 import type { KeybindClass, KeybindType } from "./data/keybindPresets";
 
 const SETTINGS_KEY = "bindforge-nw:settings:v2";
@@ -28,6 +29,7 @@ const AUTOSAVE_DELAY_MS = 220;
 export type ThemeChoice = "system" | "light" | "dark";
 export type OutputMode = "bind" | "unbind";
 export type DifficultyFilter = "All" | "Easy" | "Advanced" | "Risky";
+export type AccessibilityPreferences = SavedSettingsV3["preferences"];
 
 export type BindForgeState = {
   className: KeybindClass | "All";
@@ -36,8 +38,9 @@ export type BindForgeState = {
   search: string;
   mode: OutputMode;
   keys: Record<string, string>;
-  commandLab: SavedSettingsV2["commandLab"] & { commandId: string };
-  customSay: SavedSettingsV2["customSay"];
+  commandLab: SavedSettingsV3["commandLab"] & { commandId: string };
+  customSay: SavedSettingsV3["customSay"];
+  preferences: AccessibilityPreferences;
   theme: ThemeChoice;
 };
 
@@ -55,6 +58,7 @@ type BindForgeContextValue = {
   resetKey: (presetId: string) => void;
   updateCommandLab: (patch: Partial<BindForgeState["commandLab"]>) => void;
   updateCustomSay: (patch: Partial<BindForgeState["customSay"]>) => void;
+  updatePreferences: (patch: Partial<AccessibilityPreferences>) => void;
   setTheme: (value: ThemeChoice) => void;
   resetFilters: () => void;
   resetAll: () => void;
@@ -64,8 +68,9 @@ type BindForgeContextValue = {
 };
 
 type StoredBackupResult = {
-  backup: SavedSettingsV2;
+  backup: SavedSettingsV3;
   storageAvailable: boolean;
+  migratedFrom: 1 | 2 | null;
 };
 
 const BindForgeContext = createContext<BindForgeContextValue | null>(null);
@@ -75,6 +80,7 @@ function defaultKeys() {
 }
 
 function defaultState(): BindForgeState {
+  const preferences = createDefaultPreferences() as AccessibilityPreferences;
   return {
     className: "All",
     actionType: "All",
@@ -93,7 +99,8 @@ function defaultState(): BindForgeState {
       commandId: "gensendmessage",
     },
     customSay: { key: "f1", message: "ARTIFACTS NOW" },
-    theme: "system",
+    preferences,
+    theme: preferences.theme,
   };
 }
 
@@ -106,11 +113,21 @@ function resolveTheme(choice: ThemeChoice) {
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
-function applyTheme(choice: ThemeChoice) {
-  const resolved = resolveTheme(choice);
-  document.documentElement.dataset.theme = resolved;
-  document.documentElement.dataset.themeChoice = choice;
-  document.documentElement.style.colorScheme = resolved;
+function applyPreferences(preferences: AccessibilityPreferences) {
+  const root = document.documentElement;
+  const resolved = resolveTheme(preferences.theme);
+  root.dataset.theme = resolved;
+  root.dataset.themeChoice = preferences.theme;
+  root.dataset.experience = preferences.experience;
+  root.dataset.textSize = preferences.textSize;
+  root.dataset.density = preferences.density;
+  root.dataset.contrast = preferences.contrast;
+  root.dataset.largeControls = preferences.largeControls ? "true" : "false";
+  root.dataset.motion = preferences.reducedMotion ? "reduced" : "system";
+  root.dataset.explainTerms = preferences.explainTerms ? "true" : "false";
+  root.dataset.confirmRisky = preferences.confirmRisky ? "true" : "false";
+  root.dataset.showRawCommands = preferences.showRawCommands ? "true" : "false";
+  root.style.colorScheme = resolved;
 }
 
 function storageGet(key: string) {
@@ -139,8 +156,9 @@ function storageRemove(key: string) {
   }
 }
 
-function stateFromBackup(settings: SavedSettingsV2, theme: ThemeChoice): BindForgeState {
+function stateFromBackup(settings: SavedSettingsV3, preferenceOverride?: AccessibilityPreferences): BindForgeState {
   const defaults = defaultState();
+  const preferences = preferenceOverride ? { ...preferenceOverride } : { ...settings.preferences };
   return {
     className: settings.filters.className as BindForgeState["className"],
     actionType: settings.filters.actionType as BindForgeState["actionType"],
@@ -150,13 +168,14 @@ function stateFromBackup(settings: SavedSettingsV2, theme: ThemeChoice): BindFor
     keys: { ...defaults.keys, ...settings.keys },
     commandLab: { ...defaults.commandLab, ...settings.commandLab },
     customSay: settings.customSay,
-    theme,
+    preferences,
+    theme: preferences.theme,
   };
 }
 
-function backupFromState(state: BindForgeState, savedAt = new Date().toISOString()): SavedSettingsV2 {
+function backupFromState(state: BindForgeState, savedAt = new Date().toISOString()): SavedSettingsV3 {
   const candidate = {
-    version: 2,
+    version: 3,
     savedAt,
     keys: state.keys,
     filters: {
@@ -176,6 +195,7 @@ function backupFromState(state: BindForgeState, savedAt = new Date().toISOString
       showRisky: state.commandLab.showRisky,
     },
     customSay: state.customSay,
+    preferences: { ...state.preferences, theme: state.theme },
   };
   const parsed = parseBackupValue(candidate);
   return parsed.ok ? parsed.value : createDefaultBackup(savedAt);
@@ -193,20 +213,37 @@ function readStoredBackup(): StoredBackupResult {
 
   if (current) {
     const parsed = parseBackupJson(current);
-    if (parsed.ok) return { backup: parsed.value, storageAvailable };
+    if (parsed.ok) {
+      if (parsed.migratedFrom) {
+        const legacyTheme = validTheme(storageGet(THEME_KEY));
+        const backup: SavedSettingsV3 = {
+          ...parsed.value,
+          preferences: { ...parsed.value.preferences, theme: legacyTheme },
+        };
+        storageAvailable = storageSet(SETTINGS_KEY, JSON.stringify(backup)) && storageAvailable;
+        storageAvailable = storageRemove(LEGACY_SETTINGS_KEY) && storageAvailable;
+        return { backup, storageAvailable, migratedFrom: parsed.migratedFrom };
+      }
+      return { backup: parsed.value, storageAvailable, migratedFrom: null };
+    }
   }
 
   const legacy = storageGet(LEGACY_SETTINGS_KEY);
   if (legacy) {
     const parsed = parseBackupJson(legacy);
     if (parsed.ok) {
-      storageAvailable = storageSet(SETTINGS_KEY, JSON.stringify(parsed.value)) && storageAvailable;
+      const legacyTheme = validTheme(storageGet(THEME_KEY));
+      const backup: SavedSettingsV3 = {
+        ...parsed.value,
+        preferences: { ...parsed.value.preferences, theme: legacyTheme },
+      };
+      storageAvailable = storageSet(SETTINGS_KEY, JSON.stringify(backup)) && storageAvailable;
       storageAvailable = storageRemove(LEGACY_SETTINGS_KEY) && storageAvailable;
-      return { backup: parsed.value, storageAvailable };
+      return { backup, storageAvailable, migratedFrom: parsed.migratedFrom };
     }
   }
 
-  return { backup: createDefaultBackup(DEFAULT_SAVED_AT), storageAvailable };
+  return { backup: createDefaultBackup(DEFAULT_SAVED_AT), storageAvailable, migratedFrom: null };
 }
 
 export function BindForgeProvider({ children }: { children: React.ReactNode }) {
@@ -219,16 +256,17 @@ export function BindForgeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
-      const { backup, storageAvailable } = readStoredBackup();
-      const theme = validTheme(storageGet(THEME_KEY));
-      applyTheme(theme);
-      setState(stateFromBackup(backup, theme));
+      const { backup, storageAvailable, migratedFrom } = readStoredBackup();
+      applyPreferences(backup.preferences);
+      setState(stateFromBackup(backup));
       setSavedAt(backup.savedAt === DEFAULT_SAVED_AT ? null : backup.savedAt);
       setStatus(
         storageAvailable
-          ? backup.savedAt === DEFAULT_SAVED_AT
-            ? "Ready to save customizations"
-            : "Previous settings restored"
+          ? migratedFrom
+            ? `Version ${migratedFrom} settings migrated`
+            : backup.savedAt === DEFAULT_SAVED_AT
+              ? "Ready to save customizations"
+              : "Previous settings restored"
           : "Browser storage is unavailable; changes will last only for this session",
       );
       setHydrated(true);
@@ -269,14 +307,14 @@ export function BindForgeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!hydrated) return;
-    applyTheme(state.theme);
+    applyPreferences(state.preferences);
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const onChange = () => {
-      if (state.theme === "system") applyTheme("system");
+      if (state.theme === "system") applyPreferences(state.preferences);
     };
     media.addEventListener("change", onChange);
     return () => media.removeEventListener("change", onChange);
-  }, [hydrated, state.theme]);
+  }, [hydrated, state.preferences, state.theme]);
 
   const patchState = useCallback((patch: Partial<BindForgeState>) => {
     setState((current) => ({ ...current, ...patch }));
@@ -312,7 +350,15 @@ export function BindForgeProvider({ children }: { children: React.ReactNode }) {
       ...current,
       customSay: { ...current.customSay, ...patch },
     })),
-    setTheme: (theme) => patchState({ theme }),
+    updatePreferences: (patch) => setState((current) => {
+      const preferences = { ...current.preferences, ...patch };
+      return { ...current, preferences, theme: preferences.theme };
+    }),
+    setTheme: (theme) => setState((current) => ({
+      ...current,
+      theme,
+      preferences: { ...current.preferences, theme },
+    })),
     resetFilters: () => patchState({
       className: "All",
       actionType: "All",
@@ -320,21 +366,25 @@ export function BindForgeProvider({ children }: { children: React.ReactNode }) {
       search: "",
       mode: "bind",
     }),
-    resetAll: () => setState((current) => ({ ...defaultState(), theme: current.theme })),
+    resetAll: () => setState((current) => ({
+      ...defaultState(),
+      preferences: current.preferences,
+      theme: current.theme,
+    })),
     exportBackup: () => {
       const backup = backupFromState(state);
       const persisted = storageSet(SETTINGS_KEY, JSON.stringify(backup));
       const url = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" }));
       const link = document.createElement("a");
       link.href = url;
-      link.download = `bindforge-backup-v2-${new Date().toISOString().slice(0, 10)}.json`;
+      link.download = `bindforge-backup-v3-${new Date().toISOString().slice(0, 10)}.json`;
       link.hidden = true;
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 0);
       setSavedAt(backup.savedAt);
-      setStatus(persisted ? "Version 2 backup exported" : "Backup exported; browser storage remains unavailable");
+      setStatus(persisted ? "Version 3 backup exported" : "Backup exported; browser storage remains unavailable");
     },
     importBackup: async (file) => {
       if (file.size > MAX_BACKUP_BYTES) {
@@ -349,15 +399,18 @@ export function BindForgeProvider({ children }: { children: React.ReactNode }) {
           return;
         }
 
-        const next = stateFromBackup(parsed.value, state.theme);
+        const preferences = parsed.migratedFrom ? state.preferences : parsed.value.preferences;
+        const next = stateFromBackup(parsed.value, preferences);
+        const normalized = backupFromState(next, parsed.value.savedAt);
         setState(next);
-        const persisted = storageSet(SETTINGS_KEY, JSON.stringify(parsed.value));
+        const persisted = storageSet(SETTINGS_KEY, JSON.stringify(normalized));
+        storageSet(THEME_KEY, next.theme);
         storageRemove(LEGACY_SETTINGS_KEY);
-        setSavedAt(parsed.value.savedAt);
+        setSavedAt(normalized.savedAt);
         setStatus(
           persisted
-            ? parsed.migratedFrom === 1
-              ? "Version 1 backup migrated and restored"
+            ? parsed.migratedFrom
+              ? `Version ${parsed.migratedFrom} backup migrated and restored`
               : "Backup validated and restored"
             : "Backup restored for this session; browser storage is unavailable",
         );
@@ -375,7 +428,9 @@ export function BindForgeProvider({ children }: { children: React.ReactNode }) {
       const settingsRemoved = storageRemove(SETTINGS_KEY);
       const legacyRemoved = storageRemove(LEGACY_SETTINGS_KEY);
       const themeRemoved = storageRemove(THEME_KEY);
-      setState(defaultState());
+      const fresh = defaultState();
+      setState(fresh);
+      applyPreferences(fresh.preferences);
       setSavedAt(null);
       setStatus(
         settingsRemoved && legacyRemoved && themeRemoved
