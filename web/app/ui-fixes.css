@@ -275,7 +275,7 @@ input[data-key-capture='true']:focus + .key-capture-hint {
 
 .app-shell .hero-plate {
   min-height: 0;
-  padding: 2.75rem 3rem 1.8rem;
+  padding: 2.75rem 3rem 1.45rem;
   border-color: var(--line);
   background:
     radial-gradient(circle at 78% 18%, rgba(237, 111, 92, 0.18), transparent 22%),
@@ -308,7 +308,7 @@ input[data-key-capture='true']:focus + .key-capture-hint {
 }
 
 .app-shell .command-specimen {
-  margin-top: 2.8rem;
+  margin-top: 2.65rem;
   padding: 1.8rem 2rem;
   transform: rotate(-1deg);
   box-shadow: 18px 18px 0 rgba(237, 111, 92, 0.2);
