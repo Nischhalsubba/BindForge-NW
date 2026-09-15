@@ -24,6 +24,15 @@
   --primary-hover: #923d32;
   --color-primary-hover: #923d32;
 
+  /* Stable light-paper surfaces used inside the inverted dark theme. */
+  --nav-paper: #efe7d2;
+  --nav-ink: #15140f;
+  --nav-muted: #625c50;
+  --nav-accent: #a84b3d;
+  --specimen-paper: #f7f1de;
+  --specimen-ink: #15140f;
+  --specimen-muted: #5a5448;
+
   /* Accessible type scale for functional UI copy. */
   --type-meta: 0.8125rem;
   --type-label: 0.875rem;
@@ -210,26 +219,27 @@ label:has(> input[type='radio']) {
 }
 
 .site-nav {
-  color: #15140f;
-  border-bottom-color: rgba(21, 20, 15, .12);
+  color: var(--nav-ink);
+  background: color-mix(in srgb, var(--nav-paper) 94%, transparent);
+  border-bottom-color: color-mix(in srgb, var(--nav-ink) 12%, transparent);
 }
 
 .site-nav .brand-copy b,
 .site-nav .site-nav-links a {
-  color: #15140f;
+  color: var(--nav-ink);
 }
 
 .site-nav .brand-copy small,
 .site-nav .site-nav-links a span {
-  color: #625c50;
+  color: var(--nav-muted);
 }
 
 .site-nav .site-nav-links a:hover {
-  color: #a84b3d;
+  color: var(--nav-accent);
 }
 
 html[data-theme='dark'] .brand-mark {
-  background: #15140f;
+  background: var(--nav-ink);
 }
 
 /* Keep the secondary path visibly interactive on both light and dark surfaces. */
@@ -244,16 +254,16 @@ html[data-theme='dark'] .brand-mark {
 
 /* The dark theme uses a light command specimen: keep its copy dark enough to read. */
 html[data-theme='dark'] .command-specimen {
-  background: #f7f1de;
-  color: #15140f;
+  background: var(--specimen-paper);
+  color: var(--specimen-ink);
 }
 
 html[data-theme='dark'] .command-specimen p {
-  color: #625c50;
+  color: var(--nav-muted);
 }
 
 html[data-theme='dark'] .command-specimen small {
-  color: #5a5448;
+  color: var(--specimen-muted);
 }
 
 .hero-index b {
