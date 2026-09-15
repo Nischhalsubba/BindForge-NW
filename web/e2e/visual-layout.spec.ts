@@ -79,3 +79,20 @@ test("captures the light-theme workspace", async ({ page }, testInfo) => {
   await expectNoDocumentOverflow(page);
   await page.screenshot({ fullPage: true, path: testInfo.outputPath("workspace-light.png") });
 });
+
+test("keeps the dark-theme navigation readable and attaches settings to the hero plate", async ({ page }) => {
+  await waitForLibrary(page);
+
+  const heroPlate = page.locator(".hero-plate");
+  const settingsTrigger = heroPlate.getByRole("button", { name: "Local data & backup", exact: true });
+  await expect(settingsTrigger).toBeVisible();
+
+  await settingsTrigger.click();
+  await page.getByLabel("Appearance").getByRole("button", { name: "Dark" }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await page.getByRole("button", { name: "Close settings" }).click();
+
+  await expect(page.locator(".site-nav")).toHaveCSS("color", "rgb(21, 20, 15)");
+  await expect(page.locator(".site-nav-links a").first()).toHaveCSS("color", "rgb(21, 20, 15)");
+  await expectNoDocumentOverflow(page);
+});

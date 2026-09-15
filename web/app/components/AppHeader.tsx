@@ -2,6 +2,7 @@ import { consoleCommands } from "../data/commands";
 import { keyCombos } from "../data/keyCombos";
 import { keybindPresets } from "../data/keybindPresets";
 import { Icon } from "./Icon";
+import { SettingsPanel } from "./SettingsPanel";
 
 export type CopyFeedback = { state: "idle" | "copied" | "fallback" | "error"; label: string };
 
@@ -85,6 +86,7 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
             <Icon name="shield" />
             <span><strong>{statusTitle}</strong><small>{statusDetail}</small></span>
           </div>
+          <SettingsPanel />
         </div>
       </section>
     </header>

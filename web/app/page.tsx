@@ -7,7 +7,6 @@ import { GsapMotionEnhancer } from "./components/GsapMotionEnhancer";
 import { Icon } from "./components/Icon";
 import { PrimaryWorkspace } from "./components/PrimaryWorkspace";
 import { RevealController } from "./components/RevealController";
-import { SettingsPanel } from "./components/SettingsPanel";
 import { UrlStateBridge } from "./components/UrlStateBridge";
 import { copyTextSafely } from "./lib/clipboard";
 
@@ -58,7 +57,6 @@ export default function Home() {
       <div className="side-rail right" aria-hidden="true"><span>Neverwinter Command Systems · MMXXVI</span></div>
       <UrlStateBridge />
       <AppHeader feedback={feedback} />
-      <SettingsPanel />
 
       <PrimaryWorkspace onCopy={copyText} />
 
