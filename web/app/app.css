@@ -44,6 +44,9 @@
   --motion-normal: 240ms;
   --motion-slow: 360ms;
   --ease-ui: cubic-bezier(.22, .61, .36, 1);
+
+  /* Give the editorial desktop layout more useful horizontal room. */
+  --content: 1520px;
 }
 
 html {
@@ -185,26 +188,144 @@ label:has(> input[type='radio']) {
 }
 
 /* Primary workflow layout: preserve the visual system while shortening the old long-page shell. */
-.app-header { padding-bottom: 44px; }
-.hero { min-height: min(680px, calc(100vh - 150px)); padding-top: 48px; }
+.app-header { padding-bottom: 28px; }
+.hero { min-height: min(640px, calc(100vh - 150px)); padding-top: 40px; padding-bottom: 20px; }
 .hero-plate { min-height: 520px; padding-top: 48px; padding-bottom: 34px; }
 .command-specimen { margin-top: 54px; }
 .hero-index { margin-top: 48px; }
 .app-footer { margin-top: 54px; }
+
+/*
+ * Hero usability refinement.
+ * The dark theme deliberately keeps the navigation on a light paper strip,
+ * so its foreground must stay dark instead of inheriting the inverted theme ink.
+ */
+.app-header,
+.workbench-intro,
+.workspace,
+.tools-chapter,
+.app-footer,
+.settings-anchor {
+  width: min(calc(100% - 96px), var(--content));
+}
+
+.site-nav {
+  color: #15140f;
+  border-bottom-color: rgba(21, 20, 15, .12);
+}
+
+.site-nav .brand-copy b,
+.site-nav .site-nav-links a {
+  color: #15140f;
+}
+
+.site-nav .brand-copy small,
+.site-nav .site-nav-links a span {
+  color: #625c50;
+}
+
+.site-nav .site-nav-links a:hover {
+  color: #a84b3d;
+}
+
+html[data-theme='dark'] .brand-mark {
+  background: #15140f;
+}
+
+/* Keep the secondary path visibly interactive on both light and dark surfaces. */
+.btn-ghost {
+  border-color: var(--line-strong);
+  background: color-mix(in srgb, var(--surface) 14%, transparent);
+}
+
+.btn-ghost:hover {
+  background: color-mix(in srgb, var(--coral) 7%, transparent);
+}
+
+/* The dark theme uses a light command specimen: keep its copy dark enough to read. */
+html[data-theme='dark'] .command-specimen {
+  background: #f7f1de;
+  color: #15140f;
+}
+
+html[data-theme='dark'] .command-specimen p {
+  color: #625c50;
+}
+
+html[data-theme='dark'] .command-specimen small {
+  color: #5a5448;
+}
+
+.hero-index b {
+  font-size: var(--type-label);
+}
+
+.ready-state strong {
+  font-size: var(--type-label);
+}
+
+.hero-stats span {
+  grid-template-columns: 34px 64px 1fr;
+  gap: 8px;
+}
+
+.side-rail span {
+  opacity: .58;
+}
 
 /* Keep the footer/provenance position stable when desktop users switch between the four primary tools. */
 @media (min-width: 881px) {
   #primary-workspace-panel { min-height: 800px; }
 }
 
+@media (max-width: 1279px) {
+  .app-header,
+  .workbench-intro,
+  .workspace,
+  .tools-chapter,
+  .app-footer,
+  .settings-anchor {
+    width: min(calc(100% - 88px), var(--content));
+  }
+}
+
 @media (max-width: 1080px) {
+  .app-header,
+  .workbench-intro,
+  .workspace,
+  .tools-chapter,
+  .app-footer,
+  .settings-anchor {
+    width: min(calc(100% - 64px), var(--content));
+  }
+
   .hero { min-height: auto; padding-top: 40px; }
   .hero-plate { min-height: 500px; }
 }
 
+@media (max-width: 880px) {
+  .app-header,
+  .workbench-intro,
+  .workspace,
+  .tools-chapter,
+  .app-footer,
+  .settings-anchor {
+    width: calc(100% - 48px);
+  }
+}
+
 @media (max-width: 560px) {
+  .app-header,
+  .workbench-intro,
+  .workspace,
+  .tools-chapter,
+  .app-footer,
+  .settings-anchor {
+    width: calc(100% - 32px);
+  }
+
   .app-header { padding-bottom: 42px; }
-  .hero { padding-top: 32px; }
+  .hero { padding-top: 32px; padding-bottom: 0; }
   .hero-plate { min-height: 470px; }
   .command-specimen { margin-top: 42px; }
   .hero-index { margin-top: 42px; }
