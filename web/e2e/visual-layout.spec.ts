@@ -80,7 +80,9 @@ test("captures the light-theme workspace", async ({ page }, testInfo) => {
   await page.screenshot({ fullPage: true, path: testInfo.outputPath("workspace-light.png") });
 });
 
-test("keeps the dark-theme navigation readable and attaches settings to the hero plate", async ({ page }) => {
+test("keeps the wide-desktop hero readable, dense, and connected to the workspace", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop-chromium", "Wide-desktop geometry is checked once in the desktop project.");
+  await page.setViewportSize({ width: 1920, height: 1080 });
   await waitForLibrary(page);
 
   const heroPlate = page.locator(".hero-plate");
@@ -95,4 +97,32 @@ test("keeps the dark-theme navigation readable and attaches settings to the hero
   await expect(page.locator(".site-nav")).toHaveCSS("color", "rgb(21, 20, 15)");
   await expect(page.locator(".site-nav-links a").first()).toHaveCSS("color", "rgb(21, 20, 15)");
   await expectNoDocumentOverflow(page);
+
+  const geometry = await page.evaluate(() => {
+    const viewportWidth = document.documentElement.clientWidth;
+    const header = document.querySelector<HTMLElement>(".app-header")?.getBoundingClientRect();
+    const hero = document.querySelector<HTMLElement>(".hero")?.getBoundingClientRect();
+    const plate = document.querySelector<HTMLElement>(".hero-plate")?.getBoundingClientRect();
+    const sectionRule = document.querySelector<HTMLElement>("#primary-workspace .section-rule")?.getBoundingClientRect();
+    const indexSmall = document.querySelector<HTMLElement>(".hero-index small");
+    const specimenSmall = document.querySelector<HTMLElement>(".command-specimen small");
+    const sideRail = document.querySelector<HTMLElement>(".side-rail");
+
+    return {
+      viewportWidth,
+      headerWidth: header?.width ?? 0,
+      plateHeight: plate?.height ?? 0,
+      workspaceGap: hero && sectionRule ? sectionRule.top - hero.bottom : Number.POSITIVE_INFINITY,
+      indexFontSize: indexSmall ? Number.parseFloat(getComputedStyle(indexSmall).fontSize) : 0,
+      specimenFontSize: specimenSmall ? Number.parseFloat(getComputedStyle(specimenSmall).fontSize) : 0,
+      sideRailDisplay: sideRail ? getComputedStyle(sideRail).display : "missing",
+    };
+  });
+
+  expect(geometry.headerWidth / geometry.viewportWidth).toBeGreaterThanOrEqual(0.84);
+  expect(geometry.plateHeight).toBeLessThanOrEqual(620);
+  expect(geometry.workspaceGap).toBeLessThanOrEqual(48);
+  expect(geometry.indexFontSize).toBeGreaterThanOrEqual(13);
+  expect(geometry.specimenFontSize).toBeGreaterThanOrEqual(14);
+  expect(geometry.sideRailDisplay).toBe("none");
 });

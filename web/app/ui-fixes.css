@@ -179,116 +179,237 @@ input[data-key-capture='true']:focus + .key-capture-hint {
   will-change: transform;
 }
 
-/* 3. Give the hero a stronger editorial focal point. */
-.app-header {
-  position: relative;
+/* 3. Give the hero a stronger editorial focal point without sacrificing tool readability. */
+.app-shell {
+  --content: 1680px;
 }
 
-.app-header::before {
+.app-shell .app-header,
+.app-shell .workbench-intro,
+.app-shell .workspace,
+.app-shell .tools-chapter,
+.app-shell .app-footer,
+.app-shell .settings-anchor {
+  width: min(calc(100% - 80px), var(--content));
+}
+
+.app-shell .app-header {
+  position: relative;
+  padding-bottom: 0;
+}
+
+.app-shell .app-header::before {
   content: 'BF / 01';
   position: absolute;
   top: 11rem;
   right: -0.5rem;
-  color: rgba(21, 20, 15, 0.055);
+  color: rgba(21, 20, 15, 0.045);
   font: italic 500 clamp(5rem, 12vw, 11rem) var(--serif);
   letter-spacing: -0.06em;
   pointer-events: none;
 }
 
-.hero {
+.app-shell .hero {
   position: relative;
-  gap: clamp(4rem, 7vw, 8rem);
+  grid-template-columns: minmax(0, .86fr) minmax(0, 1.14fr);
+  gap: clamp(3.5rem, 5vw, 6rem);
+  min-height: auto;
+  padding-top: clamp(2.5rem, 4vw, 3.5rem);
+  padding-bottom: clamp(1.5rem, 2.6vw, 2.5rem);
+  align-items: center;
 }
 
-.hero-copy {
+.app-shell .hero-copy {
   position: relative;
   z-index: 2;
-  padding-block: 2rem;
+  max-width: 44rem;
+  padding-block: 0;
 }
 
-.hero-copy::after {
+.app-shell .hero-copy::after {
   content: '';
   display: block;
-  width: min(18rem, 72%);
-  margin-top: 3rem;
+  width: min(17rem, 68%);
+  margin-top: 2rem;
   border-top: 1px solid var(--line-strong);
 }
 
-.hero .display {
-  max-width: 8.7ch;
-  font-size: clamp(4.5rem, 7.6vw, 7.5rem);
-  line-height: 0.88;
+.app-shell .hero .display {
+  max-width: 8.9ch;
+  font-size: clamp(4.6rem, 5.8vw, 6.85rem);
+  line-height: .9;
   text-wrap: balance;
 }
 
-.hero .lead {
-  max-width: 33rem;
-  font-size: clamp(1rem, 1.25vw, 1.18rem);
+.app-shell .hero .lead {
+  max-width: 42ch;
+  margin-top: 1.5rem;
+  font-size: clamp(1rem, 1.05vw, 1.125rem);
+  line-height: 1.62;
 }
 
-.hero-plate {
-  min-height: 680px;
+.app-shell .hero-actions {
+  margin-top: 1.65rem;
+}
+
+.app-shell .hero-stats {
+  gap: .7rem;
+  margin-top: 2rem;
+}
+
+.app-shell .hero-stats span {
+  grid-template-columns: 36px 72px minmax(0, 1fr);
+  gap: 6px;
+}
+
+.app-shell .hero-stats strong {
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.app-shell .hero-stats small {
+  font-size: .8125rem;
+  line-height: 1.25;
+  letter-spacing: .045em;
+}
+
+.app-shell .hero-plate {
+  min-height: 0;
+  padding: 2.75rem 3rem 1.45rem;
   border-color: var(--line);
   background:
-    radial-gradient(circle at 78% 18%, rgba(237, 111, 92, 0.2), transparent 22%),
-    radial-gradient(circle at 18% 78%, rgba(110, 116, 72, 0.11), transparent 24%),
+    radial-gradient(circle at 78% 18%, rgba(237, 111, 92, 0.18), transparent 22%),
+    radial-gradient(circle at 18% 78%, rgba(110, 116, 72, 0.09), transparent 24%),
     var(--paper-warm);
   box-shadow: 28px 34px 70px -42px rgba(21, 20, 15, 0.42);
 }
 
-.hero-plate::before {
+.app-shell .hero-plate::before {
   background:
     linear-gradient(90deg, transparent 0 49.85%, rgba(21, 20, 15, 0.08) 49.85% 50%, transparent 50%),
     linear-gradient(0deg, transparent 0 59.85%, rgba(21, 20, 15, 0.06) 59.85% 60%, transparent 60%);
 }
 
-.hero-plate::after {
+.app-shell .hero-plate::after {
   content: '';
   position: absolute;
   z-index: 1;
-  width: 14rem;
-  height: 14rem;
-  right: -4rem;
-  top: 7rem;
-  border: 1px dashed rgba(21, 20, 15, 0.24);
+  width: 12rem;
+  height: 12rem;
+  right: -3.5rem;
+  top: 6rem;
+  border: 1px dashed rgba(21, 20, 15, 0.2);
   border-radius: 50%;
 }
 
-.command-specimen {
-  margin-top: 6.5rem;
-  padding: clamp(2rem, 3vw, 3rem);
-  transform: rotate(-1.5deg);
-  box-shadow: 22px 22px 0 rgba(237, 111, 92, 0.22);
+.app-shell .plate-meta {
+  font-size: .75rem;
+  line-height: 1.3;
 }
 
-.command-specimen::before {
+.app-shell .command-specimen {
+  margin-top: 2.65rem;
+  padding: 1.8rem 2rem;
+  transform: rotate(-1deg);
+  box-shadow: 18px 18px 0 rgba(237, 111, 92, 0.2);
+}
+
+.app-shell .command-specimen::before {
   content: 'COMMAND / READY';
   position: absolute;
-  top: -1.9rem;
+  top: -1.65rem;
   left: 0;
   color: var(--ink-faint);
-  font: 500 9px var(--mono);
-  letter-spacing: 0.14em;
+  font: 500 .7rem var(--mono);
+  letter-spacing: 0.12em;
 }
 
-.hero-index {
+.app-shell .command-specimen p {
+  margin-bottom: .9rem;
+  font-size: .75rem;
+  line-height: 1.35;
+}
+
+.app-shell .command-specimen code {
+  font-size: clamp(.95rem, 1.05vw, 1.22rem);
+  line-height: 1.55;
+}
+
+.app-shell .command-specimen small {
+  margin-top: 1rem;
+  font-size: .875rem;
+  line-height: 1.45;
+}
+
+.app-shell .hero-index {
+  margin-top: 2rem;
   background: color-mix(in srgb, var(--bone) 74%, transparent);
 }
 
-.hero-index li {
-  min-height: 5.5rem;
-  padding: 1.1rem 0.75rem 0;
+.app-shell .hero-index li {
+  min-height: 5rem;
+  padding: .9rem .85rem 0 0;
   border-right: 1px solid var(--line-soft);
 }
 
-.hero-index li:last-child {
+.app-shell .hero-index li:last-child {
   border-right: 0;
 }
 
-.ready-state .ui-icon {
+.app-shell .hero-index span {
+  font-size: .72rem;
+}
+
+.app-shell .hero-index b {
+  font-size: .95rem;
+  line-height: 1.25;
+}
+
+.app-shell .hero-index small {
+  margin-top: .3rem;
+  color: var(--ink-mute);
+  font-size: .8125rem;
+  line-height: 1.35;
+}
+
+.app-shell .ready-state {
+  margin-top: 1.35rem;
+  padding-top: .9rem;
+}
+
+.app-shell .ready-state .ui-icon {
   width: 1.1rem;
   height: 1.1rem;
   flex-basis: 1.1rem;
+}
+
+.app-shell .ready-state strong {
+  font-size: .95rem;
+  line-height: 1.25;
+}
+
+.app-shell .ready-state small {
+  margin-top: .15rem;
+  font-size: .8125rem;
+  line-height: 1.4;
+}
+
+/* Side rails are an editorial flourish: reserve them for truly wide canvases. */
+@media (max-width: 2047px) {
+  .app-shell .side-rail {
+    display: none;
+  }
+}
+
+@media (max-width: 1279px) {
+  .app-shell .app-header,
+  .app-shell .workbench-intro,
+  .app-shell .workspace,
+  .app-shell .tools-chapter,
+  .app-shell .app-footer,
+  .app-shell .settings-anchor {
+    width: min(calc(100% - 64px), var(--content));
+  }
 }
 
 @media (max-width: 1080px) {
@@ -297,13 +418,22 @@ input[data-key-capture='true']:focus + .key-capture-hint {
     grid-template-columns: minmax(140px, .7fr) minmax(220px, 1.5fr) auto auto;
   }
 
-  .app-header::before {
+  .app-shell .app-header::before {
     top: 9rem;
     right: 0;
   }
 
-  .hero .display {
+  .app-shell .hero {
+    grid-template-columns: 1fr;
+    gap: 2.75rem;
+  }
+
+  .app-shell .hero .display {
     max-width: 10ch;
+  }
+
+  .app-shell .hero-plate {
+    padding-inline: 2.5rem;
   }
 }
 
@@ -323,16 +453,25 @@ input[data-key-capture='true']:focus + .key-capture-hint {
     display: none;
   }
 
-  .app-header::before {
+  .app-shell .app-header,
+  .app-shell .workbench-intro,
+  .app-shell .workspace,
+  .app-shell .tools-chapter,
+  .app-shell .app-footer,
+  .app-shell .settings-anchor {
+    width: calc(100% - 48px);
+  }
+
+  .app-shell .app-header::before {
     display: none;
   }
 
-  .hero-copy::after {
-    margin-top: 2rem;
+  .app-shell .hero-copy::after {
+    margin-top: 1.75rem;
   }
 
-  .hero-plate {
-    min-height: 560px;
+  .app-shell .hero-plate {
+    padding: 2.5rem 2rem 1.6rem;
   }
 }
 
@@ -354,16 +493,30 @@ input[data-key-capture='true']:focus + .key-capture-hint {
     grid-column: auto;
   }
 
-  .hero .display {
+  .app-shell .app-header,
+  .app-shell .workbench-intro,
+  .app-shell .workspace,
+  .app-shell .tools-chapter,
+  .app-shell .app-footer,
+  .app-shell .settings-anchor {
+    width: calc(100% - 32px);
+  }
+
+  .app-shell .hero .display {
     font-size: clamp(3.4rem, 15vw, 5rem);
   }
 
-  .hero-plate {
-    min-height: 500px;
+  .app-shell .hero-plate {
+    padding: 2.25rem 1.5rem 1.4rem;
   }
 
-  .command-specimen {
-    margin-top: 4.5rem;
+  .app-shell .command-specimen {
+    margin-top: 3.6rem;
+    padding: 1.5rem;
+  }
+
+  .app-shell .hero-index {
+    margin-top: 2rem;
   }
 }
 
