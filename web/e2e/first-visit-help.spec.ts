@@ -42,7 +42,7 @@ test("help glossary remains available after onboarding is dismissed", async ({ p
   });
   await page.reload();
 
-  const help = page.locator("#bindforge-help");
+  const help = page.locator("#bindforge-help:visible").first();
   await help.locator("summary").click();
   await expect(help).toContainText("Bind");
   await expect(help).toContainText("Unbind / rollback");
