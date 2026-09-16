@@ -60,11 +60,19 @@ test("reduced motion removes decorative transitions without hiding feedback", as
 
   await expect(page.locator("html")).toHaveAttribute("data-motion", "reduced");
   const motion = await page.getByRole("tab", { name: "Search existing keybinds", exact: true }).evaluate((element) => {
+    function durationSeconds(value: string) {
+      const first = value.split(",")[0]?.trim() ?? "0s";
+      const amount = Number.parseFloat(first) || 0;
+      return first.endsWith("ms") ? amount / 1000 : amount;
+    }
     const style = getComputedStyle(element);
-    return { transition: style.transitionDuration, animation: style.animationDuration };
+    return {
+      transitionSeconds: durationSeconds(style.transitionDuration),
+      animationSeconds: durationSeconds(style.animationDuration),
+    };
   });
-  expect(motion.transition).toMatch(/0\.00001s|0s/);
-  expect(motion.animation).toMatch(/0\.00001s|0s/);
+  expect(motion.transitionSeconds).toBeLessThanOrEqual(0.001);
+  expect(motion.animationSeconds).toBeLessThanOrEqual(0.001);
   await expect(page.locator('[role="status"]').last()).toBeAttached();
 });
 
