@@ -27,8 +27,9 @@
   /* Stable light-paper surfaces used inside the inverted dark theme. */
   --nav-paper: #efe7d2;
   --nav-ink: #15140f;
-  --nav-muted: #625c50;
+  --nav-muted: #5a5448;
   --nav-accent: #a84b3d;
+  --nav-focus: #7f2f27;
   --specimen-paper: #f7f1de;
   --specimen-ink: #15140f;
   --specimen-muted: #5a5448;
@@ -220,8 +221,8 @@ label:has(> input[type='radio']) {
 
 .site-nav {
   color: var(--nav-ink);
-  background: color-mix(in srgb, var(--nav-paper) 94%, transparent);
-  border-bottom-color: color-mix(in srgb, var(--nav-ink) 12%, transparent);
+  background: var(--nav-paper);
+  border-bottom-color: color-mix(in srgb, var(--nav-ink) 16%, transparent);
 }
 
 .site-nav .brand-copy b,
@@ -238,8 +239,25 @@ label:has(> input[type='radio']) {
   color: var(--nav-accent);
 }
 
+.site-nav :where(a, button):focus-visible {
+  outline-color: var(--nav-focus);
+}
+
 html[data-theme='dark'] .brand-mark {
   background: var(--nav-ink);
+}
+
+/* Primary actions must use the semantic foreground token in every theme. */
+.btn-primary,
+.primary-button {
+  background: var(--primary);
+  color: var(--primary-ink);
+}
+
+.btn-primary:hover,
+.primary-button:hover:not(:disabled) {
+  background: var(--primary-hover);
+  color: var(--primary-ink);
 }
 
 /* Keep the secondary path visibly interactive on both light and dark surfaces. */
@@ -264,6 +282,11 @@ html[data-theme='dark'] .command-specimen p {
 
 html[data-theme='dark'] .command-specimen small {
   color: var(--specimen-muted);
+}
+
+/* Phrase groups may wrap between ideas, never in the middle of “Build it.” or “Bind it.” */
+.display-phrase {
+  display: inline-block;
 }
 
 .hero-index b {
