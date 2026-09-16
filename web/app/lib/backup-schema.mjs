@@ -73,7 +73,7 @@ function readKeys(value) {
 export function createDefaultPreferences() {
   return {
     experience: "simple",
-    theme: "system",
+    theme: "light",
     textSize: "default",
     density: "standard",
     contrast: "standard",
