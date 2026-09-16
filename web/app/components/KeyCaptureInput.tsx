@@ -10,13 +10,27 @@ type KeyCaptureInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "onChang
 };
 
 const modifierKeys = new Set(["Control", "Shift", "Alt", "Meta"]);
+const separatorOnly = /^\s*\++\s*$/;
 
-export function KeyCaptureInput({ value, onValueChange, hint = "Click once to focus, then press a keyboard key or mouse button. Ctrl / Alt / Shift combinations are merged automatically, for example Ctrl+5 or Ctrl+Left Click.", ...props }: KeyCaptureInputProps) {
+function sanitizeTypedCombo(value: string) {
+  return separatorOnly.test(value) ? "" : value;
+}
+
+export function KeyCaptureInput({ value, onValueChange, hint = "Click once to focus, then press a keyboard key or mouse button. Ctrl / Alt / Shift combinations are merged automatically, for example Ctrl+5 or Ctrl+Left Click. The + symbol is reserved as the combo separator and is never assigned by itself.", ...props }: KeyCaptureInputProps) {
   function capture(event: KeyboardEvent<HTMLInputElement>) {
     if (event.nativeEvent.isComposing || event.repeat) return;
     if (event.key === "Tab") return;
     if (modifierKeys.has(event.key)) {
       event.preventDefault();
+      return;
+    }
+
+    // The literal "+" is syntax used to join keys (for example ctrl+5), not a key
+    // token of its own. Keep NumpadAdd distinct because Neverwinter names it
+    // explicitly as "numpadadd" rather than "+".
+    if (event.key === "+" && event.code !== "NumpadAdd") {
+      event.preventDefault();
+      event.stopPropagation();
       return;
     }
 
@@ -65,14 +79,14 @@ export function KeyCaptureInput({ value, onValueChange, hint = "Click once to fo
       <input
         {...props}
         data-key-capture="true"
-        onChange={(event) => onValueChange(event.target.value)}
+        onChange={(event) => onValueChange(sanitizeTypedCombo(event.target.value))}
         onContextMenu={(event) => {
           if (document.activeElement === event.currentTarget) event.preventDefault();
         }}
         onKeyDown={capture}
         onMouseDown={captureMouse}
         spellCheck={false}
-        value={value}
+        value={sanitizeTypedCombo(value)}
       />
       <small className="key-capture-hint">{hint}</small>
     </>
