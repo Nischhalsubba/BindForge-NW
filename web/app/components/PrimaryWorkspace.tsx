@@ -2,7 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { KeyboardEvent } from "react";
+import { useBindForge } from "../BindForgeProvider";
+import { keybindPresets } from "../data/keybindPresets";
+import { buildCatalogPacks } from "../lib/catalog-packs.mjs";
 import type { CopyResultState } from "../page";
+import { CatalogQuickPacks } from "./CatalogQuickPacks";
 import { CommandLab } from "./CommandLab";
 import { CustomSayBuilder } from "./CustomSayBuilder";
 import { FilterSidebar } from "./FilterSidebar";
@@ -65,6 +69,7 @@ const tools: WorkspaceTool[] = [
 ];
 
 const hashToView = new Map(tools.map((tool) => [tool.hash, tool.view]));
+const catalogPacks = buildCatalogPacks(keybindPresets);
 
 function viewFromHash(hash: string): WorkspaceView {
   return hashToView.get(hash.replace(/^#/, "")) ?? "search";
@@ -72,7 +77,14 @@ function viewFromHash(hash: string): WorkspaceView {
 
 export function PrimaryWorkspace({ onCopy }: { onCopy: CopyHandler }) {
   const [activeView, setActiveView] = useState<WorkspaceView>("search");
+  const { state, resetFilters, setActionType, setClassName, setDifficulty, setSearch } = useBindForge();
   const activeTool = useMemo(() => tools.find((tool) => tool.view === activeView) ?? tools[0], [activeView]);
+  const activePackId = useMemo(() => catalogPacks.find((pack) => (
+    state.className === pack.filters.className
+    && state.actionType === pack.filters.actionType
+    && state.difficulty === "All"
+    && state.search.trim().toLowerCase() === pack.filters.search.trim().toLowerCase()
+  ))?.id ?? "", [state.actionType, state.className, state.difficulty, state.search]);
 
   useEffect(() => {
     function syncFromHash() {
@@ -92,6 +104,16 @@ export function PrimaryWorkspace({ onCopy }: { onCopy: CopyHandler }) {
     setActiveView(tool.view);
     const nextHash = `#${tool.hash}`;
     if (window.location.hash !== nextHash) window.history.replaceState(null, "", nextHash);
+  }
+
+  function openCatalogPack(packId: string) {
+    const pack = catalogPacks.find((candidate) => candidate.id === packId);
+    if (!pack) return;
+    resetFilters();
+    setClassName(pack.filters.className);
+    setActionType(pack.filters.actionType);
+    setDifficulty("All");
+    setSearch(pack.filters.search);
   }
 
   function handleTabKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
@@ -166,6 +188,7 @@ export function PrimaryWorkspace({ onCopy }: { onCopy: CopyHandler }) {
               <div><span>01</span><h2 id="search-workspace-title">Search keybinds</h2></div>
               <p>Find an existing setup, adjust its key, copy it, favourite it, or keep it in a collection for later.</p>
             </section>
+            <CatalogQuickPacks activePackId={activePackId} onOpenPack={openCatalogPack} packs={catalogPacks} />
             <section className={`workspace ${styles.searchView}`} aria-label="Search existing keybinds">
               <FilterSidebar />
               <KeybindLibrary onCopy={onCopy} />
