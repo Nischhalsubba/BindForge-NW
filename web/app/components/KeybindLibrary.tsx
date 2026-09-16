@@ -13,6 +13,7 @@ import {
   parseBindText,
   resolveBindMap,
 } from "../lib/keybind-core.mjs";
+import { scorePresetSearch, suggestPresetSearches } from "../lib/preset-search.mjs";
 import { SAFE_KEY_SUGGESTIONS, normalizedKey } from "../lib/safe-key-suggestions";
 import type { CopyResultState } from "../page";
 import FilterTopBar from "../FilterTopBar";
@@ -75,7 +76,6 @@ const defaultLibraryState: StoredLibraryState = {
   personalBinds: [], personalSourceName: "", personalImportedAt: "",
 };
 
-function normalizeText(value: string) { return value.trim().toLowerCase(); }
 function unique(values: string[]) { return Array.from(new Set(values)); }
 function difficultyRank(value: KeybindPreset["difficulty"]) { return value === "Easy" ? 0 : value === "Advanced" ? 1 : 2; }
 function warningForKey(value: string) {
@@ -167,7 +167,7 @@ function downloadText(filename: string, text: string) {
 }
 
 export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
-  const { state, setKey, resetKey, resetFilters } = useBindForge();
+  const { state, setKey, setSearch, resetKey, resetFilters } = useBindForge();
   const [library, setLibrary] = useState<StoredLibraryState>(defaultLibraryState);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [activeCollection, setActiveCollection] = useState("all");
@@ -207,32 +207,46 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   const hasPersonalKeymap = Boolean(library.personalBinds.length || library.personalSourceName);
 
   const filtered = useMemo(() => {
-    const query = normalizeText(state.search);
+    const query = state.search.trim();
     const collectionIds = activeCollection === "favourites" ? library.favourites : activeCollection === "all" ? null : library.collections[activeCollection] ?? [];
-    const result = keybindPresets.filter((preset) => {
-      const haystack = normalizeText(`${preset.title} ${preset.type} ${preset.className} ${preset.plainEnglish} ${preset.command} ${preset.searchTerms.join(" ")}`);
+    const result = keybindPresets.flatMap((preset) => {
+      const searchScore = query ? scorePresetSearch(preset, query) : 1;
+      if (query && searchScore <= 0) return [];
       const keyValue = state.keys[preset.id] ?? preset.defaultKey;
       const key = normalizedKey(keyValue);
       const duplicate = selectedSet.has(preset.id) && (selectedKeyUseCounts[key] ?? 0) > 1;
       const status = statusFor(preset, keyValue, duplicate, personalByKey.get(key), hasPersonalKeymap);
       const provenanceMatch = library.provenanceFilter === "all" || preset.sourceType === library.provenanceFilter || preset.confidence === library.provenanceFilter;
-      return (state.className === "All" || preset.className === state.className)
+      const matchesFilters = (state.className === "All" || preset.className === state.className)
         && (state.actionType === "All" || preset.type === state.actionType)
         && (state.difficulty === "All" || preset.difficulty === state.difficulty)
-        && (!query || haystack.includes(query))
         && (!collectionIds || collectionIds.includes(preset.id))
         && provenanceMatch
         && (!library.safeOnly || status.level === "safe" || Boolean(preset.intentionalNativeOverride));
+      return matchesFilters ? [{ preset, searchScore }] : [];
     });
-    return result.sort((left, right) => library.sortMode === "title"
-      ? left.title.localeCompare(right.title)
-      : library.sortMode === "difficulty"
-        ? difficultyRank(left.difficulty) - difficultyRank(right.difficulty) || left.title.localeCompare(right.title)
-        : library.sortMode === "class"
-          ? left.className.localeCompare(right.className) || left.title.localeCompare(right.title)
-          : typeOrder.indexOf(left.type) - typeOrder.indexOf(right.type) || left.title.localeCompare(right.title));
+    return result.sort((left, right) => {
+      if (library.sortMode === "recommended" && query && right.searchScore !== left.searchScore) return right.searchScore - left.searchScore;
+      const leftPreset = left.preset;
+      const rightPreset = right.preset;
+      return library.sortMode === "title"
+        ? leftPreset.title.localeCompare(rightPreset.title)
+        : library.sortMode === "difficulty"
+          ? difficultyRank(leftPreset.difficulty) - difficultyRank(rightPreset.difficulty) || leftPreset.title.localeCompare(rightPreset.title)
+          : library.sortMode === "class"
+            ? leftPreset.className.localeCompare(rightPreset.className) || leftPreset.title.localeCompare(rightPreset.title)
+            : typeOrder.indexOf(leftPreset.type) - typeOrder.indexOf(rightPreset.type) || leftPreset.title.localeCompare(rightPreset.title);
+    }).map(({ preset }) => preset);
   }, [activeCollection, hasPersonalKeymap, library.collections, library.favourites, library.provenanceFilter, library.safeOnly, library.sortMode, personalByKey, selectedKeyUseCounts, selectedSet, state.actionType, state.className, state.difficulty, state.keys, state.search]);
 
+  const searchOnlyMatchCount = useMemo(() => {
+    const query = state.search.trim();
+    if (!query) return keybindPresets.length;
+    return keybindPresets.filter((preset) => scorePresetSearch(preset, query) > 0).length;
+  }, [state.search]);
+  const searchSuggestions = useMemo(() => filtered.length || !state.search.trim()
+    ? []
+    : suggestPresetSearches(keybindPresets, state.search, 3), [filtered.length, state.search]);
   const groupedEntries = useMemo(() => Object.entries(groupedPresets(filtered)), [filtered]);
   const visibleGroups = groupedEntries.slice(0, visibleGroupCount);
   const selectedReviewItems = useMemo<PackReviewItem[]>(() => selectedPresets.map((preset) => {
@@ -318,6 +332,19 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   function clearPersonalBinds() {
     patchLibrary({ personalBinds: [], personalSourceName: "", personalImportedAt: "" });
     setPersonalImportMessage("Personal keymap cleared. BindForge is using common conflict guidance only.");
+  }
+  function clearSecondaryFiltersKeepSearch() {
+    const query = state.search;
+    resetFilters();
+    setSearch(query);
+    setActiveCollection("all");
+    patchLibrary({ provenanceFilter: "all", safeOnly: false });
+  }
+  function applySearchSuggestion(suggestion: string) {
+    resetFilters();
+    setSearch(suggestion);
+    setActiveCollection("all");
+    patchLibrary({ provenanceFilter: "all", safeOnly: false });
   }
   function linesFor(mode: "bind" | "unbind") { return selectedPresets.map((preset) => buildPresetLine(preset, state.keys[preset.id] ?? preset.defaultKey, mode)).join("\n"); }
   async function copyPack(mode: "bind" | "unbind") { if (selectedPresets.length) await onCopy(linesFor(mode), `${selectedPresets.length} ${mode} commands`, null); }
@@ -428,7 +455,27 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
           ) : null}
         </>
       ) : (
-        <div className="empty-state"><div className="empty-icon"><Icon name="search" /></div><h3>No matching keybinds</h3><p>Try a broader search, collection, provenance option, or safety filter.</p><button className="primary-button" onClick={() => { resetFilters(); setActiveCollection("all"); patchLibrary({ provenanceFilter: "all", safeOnly: false }); }} type="button">Clear filters</button></div>
+        <div className="empty-state" data-testid="search-empty-state">
+          <div className="empty-icon"><Icon name="search" /></div>
+          <h3>No matching keybinds</h3>
+          {state.search.trim() && searchOnlyMatchCount > 0 ? (
+            <>
+              <p>{searchOnlyMatchCount} {searchOnlyMatchCount === 1 ? "keybind matches" : "keybinds match"} “{state.search.trim()}”, but the current filters or collection are hiding {searchOnlyMatchCount === 1 ? "it" : "them"}.</p>
+              <button className="primary-button" onClick={clearSecondaryFiltersKeepSearch} type="button">Show search matches</button>
+            </>
+          ) : state.search.trim() ? (
+            <>
+              <p>Try a related class, action, or player phrase. Search understands common abbreviations and small typos.</p>
+              {searchSuggestions.length ? <div className="card-actions" aria-label="Suggested searches">{searchSuggestions.map((suggestion) => <button className="secondary-button" key={suggestion} onClick={() => applySearchSuggestion(suggestion)} type="button">Try “{suggestion}”</button>)}</div> : null}
+              <button className="text-button" onClick={() => setSearch("")} type="button">Clear search</button>
+            </>
+          ) : (
+            <>
+              <p>Try a broader collection, provenance option, or safety filter.</p>
+              <button className="primary-button" onClick={() => { resetFilters(); setActiveCollection("all"); patchLibrary({ provenanceFilter: "all", safeOnly: false }); }} type="button">Clear filters</button>
+            </>
+          )}
+        </div>
       )}
     </section>
   );
