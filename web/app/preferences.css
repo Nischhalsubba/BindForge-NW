@@ -32,6 +32,16 @@ html[data-theme='dark'] {
   --focus: #ffd86f;
   --color-focus: #ffd86f;
   --focus-ring-color: #ffd86f;
+
+  /* Light paper inserts stay unmistakably light against the dark workbench. */
+  --nav-paper: #f7efd9;
+  --nav-ink: #17140f;
+  --nav-muted: #595244;
+  --nav-accent: #9a4137;
+  --nav-focus: #772b25;
+  --specimen-paper: #fff9e9;
+  --specimen-ink: #17140f;
+  --specimen-muted: #625a4c;
 }
 
 html[data-theme='dark'] body::before {
