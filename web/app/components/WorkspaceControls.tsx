@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { PresetConfidence, PresetSourceType } from "../data/keybindTypes";
 import styles from "./WorkspaceControls.module.css";
 
@@ -64,9 +64,15 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
   const keymapPanelId = "personal-keymap-import";
   const reviewPanelId = "selected-pack-review";
 
-  useEffect(() => {
-    if (!props.selectedCount) setReviewOpen(false);
-  }, [props.selectedCount]);
+  function clearSelection() {
+    setReviewOpen(false);
+    props.onClearSelection();
+  }
+
+  function removeSelected(id: string) {
+    if (props.selectedCount <= 1) setReviewOpen(false);
+    props.onRemoveSelected(id);
+  }
 
   return (
     <div className={styles.workspace}>
@@ -125,7 +131,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
             </div>
             <div className={styles.packActions} aria-label="Selected bind pack">
               <button disabled={!props.visibleCount} onClick={props.onSelectVisible} type="button">Select visible</button>
-              <button disabled={!props.selectedCount} onClick={props.onClearSelection} type="button">Clear selection</button>
+              <button disabled={!props.selectedCount} onClick={clearSelection} type="button">Clear selection</button>
               <button className={styles.primary} disabled={!props.selectedCount} onClick={() => { setReviewOpen(true); }} type="button">Review selected pack</button>
               <button disabled={!props.selectedCount} onClick={() => props.onCopyPack("bind")} type="button">Copy bind pack</button>
               <button disabled={!props.selectedCount} onClick={() => props.onCopyPack("unbind")} type="button">Copy unbind pack</button>
@@ -142,7 +148,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
             <span><strong>{props.selectedCount} selected</strong><small>{props.selectedReviewCount ? `${props.selectedReviewCount} ${props.selectedReviewCount === 1 ? "item needs" : "items need"} review` : "No conflicts detected in this pack"}</small></span>
             <div className={styles.trayActions}>
               <button aria-controls={reviewPanelId} aria-expanded={reviewOpen} className={styles.primary} onClick={() => setReviewOpen((value) => !value)} type="button">{reviewOpen ? "Close review" : "Review pack"}</button>
-              <button onClick={props.onClearSelection} type="button">Clear</button>
+              <button onClick={clearSelection} type="button">Clear</button>
             </div>
           </div>
 
@@ -158,7 +164,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
                     <div className={styles.reviewIdentity}>
                       <div><strong>{item.title}</strong><small>{item.confidence}</small></div>
                       <code>{item.keyValue}</code>
-                      <button aria-label={`Remove ${item.title} from selected pack`} onClick={() => props.onRemoveSelected(item.id)} type="button">Remove</button>
+                      <button aria-label={`Remove ${item.title} from selected pack`} onClick={() => removeSelected(item.id)} type="button">Remove</button>
                     </div>
                     <p>{item.statusMessage}</p>
                     <code className={styles.reviewCommand}>{item.line}</code>
