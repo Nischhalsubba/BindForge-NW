@@ -19,21 +19,19 @@ type CatalogPack = {
 
 export function CatalogQuickPacks({
   packs,
-  selectedIds,
-  onAddPack,
+  activePackId,
+  onOpenPack,
 }: {
   packs: CatalogPack[];
-  selectedIds: string[];
-  onAddPack: (ids: string[]) => void;
+  activePackId: string;
+  onOpenPack: (packId: string) => void;
 }) {
-  const selected = new Set(selectedIds);
-
   return (
     <details className={styles.root} data-testid="catalog-quick-packs">
       <summary className={styles.summary}>
         <span className={styles.summaryCopy}>
           <strong>Class & role quick packs</strong>
-          <small>Group existing catalogue presets without inventing new builds.</small>
+          <small>Open evidence-backed catalogue sets without inventing new builds.</small>
         </span>
         <span className={styles.count}>{packs.length} packs</span>
         <span aria-hidden="true" className={styles.chevron}>+</span>
@@ -41,12 +39,11 @@ export function CatalogQuickPacks({
 
       <div className={styles.body}>
         <p className={styles.intro}>
-          These packs only group presets that already carry matching class, role, path, or action metadata in BindForge. They are not automatic build recommendations. Add a pack to your selection, then use the existing conflict and pack-review tools before applying anything in game.
+          These packs only group presets that already carry matching class, role, path, or action metadata in BindForge. They are not automatic build recommendations. Open a pack, review the matching presets, then use the existing <strong>Select visible</strong> and pack-review tools if you want to apply the full set.
         </p>
         <div className={styles.grid}>
           {packs.map((pack) => {
-            const selectedCount = pack.presetIds.filter((id) => selected.has(id)).length;
-            const complete = selectedCount === pack.count;
+            const active = activePackId === pack.id;
             return (
               <article className={styles.card} key={pack.id} data-pack-id={pack.id}>
                 <div className={styles.cardHeader}>
@@ -64,12 +61,12 @@ export function CatalogQuickPacks({
                   {pack.confidence.experimental ? <span className={styles.experimental}>{pack.confidence.experimental} experimental</span> : null}
                 </div>
                 <button
+                  aria-pressed={active}
                   className={styles.action}
-                  disabled={complete}
-                  onClick={() => onAddPack(pack.presetIds)}
+                  onClick={() => onOpenPack(pack.id)}
                   type="button"
                 >
-                  {complete ? "Pack selected" : selectedCount ? `Add remaining ${pack.count - selectedCount}` : `Add ${pack.count} to selection`}
+                  {active ? "Pack open" : `Open ${pack.count}-preset pack`}
                 </button>
               </article>
             );
