@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import { observedWorkingBindFragments, verifiedActionCategories, verifiedKeybindActions } from "../data/verifiedKeybindActions";
 import { buildCommandChain, sanitizeBindFragment, validateCustomFragment } from "../lib/command-chain.mjs";
-import { normalizeCombo } from "../lib/keybind-core.mjs";
+import { isCompleteCombo } from "../lib/keybind-core.mjs";
 import type { CopyResultState } from "../page";
 import { Icon } from "./Icon";
 import { KeyCaptureInput } from "./KeyCaptureInput";
@@ -38,7 +38,7 @@ export function VerifiedBindBuilder({ onCopy }: { onCopy: CopyHandler }) {
   }, [category, search]);
 
   const line = buildCommandChain(keyValue, chain.map((item) => item.fragment));
-  const canCopy = Boolean(normalizeCombo(keyValue) && chain.length);
+  const canCopy = Boolean(isCompleteCombo(keyValue) && chain.length);
 
   function addItem(label: string, fragment: string, source: ChainItem["source"]) {
     setChain((current) => [...current, { instanceId: nextId.current++, label, fragment, source }]);
@@ -118,23 +118,23 @@ export function VerifiedBindBuilder({ onCopy }: { onCopy: CopyHandler }) {
           <KeyCaptureInput
             aria-label="Key for combined Neverwinter bind"
             autoComplete="off"
-            hint="Click once to focus, then press a keyboard key or mouse button. Ctrl / Alt / Shift combinations are merged automatically, for example Ctrl+5 or Ctrl+Left Click. The + symbol is only the separator between keys and cannot be assigned by itself."
+            hint="Press the first key, then +, then the next key to merge them. Held Ctrl / Alt / Shift modifiers also merge automatically, for example Ctrl+5 or Ctrl+Left Click. + is only the separator and is never assigned by itself."
             onValueChange={(value) => { setKeyValue(value); setCopyState("idle"); }}
-            placeholder="Press a key, mouse button, or combination"
+            placeholder="Press a key, then + to add another"
             value={keyValue}
           />
           <div className={styles.quickKeys}>
             <button onClick={() => { setKeyValue("lbutton"); setCopyState("idle"); }} type="button">Left mouse <code>lbutton</code></button>
             <button onClick={() => { setKeyValue("rbutton"); setCopyState("idle"); }} type="button">Right mouse <code>rbutton</code></button>
             <button onClick={() => { setKeyValue("mbutton"); setCopyState("idle"); }} type="button">Middle mouse <code>mbutton</code></button>
-            <small><Icon name="check" /> Mouse capture preserves Ctrl / Alt / Shift modifiers, and keyboard combinations such as Left Ctrl + 5 normalize to <code>ctrl+5</code>.</small>
+            <small><Icon name="check" /> Mouse capture works after a <code>+</code> separator too, so combinations can include keyboard and mouse inputs.</small>
           </div>
         </section>
 
         <section className={styles.previewPanel} aria-labelledby="bind-preview-title">
           <div className={styles.panelHeading}>
             <span>03</span>
-            <div><h3 id="bind-preview-title">Generated bind</h3><p>The preview becomes copy-ready after you choose a key and add at least one action.</p></div>
+            <div><h3 id="bind-preview-title">Generated bind</h3><p>The preview becomes copy-ready after you finish the key combination and add at least one action.</p></div>
           </div>
           <code className={styles.preview} ref={preview} tabIndex={0}>{line}</code>
           <div className={styles.previewActions}>

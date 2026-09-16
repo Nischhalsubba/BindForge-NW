@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import type { KeybindPreset } from "../data/keybindPresets";
-import { normalizeCombo } from "../lib/keybind-core.mjs";
+import { isCompleteCombo, normalizeCombo } from "../lib/keybind-core.mjs";
 import { SAFE_KEY_SUGGESTIONS } from "../lib/safe-key-suggestions";
 import type { CopyResultState } from "../page";
 import { Icon } from "./Icon";
@@ -63,11 +63,14 @@ export function CompactKeybindRow({
   const copyButton = useRef<HTMLButtonElement>(null);
   const detailsId = `${preset.id}-compact-details`;
   const currentKey = normalizeCombo(keyValue);
+  const effectiveKey = keyValue.trim() || preset.defaultKey;
+  const canCopyKey = isCompleteCombo(effectiveKey);
   const directReplacement = replacementKey && normalizeCombo(replacementKey) !== currentKey
     ? replacementKey
     : SAFE_KEY_SUGGESTIONS.find((candidate) => normalizeCombo(candidate) !== currentKey) ?? null;
 
   async function handleCopy() {
+    if (!canCopyKey || copyDisabled) return;
     setCopyState("copying");
     const result = await onCopy(line, preset.title, copyButton.current);
     setCopyState(result);
@@ -125,7 +128,7 @@ export function CompactKeybindRow({
           <button
             aria-label={`${copyLabel}: ${preset.title}`}
             className={styles.copyButton}
-            disabled={copyDisabled || copyState === "copying"}
+            disabled={!canCopyKey || copyDisabled || copyState === "copying"}
             onClick={() => { void handleCopy(); }}
             ref={copyButton}
             type="button"

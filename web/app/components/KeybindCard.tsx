@@ -2,7 +2,7 @@
 
 import { memo, useRef, useState } from "react";
 import type { KeybindPreset } from "../data/keybindPresets";
-import { buildPresetLine, normalizeCombo } from "../lib/keybind-core.mjs";
+import { buildPresetLine, isCompleteCombo, normalizeCombo } from "../lib/keybind-core.mjs";
 import { SAFE_KEY_SUGGESTIONS } from "../lib/safe-key-suggestions";
 import type { CopyResultState } from "../page";
 import { Icon } from "./Icon";
@@ -57,11 +57,14 @@ function KeybindCardComponent(props: KeybindCardProps) {
   const line = buildPresetLine(props.preset, props.keyValue, props.mode);
   const detailsId = `${props.preset.id}-details`;
   const currentKey = normalizeCombo(props.keyValue);
+  const effectiveKey = props.keyValue.trim() || props.preset.defaultKey;
+  const canCopyKey = isCompleteCombo(effectiveKey);
   const directReplacement = props.replacementKey && normalizeCombo(props.replacementKey) !== currentKey
     ? props.replacementKey
     : SAFE_KEY_SUGGESTIONS.find((candidate) => normalizeCombo(candidate) !== currentKey) ?? null;
 
   async function handleCopy() {
+    if (!canCopyKey) return;
     setCopyState("copying");
     const result = await props.onCopy(line, props.preset.title, preview.current);
     setCopyState(result);
@@ -106,7 +109,7 @@ function KeybindCardComponent(props: KeybindCardProps) {
       </div>
 
       <div className="card-actions card-primary-actions">
-        <button aria-label={`${copyLabel}: ${props.preset.title}`} className={`primary-button copy-action copy-action-${copyState}`} disabled={props.duplicate || copyState === "copying"} onClick={() => { void handleCopy(); }} type="button">
+        <button aria-label={`${copyLabel}: ${props.preset.title}`} className={`primary-button copy-action copy-action-${copyState}`} disabled={!canCopyKey || props.duplicate || copyState === "copying"} onClick={() => { void handleCopy(); }} type="button">
           <Icon name={copyState === "error" ? "warning" : copyState === "copied" || copyState === "fallback" ? "shield" : "copy"} /> {copyLabel}
         </button>
         <button aria-controls={detailsId} aria-expanded={detailsOpen} className="secondary-button" onClick={() => setDetailsOpen((value) => !value)} type="button">

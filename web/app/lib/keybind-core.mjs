@@ -43,6 +43,18 @@ export function normalizeCombo(value) {
   return [...orderedModifiers, ...keys].join("+");
 }
 
+export function isCompleteCombo(value) {
+  const raw = String(value ?? "").trim().toLowerCase().replace(/\s+/g, "");
+  if (!raw || raw.startsWith("+") || raw.endsWith("+") || raw.includes("++")) return false;
+
+  const normalized = normalizeCombo(raw);
+  if (!normalized) return false;
+
+  return normalized
+    .split("+")
+    .some((part) => !modifierAliases[part]);
+}
+
 export function baseKey(value) {
   const combo = normalizeCombo(value);
   return combo.split("+").pop() ?? combo;

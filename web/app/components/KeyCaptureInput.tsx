@@ -13,24 +13,38 @@ const modifierKeys = new Set(["Control", "Shift", "Alt", "Meta"]);
 const separatorOnly = /^\s*\++\s*$/;
 
 function sanitizeTypedCombo(value: string) {
-  return separatorOnly.test(value) ? "" : value;
+  const compactSeparators = value.replace(/\s*\+\s*/g, "+").replace(/\+{2,}/g, "+");
+  return separatorOnly.test(compactSeparators) ? "" : compactSeparators;
 }
 
-export function KeyCaptureInput({ value, onValueChange, hint = "Click once to focus, then press a keyboard key or mouse button. Ctrl / Alt / Shift combinations are merged automatically, for example Ctrl+5 or Ctrl+Left Click. The + symbol is reserved as the combo separator and is never assigned by itself.", ...props }: KeyCaptureInputProps) {
+function appendCapturedToken(currentValue: string, token: string) {
+  const current = sanitizeTypedCombo(currentValue).trim();
+  if (!current.endsWith("+")) return token;
+  const prefix = current.slice(0, -1).trim();
+  return prefix ? `${prefix}+${token}` : token;
+}
+
+export function KeyCaptureInput({ value, onValueChange, hint = "Click once to focus, then press a key or mouse button. To merge keys, press the first key, then +, then the next key. Ctrl / Alt / Shift held with another key are merged automatically too. The + symbol joins keys and is never assigned by itself.", ...props }: KeyCaptureInputProps) {
   function capture(event: KeyboardEvent<HTMLInputElement>) {
     if (event.nativeEvent.isComposing || event.repeat) return;
     if (event.key === "Tab") return;
+
+    // On most keyboards the + character is Shift+=. Ignore the Shift keydown itself so
+    // the current capture stays intact, then use the + keypress to arm the next merge.
     if (modifierKeys.has(event.key)) {
       event.preventDefault();
       return;
     }
 
-    // The literal "+" is syntax used to join keys (for example ctrl+5), not a key
-    // token of its own. Keep NumpadAdd distinct because Neverwinter names it
-    // explicitly as "numpadadd" rather than "+".
+    // The literal "+" is syntax used to join captured keys. Pressing it after an existing
+    // key leaves a visible trailing separator (for example "5+") so the next keyboard or
+    // mouse input is appended instead of replacing the first key. NumpadAdd stays a real
+    // Neverwinter key token because the game exposes it explicitly as "numpadadd".
     if (event.key === "+" && event.code !== "NumpadAdd") {
       event.preventDefault();
       event.stopPropagation();
+      const current = sanitizeTypedCombo(value).trim();
+      if (current && !current.endsWith("+")) onValueChange(`${current}+`);
       return;
     }
 
@@ -47,7 +61,7 @@ export function KeyCaptureInput({ value, onValueChange, hint = "Click once to fo
     if (!combo) return;
     event.preventDefault();
     event.stopPropagation();
-    onValueChange(combo);
+    onValueChange(appendCapturedToken(value, combo));
   }
 
   function captureMouse(event: MouseEvent<HTMLInputElement>) {
@@ -71,7 +85,7 @@ export function KeyCaptureInput({ value, onValueChange, hint = "Click once to fo
     event.preventDefault();
     event.stopPropagation();
     if (!alreadyFocused) event.currentTarget.focus({ preventScroll: true });
-    onValueChange(combo);
+    onValueChange(appendCapturedToken(value, combo));
   }
 
   return (

@@ -6,6 +6,7 @@ export type PresetCommand = {
 };
 
 export function normalizeCombo(value: unknown): string;
+export function isCompleteCombo(value: unknown): boolean;
 export function baseKey(value: unknown): string;
 export function normalizeMessage(value: unknown): string;
 export function buildPresetLine(preset: PresetCommand, keyValue: string, mode?: BindMode): string;
