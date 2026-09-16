@@ -71,7 +71,7 @@ test("parses pasted Neverwinter bind text and reports unsupported lines", () => 
   const parsed = parseBindText(`
 # saved keymap
 /bind R gensendmessage Chat_Reply activate
-bind Ctrl + 5 gensendmessage Vipaction_Bankvendor activate
+bind ctrl+5 gensendmessage Vipaction_Bankvendor activate
 /bind lbutton "+specialClassPower $$ +Evaluateleftclick $$ ++specialClassPower"
 this is not a bind
 /unbind r
@@ -80,7 +80,7 @@ this is not a bind
   assert.equal(parsed.entries.length, 4);
   assert.equal(parsed.ignored.length, 1);
   assert.equal(parsed.entries[0].key, "r");
-  assert.equal(parsed.entries[1].key, "ctrl");
+  assert.equal(parsed.entries[1].key, "ctrl+5");
   assert.match(parsed.entries[2].command, /specialClassPower/);
 });
 
