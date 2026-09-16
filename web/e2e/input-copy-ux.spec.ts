@@ -28,6 +28,19 @@ test("captures physical numpad keys, merged keyboard combos, and mouse buttons",
   await expect(input).toHaveValue("ctrl+5");
 
   await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
+    key: "+",
+    code: "Equal",
+    shiftKey: true,
+    bubbles: true,
+  })));
+  await expect(input).toHaveValue("ctrl+5");
+
+  await input.fill("+");
+  await expect(input).toHaveValue("");
+  await input.fill("ctrl+5");
+  await expect(input).toHaveValue("ctrl+5");
+
+  await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
     key: "r",
     code: "KeyR",
     ctrlKey: true,
