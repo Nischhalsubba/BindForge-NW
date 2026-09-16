@@ -61,6 +61,22 @@ test("captures numpad keys, plus-separated merged combos, and mouse buttons", as
   await input.fill("5+6");
   await expect(input).toHaveValue("5+6");
 
+  // The physical numpad + must behave exactly like the regular + separator.
+  await input.fill("5");
+  await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
+    key: "+",
+    code: "NumpadAdd",
+    location: 3,
+    bubbles: true,
+  })));
+  await expect(input).toHaveValue("5+");
+  await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
+    key: "6",
+    code: "Digit6",
+    bubbles: true,
+  })));
+  await expect(input).toHaveValue("5+6");
+
   await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
     key: "r",
     code: "KeyR",
