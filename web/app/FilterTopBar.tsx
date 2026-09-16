@@ -15,14 +15,16 @@ export default function FilterTopBar({ resultCount }: { resultCount: number }) {
       <label className="filter-top-search" htmlFor="keybind-library-search">
         <span>Search keybinds</span>
         <input
+          aria-describedby="keybind-library-search-help"
           aria-label="Search keybind library"
           autoComplete="off"
           id="keybind-library-search"
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search keybinds"
+          placeholder="Try ‘barb cancel’, ‘VIP bank’, or command text"
           type="search"
           value={state.search}
         />
+        <span className="sr-only" id="keybind-library-search-help">Plain-language search accepts separate words, common abbreviations, command text, and small typos.</span>
       </label>
 
       <div className="filter-top-output">
