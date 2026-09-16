@@ -3,6 +3,7 @@ const modifierCodes = new Set([
 ]);
 
 const COMBO_SEPARATOR = "+";
+const separatorOnly = /^\s*\++\s*$/;
 
 const codeAliases = {
   Escape: "escape",
@@ -69,6 +70,49 @@ function comboWithModifiers(token, event) {
   if (event.altKey) modifiers.push("alt");
   if (event.shiftKey) modifiers.push("shift");
   return [...modifiers, token].join(COMBO_SEPARATOR);
+}
+
+export function sanitizeComboInput(value) {
+  const compactSeparators = String(value ?? "")
+    .replace(/\s*\+\s*/g, COMBO_SEPARATOR)
+    .replace(/\+{2,}/g, COMBO_SEPARATOR)
+    .trim();
+  return separatorOnly.test(compactSeparators) ? "" : compactSeparators;
+}
+
+export function comboTokens(value) {
+  const clean = sanitizeComboInput(value);
+  const withoutTrailingSeparator = clean.endsWith(COMBO_SEPARATOR) ? clean.slice(0, -1) : clean;
+  return withoutTrailingSeparator.split(COMBO_SEPARATOR).map((token) => token.trim()).filter(Boolean);
+}
+
+export function comboAwaitingNext(value) {
+  const clean = sanitizeComboInput(value);
+  return Boolean(clean) && clean.endsWith(COMBO_SEPARATOR);
+}
+
+export function armComboSeparator(value) {
+  const clean = sanitizeComboInput(value);
+  if (!clean || clean.endsWith(COMBO_SEPARATOR)) return clean;
+  return `${clean}${COMBO_SEPARATOR}`;
+}
+
+export function appendComboToken(currentValue, token) {
+  const current = sanitizeComboInput(currentValue);
+  const next = sanitizeComboInput(token).replace(/\+$/, "");
+  if (!next) return current;
+  if (!current || !current.endsWith(COMBO_SEPARATOR)) return next;
+  const prefix = current.slice(0, -1).trim();
+  return prefix ? `${prefix}${COMBO_SEPARATOR}${next}` : next;
+}
+
+export function removeLastComboToken(value) {
+  const clean = sanitizeComboInput(value);
+  if (!clean) return "";
+  if (clean.endsWith(COMBO_SEPARATOR)) return clean.slice(0, -1);
+  const tokens = comboTokens(clean);
+  tokens.pop();
+  return tokens.join(COMBO_SEPARATOR);
 }
 
 export function keyTokenFromCode(code, key = "", location = 0) {
