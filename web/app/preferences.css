@@ -1,44 +1,71 @@
 /* Phase 2: user-controlled accessibility and experience preferences. */
 html[data-theme='dark'] {
-  --paper: #111513;
-  --paper-warm: #171c19;
-  --paper-dark: #222923;
-  --bone: #181e1a;
-  --ink: #f6f0dd;
-  --ink-soft: #e6deca;
-  --ink-mute: #c8c0ad;
-  --ink-faint: #aaa28f;
-  --coral: #ff9a86;
+  /*
+   * High-contrast editorial dark palette.
+   * Keep the established warm/field-manual identity, but give the page,
+   * raised surfaces, borders, muted copy, and actions a visibly stronger
+   * luminance ladder instead of several near-black values collapsing together.
+   */
+  --paper: #090d0b;
+  --paper-warm: #1b261f;
+  --paper-dark: #313d35;
+  --bone: #202a24;
+  --ink: #fff9e9;
+  --ink-soft: #eee6d4;
+  --ink-mute: #d6cdba;
+  --ink-faint: #bbb19d;
+  --coral: #ff927d;
   --coral-soft: #ffb09f;
-  --mustard: #e8c45e;
-  --olive: #aab87a;
-  --success: #8fc39b;
-  --warning: #e4b66d;
-  --danger: #f08d82;
-  --line: rgba(246, 240, 221, 0.2);
-  --line-strong: rgba(246, 240, 221, 0.38);
-  --line-soft: rgba(246, 240, 221, 0.11);
-  --shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.7);
-  --primary-hover: #ffb09f;
-  --color-primary-hover: #ffb09f;
-  --primary-ink: #15140f;
-  --color-primary-ink: #15140f;
-  --focus: #ffd16e;
-  --color-focus: #ffd16e;
-  --focus-ring-color: #ffd16e;
+  --mustard: #f2c75c;
+  --olive: #b4c982;
+  --success: #92d1a0;
+  --warning: #f1bf73;
+  --danger: #ff9a8f;
+  --line: rgba(255, 249, 233, 0.3);
+  --line-strong: rgba(255, 249, 233, 0.5);
+  --line-soft: rgba(255, 249, 233, 0.16);
+  --shadow: 0 34px 72px -34px rgba(0, 0, 0, 0.88);
+  --primary-hover: #ffa08c;
+  --color-primary-hover: #ffa08c;
+  --primary-ink: #1a1512;
+  --color-primary-ink: #1a1512;
+  --focus: #ffd86f;
+  --color-focus: #ffd86f;
+  --focus-ring-color: #ffd86f;
 }
 
 html[data-theme='dark'] body::before {
   mix-blend-mode: normal;
-  opacity: 0.3;
+  opacity: 0.18;
+}
+
+/* Make the main dark-theme planes visibly distinct at a glance. */
+html[data-theme='dark'] .hero-plate {
+  background: var(--paper-warm);
+  border-color: var(--line);
+  box-shadow: var(--shadow);
+}
+
+html[data-theme='dark'] .filter-top-bar,
+html[data-theme='dark'] .bind-card,
+html[data-theme='dark'] .lab-panel,
+html[data-theme='dark'] .command-preview,
+html[data-theme='dark'] .lab-preview {
+  border-color: var(--line-strong);
+}
+
+html[data-theme='dark'] .hero-index,
+html[data-theme='dark'] .ready-state,
+html[data-theme='dark'] .section-rule {
+  border-color: var(--line);
 }
 
 html[data-theme='dark'] .filter-top-bar::after {
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--bone) 82%, transparent), transparent);
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--bone) 88%, transparent), transparent);
 }
 
 html[data-theme='dark'] .command-specimen {
-  box-shadow: 22px 22px 0 color-mix(in srgb, var(--coral) 24%, transparent);
+  box-shadow: 22px 22px 0 color-mix(in srgb, var(--coral) 30%, transparent);
 }
 
 html[data-text-size='large'] { font-size: 112.5%; }
@@ -67,9 +94,9 @@ html[data-density='compact'] .workspace { row-gap: 18px; }
 html[data-contrast='high'] {
   --ink-mute: var(--ink-soft);
   --ink-faint: var(--ink-soft);
-  --line: color-mix(in srgb, var(--ink) 42%, transparent);
-  --line-strong: color-mix(in srgb, var(--ink) 68%, transparent);
-  --line-soft: color-mix(in srgb, var(--ink) 28%, transparent);
+  --line: color-mix(in srgb, var(--ink) 46%, transparent);
+  --line-strong: color-mix(in srgb, var(--ink) 72%, transparent);
+  --line-soft: color-mix(in srgb, var(--ink) 30%, transparent);
   --focus-ring-width: 4px;
   --focus-ring-offset: 4px;
 }
