@@ -112,19 +112,21 @@ export function VerifiedBindBuilder({ onCopy }: { onCopy: CopyHandler }) {
         <section className={styles.keyPanel} aria-labelledby="bind-key-title">
           <div className={styles.panelHeading}>
             <span>01</span>
-            <div><h3 id="bind-key-title">Choose a key</h3><p>Press a keyboard key or enter the exact Neverwinter key token.</p></div>
+            <div><h3 id="bind-key-title">Choose a key</h3><p>Press a keyboard key or mouse button, or enter the exact Neverwinter key token.</p></div>
           </div>
           <KeyCaptureInput
             aria-label="Key for combined Neverwinter bind"
             autoComplete="off"
-            hint="Keyboard capture is available. For mouse or uncommon keys, enter the exact Neverwinter token; no token is guessed."
+            hint="Click once to focus, then press a keyboard key or mouse button. Ctrl / Alt / Shift combinations are merged automatically, for example Ctrl+5 or Ctrl+Left Click."
             onValueChange={(value) => { setKeyValue(value); setCopyState("idle"); }}
-            placeholder="Press a key or enter a Neverwinter token"
+            placeholder="Press a key, mouse button, or combination"
             value={keyValue}
           />
           <div className={styles.quickKeys}>
             <button onClick={() => { setKeyValue("lbutton"); setCopyState("idle"); }} type="button">Left mouse <code>lbutton</code></button>
-            <small><Icon name="check" /> <code>lbutton</code> is directly observed in the working bind supplied for this project.</small>
+            <button onClick={() => { setKeyValue("rbutton"); setCopyState("idle"); }} type="button">Right mouse <code>rbutton</code></button>
+            <button onClick={() => { setKeyValue("mbutton"); setCopyState("idle"); }} type="button">Middle mouse <code>mbutton</code></button>
+            <small><Icon name="check" /> Mouse capture preserves Ctrl / Alt / Shift modifiers, and keyboard combinations such as Left Ctrl + 5 normalize to <code>ctrl+5</code>.</small>
           </div>
         </section>
 

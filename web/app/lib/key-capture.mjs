@@ -43,6 +43,12 @@ const codeAliases = {
   NumpadEnter: "numpadenter",
 };
 
+const mouseButtonAliases = {
+  0: "lbutton",
+  1: "mbutton",
+  2: "rbutton",
+};
+
 function fallbackKeyToken(key) {
   const clean = String(key ?? "").trim().toLowerCase();
   if (!clean || ["control", "shift", "alt", "meta", "dead", "unidentified"].includes(clean)) return "";
@@ -53,6 +59,15 @@ function fallbackKeyToken(key) {
   if (clean === "arrowleft") return "left";
   if (clean === "arrowright") return "right";
   return clean.replace(/\s+/g, "");
+}
+
+function comboWithModifiers(token, event) {
+  if (!token || !event || event.metaKey) return "";
+  const modifiers = [];
+  if (event.ctrlKey) modifiers.push("ctrl");
+  if (event.altKey) modifiers.push("alt");
+  if (event.shiftKey) modifiers.push("shift");
+  return [...modifiers, token].join("+");
 }
 
 export function keyTokenFromCode(code, key = "", location = 0) {
@@ -77,13 +92,18 @@ export function keyTokenFromCode(code, key = "", location = 0) {
   return fallbackKeyToken(key);
 }
 
+export function mouseTokenFromButton(button) {
+  return mouseButtonAliases[Number(button)] ?? "";
+}
+
 export function comboFromKeyboardLike(event) {
-  if (!event || event.metaKey) return "";
+  if (!event) return "";
   const token = keyTokenFromCode(event.code, event.key, event.location);
-  if (!token) return "";
-  const modifiers = [];
-  if (event.ctrlKey) modifiers.push("ctrl");
-  if (event.altKey) modifiers.push("alt");
-  if (event.shiftKey) modifiers.push("shift");
-  return [...modifiers, token].join("+");
+  return comboWithModifiers(token, event);
+}
+
+export function comboFromMouseLike(event) {
+  if (!event) return "";
+  const token = mouseTokenFromButton(event.button);
+  return comboWithModifiers(token, event);
 }
