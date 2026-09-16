@@ -8,9 +8,15 @@ import { Icon } from "./components/Icon";
 import { PrimaryWorkspace } from "./components/PrimaryWorkspace";
 import { RevealController } from "./components/RevealController";
 import { UrlStateBridge } from "./components/UrlStateBridge";
+import { UseInNeverwinterGuide } from "./components/UseInNeverwinterGuide";
 import { copyTextSafely } from "./lib/clipboard";
 
 export type CopyResultState = "copied" | "fallback" | "error";
+
+type InGameGuideState = {
+  command: string;
+  label: string;
+} | null;
 
 function SectionRule({ roman, meta, page }: { roman: string; meta: string; page: string }) {
   return (
@@ -24,6 +30,7 @@ function SectionRule({ roman, meta, page }: { roman: string; meta: string; page:
 
 export default function Home() {
   const [feedback, setFeedback] = useState<CopyFeedback>({ state: "idle", label: "" });
+  const [inGameGuide, setInGameGuide] = useState<InGameGuideState>(null);
   const feedbackTimer = useRef<number | null>(null);
 
   useEffect(() => () => {
@@ -34,10 +41,20 @@ export default function Home() {
     const result = await copyTextSafely(text);
     const nextState: CopyResultState = result.ok ? (result.method === "fallback" ? "fallback" : "copied") : "error";
     setFeedback({ state: nextState, label });
-    if (!result.ok) target?.focus();
+    if (result.ok) setInGameGuide({ command: text, label });
+    else target?.focus();
     if (feedbackTimer.current) window.clearTimeout(feedbackTimer.current);
     feedbackTimer.current = window.setTimeout(() => setFeedback({ state: "idle", label: "" }), result.ok ? 2600 : 5200);
     return nextState;
+  }
+
+  async function copyGuideAgain() {
+    if (!inGameGuide) return false;
+    const result = await copyTextSafely(inGameGuide.command);
+    setFeedback({ state: result.ok ? (result.method === "fallback" ? "fallback" : "copied") : "error", label: inGameGuide.label });
+    if (feedbackTimer.current) window.clearTimeout(feedbackTimer.current);
+    feedbackTimer.current = window.setTimeout(() => setFeedback({ state: "idle", label: "" }), result.ok ? 2600 : 5200);
+    return result.ok;
   }
 
   const toastTitle = feedback.state === "copied"
@@ -71,6 +88,15 @@ export default function Home() {
         <p className="footer-mega">Neverwinter <em>Keybind</em><span>.</span></p>
         <div className="footer-bottom"><span><i className="pulse" /> Catalogue online</span><span>FIN. · MMXXVI</span></div>
       </footer>
+
+      {inGameGuide ? (
+        <UseInNeverwinterGuide
+          command={inGameGuide.command}
+          label={inGameGuide.label}
+          onClose={() => setInGameGuide(null)}
+          onCopyAgain={copyGuideAgain}
+        />
+      ) : null}
 
       <div aria-atomic="true" aria-live="polite" className={`copy-toast copy-toast-${feedback.state}`} role="status">
         {feedback.state !== "idle" ? (
