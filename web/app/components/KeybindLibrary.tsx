@@ -5,7 +5,14 @@ import { useBindForge } from "../BindForgeProvider";
 import { keybindPresets } from "../data/keybindPresets";
 import type { KeybindPreset, KeybindType } from "../data/keybindPresets";
 import type { PresetConfidence, PresetSourceType } from "../data/keybindTypes";
-import { baseKey, buildPresetLine, normalizeCombo } from "../lib/keybind-core.mjs";
+import {
+  baseKey,
+  buildPresetLine,
+  commandsEquivalent,
+  normalizeCombo,
+  parseBindText,
+  resolveBindMap,
+} from "../lib/keybind-core.mjs";
 import { SAFE_KEY_SUGGESTIONS, normalizedKey } from "../lib/safe-key-suggestions";
 import type { CopyResultState } from "../page";
 import FilterTopBar from "../FilterTopBar";
@@ -14,10 +21,12 @@ import { Icon } from "./Icon";
 import { KeybindCard } from "./KeybindCard";
 import type { KeybindSafetyStatus } from "./KeybindCard";
 import { WorkspaceControls } from "./WorkspaceControls";
+import type { PackReviewItem } from "./WorkspaceControls";
 
 const LIBRARY_SETTINGS_KEY = "bindforge-nw:library:v1";
 const INITIAL_VISIBLE_GROUPS = keybindPresets.length;
 const GROUP_BATCH_SIZE = 3;
+const MAX_PERSONAL_BIND_FILE_BYTES = 512 * 1024;
 
 const typeOrder: KeybindType[] = [
   "Invocation / Character", "Targeting", "VIP Services", "Bard Songs", "Animation Cancel", "Combat",
@@ -40,6 +49,13 @@ type CopyHandler = (text: string, label: string, target: HTMLElement | null) => 
 type ViewMode = "cards" | "compact";
 type SortMode = "recommended" | "title" | "difficulty" | "class";
 type ProvenanceFilter = "all" | PresetSourceType | PresetConfidence;
+type PersonalBind = {
+  mode: "bind";
+  key: string;
+  command: string;
+  raw: string;
+  lineNumber: number;
+};
 type StoredLibraryState = {
   favourites: string[];
   collections: Record<string, string[]>;
@@ -48,11 +64,15 @@ type StoredLibraryState = {
   collapsedGroups: string[];
   provenanceFilter: ProvenanceFilter;
   safeOnly: boolean;
+  personalBinds: PersonalBind[];
+  personalSourceName: string;
+  personalImportedAt: string;
 };
 
 const defaultLibraryState: StoredLibraryState = {
   favourites: [], collections: {}, viewMode: "cards", sortMode: "recommended",
   collapsedGroups: [], provenanceFilter: "all", safeOnly: false,
+  personalBinds: [], personalSourceName: "", personalImportedAt: "",
 };
 
 function normalizeText(value: string) { return value.trim().toLowerCase(); }
@@ -63,9 +83,32 @@ function warningForKey(value: string) {
   const key = baseKey(value);
   return warnings.find((item) => item.keys.includes(combo) || item.keys.includes(key));
 }
-function statusFor(keyValue: string, duplicate: boolean): KeybindSafetyStatus {
-  if (duplicate) return { level: "danger", message: "This key is already used by another BindForge preset." };
-  return warningForKey(keyValue) ?? { level: "safe", message: "No common native-key conflict detected. Check personal in-game bindings before applying." };
+function shortCommand(value: string) {
+  const command = value.trim();
+  return command.length > 72 ? `${command.slice(0, 69)}…` : command;
+}
+function statusFor(
+  preset: KeybindPreset,
+  keyValue: string,
+  duplicate: boolean,
+  personalBind: PersonalBind | undefined,
+  hasPersonalKeymap: boolean,
+): KeybindSafetyStatus {
+  if (duplicate) return { level: "danger", message: "This key is also used by another selected preset in this pack." };
+  if (personalBind) {
+    if (commandsEquivalent(personalBind.command, preset.command)) {
+      return { level: "safe", message: "This exact command is already present on this key in your imported keymap." };
+    }
+    return {
+      level: preset.intentionalNativeOverride ? "warn" : "danger",
+      message: `Your imported keymap uses this key for “${shortCommand(personalBind.command)}”. Applying this preset will replace that personal bind.`,
+    };
+  }
+  const commonWarning = warningForKey(keyValue);
+  if (commonWarning) return commonWarning;
+  return hasPersonalKeymap
+    ? { level: "safe", message: "No conflict found in your imported keymap and no common native-key conflict detected." }
+    : { level: "safe", message: "No common native-key conflict detected. Import your keymap for personal conflict detection." };
 }
 function groupedPresets(presets: KeybindPreset[]) {
   return presets.reduce<Record<string, KeybindPreset[]>>((groups, preset) => {
@@ -73,6 +116,22 @@ function groupedPresets(presets: KeybindPreset[]) {
     groups[key] = [...(groups[key] ?? []), preset];
     return groups;
   }, {});
+}
+function sanitizePersonalBinds(value: unknown): PersonalBind[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((entry) => {
+    if (!entry || typeof entry !== "object") return [];
+    const candidate = entry as Partial<PersonalBind>;
+    const key = normalizeCombo(candidate.key ?? "");
+    if (!key || typeof candidate.command !== "string") return [];
+    return [{
+      mode: "bind" as const,
+      key,
+      command: candidate.command,
+      raw: typeof candidate.raw === "string" ? candidate.raw : `/bind ${key} ${candidate.command}`,
+      lineNumber: typeof candidate.lineNumber === "number" ? candidate.lineNumber : 0,
+    }];
+  });
 }
 function readStoredLibraryState(): StoredLibraryState {
   try {
@@ -87,6 +146,9 @@ function readStoredLibraryState(): StoredLibraryState {
       collapsedGroups: [],
       provenanceFilter: typeof parsed.provenanceFilter === "string" ? parsed.provenanceFilter as ProvenanceFilter : "all",
       safeOnly: Boolean(parsed.safeOnly),
+      personalBinds: sanitizePersonalBinds(parsed.personalBinds),
+      personalSourceName: typeof parsed.personalSourceName === "string" ? parsed.personalSourceName : "",
+      personalImportedAt: typeof parsed.personalImportedAt === "string" ? parsed.personalImportedAt : "",
     };
   } catch {
     return defaultLibraryState;
@@ -111,6 +173,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   const [activeCollection, setActiveCollection] = useState("all");
   const [collectionName, setCollectionName] = useState("");
   const [visibleGroupCount, setVisibleGroupCount] = useState(INITIAL_VISIBLE_GROUPS);
+  const [personalImportMessage, setPersonalImportMessage] = useState("");
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -134,11 +197,14 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
 
   const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
   const favouriteSet = useMemo(() => new Set(library.favourites), [library.favourites]);
-  const keyUseCounts = useMemo(() => Object.values(state.keys).reduce<Record<string, number>>((counts, value) => {
-    const key = normalizedKey(value);
+  const selectedPresets = useMemo(() => keybindPresets.filter((preset) => selectedSet.has(preset.id)), [selectedSet]);
+  const selectedKeyUseCounts = useMemo(() => selectedPresets.reduce<Record<string, number>>((counts, preset) => {
+    const key = normalizedKey(state.keys[preset.id] ?? preset.defaultKey);
     if (key) counts[key] = (counts[key] ?? 0) + 1;
     return counts;
-  }, {}), [state.keys]);
+  }, {}), [selectedPresets, state.keys]);
+  const personalByKey = useMemo(() => new Map(library.personalBinds.map((entry) => [normalizedKey(entry.key), entry])), [library.personalBinds]);
+  const hasPersonalKeymap = Boolean(library.personalBinds.length || library.personalSourceName);
 
   const filtered = useMemo(() => {
     const query = normalizeText(state.search);
@@ -146,7 +212,9 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     const result = keybindPresets.filter((preset) => {
       const haystack = normalizeText(`${preset.title} ${preset.type} ${preset.className} ${preset.plainEnglish} ${preset.command} ${preset.searchTerms.join(" ")}`);
       const keyValue = state.keys[preset.id] ?? preset.defaultKey;
-      const hasConflict = Boolean(warningForKey(keyValue)) || (keyUseCounts[normalizedKey(keyValue)] ?? 0) > 1;
+      const key = normalizedKey(keyValue);
+      const duplicate = selectedSet.has(preset.id) && (selectedKeyUseCounts[key] ?? 0) > 1;
+      const status = statusFor(preset, keyValue, duplicate, personalByKey.get(key), hasPersonalKeymap);
       const provenanceMatch = library.provenanceFilter === "all" || preset.sourceType === library.provenanceFilter || preset.confidence === library.provenanceFilter;
       return (state.className === "All" || preset.className === state.className)
         && (state.actionType === "All" || preset.type === state.actionType)
@@ -154,7 +222,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
         && (!query || haystack.includes(query))
         && (!collectionIds || collectionIds.includes(preset.id))
         && provenanceMatch
-        && (!library.safeOnly || !hasConflict || Boolean(preset.intentionalNativeOverride));
+        && (!library.safeOnly || status.level === "safe" || Boolean(preset.intentionalNativeOverride));
     });
     return result.sort((left, right) => library.sortMode === "title"
       ? left.title.localeCompare(right.title)
@@ -163,15 +231,32 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
         : library.sortMode === "class"
           ? left.className.localeCompare(right.className) || left.title.localeCompare(right.title)
           : typeOrder.indexOf(left.type) - typeOrder.indexOf(right.type) || left.title.localeCompare(right.title));
-  }, [activeCollection, keyUseCounts, library.collections, library.favourites, library.provenanceFilter, library.safeOnly, library.sortMode, state.actionType, state.className, state.difficulty, state.keys, state.search]);
+  }, [activeCollection, hasPersonalKeymap, library.collections, library.favourites, library.provenanceFilter, library.safeOnly, library.sortMode, personalByKey, selectedKeyUseCounts, selectedSet, state.actionType, state.className, state.difficulty, state.keys, state.search]);
 
   const groupedEntries = useMemo(() => Object.entries(groupedPresets(filtered)), [filtered]);
   const visibleGroups = groupedEntries.slice(0, visibleGroupCount);
-  const selectedPresets = useMemo(() => keybindPresets.filter((preset) => selectedSet.has(preset.id)), [selectedSet]);
+  const selectedReviewItems = useMemo<PackReviewItem[]>(() => selectedPresets.map((preset) => {
+    const keyValue = state.keys[preset.id] ?? preset.defaultKey;
+    const key = normalizedKey(keyValue);
+    const duplicate = (selectedKeyUseCounts[key] ?? 0) > 1;
+    const status = statusFor(preset, keyValue, duplicate, personalByKey.get(key), hasPersonalKeymap);
+    return {
+      id: preset.id,
+      title: preset.title,
+      keyValue: normalizeCombo(keyValue),
+      line: buildPresetLine(preset, keyValue, "bind"),
+      statusLevel: status.level,
+      statusMessage: status.message,
+      confidence: `${preset.confidence ? preset.confidence.replace("-", " ") : "unverified"}${preset.verifiedAt ? ` · checked ${preset.verifiedAt}` : ""}`,
+    };
+  }), [hasPersonalKeymap, personalByKey, selectedKeyUseCounts, selectedPresets, state.keys]);
+  const selectedReviewCount = useMemo(() => selectedReviewItems.filter((item) => item.statusLevel !== "safe").length, [selectedReviewItems]);
   const conflictCount = useMemo(() => filtered.filter((preset) => {
-    const value = state.keys[preset.id] ?? preset.defaultKey;
-    return Boolean(warningForKey(value)) || (keyUseCounts[normalizedKey(value)] ?? 0) > 1;
-  }).length, [filtered, keyUseCounts, state.keys]);
+    const keyValue = state.keys[preset.id] ?? preset.defaultKey;
+    const key = normalizedKey(keyValue);
+    const duplicate = selectedSet.has(preset.id) && (selectedKeyUseCounts[key] ?? 0) > 1;
+    return statusFor(preset, keyValue, duplicate, personalByKey.get(key), hasPersonalKeymap).level !== "safe";
+  }).length, [filtered, hasPersonalKeymap, personalByKey, selectedKeyUseCounts, selectedSet, state.keys]);
 
   function patchLibrary(patch: Partial<StoredLibraryState>) { setLibrary((current) => ({ ...current, ...patch })); }
   function toggleSelected(id: string) { setSelectedIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]); }
@@ -179,17 +264,16 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   function toggleGroup(groupName: string) { patchLibrary({ collapsedGroups: library.collapsedGroups.includes(groupName) ? library.collapsedGroups.filter((item) => item !== groupName) : [...library.collapsedGroups, groupName] }); }
   function replacementFor(preset: KeybindPreset) {
     const currentKey = normalizeCombo(state.keys[preset.id] ?? preset.defaultKey);
-    const usageCounts = keybindPresets.reduce<Record<string, number>>((counts, item) => {
-      if (item.id === preset.id) return counts;
-      const key = normalizeCombo(state.keys[item.id] ?? item.defaultKey);
-      if (key) counts[key] = (counts[key] ?? 0) + 1;
-      return counts;
-    }, {});
-    const alternatives = SAFE_KEY_SUGGESTIONS
-      .map((candidate) => ({ candidate, key: normalizeCombo(candidate), count: usageCounts[normalizeCombo(candidate)] ?? 0 }))
-      .filter(({ candidate, key }) => key !== currentKey && !warningForKey(candidate))
-      .sort((left, right) => left.count - right.count);
-    return alternatives[0]?.candidate ?? preset.defaultKey;
+    const occupied = new Set(library.personalBinds.map((entry) => normalizedKey(entry.key)));
+    for (const selected of selectedPresets) {
+      if (selected.id === preset.id) continue;
+      occupied.add(normalizedKey(state.keys[selected.id] ?? selected.defaultKey));
+    }
+    const replacement = SAFE_KEY_SUGGESTIONS.find((candidate) => {
+      const key = normalizeCombo(candidate);
+      return key !== currentKey && !warningForKey(candidate) && !occupied.has(normalizedKey(candidate));
+    });
+    return replacement ?? preset.defaultKey;
   }
   function addCollection() {
     const name = collectionName.trim();
@@ -204,6 +288,36 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     delete next[activeCollection];
     patchLibrary({ collections: next });
     setActiveCollection("all");
+  }
+  function importPersonalBinds(text: string, sourceName = "Pasted keymap") {
+    const parsed = parseBindText(text);
+    if (!parsed.entries.length) {
+      setPersonalImportMessage(parsed.ignored.length ? "No valid /bind or /unbind lines were found. Check the pasted format and try again." : "Paste at least one /bind or /unbind line first.");
+      return;
+    }
+    const active = resolveBindMap(parsed.entries) as PersonalBind[];
+    patchLibrary({
+      personalBinds: active,
+      personalSourceName: sourceName,
+      personalImportedAt: new Date().toISOString(),
+    });
+    const ignoredNote = parsed.ignored.length ? ` ${parsed.ignored.length} unsupported ${parsed.ignored.length === 1 ? "line was" : "lines were"} ignored.` : "";
+    setPersonalImportMessage(`${active.length} active ${active.length === 1 ? "bind" : "binds"} analyzed. Personal conflict detection is active.${ignoredNote}`);
+  }
+  async function importPersonalFile(file: File) {
+    if (file.size > MAX_PERSONAL_BIND_FILE_BYTES) {
+      setPersonalImportMessage("That bind file is larger than 512 KB. Choose a smaller text export.");
+      return;
+    }
+    try {
+      importPersonalBinds(await file.text(), file.name || "Imported bind file");
+    } catch {
+      setPersonalImportMessage("The selected bind file could not be read.");
+    }
+  }
+  function clearPersonalBinds() {
+    patchLibrary({ personalBinds: [], personalSourceName: "", personalImportedAt: "" });
+    setPersonalImportMessage("Personal keymap cleared. BindForge is using common conflict guidance only.");
   }
   function linesFor(mode: "bind" | "unbind") { return selectedPresets.map((preset) => buildPresetLine(preset, state.keys[preset.id] ?? preset.defaultKey, mode)).join("\n"); }
   async function copyPack(mode: "bind" | "unbind") { if (selectedPresets.length) await onCopy(linesFor(mode), `${selectedPresets.length} ${mode} commands`, null); }
@@ -225,7 +339,42 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   return (
     <section className={`library library-${library.viewMode}`} id="keybind-library" tabIndex={-1}>
       <FilterTopBar resultCount={filtered.length} />
-      <WorkspaceControls resultCount={filtered.length} conflictCount={conflictCount} viewMode={library.viewMode} sortMode={library.sortMode} provenanceFilter={library.provenanceFilter} safeOnly={library.safeOnly} selectedCount={selectedIds.length} visibleCount={filtered.length} activeCollection={activeCollection} favouritesCount={library.favourites.length} collections={library.collections} collectionName={collectionName} onViewModeChange={(value) => patchLibrary({ viewMode: value })} onSortModeChange={(value) => patchLibrary({ sortMode: value })} onProvenanceFilterChange={(value) => patchLibrary({ provenanceFilter: value })} onSafeOnlyChange={(value) => patchLibrary({ safeOnly: value })} onActiveCollectionChange={setActiveCollection} onCollectionNameChange={setCollectionName} onAddCollection={addCollection} onRemoveCollection={removeActiveCollection} onShareView={() => { void shareView(); }} onSelectVisible={() => setSelectedIds(filtered.map((preset) => preset.id))} onClearSelection={() => setSelectedIds([])} onCopyPack={(mode) => { void copyPack(mode); }} onDownloadPack={downloadPack} />
+      <WorkspaceControls
+        resultCount={filtered.length}
+        conflictCount={conflictCount}
+        viewMode={library.viewMode}
+        sortMode={library.sortMode}
+        provenanceFilter={library.provenanceFilter}
+        safeOnly={library.safeOnly}
+        selectedCount={selectedIds.length}
+        selectedReviewCount={selectedReviewCount}
+        reviewItems={selectedReviewItems}
+        visibleCount={filtered.length}
+        activeCollection={activeCollection}
+        favouritesCount={library.favourites.length}
+        collections={library.collections}
+        collectionName={collectionName}
+        personalBindCount={library.personalBinds.length}
+        personalSourceName={library.personalSourceName}
+        personalImportMessage={personalImportMessage}
+        onViewModeChange={(value) => patchLibrary({ viewMode: value })}
+        onSortModeChange={(value) => patchLibrary({ sortMode: value })}
+        onProvenanceFilterChange={(value) => patchLibrary({ provenanceFilter: value })}
+        onSafeOnlyChange={(value) => patchLibrary({ safeOnly: value })}
+        onActiveCollectionChange={setActiveCollection}
+        onCollectionNameChange={setCollectionName}
+        onAddCollection={addCollection}
+        onRemoveCollection={removeActiveCollection}
+        onShareView={() => { void shareView(); }}
+        onSelectVisible={() => setSelectedIds(filtered.map((preset) => preset.id))}
+        onClearSelection={() => setSelectedIds([])}
+        onRemoveSelected={(id) => setSelectedIds((current) => current.filter((item) => item !== id))}
+        onCopyPack={(mode) => { void copyPack(mode); }}
+        onDownloadPack={downloadPack}
+        onImportPersonalText={(text) => importPersonalBinds(text)}
+        onImportPersonalFile={(file) => { void importPersonalFile(file); }}
+        onClearPersonalBinds={clearPersonalBinds}
+      />
       <div className="active-filter-row" aria-label="Active filters"><span>{state.className === "All" ? "All classes" : state.className}</span><span>{state.actionType === "All" ? "All actions" : state.actionType}</span><span>{state.difficulty === "All" ? "All difficulty levels" : state.difficulty}</span><span>{activeCollection === "all" ? "All collections" : activeCollection}</span></div>
 
       {filtered.length ? (
@@ -243,8 +392,12 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
                     <div className="bind-grid">
                       {presets.map((preset) => {
                         const keyValue = state.keys[preset.id] ?? preset.defaultKey;
-                        const duplicate = (keyUseCounts[normalizedKey(keyValue)] ?? 0) > 1;
+                        const key = normalizedKey(keyValue);
+                        const duplicate = selectedSet.has(preset.id) && (selectedKeyUseCounts[key] ?? 0) > 1;
+                        const personalBind = personalByKey.get(key);
                         const warning = warningForKey(keyValue);
+                        const status = statusFor(preset, keyValue, duplicate, personalBind, hasPersonalKeymap);
+                        const personalConflict = Boolean(personalBind && !commandsEquivalent(personalBind.command, preset.command));
                         const shared = {
                           preset,
                           duplicate,
@@ -252,13 +405,13 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
                           key: preset.id,
                           onCopy,
                           onFavourite: () => toggleFavourite(preset.id),
-                          onReplace: () => setKey(preset.id, replacementFor(preset)),
                           onSelect: () => toggleSelected(preset.id),
                           selected: selectedSet.has(preset.id),
                         };
+                        const canReplace = (duplicate || Boolean(warning) || personalConflict) && !preset.intentionalNativeOverride;
                         return library.viewMode === "compact"
-                          ? <CompactKeybindRow {...shared} canReplace={(duplicate || Boolean(warning)) && !preset.intentionalNativeOverride} copyDisabled={duplicate} keyValue={keyValue} line={buildPresetLine(preset, keyValue, state.mode)} mode={state.mode} onKeyChange={(value) => setKey(preset.id, value)} onReset={() => resetKey(preset.id)} status={statusFor(keyValue, duplicate)} />
-                          : <KeybindCard {...shared} canReplace={(duplicate || Boolean(warning)) && !preset.intentionalNativeOverride} keyValue={keyValue} mode={state.mode} onKeyChange={(value) => setKey(preset.id, value)} onReset={() => resetKey(preset.id)} query={state.search} status={statusFor(keyValue, duplicate)} />;
+                          ? <CompactKeybindRow {...shared} canReplace={canReplace} copyDisabled={duplicate} keyValue={keyValue} line={buildPresetLine(preset, keyValue, state.mode)} mode={state.mode} onKeyChange={(value) => setKey(preset.id, value)} onReset={() => resetKey(preset.id)} replacementKey={replacementFor(preset)} status={status} />
+                          : <KeybindCard {...shared} canReplace={canReplace} keyValue={keyValue} mode={state.mode} onKeyChange={(value) => setKey(preset.id, value)} onReset={() => resetKey(preset.id)} query={state.search} replacementKey={replacementFor(preset)} status={status} />;
                       })}
                     </div>
                   )}
