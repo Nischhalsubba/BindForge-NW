@@ -60,6 +60,57 @@ export function baseKey(value) {
   return combo.split("+").pop() ?? combo;
 }
 
+export function normalizeCommandText(value) {
+  return String(value ?? "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+export function commandsEquivalent(left, right) {
+  return normalizeCommandText(left).toLowerCase() === normalizeCommandText(right).toLowerCase();
+}
+
+export function parseBindText(value) {
+  const entries = [];
+  const ignored = [];
+  const lines = String(value ?? "").replace(/^\uFEFF/, "").split(/\r?\n/);
+
+  lines.forEach((rawLine, index) => {
+    const raw = rawLine.trim();
+    if (!raw || raw.startsWith("#") || raw.startsWith("//") || raw.startsWith(";")) return;
+
+    const match = raw.match(/^\/?(bind|unbind)\s+(\S+)(?:\s+([\s\S]*))?$/i);
+    if (!match) {
+      ignored.push({ lineNumber: index + 1, raw: rawLine });
+      return;
+    }
+
+    const mode = match[1].toLowerCase();
+    const key = normalizeCombo(match[2]);
+    const command = normalizeCommandText(match[3] ?? "");
+
+    if (!key || (mode === "bind" && !command)) {
+      ignored.push({ lineNumber: index + 1, raw: rawLine });
+      return;
+    }
+
+    entries.push({ mode, key, command, raw: rawLine, lineNumber: index + 1 });
+  });
+
+  return { entries, ignored };
+}
+
+export function resolveBindMap(entries) {
+  const active = new Map();
+  for (const entry of Array.isArray(entries) ? entries : []) {
+    const key = normalizeCombo(entry?.key);
+    if (!key) continue;
+    if (entry?.mode === "unbind") active.delete(key);
+    else active.set(key, { ...entry, mode: "bind", key, command: normalizeCommandText(entry?.command) });
+  }
+  return Array.from(active.values());
+}
+
 export function normalizeMessage(value) {
   return String(value ?? "")
     .replace(/\s+/g, " ")
