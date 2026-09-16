@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AppHeader } from "./components/AppHeader";
 import type { CopyFeedback } from "./components/AppHeader";
+import { ContextualHelpGlossary, FirstVisitOrientation } from "./components/FirstVisitHelp";
 import { GsapMotionEnhancer } from "./components/GsapMotionEnhancer";
 import { Icon } from "./components/Icon";
 import { PrimaryWorkspace } from "./components/PrimaryWorkspace";
@@ -75,8 +76,10 @@ export default function Home() {
       <div className="side-rail right" aria-hidden="true"><span>Neverwinter Command Systems · MMXXVI</span></div>
       <UrlStateBridge />
       <AppHeader feedback={feedback} />
+      <FirstVisitOrientation />
 
       <PrimaryWorkspace onCopy={copyText} />
+      <ContextualHelpGlossary />
 
       <footer className="app-footer" data-reveal>
         <SectionRule roman="III" meta="Notes / provenance / studio" page="003" />
