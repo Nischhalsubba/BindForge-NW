@@ -98,6 +98,172 @@ html[data-theme='system'] .brand-mark {
   background: var(--ink);
 }
 
+/* Wide desktop correction: use the available canvas instead of shrinking the product into a poster-sized column. */
+.app-shell {
+  --content: 3000px;
+}
+
+.app-shell .side-rail {
+  display: none !important;
+}
+
+@media (min-width: 881px) {
+  .app-shell .app-header,
+  .app-shell .workbench-intro,
+  .app-shell .workspace,
+  .app-shell .tools-chapter,
+  .app-shell .app-footer,
+  .app-shell .settings-anchor {
+    width: min(calc(100% - clamp(64px, 6vw, 180px)), var(--content));
+  }
+}
+
+@media (min-width: 1081px) {
+  .app-shell .topbar {
+    font-size: clamp(.72rem, .46vw, .9rem);
+  }
+
+  .app-shell .site-nav-links a,
+  .app-shell .nav-cta {
+    font-size: clamp(.9rem, .6vw, 1.05rem);
+  }
+
+  .app-shell .brand-copy b {
+    font-size: clamp(1.08rem, .8vw, 1.35rem);
+  }
+
+  .app-shell .hero {
+    grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+    gap: clamp(3rem, 4vw, 7rem);
+    min-height: auto;
+    padding-top: clamp(3rem, 4vw, 5.5rem);
+    padding-bottom: clamp(1rem, 1.8vw, 2rem);
+    align-items: center;
+  }
+
+  .app-shell .hero-copy {
+    max-width: 60rem;
+    padding-block: 0;
+  }
+
+  .app-shell .hero-copy::after {
+    width: min(22rem, 70%);
+    margin-top: 2.4rem;
+  }
+
+  .app-shell .hero .display {
+    max-width: 9.6ch;
+    font-size: clamp(5rem, 5.4vw, 9rem);
+    line-height: .9;
+  }
+
+  .app-shell .hero .lead {
+    max-width: 46ch;
+    margin-top: 1.75rem;
+    font-size: clamp(1.05rem, 1vw, 1.35rem);
+    line-height: 1.58;
+  }
+
+  .app-shell .hero-actions {
+    margin-top: 1.9rem;
+  }
+
+  .app-shell .hero-stats {
+    gap: .9rem;
+    margin-top: 2.35rem;
+  }
+
+  .app-shell .hero-stats span {
+    grid-template-columns: 42px 84px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .app-shell .hero-stats i {
+    width: 42px;
+    height: 42px;
+    font-size: .72rem;
+  }
+
+  .app-shell .hero-stats strong {
+    font-size: 2.2rem;
+    line-height: 1;
+  }
+
+  .app-shell .hero-stats small {
+    font-size: .95rem;
+    line-height: 1.25;
+  }
+
+  .app-shell .hero-plate {
+    min-height: 0;
+    padding: clamp(3rem, 3.2vw, 4rem) clamp(3.25rem, 3.4vw, 4.5rem) 2rem;
+  }
+
+  .app-shell .plate-meta {
+    font-size: .82rem;
+  }
+
+  .app-shell .command-specimen {
+    margin-top: 3rem;
+    padding: clamp(2rem, 2.25vw, 2.8rem) clamp(2.1rem, 2.5vw, 3.2rem);
+  }
+
+  .app-shell .command-specimen::before {
+    top: -1.8rem;
+    font-size: .78rem;
+  }
+
+  .app-shell .command-specimen p {
+    font-size: .85rem;
+  }
+
+  .app-shell .command-specimen code {
+    font-size: clamp(1.05rem, .85vw, 1.5rem);
+    line-height: 1.5;
+  }
+
+  .app-shell .command-specimen small {
+    margin-top: 1.1rem;
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+
+  .app-shell .hero-index {
+    margin-top: 1.8rem;
+  }
+
+  .app-shell .hero-index li {
+    min-height: 5.35rem;
+    padding: 1rem 1rem 0 0;
+  }
+
+  .app-shell .hero-index span {
+    font-size: .78rem;
+  }
+
+  .app-shell .hero-index b {
+    font-size: 1.05rem;
+  }
+
+  .app-shell .hero-index small {
+    font-size: .95rem;
+    line-height: 1.35;
+  }
+
+  .app-shell .ready-state {
+    margin-top: 1.2rem;
+    padding-top: 1rem;
+  }
+
+  .app-shell .ready-state strong {
+    font-size: 1.05rem;
+  }
+
+  .app-shell .ready-state small {
+    font-size: .95rem;
+  }
+}
+
 @media (max-width: 1080px) {
   .site-nav {
     column-gap: 1.5rem;
