@@ -153,15 +153,32 @@ test("keeps the ultra-wide hero and workspace readable at reduced effective zoom
   const navLink = page.locator(".site-nav-links a").first();
   const navMeta = page.locator(".brand-copy small");
   const primaryAction = page.getByRole("link", { name: "Search keybinds ↗", exact: true });
+  const pageSurface = page.locator("body");
+  const heroLead = page.locator(".hero .lead");
+  const plateMeta = heroPlate.locator(".plate-meta");
+  const heroIndexMeta = heroPlate.locator(".hero-index small").first();
 
-  await expect(siteNav).toHaveCSS("color", "rgb(21, 20, 15)");
-  await expect(navLink).toHaveCSS("color", "rgb(21, 20, 15)");
-  await expect(siteNav).toHaveCSS("background-color", "rgb(239, 231, 210)");
+  await expect(siteNav).toHaveCSS("color", "rgb(23, 20, 15)");
+  await expect(navLink).toHaveCSS("color", "rgb(23, 20, 15)");
+  await expect(siteNav).toHaveCSS("background-color", "rgb(247, 239, 217)");
   await expectTextContrast(navMeta, siteNav);
 
   await expectOwnContrast(primaryAction);
   await primaryAction.hover();
   await expectOwnContrast(primaryAction);
+
+  await expectTextContrast(heroLead, pageSurface);
+  await expectTextContrast(plateMeta, heroPlate);
+  await expectTextContrast(heroIndexMeta, heroPlate);
+
+  const darkSurfaces = await page.evaluate(() => ({
+    page: getComputedStyle(document.body).backgroundColor,
+    plate: getComputedStyle(document.querySelector<HTMLElement>(".hero-plate")!).backgroundColor,
+  }));
+  expect(
+    contrastRatio(darkSurfaces.page, darkSurfaces.plate),
+    `Expected dark-theme surfaces to be visibly distinct, got ${darkSurfaces.page} and ${darkSurfaces.plate}`,
+  ).toBeGreaterThanOrEqual(1.2);
 
   const focusColors = await siteNav.evaluate((element) => {
     const probe = document.createElement("span");
