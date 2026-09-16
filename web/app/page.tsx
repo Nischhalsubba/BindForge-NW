@@ -10,6 +10,7 @@ import { RevealController } from "./components/RevealController";
 import { UrlStateBridge } from "./components/UrlStateBridge";
 import { UseInNeverwinterGuide } from "./components/UseInNeverwinterGuide";
 import { copyTextSafely } from "./lib/clipboard";
+import { isNeverwinterBindPayload } from "./lib/in-game-guidance.mjs";
 
 export type CopyResultState = "copied" | "fallback" | "error";
 
@@ -41,8 +42,8 @@ export default function Home() {
     const result = await copyTextSafely(text);
     const nextState: CopyResultState = result.ok ? (result.method === "fallback" ? "fallback" : "copied") : "error";
     setFeedback({ state: nextState, label });
-    if (result.ok) setInGameGuide({ command: text, label });
-    else target?.focus();
+    if (result.ok && isNeverwinterBindPayload(text)) setInGameGuide({ command: text, label });
+    else if (!result.ok) target?.focus();
     if (feedbackTimer.current) window.clearTimeout(feedbackTimer.current);
     feedbackTimer.current = window.setTimeout(() => setFeedback({ state: "idle", label: "" }), result.ok ? 2600 : 5200);
     return nextState;
