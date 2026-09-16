@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { consoleCommands } from "../data/commands";
 import { keyCombos } from "../data/keyCombos";
 import { keybindPresets } from "../data/keybindPresets";
@@ -32,7 +33,15 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
       <nav className="site-nav" aria-label="Primary navigation">
         <a className="site-brand" href="#top" aria-label="Neverwinter Keybind home">
           <span className="brand-mark">
-            <img src="/neverwinter-keybind-logo.svg" alt="" width="56" height="56" aria-hidden="true" />
+            <Image
+              src="/neverwinter-keybind-logo.svg"
+              alt=""
+              width={56}
+              height={56}
+              aria-hidden="true"
+              priority
+              unoptimized
+            />
           </span>
           <span className="brand-copy"><b>Neverwinter Keybind</b><small>Command field manual</small></span>
         </a>
@@ -49,7 +58,9 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
         <div className="hero-copy">
           <p className="label">I. Neverwinter command utility</p>
           <h1 className="display" id="neverwinter-keybind-title">
-            Find it. Build it. <em>Bind it</em><span className="dot">.</span>
+            <span className="display-phrase">Find it.</span>{" "}
+            <span className="display-phrase">Build it.</span>{" "}
+            <span className="display-phrase"><em>Bind it</em><span className="dot">.</span></span>
           </h1>
           <p className="lead">
             Search a ready-made keybind or build exactly what you need with the verified composer, command builder, and say-message tool.
