@@ -165,16 +165,26 @@
 }
 
 @media (max-width: 880px) {
+  /* On touch/narrow layouts the first-visit card belongs to the document flow.
+     A fixed card can cover the persistent navigation and block Settings or
+     other controls when the browser scrolls them into view. */
+  .orientation {
+    position: relative;
+    inset: auto;
+    z-index: 1;
+    width: calc(100% - 40px);
+    margin: 1rem auto 0;
+    box-shadow: 0 18px 40px -28px rgba(0, 0, 0, 0.55);
+  }
+
   .help { width: calc(100% - 40px); }
   .helpBody { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 640px) {
   .orientation {
-    right: 0.75rem;
-    bottom: 0.75rem;
-    left: 0.75rem;
-    width: auto;
+    width: calc(100% - 32px);
+    margin-top: 0.75rem;
   }
 
   .paths { grid-template-columns: 1fr; }
