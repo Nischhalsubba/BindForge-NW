@@ -7,8 +7,12 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
 });
 
+function visiblePacks(page: import("@playwright/test").Page) {
+  return page.locator('[data-testid="catalog-quick-packs"]:visible').first();
+}
+
 test("class and role packs are catalogue-backed and open deterministic result sets", async ({ page }) => {
-  const packs = page.getByTestId("catalog-quick-packs");
+  const packs = visiblePacks(page);
   await packs.locator("summary").click();
   await expect(packs).toContainText("not automatic build recommendations");
 
@@ -18,21 +22,22 @@ test("class and role packs are catalogue-backed and open deterministic result se
   await fighter.getByRole("button", { name: /Open .*preset pack/ }).click();
 
   await expect(page.getByLabel("Search keybind library").first()).toHaveValue("fighter dps");
-  await expect(page.getByRole("heading", { name: "Fighter DPS Animation Cancel: Left Click" })).toBeVisible();
+  await expect(page.locator(".bind-card:visible").filter({ hasText: "Fighter DPS Animation Cancel: Left Click" }).first()).toBeVisible();
   await expect(fighter.getByRole("button")).toHaveText("Pack open");
 });
 
 test("an opened quick pack can flow into the existing selection and pack review", async ({ page }) => {
-  const packs = page.getByTestId("catalog-quick-packs");
+  const packs = visiblePacks(page);
   await packs.locator("summary").click();
   const barbarian = packs.locator('article[data-pack-id="barbarian-dps"]');
   await barbarian.getByRole("button", { name: /Open .*preset pack/ }).click();
 
-  const packToggle = page.getByRole("button", { name: /Collections & command packs/i });
+  const packToggle = page.getByRole("button", { name: /Collections & command packs/i }).filter({ visible: true }).first();
   await packToggle.click();
-  const panel = page.getByTestId("pack-tools-panel");
+  const panel = page.locator('[data-testid="pack-tools-panel"]:visible').first();
   await panel.getByRole("button", { name: "Select visible" }).click();
   await expect(packToggle).toContainText(/1 selected/);
-  await expect(page.getByTestId("selection-tray")).toBeVisible();
-  await expect(page.getByTestId("selection-tray")).toContainText(/needs review/i);
+  const tray = page.locator('[data-testid="selection-tray"]:visible').first();
+  await expect(tray).toBeVisible();
+  await expect(tray).toContainText(/needs review/i);
 });
