@@ -60,6 +60,122 @@ html[data-theme="dark"] .bind-card {
   overflow-wrap: anywhere;
 }
 
+.trust-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 1.75rem;
+  padding: 0.28rem 0.55rem;
+  border: 1px solid var(--minimal-border, #d9d9d5);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.trust-pill-compact {
+  min-height: 1.55rem;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.67rem;
+}
+
+.trust-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.trust-verified {
+  border-color: #a8cbb3;
+  background: #eef7f1;
+  color: #215b37;
+}
+
+.trust-community {
+  border-color: #bfc9d8;
+  background: #f2f5f9;
+  color: #42536b;
+}
+
+.trust-experimental {
+  border-color: #dfc783;
+  background: #fff8df;
+  color: #745813;
+}
+
+html[data-theme="dark"] .trust-verified {
+  border-color: #315b43;
+  background: #15251c;
+  color: #9de0b2;
+}
+
+html[data-theme="dark"] .trust-community {
+  border-color: #3d4d67;
+  background: #171e29;
+  color: #bac9e3;
+}
+
+html[data-theme="dark"] .trust-experimental {
+  border-color: #6f5e2d;
+  background: #28220f;
+  color: #efd682;
+}
+
+.trust-summary {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.75rem 0.8rem;
+  border: 1px solid var(--minimal-border, #d9d9d5);
+  border-radius: 10px;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.trust-summary strong {
+  font-size: 0.8rem;
+}
+
+.trust-summary span {
+  color: var(--minimal-text-muted, #5f6368);
+}
+
+.trust-summary-verified {
+  border-color: #b9d6c2;
+  background: #f6faf7;
+}
+
+.trust-summary-community {
+  border-color: #d3d9e2;
+  background: #f7f8fa;
+}
+
+.trust-summary-experimental {
+  border-color: #e5d49e;
+  background: #fffbec;
+}
+
+html[data-theme="dark"] .trust-summary-verified {
+  border-color: #315b43;
+  background: #15251c;
+}
+
+html[data-theme="dark"] .trust-summary-community {
+  border-color: #354157;
+  background: #151b25;
+}
+
+html[data-theme="dark"] .trust-summary-experimental {
+  border-color: #6f5e2d;
+  background: #28220f;
+}
+
+html[data-theme="dark"] .trust-summary span {
+  color: var(--ink-mute, #c8c0ad);
+}
+
 .card-copy {
   display: grid !important;
   align-content: start !important;

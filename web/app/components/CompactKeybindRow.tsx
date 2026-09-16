@@ -3,10 +3,12 @@
 import { useRef, useState } from "react";
 import type { KeybindPreset } from "../data/keybindPresets";
 import { isCompleteCombo, normalizeCombo } from "../lib/keybind-core.mjs";
+import { presetTrustInfo } from "../lib/preset-trust.mjs";
 import { SAFE_KEY_SUGGESTIONS } from "../lib/safe-key-suggestions";
 import type { CopyResultState } from "../page";
 import { Icon } from "./Icon";
 import { KeyCaptureInput } from "./KeyCaptureInput";
+import { PresetTrustBadge } from "./PresetTrustBadge";
 import styles from "./CompactKeybindRow.module.css";
 
 type CopyHandler = (text: string, label: string, target: HTMLElement | null) => Promise<CopyResultState>;
@@ -65,6 +67,7 @@ export function CompactKeybindRow({
   const currentKey = normalizeCombo(keyValue);
   const effectiveKey = keyValue.trim() || preset.defaultKey;
   const canCopyKey = isCompleteCombo(effectiveKey);
+  const trust = presetTrustInfo(preset);
   const directReplacement = replacementKey && normalizeCombo(replacementKey) !== currentKey
     ? replacementKey
     : SAFE_KEY_SUGGESTIONS.find((candidate) => normalizeCombo(candidate) !== currentKey) ?? null;
@@ -97,6 +100,7 @@ export function CompactKeybindRow({
           <div className={styles.meta}>
             <span className={`level-pill level-${preset.difficulty.toLowerCase()}`}>{preset.difficulty}</span>
             <span>{preset.className}</span>
+            <PresetTrustBadge compact preset={preset} />
           </div>
           <h4 data-testid="compact-title">{preset.title}</h4>
         </div>
@@ -152,11 +156,15 @@ export function CompactKeybindRow({
         <div className={styles.details} data-gsap-enter id={detailsId}>
           <div className={styles.description}>
             <p>{preset.plainEnglish}</p>
-            <div className={styles.provenance} aria-label="Preset provenance">
-              <span>{preset.sourceType ? preset.sourceType.replace("-", " ") : "community"}</span>
-              <span>{preset.confidence ? preset.confidence.replace("-", " ") : "unverified"}</span>
-              {preset.verifiedAt ? <span>Checked {preset.verifiedAt}</span> : <span>Verification date pending</span>}
-              {preset.sourceUrl ? <a href={preset.sourceUrl} rel="noreferrer" target="_blank">Source</a> : null}
+            <div className={`trust-summary trust-summary-${trust.tone}`} data-testid="preset-trust-summary">
+              <strong>{trust.label}</strong>
+              <span>{trust.description}</span>
+            </div>
+            <div className={styles.provenance} aria-label="Preset evidence and verification">
+              <span>{trust.sourceLabel}</span>
+              <span>{trust.checkedLabel}</span>
+              <span>{trust.versionLabel}</span>
+              {preset.sourceUrl ? <a href={preset.sourceUrl} rel="noreferrer" target="_blank">Open source</a> : null}
             </div>
           </div>
 

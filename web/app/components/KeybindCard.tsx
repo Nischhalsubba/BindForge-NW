@@ -3,10 +3,12 @@
 import { memo, useRef, useState } from "react";
 import type { KeybindPreset } from "../data/keybindPresets";
 import { buildPresetLine, isCompleteCombo, normalizeCombo } from "../lib/keybind-core.mjs";
+import { presetTrustInfo } from "../lib/preset-trust.mjs";
 import { SAFE_KEY_SUGGESTIONS } from "../lib/safe-key-suggestions";
 import type { CopyResultState } from "../page";
 import { Icon } from "./Icon";
 import { KeyCaptureInput } from "./KeyCaptureInput";
+import { PresetTrustBadge } from "./PresetTrustBadge";
 
 export type KeybindSafetyStatus = {
   level: "safe" | "info" | "warn" | "danger";
@@ -43,12 +45,6 @@ function highlight(value: string, query: string) {
   );
 }
 
-function provenanceLabel(preset: KeybindPreset) {
-  const source = preset.sourceType ? preset.sourceType.replace("-", " ") : "community";
-  const confidence = preset.confidence ? preset.confidence.replace("-", " ") : "unverified";
-  return `${source} · ${confidence}`;
-}
-
 function KeybindCardComponent(props: KeybindCardProps) {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [copyState, setCopyState] = useState<CopyState>("idle");
@@ -59,6 +55,7 @@ function KeybindCardComponent(props: KeybindCardProps) {
   const currentKey = normalizeCombo(props.keyValue);
   const effectiveKey = props.keyValue.trim() || props.preset.defaultKey;
   const canCopyKey = isCompleteCombo(effectiveKey);
+  const trust = presetTrustInfo(props.preset);
   const directReplacement = props.replacementKey && normalizeCombo(props.replacementKey) !== currentKey
     ? props.replacementKey
     : SAFE_KEY_SUGGESTIONS.find((candidate) => normalizeCombo(candidate) !== currentKey) ?? null;
@@ -86,6 +83,7 @@ function KeybindCardComponent(props: KeybindCardProps) {
         <div className="card-meta">
           <span className={`level-pill level-${props.preset.difficulty.toLowerCase()}`}>{props.preset.difficulty}</span>
           <span>{props.preset.className}</span>
+          <PresetTrustBadge preset={props.preset} />
         </div>
         <div className="card-header-actions">
           <button aria-label={`${props.favourite ? "Remove" : "Add"} ${props.preset.title} ${props.favourite ? "from" : "to"} favourites`} aria-pressed={props.favourite} className="icon-text-button favourite-button" onClick={props.onFavourite} type="button"><Icon filled={props.favourite} name="star" /></button>
@@ -119,10 +117,15 @@ function KeybindCardComponent(props: KeybindCardProps) {
 
       {detailsOpen ? (
         <div className="card-details" data-gsap-enter id={detailsId}>
-          <div className="provenance-row" aria-label="Preset provenance">
-            <span>{provenanceLabel(props.preset)}</span>
-            {props.preset.verifiedAt ? <span>Checked {props.preset.verifiedAt}</span> : <span>Verification date pending</span>}
-            {props.preset.sourceUrl ? <a href={props.preset.sourceUrl} rel="noreferrer" target="_blank">Source</a> : <span>Community source</span>}
+          <div className={`trust-summary trust-summary-${trust.tone}`} data-testid="preset-trust-summary">
+            <strong>{trust.label}</strong>
+            <span>{trust.description}</span>
+          </div>
+          <div className="provenance-row" aria-label="Preset evidence and verification">
+            <span>{trust.sourceLabel}</span>
+            <span>{trust.checkedLabel}</span>
+            <span>{trust.versionLabel}</span>
+            {props.preset.sourceUrl ? <a href={props.preset.sourceUrl} rel="noreferrer" target="_blank">Open source</a> : null}
           </div>
           <div className="command-preview">
             <div className="command-label"><span>Command preview</span><span>{props.mode}</span></div>
