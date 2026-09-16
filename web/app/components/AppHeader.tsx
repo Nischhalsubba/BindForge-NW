@@ -49,7 +49,9 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
         <div className="hero-copy">
           <p className="label">I. Neverwinter command utility</p>
           <h1 className="display" id="neverwinter-keybind-title">
-            Find it. Build it. <em>Bind it</em><span className="dot">.</span>
+            <span className="display-phrase">Find it.</span>{" "}
+            <span className="display-phrase">Build it.</span>{" "}
+            <span className="display-phrase"><em>Bind it</em><span className="dot">.</span></span>
           </h1>
           <p className="lead">
             Search a ready-made keybind or build exactly what you need with the verified composer, command builder, and say-message tool.
