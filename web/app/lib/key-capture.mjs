@@ -2,6 +2,8 @@ const modifierCodes = new Set([
   "ControlLeft", "ControlRight", "ShiftLeft", "ShiftRight", "AltLeft", "AltRight", "MetaLeft", "MetaRight",
 ]);
 
+const COMBO_SEPARATOR = "+";
+
 const codeAliases = {
   Escape: "escape",
   Backspace: "backspace",
@@ -51,7 +53,7 @@ const mouseButtonAliases = {
 
 function fallbackKeyToken(key) {
   const clean = String(key ?? "").trim().toLowerCase();
-  if (!clean || ["control", "shift", "alt", "meta", "dead", "unidentified"].includes(clean)) return "";
+  if (!clean || clean.includes(COMBO_SEPARATOR) || ["control", "shift", "alt", "meta", "dead", "unidentified"].includes(clean)) return "";
   if (clean === " ") return "space";
   if (clean === "esc") return "escape";
   if (clean === "arrowup") return "up";
@@ -67,11 +69,12 @@ function comboWithModifiers(token, event) {
   if (event.ctrlKey) modifiers.push("ctrl");
   if (event.altKey) modifiers.push("alt");
   if (event.shiftKey) modifiers.push("shift");
-  return [...modifiers, token].join("+");
+  return [...modifiers, token].join(COMBO_SEPARATOR);
 }
 
 export function keyTokenFromCode(code, key = "", location = 0) {
   const cleanCode = String(code ?? "");
+  const cleanKey = String(key ?? "").trim();
   if (!cleanCode || modifierCodes.has(cleanCode)) return "";
 
   const keyMatch = /^Key([A-Z])$/.exec(cleanCode);
@@ -86,10 +89,15 @@ export function keyTokenFromCode(code, key = "", location = 0) {
   const numpadMatch = /^Numpad([0-9])$/.exec(cleanCode);
   if (numpadMatch) return `numpad${numpadMatch[1]}`;
 
+  // Keep the explicit Neverwinter numpad token, but never expose the literal "+"
+  // character as a bindable key because "+" is the combo separator (ctrl+5, etc.).
+  if (cleanCode === "NumpadAdd") return "numpadadd";
+  if (cleanKey.includes(COMBO_SEPARATOR)) return "";
+
   if (codeAliases[cleanCode]) return codeAliases[cleanCode];
 
-  if (location === 3 && /^[0-9]$/.test(String(key))) return `numpad${key}`;
-  return fallbackKeyToken(key);
+  if (location === 3 && /^[0-9]$/.test(cleanKey)) return `numpad${cleanKey}`;
+  return fallbackKeyToken(cleanKey);
 }
 
 export function mouseTokenFromButton(button) {

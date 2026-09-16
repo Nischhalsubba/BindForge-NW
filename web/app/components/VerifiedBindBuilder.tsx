@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import { observedWorkingBindFragments, verifiedActionCategories, verifiedKeybindActions } from "../data/verifiedKeybindActions";
 import { buildCommandChain, sanitizeBindFragment, validateCustomFragment } from "../lib/command-chain.mjs";
+import { normalizeCombo } from "../lib/keybind-core.mjs";
 import type { CopyResultState } from "../page";
 import { Icon } from "./Icon";
 import { KeyCaptureInput } from "./KeyCaptureInput";
@@ -37,7 +38,7 @@ export function VerifiedBindBuilder({ onCopy }: { onCopy: CopyHandler }) {
   }, [category, search]);
 
   const line = buildCommandChain(keyValue, chain.map((item) => item.fragment));
-  const canCopy = Boolean(keyValue.trim() && chain.length);
+  const canCopy = Boolean(normalizeCombo(keyValue) && chain.length);
 
   function addItem(label: string, fragment: string, source: ChainItem["source"]) {
     setChain((current) => [...current, { instanceId: nextId.current++, label, fragment, source }]);
@@ -117,7 +118,7 @@ export function VerifiedBindBuilder({ onCopy }: { onCopy: CopyHandler }) {
           <KeyCaptureInput
             aria-label="Key for combined Neverwinter bind"
             autoComplete="off"
-            hint="Click once to focus, then press a keyboard key or mouse button. Ctrl / Alt / Shift combinations are merged automatically, for example Ctrl+5 or Ctrl+Left Click."
+            hint="Click once to focus, then press a keyboard key or mouse button. Ctrl / Alt / Shift combinations are merged automatically, for example Ctrl+5 or Ctrl+Left Click. The + symbol is only the separator between keys and cannot be assigned by itself."
             onValueChange={(value) => { setKeyValue(value); setCopyState("idle"); }}
             placeholder="Press a key, mouse button, or combination"
             value={keyValue}

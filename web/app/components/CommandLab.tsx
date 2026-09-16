@@ -6,7 +6,7 @@ import { consoleCommands } from "../data/commands";
 import { keyCombos } from "../data/keyCombos";
 import type { ConsoleCommand } from "../data/commands";
 import type { KeyCombo } from "../data/keyCombos";
-import { buildCustomLine } from "../lib/keybind-core.mjs";
+import { buildCustomLine, normalizeCombo } from "../lib/keybind-core.mjs";
 import type { CopyResultState } from "../page";
 import { Icon } from "./Icon";
 import { KeyCaptureInput } from "./KeyCaptureInput";
@@ -31,6 +31,8 @@ export function CommandLab({ onCopy }: { onCopy: CopyHandler }) {
   const resetTimer = useRef<number | null>(null);
   const [copyState, setCopyState] = useState<CopyState>("idle");
   const selectedCommand = consoleCommands.find((command) => command.id === state.commandLab.commandId) ?? consoleCommands[0];
+  const cleanKey = normalizeCombo(state.commandLab.key);
+  const canCopy = Boolean(cleanKey);
   const line = buildCustomLine(state.commandLab.key, selectedCommand.bindCommand, state.commandLab.extraText, state.mode);
 
   const filteredCommands = useMemo(() => {
@@ -58,6 +60,7 @@ export function CommandLab({ onCopy }: { onCopy: CopyHandler }) {
   }
 
   async function handleCopy() {
+    if (!canCopy) return;
     setCopyState("copying");
     const result = await onCopy(line, "command bind", preview.current);
     setCopyState(result);
@@ -83,7 +86,7 @@ export function CommandLab({ onCopy }: { onCopy: CopyHandler }) {
           <span>Generated bind</span>
           <code aria-label="Generated custom command" ref={preview} tabIndex={0}>{line}</code>
           <div className="lab-copy-actions">
-            <button className={`primary-button copy-action copy-action-${copyState}`} disabled={copyState === "copying"} onClick={() => { void handleCopy(); }} type="button">
+            <button className={`primary-button copy-action copy-action-${copyState}`} disabled={!canCopy || copyState === "copying"} onClick={() => { void handleCopy(); }} type="button">
               <Icon name={copyState === "error" ? "warning" : copyState === "copied" || copyState === "fallback" ? "shield" : "copy"} /> {copyLabel}
             </button>
           </div>

@@ -1,9 +1,14 @@
 const PRESET_DIFFICULTIES = new Set(["Easy", "Advanced", "Risky"]);
 const COMBO_STATUSES = new Set(["core", "candidate", "avoid"]);
 const MODIFIERS = new Set(["ctrl", "alt", "shift"]);
+const COMBO_SEPARATOR = "+";
 
 function nonEmpty(value) {
   return typeof value === "string" && value.trim().length > 0;
+}
+
+function separatorOnly(value) {
+  return typeof value === "string" && value.trim() === COMBO_SEPARATOR;
 }
 
 function duplicateValues(items, select) {
@@ -35,6 +40,7 @@ function validatePresets(presets, errors) {
     if (!nonEmpty(preset?.title)) errors.push(`${label} has no title.`);
     if (!nonEmpty(preset?.plainEnglish)) errors.push(`${label} has no plain-English description.`);
     if (!nonEmpty(preset?.defaultKey)) errors.push(`${label} has no default key.`);
+    if (separatorOnly(preset?.defaultKey)) errors.push(`${label} cannot use + as a standalone key; + is the combo separator.`);
     if (!nonEmpty(preset?.command)) errors.push(`${label} has no command.`);
     if (!PRESET_DIFFICULTIES.has(preset?.difficulty)) errors.push(`${label} has an unsupported difficulty.`);
     if (!Array.isArray(preset?.searchTerms) || preset.searchTerms.some((term) => !nonEmpty(term))) {
@@ -88,6 +94,9 @@ function validateCombos(combos, errors) {
     const label = `Key combination ${combo?.combo || index}`;
     if (!nonEmpty(combo?.combo)) errors.push(`${label} has no combo.`);
     if (!nonEmpty(combo?.baseKey)) errors.push(`${label} has no base key.`);
+    if (separatorOnly(combo?.combo) || separatorOnly(combo?.baseKey)) {
+      errors.push(`${label} cannot use + as a standalone key; + is the combo separator.`);
+    }
     if (!nonEmpty(combo?.category)) errors.push(`${label} has no category.`);
     if (!COMBO_STATUSES.has(combo?.status)) errors.push(`${label} has an unsupported status.`);
     if (!Array.isArray(combo?.modifiers) || combo.modifiers.some((modifier) => !MODIFIERS.has(modifier))) {
@@ -95,7 +104,7 @@ function validateCombos(combos, errors) {
     }
 
     if (nonEmpty(combo?.combo) && nonEmpty(combo?.baseKey)) {
-      const parts = combo.combo.split("+");
+      const parts = combo.combo.split(COMBO_SEPARATOR);
       if (parts.at(-1) !== combo.baseKey) errors.push(`${label} does not end with its base key.`);
       const comboModifiers = parts.slice(0, -1);
       if (JSON.stringify(comboModifiers) !== JSON.stringify(combo.modifiers)) {

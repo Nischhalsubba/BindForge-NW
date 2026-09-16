@@ -87,6 +87,22 @@ test("rejects mismatched key-combination metadata", () => {
   assert.ok(errors.includes("Key combination ctrl+i modifiers do not match the combo string."));
 });
 
+test("rejects plus as a standalone key because it is the combo separator", () => {
+  const catalogs = validCatalogs();
+  catalogs.presets[0].defaultKey = "+";
+  catalogs.keyCombos[0] = {
+    combo: "+",
+    baseKey: "+",
+    modifiers: [],
+    category: "punctuation-candidate",
+    status: "candidate",
+  };
+
+  const errors = catalogIntegrityErrors(catalogs);
+  assert.ok(errors.includes("Preset invoke cannot use + as a standalone key; + is the combo separator."));
+  assert.ok(errors.includes("Key combination + cannot use + as a standalone key; + is the combo separator."));
+});
+
 test("throws one actionable aggregate error", () => {
   const catalogs = validCatalogs();
   catalogs.presets[0].difficulty = "Unknown";
