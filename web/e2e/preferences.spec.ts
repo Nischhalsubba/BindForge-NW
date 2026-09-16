@@ -31,8 +31,11 @@ test.beforeEach(async ({ page }) => {
   await waitForHydration(page);
 });
 
-test("starts new users with accessible Simple-mode preferences", async ({ page }) => {
+test("starts new users on the warm field-manual appearance before preferences hydrate", async ({ page }) => {
   const root = page.locator("html");
+  await expect(root).toHaveAttribute("data-appearance-ready", "true");
+  await expect(root).toHaveAttribute("data-theme", "light");
+  await expect(root).toHaveAttribute("data-theme-choice", "light");
   await expect(root).toHaveAttribute("data-experience", "simple");
   await expect(root).toHaveAttribute("data-text-size", "default");
   await expect(root).toHaveAttribute("data-density", "standard");
@@ -82,6 +85,7 @@ test("persists accessibility, experience, and appearance preferences", async ({ 
 
   await page.reload();
   await waitForHydration(page);
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await expect(page.locator("html")).toHaveAttribute("data-experience", "advanced");
   await expect(page.locator("html")).toHaveAttribute("data-motion", "reduced");
   await openSettings(page);
@@ -90,7 +94,7 @@ test("persists accessibility, experience, and appearance preferences", async ({ 
   await expect(page.getByRole("checkbox", { name: /Larger controls/ })).toBeChecked();
 });
 
-test("migrates existing v2 settings without surprising experienced users", async ({ page }) => {
+test("migrates legacy browser data to the warm appearance once without losing saved work", async ({ page }) => {
   await page.evaluate(() => {
     window.localStorage.clear();
     window.localStorage.setItem("bindforge-nw:theme", "dark");
@@ -108,17 +112,22 @@ test("migrates existing v2 settings without surprising experienced users", async
 
   await expect(page.getByLabel("Search keybind library").first()).toHaveValue("bard");
   await expect(page.locator("html")).toHaveAttribute("data-experience", "standard");
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await expect(page.locator("html")).toHaveAttribute("data-theme-choice", "light");
   await openSettings(page);
   await expect(page.getByRole("group", { name: "Experience level" }).getByRole("button", { name: /Standard/ })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("checkbox", { name: /Explain technical terms/ })).not.toBeChecked();
   await expect(page.getByRole("checkbox", { name: /Show raw commands/ })).toBeChecked();
 
-  const normalized = await page.evaluate(() => JSON.parse(window.localStorage.getItem("bindforge-nw:settings:v2") ?? "{}"));
-  expect(normalized.version).toBe(3);
-  expect(normalized.preferences.experience).toBe("standard");
-  expect(normalized.preferences.theme).toBe("dark");
-  expect(normalized.customSay.message).toBe("Group on me");
+  const normalized = await page.evaluate(() => ({
+    settings: JSON.parse(window.localStorage.getItem("bindforge-nw:settings:v2") ?? "{}"),
+    revision: window.localStorage.getItem("bindforge-nw:appearance-revision"),
+  }));
+  expect(normalized.settings.version).toBe(3);
+  expect(normalized.settings.preferences.experience).toBe("standard");
+  expect(normalized.settings.preferences.theme).toBe("light");
+  expect(normalized.settings.customSay.message).toBe("Group on me");
+  expect(normalized.revision).toBe("field-manual-paper-2026-09");
 });
 
 test("large-control preference keeps primary controls comfortably tappable", async ({ page }, testInfo) => {
