@@ -17,6 +17,7 @@ test("creates version 3 with accessible fresh-user defaults", () => {
   assert.equal(backup.savedAt, NOW);
   assert.deepEqual(backup.preferences, createDefaultPreferences());
   assert.equal(backup.preferences.experience, "simple");
+  assert.equal(backup.preferences.theme, "light");
   assert.equal(backup.preferences.explainTerms, true);
   assert.equal(backup.preferences.showRawCommands, false);
   assert.deepEqual(backup.customSay, { key: "f1", message: "ARTIFACTS NOW" });

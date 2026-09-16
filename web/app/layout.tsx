@@ -108,9 +108,96 @@ const structuredData = {
   ],
 };
 
+const appearanceBootstrap = `
+(() => {
+  const SETTINGS_KEY = "bindforge-nw:settings:v2";
+  const LEGACY_SETTINGS_KEY = "bindforge-nw:settings:v1";
+  const THEME_KEY = "bindforge-nw:theme";
+  const APPEARANCE_REVISION_KEY = "bindforge-nw:appearance-revision";
+  const APPEARANCE_REVISION = "field-manual-paper-2026-09";
+  const freshPreferences = {
+    experience: "simple",
+    theme: "light",
+    textSize: "default",
+    density: "standard",
+    contrast: "standard",
+    largeControls: false,
+    reducedMotion: false,
+    explainTerms: true,
+    confirmRisky: true,
+    showRawCommands: false,
+  };
+  const legacyPreferences = {
+    ...freshPreferences,
+    experience: "standard",
+    explainTerms: false,
+    showRawCommands: true,
+  };
+  const validTheme = (value) => value === "light" || value === "dark" || value === "system" ? value : "light";
+  let preferences = { ...freshPreferences };
+
+  try {
+    const currentRaw = window.localStorage.getItem(SETTINGS_KEY);
+    const legacyRaw = currentRaw ? null : window.localStorage.getItem(LEGACY_SETTINGS_KEY);
+    const raw = currentRaw || legacyRaw;
+    const stored = raw ? JSON.parse(raw) : null;
+    const isStoredObject = Boolean(stored) && typeof stored === "object" && !Array.isArray(stored);
+    const isV3 = isStoredObject && stored.version === 3;
+
+    if (isV3 && stored.preferences && typeof stored.preferences === "object" && !Array.isArray(stored.preferences)) {
+      preferences = { ...freshPreferences, ...stored.preferences, theme: validTheme(stored.preferences.theme) };
+    } else if (isStoredObject && (stored.version === 1 || stored.version === 2)) {
+      preferences = { ...legacyPreferences, theme: validTheme(window.localStorage.getItem(THEME_KEY)) };
+    }
+
+    if (window.localStorage.getItem(APPEARANCE_REVISION_KEY) !== APPEARANCE_REVISION) {
+      preferences.theme = "light";
+
+      if (isV3) {
+        stored.preferences = { ...preferences };
+        window.localStorage.setItem(SETTINGS_KEY, JSON.stringify(stored));
+      } else if (!isStoredObject) {
+        window.localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+          version: 3,
+          savedAt: "1970-01-01T00:00:00.000Z",
+          preferences,
+        }));
+      }
+
+      window.localStorage.setItem(THEME_KEY, "light");
+      window.localStorage.setItem(APPEARANCE_REVISION_KEY, APPEARANCE_REVISION);
+    }
+  } catch {
+    preferences = { ...freshPreferences };
+  }
+
+  const choice = validTheme(preferences.theme);
+  const resolved = choice === "system"
+    ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+    : choice;
+  const root = document.documentElement;
+  root.dataset.theme = resolved;
+  root.dataset.themeChoice = choice;
+  root.dataset.experience = preferences.experience;
+  root.dataset.textSize = preferences.textSize;
+  root.dataset.density = preferences.density;
+  root.dataset.contrast = preferences.contrast;
+  root.dataset.largeControls = preferences.largeControls ? "true" : "false";
+  root.dataset.motion = preferences.reducedMotion ? "reduced" : "system";
+  root.dataset.explainTerms = preferences.explainTerms ? "true" : "false";
+  root.dataset.confirmRisky = preferences.confirmRisky ? "true" : "false";
+  root.dataset.showRawCommands = preferences.showRawCommands ? "true" : "false";
+  root.dataset.appearanceReady = "true";
+  root.style.colorScheme = resolved;
+})();
+`;
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script id="bindforge-appearance-bootstrap" dangerouslySetInnerHTML={{ __html: appearanceBootstrap }} />
+      </head>
       <body>
         <script dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} type="application/ld+json" />
         <BindForgeProvider>{children}</BindForgeProvider>
