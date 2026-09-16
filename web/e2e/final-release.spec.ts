@@ -8,6 +8,12 @@ async function prepare(page: Page) {
   });
   await page.reload();
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
+
+  // A viewport change can briefly expose both the prerendered and hydrated search tree.
+  // Require it to settle back to exactly one live search input before making layout claims;
+  // unlike `.first()`, this fails if a duplicate survives hydration.
+  const search = page.getByLabel("Search keybind library");
+  await expect(search).toHaveCount(1, { timeout: 10_000 });
 }
 
 async function expectNoOverflow(page: Page) {
