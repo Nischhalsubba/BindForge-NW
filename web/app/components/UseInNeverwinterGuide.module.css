@@ -1,0 +1,178 @@
+.guide {
+  position: fixed;
+  right: clamp(1rem, 3vw, 2rem);
+  bottom: 5.5rem;
+  z-index: 80;
+  display: grid;
+  gap: 0.9rem;
+  width: min(27rem, calc(100vw - 2rem));
+  max-height: min(72vh, 44rem);
+  overflow: auto;
+  padding: 1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
+  background: var(--specimen-paper);
+  color: var(--specimen-ink);
+  box-shadow: var(--shadow);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.headerCopy {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--specimen-muted);
+  font-size: 0.76rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+
+.close {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  border: 1px solid rgba(21, 20, 15, 0.22);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.command {
+  display: block;
+  max-height: 7.5rem;
+  overflow: auto;
+  padding: 0.75rem;
+  border: 1px solid rgba(21, 20, 15, 0.16);
+  border-radius: 10px;
+  background: rgba(21, 20, 15, 0.045);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.steps {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding-left: 1.35rem;
+  font-size: 0.88rem;
+  line-height: 1.48;
+}
+
+.steps strong {
+  color: inherit;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+
+.primary,
+.secondary,
+.copyAgain {
+  min-height: 2.8rem;
+  padding: 0.65rem 0.8rem;
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary {
+  border: 1px solid var(--nav-accent);
+  background: var(--nav-accent);
+  color: #fff9e9;
+}
+
+.secondary,
+.copyAgain {
+  border: 1px solid rgba(21, 20, 15, 0.24);
+  background: transparent;
+  color: inherit;
+}
+
+.copyAgain {
+  width: 100%;
+}
+
+.troubleshooting {
+  display: grid;
+  gap: 0.7rem;
+  padding-top: 0.2rem;
+  border-top: 1px solid rgba(21, 20, 15, 0.16);
+}
+
+.troubleshooting h3 {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.troubleshooting dl {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+}
+
+.troubleshooting dt {
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.troubleshooting dd {
+  margin: 0.15rem 0 0;
+  color: var(--specimen-muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.note {
+  margin: 0;
+  color: var(--specimen-muted);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  .guide {
+    right: 0.75rem;
+    bottom: 6.5rem;
+    left: 0.75rem;
+    width: auto;
+    max-height: 66vh;
+  }
+
+  .actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .guide {
+    animation: guide-enter 160ms ease-out;
+  }
+}
+
+@keyframes guide-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
