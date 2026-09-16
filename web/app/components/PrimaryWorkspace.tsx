@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { KeyboardEvent, SyntheticEvent } from "react";
 import { useBindForge } from "../BindForgeProvider";
 import { keybindPresets } from "../data/keybindPresets";
+import type { KeybindClass, KeybindType } from "../data/keybindPresets";
 import { buildCatalogPacks } from "../lib/catalog-packs.mjs";
 import type { CopyResultState } from "../page";
 import { CatalogQuickPacks } from "./CatalogQuickPacks";
@@ -134,8 +135,8 @@ export function PrimaryWorkspace({ onCopy }: { onCopy: CopyHandler }) {
     const pack = catalogPacks.find((candidate) => candidate.id === packId);
     if (!pack) return;
     resetFilters();
-    setClassName(pack.filters.className);
-    setActionType(pack.filters.actionType);
+    setClassName(pack.filters.className as KeybindClass | "All");
+    setActionType(pack.filters.actionType as KeybindType | "All");
     setDifficulty("All");
     setSearch(pack.filters.search);
   }
