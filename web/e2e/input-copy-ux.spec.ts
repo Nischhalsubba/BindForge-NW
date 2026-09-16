@@ -9,6 +9,8 @@ async function waitForLibrary(page: import("@playwright/test").Page) {
 test("captures numpad keys, plus-separated merged combos, and mouse buttons", async ({ page }) => {
   await waitForLibrary(page);
   const input = page.locator("input[data-key-capture='true']:visible").first();
+  const builder = input.locator("..");
+  await expect(builder).toHaveAttribute("data-key-combination-builder", "true");
   await input.focus();
 
   await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
@@ -18,6 +20,7 @@ test("captures numpad keys, plus-separated merged combos, and mouse buttons", as
     bubbles: true,
   })));
   await expect(input).toHaveValue("numpad9");
+  await expect(builder.locator("[data-key-token='numpad9']")).toHaveText("Numpad 9");
 
   await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
     key: "5",
@@ -26,6 +29,8 @@ test("captures numpad keys, plus-separated merged combos, and mouse buttons", as
     bubbles: true,
   })));
   await expect(input).toHaveValue("ctrl+5");
+  await expect(builder.locator("[data-key-token='ctrl']")).toHaveText("Ctrl");
+  await expect(builder.locator("[data-key-token='5']")).toHaveText("5");
 
   await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
     key: "+",
@@ -34,6 +39,8 @@ test("captures numpad keys, plus-separated merged combos, and mouse buttons", as
     bubbles: true,
   })));
   await expect(input).toHaveValue("ctrl+5+");
+  await expect(builder).toHaveAttribute("data-waiting-for-key", "true");
+  await expect(builder.locator(".key-combination-next")).toHaveText("Next key…");
 
   await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
     key: "r",
@@ -41,6 +48,8 @@ test("captures numpad keys, plus-separated merged combos, and mouse buttons", as
     bubbles: true,
   })));
   await expect(input).toHaveValue("ctrl+5+r");
+  await expect(builder).toHaveAttribute("data-waiting-for-key", "false");
+  await expect(builder.locator("[data-key-token='r']")).toHaveText("R");
 
   await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
     key: "+",
@@ -55,9 +64,11 @@ test("captures numpad keys, plus-separated merged combos, and mouse buttons", as
     bubbles: true,
   })));
   await expect(input).toHaveValue("ctrl+5+r+rbutton");
+  await expect(builder.locator("[data-key-token='rbutton']")).toHaveText("Right Click");
 
   await input.fill("+");
   await expect(input).toHaveValue("");
+  await expect(builder.locator(".key-combination-placeholder")).toBeVisible();
   await input.fill("5+6");
   await expect(input).toHaveValue("5+6");
 
@@ -70,6 +81,7 @@ test("captures numpad keys, plus-separated merged combos, and mouse buttons", as
     bubbles: true,
   })));
   await expect(input).toHaveValue("5+");
+  await expect(builder).toHaveAttribute("data-waiting-for-key", "true");
   await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
     key: "6",
     code: "Digit6",
@@ -91,6 +103,7 @@ test("captures numpad keys, plus-separated merged combos, and mouse buttons", as
     bubbles: true,
   })));
   await expect(input).toHaveValue("lbutton");
+  await expect(builder.locator("[data-key-token='lbutton']")).toHaveText("Left Click");
 
   await input.evaluate((node) => node.dispatchEvent(new MouseEvent("mousedown", {
     button: 2,
@@ -106,12 +119,45 @@ test("captures numpad keys, plus-separated merged combos, and mouse buttons", as
     bubbles: true,
   })));
   await expect(input).toHaveValue("alt+shift+mbutton");
+  await expect(builder.locator("[data-key-token='mbutton']")).toHaveText("Middle Click");
+});
+
+test("backspace edits the captured combination instead of corrupting it", async ({ page }) => {
+  await waitForLibrary(page);
+  const input = page.locator("input[data-key-capture='true']:visible").first();
+  const builder = input.locator("..");
+  await input.fill("ctrl+5+rbutton");
+  await input.focus();
+
+  await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
+    key: "Backspace",
+    code: "Backspace",
+    bubbles: true,
+  })));
+  await expect(input).toHaveValue("ctrl+5");
+  await expect(builder.locator("[data-key-token='rbutton']")).toHaveCount(0);
+
+  await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
+    key: "+",
+    code: "NumpadAdd",
+    location: 3,
+    bubbles: true,
+  })));
+  await expect(input).toHaveValue("ctrl+5+");
+  await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
+    key: "Backspace",
+    code: "Backspace",
+    bubbles: true,
+  })));
+  await expect(input).toHaveValue("ctrl+5");
+  await expect(builder).toHaveAttribute("data-waiting-for-key", "false");
 });
 
 test("keeps copy disabled while plus is waiting for the next key", async ({ page }) => {
   await waitForLibrary(page);
   const card = page.locator(".bind-card:visible").first();
   const input = card.locator("input[data-key-capture='true']");
+  const builder = input.locator("..");
   const copyButton = card.getByRole("button", { name: /Copy command:/ });
   await input.focus();
 
@@ -127,6 +173,7 @@ test("keeps copy disabled while plus is waiting for the next key", async ({ page
     bubbles: true,
   })));
   await expect(input).toHaveValue("5+");
+  await expect(builder).toHaveAttribute("data-waiting-for-key", "true");
   await expect(copyButton).toBeDisabled();
 
   await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
@@ -135,6 +182,7 @@ test("keeps copy disabled while plus is waiting for the next key", async ({ page
     bubbles: true,
   })));
   await expect(input).toHaveValue("5+6");
+  await expect(builder).toHaveAttribute("data-waiting-for-key", "false");
   await expect(copyButton).toBeEnabled();
 });
 
@@ -145,6 +193,7 @@ test("includes the exact user-supplied Fighter DPS animation-cancel bind", async
   const card = page.locator(".bind-card:visible").filter({ hasText: "Fighter DPS Animation Cancel: Left Click" }).first();
   await expect(card).toBeVisible();
   await expect(card.getByLabel("Key combination for Fighter DPS Animation Cancel: Left Click")).toHaveValue("lbutton");
+  await expect(card.locator("[data-key-token='lbutton']")).toHaveText("Left Click");
   await card.getByRole("button", { name: "Details", exact: true }).click();
   await expect(card.getByTestId("command-preview-output")).toHaveText('/bind lbutton "+specialClassPower $$ +Evaluateleftclick $$ ++specialClassPower"');
 });
