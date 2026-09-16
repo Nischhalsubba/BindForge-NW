@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import styles from "./FirstVisitHelp.module.css";
 
 const FIRST_VISIT_KEY = "bindforge-nw:first-visit:v1";
+const FIRST_VISIT_SESSION_KEY = "bindforge-nw:first-visit-presented:v1";
 
 function markSeen() {
   try { window.localStorage.setItem(FIRST_VISIT_KEY, "seen"); } catch { /* session only */ }
+  try { window.sessionStorage.setItem(FIRST_VISIT_SESSION_KEY, "seen"); } catch { /* no-op */ }
 }
 
 export function FirstVisitOrientation() {
@@ -14,7 +16,12 @@ export function FirstVisitOrientation() {
 
   useEffect(() => {
     try {
-      setVisible(window.localStorage.getItem(FIRST_VISIT_KEY) !== "seen");
+      const permanentlySeen = window.localStorage.getItem(FIRST_VISIT_KEY) === "seen";
+      const presentedThisSession = window.sessionStorage.getItem(FIRST_VISIT_SESSION_KEY) === "seen";
+      if (!permanentlySeen && !presentedThisSession) {
+        window.sessionStorage.setItem(FIRST_VISIT_SESSION_KEY, "seen");
+        setVisible(true);
+      }
     } catch {
       setVisible(true);
     }
