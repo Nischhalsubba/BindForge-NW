@@ -41,7 +41,6 @@ const codeAliases = {
   NumpadDivide: "numpaddivide",
   NumpadMultiply: "numpadmultiply",
   NumpadSubtract: "numpadsubtract",
-  NumpadAdd: "numpadadd",
   NumpadEnter: "numpadenter",
 };
 
@@ -89,9 +88,9 @@ export function keyTokenFromCode(code, key = "", location = 0) {
   const numpadMatch = /^Numpad([0-9])$/.exec(cleanCode);
   if (numpadMatch) return `numpad${numpadMatch[1]}`;
 
-  // Keep the explicit Neverwinter numpad token, but never expose the literal "+"
-  // character as a bindable key because "+" is the combo separator (ctrl+5, etc.).
-  if (cleanCode === "NumpadAdd") return "numpadadd";
+  // Both physical + keys are reserved for joining captured keys. Never expose
+  // NumpadAdd as a standalone key token because + is BindForge's combo separator.
+  if (cleanCode === "NumpadAdd") return "";
   if (cleanKey.includes(COMBO_SEPARATOR)) return "";
 
   if (codeAliases[cleanCode]) return codeAliases[cleanCode];

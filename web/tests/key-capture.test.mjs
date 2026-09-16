@@ -22,13 +22,14 @@ test("maps navigation and punctuation to catalog tokens", () => {
   assert.equal(keyTokenFromCode("ArrowUp", "ArrowUp", 0), "up");
   assert.equal(keyTokenFromCode("BracketLeft", "[", 0), "lbracket");
   assert.equal(keyTokenFromCode("Equal", "=", 0), "equals");
-  assert.equal(keyTokenFromCode("NumpadAdd", "+", 3), "numpadadd");
 });
 
-test("reserves literal plus for joining key combinations", () => {
+test("reserves both physical plus keys for joining key combinations", () => {
   assert.equal(keyTokenFromCode("Equal", "+", 0), "");
   assert.equal(keyTokenFromCode("UnidentifiedCode", "+", 0), "");
+  assert.equal(keyTokenFromCode("NumpadAdd", "+", 3), "");
   assert.equal(comboFromKeyboardLike({ code: "Equal", key: "+", shiftKey: true }), "");
+  assert.equal(comboFromKeyboardLike({ code: "NumpadAdd", key: "+", location: 3 }), "");
   assert.equal(comboFromKeyboardLike({ code: "Digit5", key: "5", ctrlKey: true }), "ctrl+5");
 });
 

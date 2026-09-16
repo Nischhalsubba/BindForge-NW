@@ -24,23 +24,23 @@ function appendCapturedToken(currentValue: string, token: string) {
   return prefix ? `${prefix}+${token}` : token;
 }
 
-export function KeyCaptureInput({ value, onValueChange, hint = "Click once to focus, then press a key or mouse button. To merge keys, press the first key, then +, then the next key. Ctrl / Alt / Shift held with another key are merged automatically too. The + symbol joins keys and is never assigned by itself.", ...props }: KeyCaptureInputProps) {
+export function KeyCaptureInput({ value, onValueChange, hint = "Click once to focus, then press a key or mouse button. To merge keys, press the first key, then either + key, then the next key. Ctrl / Alt / Shift held with another key are merged automatically too. + is only a separator and is never assigned by itself.", ...props }: KeyCaptureInputProps) {
   function capture(event: KeyboardEvent<HTMLInputElement>) {
     if (event.nativeEvent.isComposing || event.repeat) return;
     if (event.key === "Tab") return;
 
-    // On most keyboards the + character is Shift+=. Ignore the Shift keydown itself so
-    // the current capture stays intact, then use the + keypress to arm the next merge.
+    // On most keyboards the regular + character is Shift+=. Ignore the Shift keydown itself so
+    // the current capture stays intact, then use either physical + key to arm the next merge.
     if (modifierKeys.has(event.key)) {
       event.preventDefault();
       return;
     }
 
-    // The literal "+" is syntax used to join captured keys. Pressing it after an existing
-    // key leaves a visible trailing separator (for example "5+") so the next keyboard or
-    // mouse input is appended instead of replacing the first key. NumpadAdd stays a real
-    // Neverwinter key token because the game exposes it explicitly as "numpadadd".
-    if (event.key === "+" && event.code !== "NumpadAdd") {
+    // Both the number-row + and numpad + are syntax used to join captured keys. Pressing either
+    // after an existing key leaves a visible trailing separator (for example "5+") so the next
+    // keyboard or mouse input is appended instead of replacing the first key.
+    const isPlusSeparator = event.key === "+" || event.code === "NumpadAdd";
+    if (isPlusSeparator) {
       event.preventDefault();
       event.stopPropagation();
       const current = sanitizeTypedCombo(value).trim();
