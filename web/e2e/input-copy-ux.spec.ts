@@ -6,7 +6,7 @@ async function waitForLibrary(page: import("@playwright/test").Page) {
   await expect(page.locator(".bind-card:visible").first()).toBeVisible();
 }
 
-test("captures physical numpad keys and modifier combinations", async ({ page }) => {
+test("captures physical numpad keys, merged keyboard combos, and mouse buttons", async ({ page }) => {
   await waitForLibrary(page);
   const input = page.locator("input[data-key-capture='true']:visible").first();
   await input.focus();
@@ -20,6 +20,14 @@ test("captures physical numpad keys and modifier combinations", async ({ page })
   await expect(input).toHaveValue("numpad9");
 
   await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
+    key: "5",
+    code: "Digit5",
+    ctrlKey: true,
+    bubbles: true,
+  })));
+  await expect(input).toHaveValue("ctrl+5");
+
+  await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
     key: "r",
     code: "KeyR",
     ctrlKey: true,
@@ -27,6 +35,37 @@ test("captures physical numpad keys and modifier combinations", async ({ page })
     bubbles: true,
   })));
   await expect(input).toHaveValue("ctrl+shift+r");
+
+  await input.evaluate((node) => node.dispatchEvent(new MouseEvent("mousedown", {
+    button: 0,
+    bubbles: true,
+  })));
+  await expect(input).toHaveValue("lbutton");
+
+  await input.evaluate((node) => node.dispatchEvent(new MouseEvent("mousedown", {
+    button: 2,
+    ctrlKey: true,
+    bubbles: true,
+  })));
+  await expect(input).toHaveValue("ctrl+rbutton");
+
+  await input.evaluate((node) => node.dispatchEvent(new MouseEvent("mousedown", {
+    button: 1,
+    altKey: true,
+    shiftKey: true,
+    bubbles: true,
+  })));
+  await expect(input).toHaveValue("alt+shift+mbutton");
+});
+
+test("includes the exact user-supplied Fighter DPS animation-cancel bind", async ({ page }) => {
+  await waitForLibrary(page);
+  const search = page.getByLabel("Search keybind library").first();
+  await search.fill("Fighter DPS Animation Cancel");
+  const card = page.locator(".bind-card:visible").filter({ hasText: "Fighter DPS Animation Cancel: Left Click" }).first();
+  await expect(card).toBeVisible();
+  await expect(card).toContainText("lbutton");
+  await expect(card).toContainText("+specialClassPower $$ +Evaluateleftclick $$ ++specialClassPower");
 });
 
 test("bind and unbind keep the same full command while only the verb changes", async ({ page, context }) => {
