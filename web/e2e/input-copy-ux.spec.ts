@@ -6,7 +6,7 @@ async function waitForLibrary(page: import("@playwright/test").Page) {
   await expect(page.locator(".bind-card:visible").first()).toBeVisible();
 }
 
-test("captures physical numpad keys, merged keyboard combos, and mouse buttons", async ({ page }) => {
+test("captures numpad keys, plus-separated merged combos, and mouse buttons", async ({ page }) => {
   await waitForLibrary(page);
   const input = page.locator("input[data-key-capture='true']:visible").first();
   await input.focus();
@@ -33,12 +33,33 @@ test("captures physical numpad keys, merged keyboard combos, and mouse buttons",
     shiftKey: true,
     bubbles: true,
   })));
-  await expect(input).toHaveValue("ctrl+5");
+  await expect(input).toHaveValue("ctrl+5+");
+
+  await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
+    key: "r",
+    code: "KeyR",
+    bubbles: true,
+  })));
+  await expect(input).toHaveValue("ctrl+5+r");
+
+  await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
+    key: "+",
+    code: "Equal",
+    shiftKey: true,
+    bubbles: true,
+  })));
+  await expect(input).toHaveValue("ctrl+5+r+");
+
+  await input.evaluate((node) => node.dispatchEvent(new MouseEvent("mousedown", {
+    button: 2,
+    bubbles: true,
+  })));
+  await expect(input).toHaveValue("ctrl+5+r+rbutton");
 
   await input.fill("+");
   await expect(input).toHaveValue("");
-  await input.fill("ctrl+5");
-  await expect(input).toHaveValue("ctrl+5");
+  await input.fill("5+6");
+  await expect(input).toHaveValue("5+6");
 
   await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
     key: "r",
@@ -69,6 +90,36 @@ test("captures physical numpad keys, merged keyboard combos, and mouse buttons",
     bubbles: true,
   })));
   await expect(input).toHaveValue("alt+shift+mbutton");
+});
+
+test("keeps copy disabled while plus is waiting for the next key", async ({ page }) => {
+  await waitForLibrary(page);
+  const card = page.locator(".bind-card:visible").first();
+  const input = card.locator("input[data-key-capture='true']");
+  const copyButton = card.getByRole("button", { name: /Copy command:/ });
+  await input.focus();
+
+  await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
+    key: "5",
+    code: "Digit5",
+    bubbles: true,
+  })));
+  await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
+    key: "+",
+    code: "Equal",
+    shiftKey: true,
+    bubbles: true,
+  })));
+  await expect(input).toHaveValue("5+");
+  await expect(copyButton).toBeDisabled();
+
+  await input.evaluate((node) => node.dispatchEvent(new KeyboardEvent("keydown", {
+    key: "6",
+    code: "Digit6",
+    bubbles: true,
+  })));
+  await expect(input).toHaveValue("5+6");
+  await expect(copyButton).toBeEnabled();
 });
 
 test("includes the exact user-supplied Fighter DPS animation-cancel bind", async ({ page }) => {
