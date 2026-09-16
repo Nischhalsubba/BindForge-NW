@@ -73,13 +73,18 @@ function editDistance(left, right) {
 
 function tokenSimilarity(queryToken, candidateToken) {
   if (queryToken === candidateToken) return 1;
-  if (queryToken.length >= 3 && (candidateToken.startsWith(queryToken) || queryToken.startsWith(candidateToken))) return 0.88;
+  if (
+    queryToken.length >= 3
+    && candidateToken.length >= 3
+    && (candidateToken.startsWith(queryToken) || queryToken.startsWith(candidateToken))
+  ) return 0.88;
   const longest = Math.max(queryToken.length, candidateToken.length);
-  if (longest < 4) return 0;
+  if (longest < 4 || queryToken[0] !== candidateToken[0]) return 0;
   const distance = editDistance(queryToken, candidateToken);
   const allowedDistance = longest >= 7 ? 2 : 1;
   if (distance > allowedDistance) return 0;
-  return Math.max(0.55, 1 - distance / longest);
+  const similarity = 1 - distance / longest;
+  return similarity >= 0.65 ? similarity : 0;
 }
 
 function fieldData(preset) {
