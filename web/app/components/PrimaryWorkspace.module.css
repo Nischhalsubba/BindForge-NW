@@ -189,6 +189,12 @@
 .utilityDrawer[open] > summary::after { content: '−'; }
 .utilityBody :global(.portable-share-panel) { padding: 28px 0 52px; }
 
+/* The visual key builder adds useful inline guidance to Command Lab. Keep the desktop stage tall
+   enough that switching between Command and Say never moves the footer underneath the user. */
+@media (min-width: 881px) {
+  .panel:global(#primary-workspace-panel) { min-height: 900px; }
+}
+
 @media (max-width: 1279px) {
   .shell { width: min(calc(100% - 64px), var(--content)); }
   .panel { min-height: 680px; }
