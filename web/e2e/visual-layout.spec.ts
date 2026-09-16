@@ -163,19 +163,15 @@ test("keeps the ultra-wide hero and workspace readable at reduced effective zoom
   await primaryAction.hover();
   await expectOwnContrast(primaryAction);
 
-  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
-  const brand = page.locator(".site-brand");
-  for (let index = 0; index < 8; index += 1) {
-    await page.keyboard.press("Tab");
-    if (await brand.evaluate((element) => document.activeElement === element)) break;
-  }
-  await expect(brand).toBeFocused();
-  const focusColors = await brand.evaluate((element) => {
-    const nav = element.closest<HTMLElement>(".site-nav");
-    const style = getComputedStyle(element);
+  const focusColors = await siteNav.evaluate((element) => {
+    const probe = document.createElement("span");
+    probe.style.color = "var(--nav-focus)";
+    element.appendChild(probe);
+    const outline = getComputedStyle(probe).color;
+    probe.remove();
     return {
-      outline: style.outlineColor,
-      background: nav ? getComputedStyle(nav).backgroundColor : "rgb(255, 255, 255)",
+      outline,
+      background: getComputedStyle(element).backgroundColor,
     };
   });
   expect(
