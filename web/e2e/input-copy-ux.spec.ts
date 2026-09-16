@@ -64,8 +64,9 @@ test("includes the exact user-supplied Fighter DPS animation-cancel bind", async
   await search.fill("Fighter DPS Animation Cancel");
   const card = page.locator(".bind-card:visible").filter({ hasText: "Fighter DPS Animation Cancel: Left Click" }).first();
   await expect(card).toBeVisible();
-  await expect(card).toContainText("lbutton");
-  await expect(card).toContainText("+specialClassPower $$ +Evaluateleftclick $$ ++specialClassPower");
+  await expect(card.getByLabel("Key combination for Fighter DPS Animation Cancel: Left Click")).toHaveValue("lbutton");
+  await card.getByRole("button", { name: "Details", exact: true }).click();
+  await expect(card.getByTestId("command-preview-output")).toHaveText('/bind lbutton "+specialClassPower $$ +Evaluateleftclick $$ ++specialClassPower"');
 });
 
 test("bind and unbind keep the same full command while only the verb changes", async ({ page, context }) => {
