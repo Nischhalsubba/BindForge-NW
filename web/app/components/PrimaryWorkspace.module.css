@@ -126,6 +126,25 @@
   padding: 30px 0 0;
 }
 
+.toolLoading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 12rem;
+  padding: 1rem 0;
+  color: var(--ink-mute);
+  font: 600 var(--type-label)/1.4 var(--sans);
+}
+
+.loadingMark {
+  width: 0.8rem;
+  height: 0.8rem;
+  flex: 0 0 auto;
+  border: 2px solid var(--line-strong);
+  border-top-color: var(--coral);
+  border-radius: 999px;
+}
+
 .searchHeading {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(20rem, .72fr);
@@ -241,6 +260,14 @@
   .searchHeading { padding-bottom: 22px; }
   :global(.workspace).searchView { padding-top: 24px; padding-bottom: 42px; }
   .utilityDrawer { margin-bottom: 52px; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .loadingMark { animation: tool-loading-spin 700ms linear infinite; }
+}
+
+@keyframes tool-loading-spin {
+  to { transform: rotate(360deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {

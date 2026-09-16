@@ -1,19 +1,16 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
-import type { KeyboardEvent } from "react";
+import type { KeyboardEvent, SyntheticEvent } from "react";
 import { useBindForge } from "../BindForgeProvider";
 import { keybindPresets } from "../data/keybindPresets";
 import { buildCatalogPacks } from "../lib/catalog-packs.mjs";
 import type { CopyResultState } from "../page";
 import { CatalogQuickPacks } from "./CatalogQuickPacks";
-import { CommandLab } from "./CommandLab";
-import { CustomSayBuilder } from "./CustomSayBuilder";
 import { FilterSidebar } from "./FilterSidebar";
 import { Icon, type IconName } from "./Icon";
 import { KeybindLibrary } from "./KeybindLibrary";
-import { PortableSharePanel } from "./PortableSharePanel";
-import { VerifiedBindBuilder } from "./VerifiedBindBuilder";
 import styles from "./PrimaryWorkspace.module.css";
 
 type CopyHandler = (text: string, label: string, target: HTMLElement | null) => Promise<CopyResultState>;
@@ -28,6 +25,32 @@ type WorkspaceTool = {
   description: string;
   icon: IconName;
 };
+
+function ToolLoading({ label }: { label: string }) {
+  return (
+    <div className={styles.toolLoading} role="status">
+      <span aria-hidden="true" className={styles.loadingMark} />
+      <span>Loading {label}…</span>
+    </div>
+  );
+}
+
+const VerifiedBindBuilder = dynamic(
+  () => import("./VerifiedBindBuilder").then((module) => module.VerifiedBindBuilder),
+  { loading: () => <ToolLoading label="Compose keybind" /> },
+);
+const CommandLab = dynamic(
+  () => import("./CommandLab").then((module) => module.CommandLab),
+  { loading: () => <ToolLoading label="Command Lab" /> },
+);
+const CustomSayBuilder = dynamic(
+  () => import("./CustomSayBuilder").then((module) => module.CustomSayBuilder),
+  { loading: () => <ToolLoading label="Say message" /> },
+);
+const PortableSharePanel = dynamic(
+  () => import("./PortableSharePanel").then((module) => module.PortableSharePanel),
+  { loading: () => <ToolLoading label="portable tools" /> },
+);
 
 const tools: WorkspaceTool[] = [
   {
@@ -77,6 +100,7 @@ function viewFromHash(hash: string): WorkspaceView {
 
 export function PrimaryWorkspace({ onCopy }: { onCopy: CopyHandler }) {
   const [activeView, setActiveView] = useState<WorkspaceView>("search");
+  const [portableToolsOpen, setPortableToolsOpen] = useState(false);
   const { state, resetFilters, setActionType, setClassName, setDifficulty, setSearch } = useBindForge();
   const activeTool = useMemo(() => tools.find((tool) => tool.view === activeView) ?? tools[0], [activeView]);
   const activePackId = useMemo(() => catalogPacks.find((pack) => (
@@ -130,6 +154,10 @@ export function PrimaryWorkspace({ onCopy }: { onCopy: CopyHandler }) {
     window.requestAnimationFrame(() => {
       document.getElementById(`primary-tab-${nextTool.view}`)?.focus({ preventScroll: true });
     });
+  }
+
+  function handlePortableToggle(event: SyntheticEvent<HTMLDetailsElement>) {
+    setPortableToolsOpen(event.currentTarget.open);
   }
 
   return (
@@ -193,9 +221,9 @@ export function PrimaryWorkspace({ onCopy }: { onCopy: CopyHandler }) {
               <FilterSidebar />
               <KeybindLibrary onCopy={onCopy} />
             </section>
-            <details className={styles.utilityDrawer}>
+            <details className={styles.utilityDrawer} onToggle={handlePortableToggle}>
               <summary>Share, export & portable tools</summary>
-              <div className={styles.utilityBody}><PortableSharePanel onCopy={onCopy} /></div>
+              <div className={styles.utilityBody}>{portableToolsOpen ? <PortableSharePanel onCopy={onCopy} /> : null}</div>
             </details>
           </>
         ) : null}
