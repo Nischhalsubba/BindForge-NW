@@ -15,16 +15,20 @@ export function FirstVisitOrientation() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    let frame = 0;
+    let shouldShow = false;
     try {
       const permanentlySeen = window.localStorage.getItem(FIRST_VISIT_KEY) === "seen";
       const presentedThisSession = window.sessionStorage.getItem(FIRST_VISIT_SESSION_KEY) === "seen";
-      if (!permanentlySeen && !presentedThisSession) {
-        window.sessionStorage.setItem(FIRST_VISIT_SESSION_KEY, "seen");
-        setVisible(true);
-      }
+      shouldShow = !permanentlySeen && !presentedThisSession;
+      if (shouldShow) window.sessionStorage.setItem(FIRST_VISIT_SESSION_KEY, "seen");
     } catch {
-      setVisible(true);
+      shouldShow = true;
     }
+    if (shouldShow) frame = window.requestAnimationFrame(() => setVisible(true));
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+    };
   }, []);
 
   if (!visible) return null;
