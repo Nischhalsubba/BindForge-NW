@@ -1,8 +1,8 @@
 .shell {
   position: relative;
-  width: min(calc(100% - 80px), var(--content));
+  width: min(calc(100% - clamp(64px, 6vw, 180px)), var(--content));
   margin-inline: auto;
-  padding: 24px 0 0;
+  padding: 18px 0 0;
   min-width: 0;
 }
 
@@ -24,23 +24,25 @@
 
 .intro {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(18rem, .7fr);
-  gap: clamp(28px, 5vw, 76px);
+  grid-template-columns: minmax(0, 1.05fr) minmax(20rem, .72fr);
+  gap: clamp(32px, 4vw, 96px);
   align-items: end;
-  padding: 28px 0 28px;
+  padding: 24px 0 26px;
 }
 
 .intro p {
   margin: 0;
+  max-width: 48ch;
   color: var(--ink-mute);
-  line-height: 1.65;
+  font-size: clamp(15px, .78vw, 18px);
+  line-height: 1.6;
 }
 
 .title {
   margin: 0;
   max-width: 15ch;
-  font: 800 clamp(34px, 4.5vw, 64px)/1 var(--sans);
-  letter-spacing: -.035em;
+  font: 800 clamp(40px, 4vw, 84px)/.98 var(--sans);
+  letter-spacing: -.04em;
 }
 
 .tabs {
@@ -55,11 +57,11 @@
   position: relative;
   display: grid;
   grid-template-columns: auto auto minmax(0, 1fr);
-  gap: 11px;
+  gap: 14px;
   align-items: start;
   min-width: 0;
-  min-height: 112px;
-  padding: 18px 16px;
+  min-height: 132px;
+  padding: 22px 20px;
   border: 0;
   border-right: 1px solid var(--line);
   border-radius: 0;
@@ -84,35 +86,35 @@
 .active:hover { background: var(--ink); }
 
 .tabIndex {
-  padding-top: 2px;
+  padding-top: 3px;
   color: var(--coral);
-  font: 500 9px var(--mono);
+  font: 500 11px var(--mono);
 }
 
 .tabIcon {
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   border: 1px solid currentColor;
   border-radius: 50%;
 }
 
-.tabIcon :global(.ui-icon) { width: 15px; height: 15px; }
+.tabIcon :global(.ui-icon) { width: 18px; height: 18px; }
 
 .tabCopy {
   display: grid;
-  gap: 5px;
+  gap: 7px;
   min-width: 0;
 }
 
 .tabCopy strong {
-  font: 700 14px/1.25 var(--sans);
+  font: 700 17px/1.25 var(--sans);
 }
 
 .tabCopy small {
   color: var(--ink-faint);
-  font-size: 10px;
+  font-size: 13px;
   line-height: 1.45;
 }
 
@@ -121,45 +123,46 @@
 .panel {
   min-width: 0;
   min-height: 720px;
-  padding: 36px 0 0;
+  padding: 30px 0 0;
 }
 
 .searchHeading {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(18rem, .7fr);
-  gap: 32px;
+  grid-template-columns: minmax(0, 1fr) minmax(20rem, .72fr);
+  gap: clamp(32px, 4vw, 88px);
   align-items: end;
-  padding: 0 0 28px;
+  padding: 0 0 26px;
   border-bottom: 1px solid var(--line);
 }
 
 .searchHeading > div {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   align-items: baseline;
 }
 
 .searchHeading span {
   color: var(--coral);
-  font: 500 10px var(--mono);
+  font: 500 11px var(--mono);
 }
 
 .searchHeading h2 {
   margin: 0;
-  font: 700 clamp(28px, 3vw, 42px)/1.08 var(--sans);
-  letter-spacing: -.025em;
+  font: 700 clamp(32px, 3vw, 52px)/1.06 var(--sans);
+  letter-spacing: -.03em;
 }
 
 .searchHeading p {
   margin: 0;
   color: var(--ink-mute);
-  line-height: 1.6;
+  font-size: clamp(15px, .76vw, 18px);
+  line-height: 1.58;
 }
 
 :global(.workspace).searchView {
   width: 100%;
   margin-inline: 0;
-  padding: 34px 0 56px;
+  padding: 30px 0 56px;
 }
 
 .panel :global(.command-lab) {
@@ -176,7 +179,7 @@
   cursor: pointer;
   list-style: none;
   padding: 18px 0;
-  font: 600 13px var(--sans);
+  font: 600 14px var(--sans);
   text-transform: uppercase;
   letter-spacing: .08em;
 }
@@ -189,6 +192,9 @@
 @media (max-width: 1279px) {
   .shell { width: min(calc(100% - 64px), var(--content)); }
   .panel { min-height: 680px; }
+  .tab { min-height: 118px; padding: 19px 17px; }
+  .tabCopy strong { font-size: 15px; }
+  .tabCopy small { font-size: 11px; }
 }
 
 @media (max-width: 1080px) {
@@ -201,6 +207,7 @@
 @media (max-width: 880px) {
   .shell { width: calc(100% - 40px); padding-top: 28px; }
   .intro, .searchHeading { grid-template-columns: 1fr; gap: 18px; }
+  .intro p, .searchHeading p { font-size: 15px; }
   .title { max-width: 18ch; }
   .tabs {
     display: flex;
@@ -210,8 +217,8 @@
     scrollbar-width: thin;
   }
   .tab {
-    flex: 0 0 min(76vw, 280px);
-    min-height: 98px;
+    flex: 0 0 min(76vw, 300px);
+    min-height: 104px;
     border-bottom: 0 !important;
     border-right: 1px solid var(--line) !important;
   }
@@ -222,8 +229,9 @@
   .shell { width: calc(100% - 32px); padding-top: 24px; }
   .intro { padding: 24px 0 22px; }
   .title { font-size: clamp(32px, 10vw, 46px); }
-  .tab { flex-basis: min(84vw, 260px); padding: 15px 13px; }
-  .tabCopy small { font-size: 9.5px; }
+  .tab { flex-basis: min(84vw, 270px); padding: 15px 13px; }
+  .tabCopy strong { font-size: 15px; }
+  .tabCopy small { font-size: 10px; }
   .searchHeading { padding-bottom: 22px; }
   :global(.workspace).searchView { padding-top: 24px; padding-bottom: 42px; }
   .utilityDrawer { margin-bottom: 52px; }
