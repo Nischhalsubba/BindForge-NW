@@ -5,6 +5,7 @@ import {
   buildCustomLine,
   buildPresetLine,
   buildSayLine,
+  isCompleteCombo,
   normalizeCombo,
   normalizeMessage,
 } from "../app/lib/keybind-core.mjs";
@@ -16,6 +17,20 @@ test("normalizes modifier aliases and order", () => {
 
 test("removes duplicate modifiers and keys", () => {
   assert.equal(normalizeCombo("ctrl+control+r+r"), "ctrl+r");
+});
+
+test("recognizes complete combos while a trailing plus stays pending", () => {
+  assert.equal(isCompleteCombo("ctrl+5"), true);
+  assert.equal(isCompleteCombo("5+6"), true);
+  assert.equal(isCompleteCombo("ctrl+rbutton"), true);
+  assert.equal(isCompleteCombo("numpadadd"), true);
+  assert.equal(isCompleteCombo(""), false);
+  assert.equal(isCompleteCombo("+"), false);
+  assert.equal(isCompleteCombo("5+"), false);
+  assert.equal(isCompleteCombo("+5"), false);
+  assert.equal(isCompleteCombo("5++6"), false);
+  assert.equal(isCompleteCombo("ctrl"), false);
+  assert.equal(isCompleteCombo("ctrl+shift"), false);
 });
 
 test("returns the normalized base key", () => {
