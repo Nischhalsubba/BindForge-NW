@@ -5,6 +5,7 @@ const PACK_DEFINITIONS = [
     className: "Barbarian",
     role: "DPS",
     description: "Existing Barbarian presets explicitly tagged for DPS in the current catalogue.",
+    filters: { className: "Barbarian", actionType: "All", search: "barbarian dps" },
     match: (preset) => preset.className === "Barbarian" && hasTerm(preset, "dps"),
   },
   {
@@ -13,6 +14,7 @@ const PACK_DEFINITIONS = [
     className: "Fighter / Cleric",
     role: "DPS",
     description: "Existing Fighter presets explicitly tagged for DPS in the current catalogue.",
+    filters: { className: "Fighter / Cleric", actionType: "All", search: "fighter dps" },
     match: (preset) => preset.className === "Fighter / Cleric" && hasTerm(preset, "fighter") && hasTerm(preset, "dps"),
   },
   {
@@ -21,6 +23,7 @@ const PACK_DEFINITIONS = [
     className: "Ranger",
     role: "Hunter",
     description: "Ranger Hunter presets already present in the catalogue, grouped without changing their commands.",
+    filters: { className: "Ranger", actionType: "All", search: "ranger hunter" },
     match: (preset) => preset.className === "Ranger" && hasTerm(preset, "hunter"),
   },
   {
@@ -29,6 +32,7 @@ const PACK_DEFINITIONS = [
     className: "Warlock",
     role: "Class set",
     description: "Existing Warlock animation-cancel presets grouped as one reviewable set.",
+    filters: { className: "Warlock", actionType: "Animation Cancel", search: "" },
     match: (preset) => preset.className === "Warlock" && preset.type === "Animation Cancel",
   },
   {
@@ -37,6 +41,7 @@ const PACK_DEFINITIONS = [
     className: "Paladin",
     role: "Class set",
     description: "Existing Paladin animation-cancel presets grouped as one reviewable set.",
+    filters: { className: "Paladin", actionType: "Animation Cancel", search: "" },
     match: (preset) => preset.className === "Paladin" && preset.type === "Animation Cancel",
   },
   {
@@ -45,6 +50,7 @@ const PACK_DEFINITIONS = [
     className: "Bard",
     role: "Class set",
     description: "Existing Bard Song presets grouped together for faster selection and review.",
+    filters: { className: "Bard", actionType: "Bard Songs", search: "" },
     match: (preset) => preset.className === "Bard" && preset.type === "Bard Songs",
   },
 ];
@@ -76,6 +82,7 @@ export function buildCatalogPacks(presets) {
       className: definition.className,
       role: definition.role,
       description: definition.description,
+      filters: { ...definition.filters },
       presetIds: matching.map((preset) => preset.id),
       count: matching.length,
       confidence,
