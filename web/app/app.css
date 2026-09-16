@@ -306,6 +306,123 @@ html[data-theme='dark'] .command-specimen small {
   opacity: .58;
 }
 
+/*
+ * Structured key-combination builder.
+ * The invisible native input remains the single accessible capture target while the visible
+ * surface presents each captured token as a keycap. This keeps stored/output syntax unchanged
+ * while making keyboard, numpad, modifier, and mouse combinations much easier to understand.
+ */
+.key-combination-builder {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: var(--control-primary);
+  padding: 7px 12px;
+  border: 1px solid var(--line-strong);
+  background: var(--paper);
+  color: var(--ink);
+  overflow: hidden;
+  transition: border-color var(--motion-fast) var(--ease-ui), background var(--motion-fast) var(--ease-ui);
+}
+
+.key-combination-builder:hover {
+  border-color: color-mix(in srgb, var(--coral) 52%, var(--line-strong));
+}
+
+.key-combination-builder:focus-within {
+  border-color: var(--focus-ring-color);
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.key-combination-builder.is-awaiting {
+  background: color-mix(in srgb, var(--coral) 5%, var(--paper));
+}
+
+.key-combination-tokens {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  pointer-events: none;
+}
+
+.key-combination-part {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.key-combination-keycap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  max-width: 100%;
+  padding: 4px 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--ink) 12%, transparent);
+  font: 600 0.75rem/1.15 var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.key-combination-plus {
+  color: var(--coral);
+  font: 700 0.875rem/1 var(--mono);
+}
+
+.key-combination-placeholder {
+  color: var(--ink-faint);
+  font: 500 var(--type-meta)/1.3 var(--mono);
+}
+
+.key-combination-next {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 8px;
+  border: 1px dashed var(--coral);
+  color: var(--coral);
+  font: 600 0.72rem/1.15 var(--mono);
+  letter-spacing: .02em;
+}
+
+.key-combination-capture {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100% !important;
+  height: 100%;
+  min-height: 100% !important;
+  margin: 0;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: transparent !important;
+  caret-color: transparent;
+  opacity: 0;
+  cursor: text;
+}
+
+.key-combination-capture:focus-visible {
+  outline: 0;
+  outline-offset: 0;
+}
+
+.key-capture-hint {
+  display: block;
+  margin-top: 2px;
+  color: var(--ink-faint);
+  line-height: 1.45;
+}
+
 /* Keep the footer/provenance position stable when desktop users switch between the four primary tools. */
 @media (min-width: 881px) {
   #primary-workspace-panel { min-height: 800px; }
@@ -370,8 +487,14 @@ html[data-theme='dark'] .command-specimen small {
   .filter-top-bar input,
   .filter-top-bar select,
   .filter-top-mode button,
-  .filter-top-reset {
+  .filter-top-reset,
+  .key-combination-builder {
     min-height: var(--control-primary);
+  }
+
+  .key-combination-keycap,
+  .key-combination-next {
+    min-height: 30px;
   }
 }
 
@@ -388,8 +511,15 @@ html[data-theme='dark'] .command-specimen small {
   .bind-card,
   .filter-top-bar,
   .command-preview,
-  .lab-preview {
+  .lab-preview,
+  .key-combination-builder,
+  .key-combination-keycap,
+  .key-combination-next {
     border-color: CanvasText;
+  }
+
+  .key-combination-builder:focus-within {
+    outline-color: Highlight;
   }
 
   .pulse,
