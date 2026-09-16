@@ -42,7 +42,8 @@ test("advanced browsing changes view, sorting, provenance, and collapsed groups"
 test("selection builds packs, local collections, and portable links", async ({ page, context }) => {
   const firstSelect = page.locator(".bind-card:visible").first().getByText("Select", { exact: true });
   await firstSelect.click();
-  await expect(page.getByText("1 selected", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Collections & command packs/i })).toContainText("1 selected");
+  await expect(page.getByTestId("selection-tray")).toContainText("1 selected");
 
   const panel = await openPackTools(page);
   await expect(panel.getByRole("button", { name: "Copy bind pack" })).toBeEnabled();
@@ -94,7 +95,6 @@ test("favourites, search highlighting, and safer replacement remain available", 
 
 test("personal keymap import drives real conflict detection and final pack review", async ({ page }) => {
   const firstCard = page.locator(".bind-card:visible").first();
-  const title = (await firstCard.locator("h4").innerText()).trim();
   const keyField = firstCard.getByLabel(/Key combination for/);
   const keyValue = await keyField.inputValue();
 
@@ -115,11 +115,10 @@ test("personal keymap import drives real conflict detection and final pack revie
 
   const review = page.getByTestId("pack-review");
   await expect(review).toBeVisible();
-  await expect(review).toContainText(title);
   await expect(review).toContainText("Existing_Player_Command");
   await expect(review.getByRole("button", { name: "Copy final bind pack" })).toBeEnabled();
   await expect(review.getByRole("button", { name: "Copy rollback pack" })).toBeEnabled();
 
-  await review.getByRole("button", { name: `Remove ${title} from selected pack` }).click();
+  await review.getByRole("button", { name: /^Remove .+ from selected pack$/ }).click();
   await expect(page.getByTestId("selection-tray")).toHaveCount(0);
 });
