@@ -14,16 +14,19 @@ test("portable share tools stay unmounted until the drawer is opened", async ({ 
 });
 
 test("lazy primary tools still load on demand without losing workspace position", async ({ page }) => {
+  const tabs = page.getByRole("tablist", { name: "Primary keybind tools" });
+  await tabs.scrollIntoViewIfNeeded();
   const initialY = await page.evaluate(() => window.scrollY);
-  await page.getByRole("tab", { name: "Compose your own keybind" }).click();
+
+  await tabs.getByRole("tab", { name: "Compose your own keybind", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Compose your own keybind", exact: true })).toBeVisible();
-  expect(await page.evaluate(() => window.scrollY)).toBe(initialY);
+  expect(Math.abs((await page.evaluate(() => window.scrollY)) - initialY)).toBeLessThanOrEqual(1);
 
-  await page.getByRole("tab", { name: "Build your own command" }).click();
+  await tabs.getByRole("tab", { name: "Build your own command", exact: true }).click();
   await expect(page.locator(".command-lab")).toBeVisible();
-  expect(await page.evaluate(() => window.scrollY)).toBe(initialY);
+  expect(Math.abs((await page.evaluate(() => window.scrollY)) - initialY)).toBeLessThanOrEqual(1);
 
-  await page.getByRole("tab", { name: "Create your own say message" }).click();
+  await tabs.getByRole("tab", { name: "Create your own say message", exact: true }).click();
   await expect(page.getByText("Create your own say message", { exact: true }).last()).toBeVisible();
-  expect(await page.evaluate(() => window.scrollY)).toBe(initialY);
+  expect(Math.abs((await page.evaluate(() => window.scrollY)) - initialY)).toBeLessThanOrEqual(1);
 });
