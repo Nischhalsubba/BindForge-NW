@@ -5,9 +5,13 @@ import {
   buildCustomLine,
   buildPresetLine,
   buildSayLine,
+  commandsEquivalent,
   isCompleteCombo,
   normalizeCombo,
+  normalizeCommandText,
   normalizeMessage,
+  parseBindText,
+  resolveBindMap,
 } from "../app/lib/keybind-core.mjs";
 
 test("normalizes modifier aliases and order", () => {
@@ -61,4 +65,39 @@ test("normalizes multiline say messages and embedded quotes", () => {
 test("uses visible placeholders for incomplete custom input", () => {
   assert.equal(buildCustomLine("", "invoke", "", "bind"), "/bind <key> invoke");
   assert.equal(buildSayLine("", ""), '/bind <key> "say <message>"');
+});
+
+test("parses pasted Neverwinter bind text and reports unsupported lines", () => {
+  const parsed = parseBindText(`
+# saved keymap
+/bind R gensendmessage Chat_Reply activate
+bind ctrl+5 gensendmessage Vipaction_Bankvendor activate
+/bind lbutton "+specialClassPower $$ +Evaluateleftclick $$ ++specialClassPower"
+this is not a bind
+/unbind r
+`);
+
+  assert.equal(parsed.entries.length, 4);
+  assert.equal(parsed.ignored.length, 1);
+  assert.equal(parsed.entries[0].key, "r");
+  assert.equal(parsed.entries[1].key, "ctrl+5");
+  assert.match(parsed.entries[2].command, /specialClassPower/);
+});
+
+test("resolves the final active personal keymap when later unbinds remove keys", () => {
+  const parsed = parseBindText(`
+/bind r old_command
+/bind f1 first_command
+/bind r new_command
+/unbind f1
+`);
+  const active = resolveBindMap(parsed.entries);
+
+  assert.deepEqual(active.map((entry) => [entry.key, entry.command]), [["r", "new_command"]]);
+});
+
+test("normalizes commands before comparing imported binds with presets", () => {
+  assert.equal(normalizeCommandText("  invoke   Something  "), "invoke Something");
+  assert.equal(commandsEquivalent("Invoke Something", " invoke   something "), true);
+  assert.equal(commandsEquivalent("invoke one", "invoke two"), false);
 });
