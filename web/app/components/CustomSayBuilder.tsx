@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import { useBindForge } from "../BindForgeProvider";
-import { buildSayLine, normalizeCombo, normalizeMessage } from "../lib/keybind-core.mjs";
+import { buildSayLine, isCompleteCombo, normalizeMessage } from "../lib/keybind-core.mjs";
 import { copyTextSafely } from "../lib/clipboard";
 import { KeyCaptureInput } from "./KeyCaptureInput";
 import styles from "./CustomSayBuilder.module.css";
@@ -14,10 +14,9 @@ export function CustomSayBuilder() {
   const [copyState, setCopyState] = useState<CopyState>("idle");
   const resetTimer = useRef<number | null>(null);
   const preview = useRef<HTMLElement>(null);
-  const cleanKey = normalizeCombo(state.customSay.key);
   const cleanMessage = normalizeMessage(state.customSay.message);
   const command = useMemo(() => buildSayLine(state.customSay.key, state.customSay.message), [state.customSay]);
-  const canCopy = Boolean(cleanKey && cleanMessage);
+  const canCopy = Boolean(isCompleteCombo(state.customSay.key) && cleanMessage);
   const messageChanged = state.customSay.message !== cleanMessage;
 
   async function copyCommand() {
@@ -50,7 +49,7 @@ export function CustomSayBuilder() {
           <label>
             <span>Choose a key</span>
             <KeyCaptureInput aria-label="Custom message key combination" autoComplete="off" onValueChange={(value) => { updateCustomSay({ key: value }); setCopyState("idle"); }} placeholder="Press F1, Numpad7, Ctrl+R…" value={state.customSay.key} />
-            <small>Click the field, then press the key or key combination you want to bind.</small>
+            <small>Click the field, press the first key, then press + and another key if you want a merged combination.</small>
           </label>
           <label>
             <span>Say message</span>
