@@ -2,7 +2,9 @@
 
 # BindForge NW
 
-**Build, review, organize, and export Neverwinter keybinds without memorizing console commands.**
+**Find it. Build it. Bind it.**
+
+Build, review, organize, and export Neverwinter keybinds without memorizing console commands.
 
 ![Top language](https://img.shields.io/github/languages/top/Nischhalsubba/BindForge-NW?style=flat-square)
 ![Last commit](https://img.shields.io/github/last-commit/Nischhalsubba/BindForge-NW?style=flat-square)
@@ -14,31 +16,46 @@
 
 ## Overview
 
-**BindForge NW** is a Neverwinter keybind utility with a preset browser, conflict planner, command explorer, collection manager, and copy-ready `/bind` / `/unbind` generation. The maintained application lives in `web/` and uses a modern Next.js, React, and TypeScript front end.
+**BindForge NW** is a local-first Neverwinter keybind workbench. It combines plain-language preset search, visual key-combination capture, a verified composer, Command Lab, personal-keymap conflict detection, collections, class/role quick packs, trust/provenance information, and copy/download-ready `/bind` / `/unbind` output.
 
 | Audience | Use BindForge NW for |
 |---|---|
-| Players | Find practical binds, detect conflicts, organize presets and export commands |
-| Developers | Maintain the data-driven UI, validation logic, sharing and deployment paths |
-| Designers | Improve dense command workflows, states, hierarchy and responsive interaction |
-| Maintainers | Review provenance, verification notes, command coverage and release quality |
+| Players | Find binds, capture keyboard/mouse combinations, review conflicts and export a final pack |
+| New players | Follow guided first-visit paths, plain-language help and post-copy in-game instructions |
+| Power users | Use Command Lab, raw commands, provenance, portable links, bulk packs and rollback output |
+| Maintainers | Review evidence, verification dates, command coverage, accessibility and release quality |
+
+## Current product capabilities
+
+- **Plain-language Search v2** with aliases, common player wording, typo tolerance, relevance ranking and no-result recovery.
+- **Visual key combination builder** for keyboard modifiers, keyboard keys, left/right/middle mouse input and `+`-separated combinations. Normal `+` and numpad `+` are separators rather than standalone bind keys.
+- **Four workflows**: Search, Compose, Command Lab and Say, with Simple / Standard / Advanced experience levels.
+- **Personal keymap import** from pasted bind text or `.txt` files, analyzed locally for real key conflicts.
+- **Pack review** with selected-bind conflicts, final bind output, rollback/unbind output, copy and download actions.
+- **Catalogue-backed class/role quick packs** that preserve each preset's existing verification level rather than inventing build advice.
+- **Trust labels** for Verified, Community tested and Experimental data, with source/evidence context where available.
+- **Use in Neverwinter guidance** after copying a real bind, including test/recovery and rollback guidance.
+- **Favourites, collections, portable sharing and browser-local backup/restore**.
+- **Accessibility preferences** for theme, text size, density, contrast, larger controls and reduced motion.
+- **Responsive release gates** across mobile, tablet and desktop, plus keyboard/focus/overflow/accessibility checks.
 
 <details open>
-<summary><strong>🏗️ Interactive product architecture</strong></summary>
+<summary><strong>🏗️ Product architecture</strong></summary>
 
 ```mermaid
 flowchart LR
-    PLAYER["Neverwinter player"] --> UI["Next.js / React interface"]
-    UI --> PRESETS["Preset library"]
-    UI --> LAB["Command Lab"]
-    UI --> PLANNER["Conflict planner"]
-    UI --> COLLECTIONS["Favourites & collections"]
-    PRESETS --> CATALOG["Keybind / command data"]
-    LAB --> CATALOG
-    PLANNER --> VALIDATE["Validation & warnings"]
-    COLLECTIONS --> LOCAL["Browser-local state"]
-    VALIDATE --> EXPORT["Copy / download bind output"]
-    CATALOG --> EXPORT
+    PLAYER["Neverwinter player"] --> UI["Next.js / React workbench"]
+    UI --> SEARCH["Plain-language preset search"]
+    UI --> BUILD["Compose / Command Lab / Say"]
+    UI --> KEYMAP["Personal keymap import"]
+    SEARCH --> CATALOG["Preset + provenance data"]
+    BUILD --> CATALOG
+    KEYMAP --> CONFLICTS["Personal conflict planner"]
+    CATALOG --> REVIEW["Selection + pack review"]
+    CONFLICTS --> REVIEW
+    REVIEW --> EXPORT["Bind + rollback copy/download"]
+    UI --> LOCAL["Browser-local preferences, favourites & collections"]
+    EXPORT --> GAME["Paste / test in Neverwinter"]
 ```
 
 </details>
@@ -47,50 +64,49 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    START["Choose a bind task"] --> FIND{"Start from a preset?"}
-    FIND -->|Yes| SEARCH["Search / filter presets"]
-    FIND -->|No| BUILD["Build a command in Command Lab"]
-    SEARCH --> SELECT["Select bind"]
-    BUILD --> SELECT
-    SELECT --> CHECK["Check conflicts and warnings"]
-    CHECK --> EDIT["Adjust key / command"]
-    EDIT --> SAVE["Save favourite or collection"]
-    SAVE --> EXPORT["Copy or download bind commands"]
-    EXPORT --> GAME["Apply in Neverwinter"]
+    START["Choose a task"] --> FIND["Search or open a class/role quick pack"]
+    START --> BUILD["Compose a bind or build a command"]
+    FIND --> KEY["Choose or capture the key combination"]
+    BUILD --> KEY
+    KEY --> IMPORT{"Personal keymap available?"}
+    IMPORT -->|Yes| CHECK["Compare against actual imported binds"]
+    IMPORT -->|No| CHECK2["Use catalogue/native-key warnings"]
+    CHECK --> REVIEW["Review selected bind pack"]
+    CHECK2 --> REVIEW
+    REVIEW --> EXPORT["Copy/download bind + rollback pack"]
+    EXPORT --> GUIDE["Use in Neverwinter guidance"]
 ```
 
 ## Repository map
 
 - [`web/`](./web) — maintained web application and detailed documentation.
 - [`bootstrap/`](./bootstrap) — repository bootstrap/support material.
-- [`netlify.toml`](./netlify.toml) — Netlify integration.
-- [`wrangler.jsonc`](./wrangler.jsonc) — Cloudflare-related configuration.
-- [`.github/`](./.github) — automation and repository workflows.
+- [`netlify.toml`](./netlify.toml) — Netlify production integration.
+- [`wrangler.jsonc`](./wrangler.jsonc) — additional Cloudflare/OpenNext configuration.
+- [`.github/`](./.github) — Quality and Security automation.
 
 ## Getting started
 
 ```bash
 git clone https://github.com/Nischhalsubba/BindForge-NW.git
 cd BindForge-NW/web
+npm ci
+npm run dev
 ```
 
-Use the package manager and scripts declared in the application manifest. See [`web/README.md`](./web/README.md) for current setup, architecture, release status, and engineering notes.
+See [`web/README.md`](./web/README.md) for architecture, verification commands, limitations and release notes.
 
-## Design principles
+## Design and data principles
 
-Dense command tooling should stay scannable. Preserve clear grouping, readable key/command relationships, explicit conflict states, keyboard accessibility, useful empty states, responsive layouts, and copy/export feedback that tells the player what happened.
-
-## SEO & discoverability
-
-The public experience should naturally describe **Neverwinter keybinds, Neverwinter commands, bind presets, keybind conflicts, command generation, and Neverwinter utility tools** in titles, descriptions, headings, structured content, and useful visible copy. Avoid claims that are not supported by verified game behavior or provenance.
+Dense command tooling should stay scannable and reversible. Preserve clear key/command relationships, explicit conflict states, visible trust/evidence, keyboard accessibility, useful empty/error states, responsive layouts and copy/export feedback. Never promote a command from experimental/community evidence to verified without evidence, and never describe advisory conflict guidance as a guarantee about a player's in-game configuration.
 
 ## Contribution flow
 
 ```mermaid
 flowchart LR
-    DATA["Command / preset change"] --> VERIFY["Verify source & behavior"]
-    VERIFY --> IMPLEMENT["Update data or UI"]
-    IMPLEMENT --> TEST["Run relevant checks"]
+    DATA["Command / preset / workflow change"] --> VERIFY["Verify evidence and intended behavior"]
+    VERIFY --> IMPLEMENT["Update existing app files"]
+    IMPLEMENT --> TEST["Quality + Security + browser matrix"]
     TEST --> DOCS["Update docs / provenance"]
-    DOCS --> PR["Open pull request"]
+    DOCS --> PR["Review and merge"]
 ```
