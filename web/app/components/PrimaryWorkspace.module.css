@@ -45,12 +45,55 @@
   letter-spacing: -.04em;
 }
 
+.experienceBar {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.8rem 1rem;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--line);
+  color: var(--ink-mute);
+}
+
+.experienceBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.9rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--ink);
+  font: 700 0.72rem/1.2 var(--sans);
+  white-space: nowrap;
+}
+
+.experienceBar p,
+.experienceBar small {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.experienceBar small {
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  text-align: right;
+}
+
 .tabs {
   position: static;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   border-block: 1px solid var(--line-strong);
   background: color-mix(in srgb, var(--paper) 95%, transparent);
+}
+
+.simpleTabs {
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.3fr) minmax(0, .72fr) minmax(0, .72fr);
+}
+
+.advancedTabs {
+  box-shadow: inset 0 3px 0 color-mix(in srgb, var(--coral) 72%, transparent);
 }
 
 .tab {
@@ -78,12 +121,31 @@
 .tab:hover { background: color-mix(in srgb, var(--coral) 7%, transparent); }
 .tab:focus-visible { z-index: 1; outline: 2px solid var(--coral); outline-offset: -2px; }
 
+.simpleSecondaryTool {
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  background: color-mix(in srgb, var(--bone) 55%, transparent);
+}
+
+.simpleSecondaryTool .tabIcon {
+  display: none;
+}
+
+.simpleSecondaryTool .tabCopy small {
+  display: none;
+}
+
+.simpleSecondaryTool .tabCopy strong {
+  font-size: 14px;
+}
+
 .active {
   background: var(--ink);
   color: var(--paper);
 }
 
 .active:hover { background: var(--ink); }
+.simpleSecondaryTool.active { background: var(--ink); }
 
 .tabIndex {
   padding-top: 3px;
@@ -208,6 +270,44 @@
 .utilityDrawer[open] > summary::after { content: '−'; }
 .utilityBody :global(.portable-share-panel) { padding: 28px 0 52px; }
 
+.advancedUtility {
+  display: grid;
+  grid-template-columns: minmax(15rem, .65fr) minmax(0, 1.35fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+  margin: 0 0 72px;
+  padding: 1.25rem 0 0;
+  border-top: 2px solid var(--coral);
+}
+
+.advancedUtilityHeading {
+  display: grid;
+  align-content: start;
+  gap: 0.45rem;
+}
+
+.advancedUtilityHeading span {
+  color: var(--coral);
+  font: 650 0.7rem/1.3 var(--mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.advancedUtilityHeading h3 {
+  margin: 0;
+  font: 750 clamp(1.35rem, 2vw, 2rem)/1.1 var(--sans);
+}
+
+.advancedUtilityHeading p {
+  margin: 0;
+  color: var(--ink-mute);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.advancedUtility :global(.portable-share-panel) {
+  margin: 0;
+}
+
 /* The visual key builder adds useful inline guidance to Command Lab. Keep the desktop stage tall
    enough that switching between Command and Say never moves the footer underneath the user. */
 @media (min-width: 881px) {
@@ -220,13 +320,23 @@
   .tab { min-height: 118px; padding: 19px 17px; }
   .tabCopy strong { font-size: 15px; }
   .tabCopy small { font-size: 11px; }
+  .experienceBar { grid-template-columns: auto minmax(0, 1fr); }
+  .experienceBar small { grid-column: 2; text-align: left; }
 }
 
 @media (max-width: 1080px) {
   .shell { width: min(calc(100% - 48px), var(--content)); }
-  .tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tabs,
+  .simpleTabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .tab:nth-child(2) { border-right: 0; }
   .tab:nth-child(-n + 2) { border-bottom: 1px solid var(--line); }
+  .simpleSecondaryTool {
+    grid-template-columns: auto auto minmax(0, 1fr);
+  }
+  .simpleSecondaryTool .tabIcon { display: grid; }
+  .simpleSecondaryTool .tabCopy small { display: block; }
+  .simpleSecondaryTool .tabCopy strong { font-size: 15px; }
+  .advancedUtility { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 880px) {
@@ -234,19 +344,27 @@
   .intro, .searchHeading { grid-template-columns: 1fr; gap: 18px; }
   .intro p, .searchHeading p { font-size: 15px; }
   .title { max-width: 18ch; }
-  .tabs {
+  .experienceBar { grid-template-columns: 1fr; gap: 0.45rem; }
+  .experienceBar small { grid-column: auto; text-align: left; }
+  .experienceBadge { justify-self: start; }
+  .tabs,
+  .simpleTabs {
     display: flex;
     max-width: 100%;
     overflow-x: auto;
     overscroll-behavior-inline: contain;
     scrollbar-width: thin;
   }
-  .tab {
+  .tab,
+  .simpleSecondaryTool {
     flex: 0 0 min(76vw, 300px);
+    grid-template-columns: auto auto minmax(0, 1fr);
     min-height: 104px;
     border-bottom: 0 !important;
     border-right: 1px solid var(--line) !important;
   }
+  .simpleSecondaryTool .tabIcon { display: grid; }
+  .simpleSecondaryTool .tabCopy small { display: block; }
   .panel { min-height: 0; padding-top: 28px; }
 }
 
@@ -254,12 +372,15 @@
   .shell { width: calc(100% - 32px); padding-top: 24px; }
   .intro { padding: 24px 0 22px; }
   .title { font-size: clamp(32px, 10vw, 46px); }
-  .tab { flex-basis: min(84vw, 270px); padding: 15px 13px; }
-  .tabCopy strong { font-size: 15px; }
+  .tab,
+  .simpleSecondaryTool { flex-basis: min(84vw, 270px); padding: 15px 13px; }
+  .tabCopy strong,
+  .simpleSecondaryTool .tabCopy strong { font-size: 15px; }
   .tabCopy small { font-size: 10px; }
   .searchHeading { padding-bottom: 22px; }
   :global(.workspace).searchView { padding-top: 24px; padding-bottom: 42px; }
-  .utilityDrawer { margin-bottom: 52px; }
+  .utilityDrawer,
+  .advancedUtility { margin-bottom: 52px; }
 }
 
 @media (prefers-reduced-motion: no-preference) {

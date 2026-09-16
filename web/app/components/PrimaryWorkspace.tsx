@@ -16,6 +16,7 @@ import styles from "./PrimaryWorkspace.module.css";
 
 type CopyHandler = (text: string, label: string, target: HTMLElement | null) => Promise<CopyResultState>;
 type WorkspaceView = "search" | "compose" | "command" | "say";
+type ExperienceLevel = "simple" | "standard" | "advanced";
 
 type WorkspaceTool = {
   view: WorkspaceView;
@@ -92,6 +93,21 @@ const tools: WorkspaceTool[] = [
   },
 ];
 
+const experienceCopy: Record<ExperienceLevel, { label: string; description: string }> = {
+  simple: {
+    label: "Simple experience",
+    description: "Search and Compose are emphasized. Technical tools stay one click away, while safety and plain-language guidance remain visible.",
+  },
+  standard: {
+    label: "Standard experience",
+    description: "All everyday tools share equal priority. Portable and technical extras stay collapsed until you request them.",
+  },
+  advanced: {
+    label: "Advanced experience",
+    description: "All tools stay prominent and portable/export controls are surfaced directly for faster technical workflows.",
+  },
+};
+
 const hashToView = new Map(tools.map((tool) => [tool.hash, tool.view]));
 const catalogPacks = buildCatalogPacks(keybindPresets);
 
@@ -99,10 +115,15 @@ function viewFromHash(hash: string): WorkspaceView {
   return hashToView.get(hash.replace(/^#/, "")) ?? "search";
 }
 
+function isTechnicalTool(view: WorkspaceView) {
+  return view === "command" || view === "say";
+}
+
 export function PrimaryWorkspace({ onCopy }: { onCopy: CopyHandler }) {
   const [activeView, setActiveView] = useState<WorkspaceView>("search");
   const [portableToolsOpen, setPortableToolsOpen] = useState(false);
   const { state, resetFilters, setActionType, setClassName, setDifficulty, setSearch } = useBindForge();
+  const experience = state.preferences.experience;
   const activeTool = useMemo(() => tools.find((tool) => tool.view === activeView) ?? tools[0], [activeView]);
   const activePackId = useMemo(() => catalogPacks.find((pack) => (
     state.className === pack.filters.className
@@ -162,7 +183,12 @@ export function PrimaryWorkspace({ onCopy }: { onCopy: CopyHandler }) {
   }
 
   return (
-    <section className={styles.shell} id="primary-workspace" aria-labelledby="primary-workspace-title">
+    <section
+      className={styles.shell}
+      data-experience-level={experience}
+      id="primary-workspace"
+      aria-labelledby="primary-workspace-title"
+    >
       <div className={styles.hashTargets} aria-hidden="true">
         {tools.map((tool) => <span className={styles.hashTarget} id={tool.hash} key={tool.hash} />)}
       </div>
@@ -181,13 +207,25 @@ export function PrimaryWorkspace({ onCopy }: { onCopy: CopyHandler }) {
         <p>Start with the job you came to do. Switching tools keeps your place on the page, so the workspace no longer jumps around underneath you.</p>
       </header>
 
-      <nav className={styles.tabs} aria-label="Primary keybind tools" role="tablist">
+      <div className={styles.experienceBar} data-testid="experience-workspace-summary">
+        <span className={styles.experienceBadge}>{experienceCopy[experience].label}</span>
+        <p>{experienceCopy[experience].description}</p>
+        <small>Change this in Local data &amp; backup → Accessibility &amp; experience.</small>
+      </div>
+
+      <nav
+        className={`${styles.tabs} ${experience === "simple" ? styles.simpleTabs : experience === "advanced" ? styles.advancedTabs : ""}`}
+        aria-label="Primary keybind tools"
+        data-experience={experience}
+        role="tablist"
+      >
         {tools.map((tool, index) => (
           <button
             aria-controls="primary-workspace-panel"
             aria-label={tool.title}
             aria-selected={activeView === tool.view}
-            className={`${styles.tab} ${activeView === tool.view ? styles.active : ""}`}
+            className={`${styles.tab} ${activeView === tool.view ? styles.active : ""} ${experience === "simple" && isTechnicalTool(tool.view) ? styles.simpleSecondaryTool : ""}`}
+            data-secondary-in-simple={experience === "simple" && isTechnicalTool(tool.view) ? "true" : undefined}
             id={`primary-tab-${tool.view}`}
             key={tool.view}
             onClick={() => selectTool(tool)}
@@ -222,10 +260,21 @@ export function PrimaryWorkspace({ onCopy }: { onCopy: CopyHandler }) {
               <FilterSidebar />
               <KeybindLibrary onCopy={onCopy} />
             </section>
-            <details className={styles.utilityDrawer} onToggle={handlePortableToggle}>
-              <summary>Share, export & portable tools</summary>
-              <div className={styles.utilityBody}>{portableToolsOpen ? <PortableSharePanel onCopy={onCopy} /> : null}</div>
-            </details>
+            {experience === "advanced" ? (
+              <section className={styles.advancedUtility} data-testid="advanced-portable-tools" aria-labelledby="advanced-portable-tools-title">
+                <div className={styles.advancedUtilityHeading}>
+                  <span>Advanced workspace</span>
+                  <h3 id="advanced-portable-tools-title">Portable &amp; technical tools</h3>
+                  <p>Advanced mode surfaces sharing, backup, and portable workflow controls without an extra disclosure step.</p>
+                </div>
+                <PortableSharePanel onCopy={onCopy} />
+              </section>
+            ) : (
+              <details className={styles.utilityDrawer} onToggle={handlePortableToggle}>
+                <summary>Share, export &amp; portable tools</summary>
+                <div className={styles.utilityBody}>{portableToolsOpen ? <PortableSharePanel onCopy={onCopy} /> : null}</div>
+              </details>
+            )}
           </>
         ) : null}
 
