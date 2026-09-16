@@ -1,10 +1,16 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  appendComboToken,
+  armComboSeparator,
+  comboAwaitingNext,
   comboFromKeyboardLike,
   comboFromMouseLike,
+  comboTokens,
   keyTokenFromCode,
   mouseTokenFromButton,
+  removeLastComboToken,
+  sanitizeComboInput,
 } from "../app/lib/key-capture.mjs";
 
 test("distinguishes number-row and numpad digits", () => {
@@ -31,6 +37,21 @@ test("reserves both physical plus keys for joining key combinations", () => {
   assert.equal(comboFromKeyboardLike({ code: "Equal", key: "+", shiftKey: true }), "");
   assert.equal(comboFromKeyboardLike({ code: "NumpadAdd", key: "+", location: 3 }), "");
   assert.equal(comboFromKeyboardLike({ code: "Digit5", key: "5", ctrlKey: true }), "ctrl+5");
+});
+
+test("models combinations as editable token sequences", () => {
+  assert.equal(sanitizeComboInput(" ctrl ++ 5 "), "ctrl+5");
+  assert.equal(sanitizeComboInput("+"), "");
+  assert.deepEqual(comboTokens("ctrl+5+rbutton"), ["ctrl", "5", "rbutton"]);
+  assert.equal(comboAwaitingNext("ctrl+5+"), true);
+  assert.equal(comboAwaitingNext("ctrl+5"), false);
+  assert.equal(armComboSeparator("ctrl+5"), "ctrl+5+");
+  assert.equal(armComboSeparator("ctrl+5+"), "ctrl+5+");
+  assert.equal(appendComboToken("ctrl+5+", "rbutton"), "ctrl+5+rbutton");
+  assert.equal(appendComboToken("", "ctrl+5"), "ctrl+5");
+  assert.equal(removeLastComboToken("ctrl+5+rbutton"), "ctrl+5");
+  assert.equal(removeLastComboToken("ctrl+5+"), "ctrl+5");
+  assert.equal(removeLastComboToken("ctrl"), "");
 });
 
 test("maps supported mouse buttons to Neverwinter tokens", () => {
