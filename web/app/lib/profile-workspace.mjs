@@ -36,6 +36,11 @@ function sanitizeKeyValues(value) {
   );
 }
 
+function hasUniqueIds(values) {
+  const ids = values.map((value) => value.id);
+  return new Set(ids).size === ids.length;
+}
+
 function sanitizeProfile(value) {
   if (!isRecord(value)) return null;
   const id = asString(value.id).trim();
@@ -48,6 +53,7 @@ function sanitizeProfile(value) {
     personalBinds: sanitizePersonalBinds(value.personalBinds),
     personalSourceName: asString(value.personalSourceName),
     personalImportedAt: asString(value.personalImportedAt),
+    updatedAt: asString(value.updatedAt),
   };
 }
 
@@ -57,12 +63,12 @@ function sanitizeCharacter(value) {
   const name = asString(value.name).trim();
   if (!id || !name || !Array.isArray(value.profiles)) return null;
   const profiles = value.profiles.map(sanitizeProfile).filter(Boolean);
-  if (!profiles.length) return null;
+  if (!profiles.length || !hasUniqueIds(profiles)) return null;
   return {
     id,
     name,
-    className: asString(value.className),
-    role: asString(value.role),
+    className: asString(value.className, "Unassigned"),
+    role: asString(value.role, "DPS"),
     paragon: asString(value.paragon),
     profiles,
   };
@@ -81,8 +87,8 @@ export function createDefaultProfileWorkspace({
     characters: [{
       id: DEFAULT_CHARACTER_ID,
       name: "My Character",
-      className: "",
-      role: "",
+      className: "Unassigned",
+      role: "DPS",
       paragon: "",
       profiles: [{
         id: DEFAULT_PROFILE_ID,
@@ -91,6 +97,7 @@ export function createDefaultProfileWorkspace({
         personalBinds: sanitizePersonalBinds(personalBinds),
         personalSourceName: asString(personalSourceName),
         personalImportedAt: asString(personalImportedAt),
+        updatedAt: "",
       }],
     }],
   };
@@ -113,6 +120,7 @@ export function cloneProfile(profile, { id, name }) {
     personalBinds: profile.personalBinds.map(clonePersonalBind),
     personalSourceName: profile.personalSourceName,
     personalImportedAt: profile.personalImportedAt,
+    updatedAt: profile.updatedAt ?? "",
   };
 }
 
@@ -126,6 +134,9 @@ export function parseProfileWorkspaceValue(value) {
   const characters = value.characters.map(sanitizeCharacter).filter(Boolean);
   if (characters.length !== value.characters.length) {
     return { ok: false, error: "My Setup backup contains invalid character or profile data." };
+  }
+  if (!hasUniqueIds(characters)) {
+    return { ok: false, error: "My Setup backup contains duplicate character IDs." };
   }
   const workspace = {
     version: PROFILE_WORKSPACE_VERSION,
