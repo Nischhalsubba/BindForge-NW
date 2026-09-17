@@ -45,7 +45,7 @@ test("keeps dialog focus and restores it after closing", async ({ page }) => {
 test("meets touch-target geometry on narrow coarse-style layouts", async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.includes("mobile") && !testInfo.project.name.includes("tablet"), "Touch geometry is checked on narrow projects");
   const controls = [
-    page.getByRole("button", { name: "Filters & navigation", exact: true }),
+    page.getByRole("button", { name: "Filters", exact: true }),
     page.getByRole("button", { name: "Local data & backup", exact: true }),
     page.getByRole("button", { name: "Bind", exact: true }),
     page.getByRole("button", { name: "Unbind", exact: true }),
@@ -83,7 +83,7 @@ test("keeps functional microcopy readable and keyboard focus strongly visible", 
 test("passes axe with drawers, settings, and card details open", async ({ page }, testInfo) => {
   await page.addScriptTag({ content: axe.source });
   if (testInfo.project.name.includes("mobile") || testInfo.project.name.includes("tablet")) {
-    await page.getByRole("button", { name: "Filters & navigation", exact: true }).click();
+    await page.getByRole("button", { name: "Filters", exact: true }).click();
     await expect(page.getByRole("dialog", { name: "Filters" })).toBeVisible();
   } else {
     await page.getByRole("button", { name: "Local data & backup", exact: true }).click();
