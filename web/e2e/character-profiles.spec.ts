@@ -42,6 +42,29 @@ test("creates, renames, switches, and persists characters and profiles inside My
   await expect(page.getByLabel("Profile name")).toHaveValue("Boss Tank");
 });
 
+test("round-trips My Setup through export and validated import", async ({ page }) => {
+  await openMySetup(page);
+  await page.getByRole("button", { name: "Add character" }).click();
+  await page.getByLabel("Character name").fill("Backup Hero");
+
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Export My Setup" }).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toMatch(/^bindforge-my-setup-v1-\d{4}-\d{2}-\d{2}\.json$/);
+
+  const backup = await page.evaluate(() => window.localStorage.getItem("bindforge-nw:profiles:v1"));
+  expect(backup).toBeTruthy();
+  await page.getByLabel("Character name").fill("Changed locally");
+  await page.locator("input[type='file'][accept='application/json,.json']").setInputFiles({
+    name: "my-setup.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(backup!),
+  });
+
+  await expect(page.getByLabel("Character name")).toHaveValue("Backup Hero");
+  await expect(page.getByRole("status").filter({ hasText: "My Setup backup validated and restored" })).toBeVisible();
+});
+
 test("keeps edited keys and imported conflict data isolated by profile", async ({ page }) => {
   await openMySetup(page);
   const firstCard = page.locator(".bind-card:visible").first();
