@@ -13,6 +13,13 @@ import {
   parseBindText,
   resolveBindMap,
 } from "../lib/keybind-core.mjs";
+import {
+  cloneProfile,
+  createDefaultProfileWorkspace,
+  getActiveCharacter,
+  getActiveProfile,
+  parseProfileWorkspaceJson,
+} from "../lib/profile-workspace.mjs";
 import { scorePresetSearch, suggestPresetSearches } from "../lib/preset-search.mjs";
 import { SAFE_KEY_SUGGESTIONS, normalizedKey } from "../lib/safe-key-suggestions";
 import type { CopyResultState } from "../page";
@@ -25,9 +32,11 @@ import { WorkspaceControls } from "./WorkspaceControls";
 import type { PackReviewItem } from "./WorkspaceControls";
 
 const LIBRARY_SETTINGS_KEY = "bindforge-nw:library:v1";
+const PROFILE_WORKSPACE_KEY = "bindforge-nw:profiles:v1";
 const INITIAL_VISIBLE_GROUPS = keybindPresets.length;
 const GROUP_BATCH_SIZE = 3;
 const MAX_PERSONAL_BIND_FILE_BYTES = 512 * 1024;
+const MAX_PROFILE_WORKSPACE_BYTES = 512 * 1024;
 
 const typeOrder: KeybindType[] = [
   "Invocation / Character", "Targeting", "VIP Services", "Bard Songs", "Animation Cancel", "Combat",
@@ -56,6 +65,29 @@ type PersonalBind = {
   command: string;
   raw: string;
   lineNumber: number;
+};
+type KeymapProfile = {
+  id: string;
+  name: string;
+  keyValues: Record<string, string>;
+  personalBinds: PersonalBind[];
+  personalSourceName: string;
+  personalImportedAt: string;
+  updatedAt: string;
+};
+type CharacterProfile = {
+  id: string;
+  name: string;
+  className: string;
+  paragon: string;
+  role: string;
+  profiles: KeymapProfile[];
+};
+type ProfileWorkspace = {
+  version: number;
+  activeCharacterId: string;
+  activeProfileId: string;
+  characters: CharacterProfile[];
 };
 type StoredLibraryState = {
   favourites: string[];
@@ -154,8 +186,8 @@ function readStoredLibraryState(): StoredLibraryState {
     return defaultLibraryState;
   }
 }
-function downloadText(filename: string, text: string) {
-  const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+function downloadText(filename: string, text: string, type = "text/plain;charset=utf-8") {
+  const url = URL.createObjectURL(new Blob([text], { type }));
   const link = document.createElement("a");
   link.href = url;
   link.download = filename;
@@ -165,16 +197,23 @@ function downloadText(filename: string, text: string) {
   link.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
+function createId(prefix: string) {
+  const suffix = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  return `${prefix}-${suffix}`;
+}
 
 export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
-  const { state, setKey, setSearch, resetKey, resetFilters } = useBindForge();
+  const { state, hydrated: settingsHydrated, setKey, replaceKeys, setSearch, resetFilters } = useBindForge();
   const [library, setLibrary] = useState<StoredLibraryState>(defaultLibraryState);
+  const [profileWorkspace, setProfileWorkspace] = useState<ProfileWorkspace | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [activeCollection, setActiveCollection] = useState("all");
   const [collectionName, setCollectionName] = useState("");
   const [visibleGroupCount, setVisibleGroupCount] = useState(INITIAL_VISIBLE_GROUPS);
   const [personalImportMessage, setPersonalImportMessage] = useState("");
+  const [profileStatus, setProfileStatus] = useState("");
   const [hydrated, setHydrated] = useState(false);
+  const [profilesHydrated, setProfilesHydrated] = useState(false);
 
   useEffect(() => {
     setLibrary(readStoredLibraryState());
@@ -192,8 +231,52 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   }, [hydrated, library]);
 
   useEffect(() => {
+    if (!settingsHydrated || !hydrated || profilesHydrated) return;
+    let next: ProfileWorkspace | null = null;
+    try {
+      const stored = window.localStorage.getItem(PROFILE_WORKSPACE_KEY);
+      if (stored) {
+        const parsed = parseProfileWorkspaceJson(stored);
+        if (parsed.ok) next = parsed.value as ProfileWorkspace;
+      }
+    } catch { /* create a safe local workspace below */ }
+
+    const migrated = !next;
+    if (!next) {
+      next = createDefaultProfileWorkspace({
+        keyValues: state.keys,
+        personalBinds: library.personalBinds,
+        personalSourceName: library.personalSourceName,
+        personalImportedAt: library.personalImportedAt,
+      }) as ProfileWorkspace;
+    }
+
+    setProfileWorkspace(next);
+    const active = getActiveProfile(next) as KeymapProfile | null;
+    if (active) replaceKeys(active.keyValues);
+    try { window.localStorage.setItem(PROFILE_WORKSPACE_KEY, JSON.stringify(next)); } catch { /* session only */ }
+    if (migrated && (library.personalBinds.length || library.personalSourceName || library.personalImportedAt)) {
+      setLibrary((current) => ({ ...current, personalBinds: [], personalSourceName: "", personalImportedAt: "" }));
+      setProfileStatus("Existing keymap migrated into My Character · Default.");
+    }
+    setProfilesHydrated(true);
+  }, [hydrated, library.personalBinds, library.personalImportedAt, library.personalSourceName, profilesHydrated, replaceKeys, settingsHydrated, state.keys]);
+
+  useEffect(() => {
+    if (!profilesHydrated || !profileWorkspace) return;
+    try { window.localStorage.setItem(PROFILE_WORKSPACE_KEY, JSON.stringify(profileWorkspace)); } catch { /* session only */ }
+  }, [profileWorkspace, profilesHydrated]);
+
+  useEffect(() => {
     setVisibleGroupCount(INITIAL_VISIBLE_GROUPS);
   }, [state.search, state.className, state.actionType, state.difficulty, activeCollection, library.provenanceFilter, library.safeOnly, library.sortMode]);
+
+  const fallbackWorkspace = useMemo(() => createDefaultProfileWorkspace({ keyValues: state.keys }) as ProfileWorkspace, [state.keys]);
+  const resolvedWorkspace = profileWorkspace ?? fallbackWorkspace;
+  const activeCharacter = (getActiveCharacter(resolvedWorkspace) as CharacterProfile | null) ?? resolvedWorkspace.characters[0];
+  const activeProfile = (getActiveProfile(resolvedWorkspace) as KeymapProfile | null) ?? activeCharacter.profiles[0];
+  const personalBinds = activeProfile.personalBinds ?? [];
+  const personalSourceName = activeProfile.personalSourceName ?? "";
 
   const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
   const favouriteSet = useMemo(() => new Set(library.favourites), [library.favourites]);
@@ -203,8 +286,8 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     if (key) counts[key] = (counts[key] ?? 0) + 1;
     return counts;
   }, {}), [selectedPresets, state.keys]);
-  const personalByKey = useMemo(() => new Map(library.personalBinds.map((entry) => [normalizedKey(entry.key), entry])), [library.personalBinds]);
-  const hasPersonalKeymap = Boolean(library.personalBinds.length || library.personalSourceName);
+  const personalByKey = useMemo(() => new Map(personalBinds.map((entry) => [normalizedKey(entry.key), entry])), [personalBinds]);
+  const hasPersonalKeymap = Boolean(personalBinds.length || personalSourceName);
 
   const filtered = useMemo(() => {
     const query = state.search.trim();
@@ -273,12 +356,31 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   }).length, [filtered, hasPersonalKeymap, personalByKey, selectedKeyUseCounts, selectedSet, state.keys]);
 
   function patchLibrary(patch: Partial<StoredLibraryState>) { setLibrary((current) => ({ ...current, ...patch })); }
+  function saveWorkspace(next: ProfileWorkspace) {
+    setProfileWorkspace(next);
+    try { window.localStorage.setItem(PROFILE_WORKSPACE_KEY, JSON.stringify(next)); } catch { /* session only */ }
+  }
+  function patchActiveCharacter(patch: Partial<CharacterProfile>) {
+    if (!profileWorkspace) return;
+    saveWorkspace({ ...profileWorkspace, characters: profileWorkspace.characters.map((character) => character.id === profileWorkspace.activeCharacterId ? { ...character, ...patch } : character) });
+  }
+  function patchActiveProfile(patch: Partial<KeymapProfile>) {
+    if (!profileWorkspace) return;
+    const updatedAt = new Date().toISOString();
+    saveWorkspace({
+      ...profileWorkspace,
+      characters: profileWorkspace.characters.map((character) => character.id === profileWorkspace.activeCharacterId ? {
+        ...character,
+        profiles: character.profiles.map((profile) => profile.id === profileWorkspace.activeProfileId ? { ...profile, ...patch, updatedAt } : profile),
+      } : character),
+    });
+  }
   function toggleSelected(id: string) { setSelectedIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]); }
   function toggleFavourite(id: string) { patchLibrary({ favourites: favouriteSet.has(id) ? library.favourites.filter((item) => item !== id) : [...library.favourites, id] }); }
   function toggleGroup(groupName: string) { patchLibrary({ collapsedGroups: library.collapsedGroups.includes(groupName) ? library.collapsedGroups.filter((item) => item !== groupName) : [...library.collapsedGroups, groupName] }); }
   function replacementFor(preset: KeybindPreset) {
     const currentKey = normalizeCombo(state.keys[preset.id] ?? preset.defaultKey);
-    const occupied = new Set(library.personalBinds.map((entry) => normalizedKey(entry.key)));
+    const occupied = new Set(personalBinds.map((entry) => normalizedKey(entry.key)));
     for (const selected of selectedPresets) {
       if (selected.id === preset.id) continue;
       occupied.add(normalizedKey(state.keys[selected.id] ?? selected.defaultKey));
@@ -303,6 +405,85 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     patchLibrary({ collections: next });
     setActiveCollection("all");
   }
+  function updateProfileKey(presetId: string, value: string) {
+    setKey(presetId, value);
+    patchActiveProfile({ keyValues: { ...activeProfile.keyValues, [presetId]: value } });
+  }
+  function resetProfileKey(preset: KeybindPreset) {
+    setKey(preset.id, preset.defaultKey);
+    patchActiveProfile({ keyValues: { ...activeProfile.keyValues, [preset.id]: preset.defaultKey } });
+  }
+  function switchCharacter(id: string) {
+    if (!profileWorkspace) return;
+    const character = profileWorkspace.characters.find((item) => item.id === id);
+    const profile = character?.profiles[0];
+    if (!character || !profile) return;
+    const next = { ...profileWorkspace, activeCharacterId: character.id, activeProfileId: profile.id };
+    saveWorkspace(next);
+    replaceKeys(profile.keyValues);
+    setPersonalImportMessage("");
+    setProfileStatus(`Switched to ${character.name} · ${profile.name}.`);
+  }
+  function switchProfile(id: string) {
+    if (!profileWorkspace) return;
+    const profile = activeCharacter.profiles.find((item) => item.id === id);
+    if (!profile) return;
+    saveWorkspace({ ...profileWorkspace, activeProfileId: profile.id });
+    replaceKeys(profile.keyValues);
+    setPersonalImportMessage("");
+    setProfileStatus(`Switched to ${activeCharacter.name} · ${profile.name}.`);
+  }
+  function addCharacter() {
+    if (!profileWorkspace) return;
+    const now = new Date().toISOString();
+    const profile: KeymapProfile = {
+      id: createId("profile"), name: "Default", keyValues: { ...state.keys }, personalBinds: [],
+      personalSourceName: "", personalImportedAt: "", updatedAt: now,
+    };
+    const character: CharacterProfile = {
+      id: createId("character"), name: "New character", className: "Unassigned", paragon: "", role: "DPS", profiles: [profile],
+    };
+    saveWorkspace({ ...profileWorkspace, activeCharacterId: character.id, activeProfileId: profile.id, characters: [...profileWorkspace.characters, character] });
+    replaceKeys(profile.keyValues);
+    setPersonalImportMessage("");
+    setProfileStatus("Character created. Name it and choose its class, role, and paragon.");
+  }
+  function addProfile() {
+    if (!profileWorkspace) return;
+    const profile = cloneProfile(activeProfile, { id: createId("profile"), name: "New profile" }) as KeymapProfile;
+    const next: ProfileWorkspace = {
+      ...profileWorkspace,
+      activeProfileId: profile.id,
+      characters: profileWorkspace.characters.map((character) => character.id === activeCharacter.id ? { ...character, profiles: [...character.profiles, profile] } : character),
+    };
+    saveWorkspace(next);
+    replaceKeys(profile.keyValues);
+    setPersonalImportMessage("");
+    setProfileStatus("Profile cloned from the previous profile. Rename or customize it.");
+  }
+  function deleteCharacter() {
+    if (!profileWorkspace || profileWorkspace.characters.length <= 1) return;
+    const remaining = profileWorkspace.characters.filter((character) => character.id !== activeCharacter.id);
+    const character = remaining[0];
+    const profile = character.profiles[0];
+    saveWorkspace({ ...profileWorkspace, activeCharacterId: character.id, activeProfileId: profile.id, characters: remaining });
+    replaceKeys(profile.keyValues);
+    setPersonalImportMessage("");
+    setProfileStatus("Character deleted. Switched to the next available character.");
+  }
+  function deleteProfile() {
+    if (!profileWorkspace || activeCharacter.profiles.length <= 1) return;
+    const profiles = activeCharacter.profiles.filter((profile) => profile.id !== activeProfile.id);
+    const profile = profiles[0];
+    saveWorkspace({
+      ...profileWorkspace,
+      activeProfileId: profile.id,
+      characters: profileWorkspace.characters.map((character) => character.id === activeCharacter.id ? { ...character, profiles } : character),
+    });
+    replaceKeys(profile.keyValues);
+    setPersonalImportMessage("");
+    setProfileStatus("Profile deleted. Switched to the next available profile.");
+  }
   function importPersonalBinds(text: string, sourceName = "Pasted keymap") {
     const parsed = parseBindText(text);
     if (!parsed.entries.length) {
@@ -310,11 +491,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
       return;
     }
     const active = resolveBindMap(parsed.entries) as PersonalBind[];
-    patchLibrary({
-      personalBinds: active,
-      personalSourceName: sourceName,
-      personalImportedAt: new Date().toISOString(),
-    });
+    patchActiveProfile({ personalBinds: active, personalSourceName: sourceName, personalImportedAt: new Date().toISOString() });
     const ignoredNote = parsed.ignored.length ? ` ${parsed.ignored.length} unsupported ${parsed.ignored.length === 1 ? "line was" : "lines were"} ignored.` : "";
     setPersonalImportMessage(`${active.length} active ${active.length === 1 ? "bind" : "binds"} analyzed. Personal conflict detection is active.${ignoredNote}`);
   }
@@ -330,8 +507,38 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     }
   }
   function clearPersonalBinds() {
-    patchLibrary({ personalBinds: [], personalSourceName: "", personalImportedAt: "" });
-    setPersonalImportMessage("Personal keymap cleared. BindForge is using common conflict guidance only.");
+    patchActiveProfile({ personalBinds: [], personalSourceName: "", personalImportedAt: "" });
+    setPersonalImportMessage("Personal keymap cleared for this profile. BindForge is using common conflict guidance only.");
+  }
+  function exportProfiles() {
+    if (!profileWorkspace) return;
+    downloadText(`bindforge-my-setup-v1-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(profileWorkspace, null, 2), "application/json;charset=utf-8");
+    setProfileStatus("My Setup backup exported.");
+  }
+  async function importProfiles(file: File) {
+    if (file.size > MAX_PROFILE_WORKSPACE_BYTES) {
+      setProfileStatus("My Setup backup is larger than 512 KB.");
+      return;
+    }
+    try {
+      const parsed = parseProfileWorkspaceJson(await file.text());
+      if (!parsed.ok) {
+        setProfileStatus(parsed.error);
+        return;
+      }
+      const next = parsed.value as ProfileWorkspace;
+      const profile = getActiveProfile(next) as KeymapProfile | null;
+      if (!profile) {
+        setProfileStatus("My Setup backup does not contain a valid active profile.");
+        return;
+      }
+      saveWorkspace(next);
+      replaceKeys(profile.keyValues);
+      setPersonalImportMessage("");
+      setProfileStatus("My Setup backup validated and restored.");
+    } catch {
+      setProfileStatus("The My Setup backup could not be read.");
+    }
   }
   function clearSecondaryFiltersKeepSearch() {
     const query = state.search;
@@ -381,9 +588,17 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
         favouritesCount={library.favourites.length}
         collections={library.collections}
         collectionName={collectionName}
-        personalBindCount={library.personalBinds.length}
-        personalSourceName={library.personalSourceName}
+        personalBindCount={personalBinds.length}
+        personalSourceName={personalSourceName}
         personalImportMessage={personalImportMessage}
+        characters={resolvedWorkspace.characters}
+        activeCharacterId={resolvedWorkspace.activeCharacterId}
+        activeProfileId={resolvedWorkspace.activeProfileId}
+        activeCharacter={activeCharacter}
+        activeProfile={activeProfile}
+        profileStatus={profileStatus}
+        canDeleteCharacter={resolvedWorkspace.characters.length > 1}
+        canDeleteProfile={activeCharacter.profiles.length > 1}
         onViewModeChange={(value) => patchLibrary({ viewMode: value })}
         onSortModeChange={(value) => patchLibrary({ sortMode: value })}
         onProvenanceFilterChange={(value) => patchLibrary({ provenanceFilter: value })}
@@ -401,6 +616,19 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
         onImportPersonalText={(text) => importPersonalBinds(text)}
         onImportPersonalFile={(file) => { void importPersonalFile(file); }}
         onClearPersonalBinds={clearPersonalBinds}
+        onActiveCharacterChange={switchCharacter}
+        onActiveProfileChange={switchProfile}
+        onAddCharacter={addCharacter}
+        onAddProfile={addProfile}
+        onCharacterNameChange={(value) => patchActiveCharacter({ name: value })}
+        onCharacterClassChange={(value) => patchActiveCharacter({ className: value })}
+        onCharacterParagonChange={(value) => patchActiveCharacter({ paragon: value })}
+        onCharacterRoleChange={(value) => patchActiveCharacter({ role: value })}
+        onProfileNameChange={(value) => patchActiveProfile({ name: value })}
+        onDeleteCharacter={deleteCharacter}
+        onDeleteProfile={deleteProfile}
+        onExportProfiles={exportProfiles}
+        onImportProfiles={(file) => { void importProfiles(file); }}
       />
       <div className="active-filter-row" aria-label="Active filters"><span>{state.className === "All" ? "All classes" : state.className}</span><span>{state.actionType === "All" ? "All actions" : state.actionType}</span><span>{state.difficulty === "All" ? "All difficulty levels" : state.difficulty}</span><span>{activeCollection === "all" ? "All collections" : activeCollection}</span></div>
 
@@ -437,8 +665,8 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
                         };
                         const canReplace = (duplicate || Boolean(warning) || personalConflict) && !preset.intentionalNativeOverride;
                         return library.viewMode === "compact"
-                          ? <CompactKeybindRow {...shared} canReplace={canReplace} copyDisabled={duplicate} keyValue={keyValue} line={buildPresetLine(preset, keyValue, state.mode)} mode={state.mode} onKeyChange={(value) => setKey(preset.id, value)} onReset={() => resetKey(preset.id)} replacementKey={replacementFor(preset)} status={status} />
-                          : <KeybindCard {...shared} canReplace={canReplace} keyValue={keyValue} mode={state.mode} onKeyChange={(value) => setKey(preset.id, value)} onReset={() => resetKey(preset.id)} query={state.search} replacementKey={replacementFor(preset)} status={status} />;
+                          ? <CompactKeybindRow {...shared} canReplace={canReplace} copyDisabled={duplicate} keyValue={keyValue} line={buildPresetLine(preset, keyValue, state.mode)} mode={state.mode} onKeyChange={(value) => updateProfileKey(preset.id, value)} onReset={() => resetProfileKey(preset)} replacementKey={replacementFor(preset)} status={status} />
+                          : <KeybindCard {...shared} canReplace={canReplace} keyValue={keyValue} mode={state.mode} onKeyChange={(value) => updateProfileKey(preset.id, value)} onReset={() => resetProfileKey(preset)} query={state.search} replacementKey={replacementFor(preset)} status={status} />;
                       })}
                     </div>
                   )}
