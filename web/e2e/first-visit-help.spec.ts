@@ -1,12 +1,21 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+const FIRST_VISIT_KEY = "bindforge-nw:first-visit:v1";
+const FIRST_VISIT_SESSION_KEY = "bindforge-nw:first-visit-presented:v1";
+const FIRST_VISIT_TEST_RESET_KEY = "bindforge-test:first-visit-reset:v1";
+
+async function openAsFirstVisit(page: Page) {
+  await page.addInitScript(({ firstVisitKey, sessionKey, resetKey }) => {
+    if (window.sessionStorage.getItem(resetKey) === "done") return;
+    window.localStorage.removeItem(firstVisitKey);
+    window.sessionStorage.removeItem(sessionKey);
+    window.sessionStorage.setItem(resetKey, "done");
+  }, { firstVisitKey: FIRST_VISIT_KEY, sessionKey: FIRST_VISIT_SESSION_KEY, resetKey: FIRST_VISIT_TEST_RESET_KEY });
+  await page.goto("/");
+}
 
 test("first visit offers task-oriented paths and remembers dismissal", async ({ page }) => {
-  await page.goto("/");
-  await page.evaluate(() => {
-    window.localStorage.removeItem("bindforge-nw:first-visit:v1");
-    window.sessionStorage.removeItem("bindforge-nw:first-visit-presented:v1");
-  });
-  await page.reload();
+  await openAsFirstVisit(page);
 
   const guide = page.getByTestId("first-visit-orientation");
   await expect(guide).toBeVisible();
@@ -21,12 +30,7 @@ test("first visit offers task-oriented paths and remembers dismissal", async ({ 
 });
 
 test("first-visit task choice opens the matching existing workflow", async ({ page }) => {
-  await page.goto("/");
-  await page.evaluate(() => {
-    window.localStorage.removeItem("bindforge-nw:first-visit:v1");
-    window.sessionStorage.removeItem("bindforge-nw:first-visit-presented:v1");
-  });
-  await page.reload();
+  await openAsFirstVisit(page);
 
   const guide = page.getByTestId("first-visit-orientation");
   await guide.getByText("Build a keybind", { exact: true }).click();
@@ -36,11 +40,10 @@ test("first-visit task choice opens the matching existing workflow", async ({ pa
 });
 
 test("help glossary remains available after onboarding is dismissed", async ({ page }) => {
+  await page.addInitScript((firstVisitKey) => {
+    window.localStorage.setItem(firstVisitKey, "seen");
+  }, FIRST_VISIT_KEY);
   await page.goto("/");
-  await page.evaluate(() => {
-    window.localStorage.setItem("bindforge-nw:first-visit:v1", "seen");
-  });
-  await page.reload();
 
   const help = page.locator("#bindforge-help:visible").first();
   await help.locator("summary").click();
