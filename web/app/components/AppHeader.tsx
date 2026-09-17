@@ -51,7 +51,6 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
           <a href="#my-setup">My Setup <span>02</span></a>
           <a href="#compose-keybind">Build <span>03</span></a>
         </div>
-        <a className="nav-cta" href="#compose-keybind">Build a keybind</a>
       </nav>
 
       <section className={`hero ${styles.primaryHero}`} aria-labelledby="neverwinter-keybind-title" data-reveal>
