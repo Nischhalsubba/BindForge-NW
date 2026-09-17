@@ -17,7 +17,7 @@ Turn **My Setup** into a local-first workspace for multiple Neverwinter characte
 
 Use a separate versioned local store: `bindforge-nw:profiles:v1`.
 
-The existing settings/backup v1/v2/v3 contract remains valid and importable. On first profile-workspace creation, the app migrates the already-hydrated current key map plus any legacy personal keymap into deterministic `My Character / Default` containers. This preserves existing work without forcing a breaking global backup-schema upgrade.
+The existing settings/backup v1/v2/v3 contract remains valid and importable. On first profile-workspace creation, the app migrates the already-hydrated current key map plus any legacy personal keymap into deterministic `My Character / Default` containers. This preserves existing work without forcing a breaking global backup-schema upgrade. If an existing global backup is restored later, its restored key map is synchronized into the active profile before the next reload so the restored work is not overwritten by stale profile data.
 
 The profile workspace has its own JSON export/import controls inside My Setup. Import is validated before state is replaced.
 
@@ -52,7 +52,7 @@ Advanced metadata is progressively disclosed. `#my-setup` opens the My Setup pan
 - Personal bind import/conflict analysis remains isolated by profile.
 - Existing edited keys and legacy personal binds migrate into the default profile without loss.
 - Setup JSON export/import round-trips characters/profiles.
-- Existing global v1/v2/v3 backup import remains supported.
+- Existing global v1/v2/v3 backup import remains supported and persists into the active profile.
 - Global navigation remains exactly Keybinds / My Setup / Build.
 - No horizontal overflow at mobile/tablet/desktop sizes.
 - Core, desktop, tablet, mobile, Dependency Audit, and CodeQL gates pass.
