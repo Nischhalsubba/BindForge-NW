@@ -4,7 +4,7 @@
 
 @media (max-width: 880px) {
   .primaryNav {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr);
     row-gap: 0;
   }
 
@@ -39,7 +39,6 @@
 
 @media (max-width: 560px) {
   .primaryNav {
-    column-gap: 10px;
     padding-bottom: 12px;
   }
 
