@@ -65,6 +65,47 @@ test("round-trips My Setup through export and validated import", async ({ page }
   await expect(page.getByRole("status").filter({ hasText: "My Setup backup validated and restored" })).toBeVisible();
 });
 
+test("keeps restored global backup keys in the active profile after reload", async ({ page }) => {
+  await openMySetup(page);
+  const firstCard = page.locator(".bind-card:visible").first();
+  const firstKeyInput = firstCard.locator("input[data-key-capture='true']");
+  await firstKeyInput.fill("ctrl+7");
+
+  await page.waitForFunction(() => {
+    const raw = window.localStorage.getItem("bindforge-nw:settings:v2");
+    if (!raw) return false;
+    try {
+      const saved = JSON.parse(raw) as { keys?: Record<string, string> };
+      return Object.values(saved.keys ?? {}).some((value) => value === "ctrl+7");
+    } catch {
+      return false;
+    }
+  });
+
+  const legacyBackup = await page.evaluate(() => {
+    const raw = window.localStorage.getItem("bindforge-nw:settings:v2");
+    if (!raw) throw new Error("Expected saved BindForge settings");
+    const saved = JSON.parse(raw) as { savedAt: string; keys: Record<string, string> };
+    saved.savedAt = new Date().toISOString();
+    saved.keys = Object.fromEntries(Object.keys(saved.keys).map((id) => [id, "alt+9"]));
+    return JSON.stringify(saved);
+  });
+
+  await page.getByRole("button", { name: "Local data & backup", exact: true }).click();
+  await page.getByLabel("Import a Neverwinter Keybind backup file").setInputFiles({
+    name: "legacy-bindforge-backup.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(legacyBackup),
+  });
+  await expect(page.locator(".local-save-status")).toContainText("Backup validated and restored");
+  await page.getByRole("button", { name: "Close settings" }).click();
+  await expect(firstKeyInput).toHaveValue("alt+9");
+
+  await page.reload();
+  await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
+  await expect(page.locator(".bind-card:visible").first().locator("input[data-key-capture='true']")).toHaveValue("alt+9");
+});
+
 test("keeps edited keys and imported conflict data isolated by profile", async ({ page }) => {
   await openMySetup(page);
   const firstCard = page.locator(".bind-card:visible").first();
