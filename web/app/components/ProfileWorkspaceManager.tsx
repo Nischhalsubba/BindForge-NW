@@ -50,7 +50,7 @@ export function ProfileWorkspaceManager(props: ProfileWorkspaceManagerProps) {
           <span>My Setup</span>
           <strong id="profile-workspace-title">Character &amp; keymap profiles</strong>
         </div>
-        <p>Keep character-specific keys and conflict imports separate. Everything stays in this browser.</p>
+        <p>Keep character-specific keys and conflict imports separate. Imported active binds analyzed locally stay scoped to the active profile.</p>
       </div>
 
       <div className={styles.profileSelectors}>
