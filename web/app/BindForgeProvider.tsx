@@ -56,6 +56,7 @@ type BindForgeContextValue = {
   setMode: (value: OutputMode) => void;
   setKey: (presetId: string, value: string) => void;
   resetKey: (presetId: string) => void;
+  replaceKeys: (values: Record<string, string>) => void;
   updateCommandLab: (patch: Partial<BindForgeState["commandLab"]>) => void;
   updateCustomSay: (patch: Partial<BindForgeState["customSay"]>) => void;
   updatePreferences: (patch: Partial<AccessibilityPreferences>) => void;
@@ -342,6 +343,10 @@ export function BindForgeProvider({ children }: { children: React.ReactNode }) {
         keys: { ...current.keys, [presetId]: preset.defaultKey },
       }));
     },
+    replaceKeys: (values) => setState((current) => ({
+      ...current,
+      keys: { ...defaultKeys(), ...values },
+    })),
     updateCommandLab: (patch) => setState((current) => ({
       ...current,
       commandLab: { ...current.commandLab, ...patch },
