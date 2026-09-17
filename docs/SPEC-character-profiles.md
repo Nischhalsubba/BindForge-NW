@@ -30,6 +30,7 @@ The profile workspace has its own JSON export/import controls inside My Setup. I
 - Imported profile data is size-limited and structurally validated.
 - Profile switching uses one atomic key-map replacement, not hundreds of independent UI writes.
 - Legacy personal keymap data is migrated once and removed from the library-preferences store after successful profile initialization.
+- Existing profile update timestamps survive validation, export/import, and profile cloning.
 - No account, backend, or cloud dependency is introduced.
 
 ## UX
@@ -55,7 +56,7 @@ Advanced metadata is progressively disclosed. `#my-setup` opens the My Setup pan
 - Existing global v1/v2/v3 backup import remains supported and persists into the active profile.
 - Global navigation remains exactly Keybinds / My Setup / Build.
 - No horizontal overflow at mobile/tablet/desktop sizes.
-- Core, desktop, tablet, mobile, Dependency Audit, and CodeQL gates pass.
+- Core, desktop, tablet, mobile, Dependency Audit, and CodeQL gates pass on the final PR head.
 - Ordinary feature commits contain no `[deploy]` marker.
 
 ## Deferred
