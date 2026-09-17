@@ -6,6 +6,16 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   {
+    settings: {
+      // eslint-plugin-react 7.x still uses the removed ESLint 9 context helper
+      // while auto-detecting React under ESLint 10. Pinning the installed React
+      // version bypasses that legacy detection path without weakening any rules.
+      react: {
+        version: "19.3.0",
+      },
+    },
+  },
+  {
     files: ["app/components/KeybindLibrary.tsx"],
     rules: {
       // This client-only component intentionally hydrates browser-local collections
