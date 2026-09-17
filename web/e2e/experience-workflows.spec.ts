@@ -31,6 +31,27 @@ test.beforeEach(async ({ page }) => {
   await waitForStableWorkspace(page);
 });
 
+test("primary navigation uses Keybinds, My Setup, and Build without removing build deep links", async ({ page }) => {
+  const primaryNav = page.getByRole("navigation", { name: "Primary navigation" });
+  const destinations = primaryNav.locator(".site-nav-links > a");
+
+  await expect(destinations).toHaveCount(3);
+  await expect(destinations.nth(0)).toHaveText(/Keybinds/);
+  await expect(destinations.nth(0)).toHaveAttribute("href", "#search-keybinds");
+  await expect(destinations.nth(1)).toHaveText(/My Setup/);
+  await expect(destinations.nth(1)).toHaveAttribute("href", "#my-setup");
+  await expect(destinations.nth(2)).toHaveText(/Build/);
+  await expect(destinations.nth(2)).toHaveAttribute("href", "#compose-keybind");
+
+  await destinations.nth(1).click();
+  await expect(page).toHaveURL(/#my-setup$/);
+  await expect(page.locator("#my-setup")).toBeVisible();
+
+  await destinations.nth(2).click();
+  await expect(page).toHaveURL(/#compose-keybind$/);
+  await expect(page.getByRole("tab", { name: "Compose your own keybind", exact: true })).toHaveAttribute("aria-selected", "true");
+});
+
 test("Simple experience emphasizes Search and Compose without removing technical tools", async ({ page }) => {
   const { workspace, tabs } = await waitForStableWorkspace(page);
 
