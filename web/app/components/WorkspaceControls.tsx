@@ -1,12 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { PresetConfidence, PresetSourceType } from "../data/keybindTypes";
+import { ProfileWorkspaceManager } from "./ProfileWorkspaceManager";
 import styles from "./WorkspaceControls.module.css";
 
 type ViewMode = "cards" | "compact";
 type SortMode = "recommended" | "title" | "difficulty" | "class";
 type ProvenanceFilter = "all" | PresetSourceType | PresetConfidence;
+type ProfileSummary = { id: string; name: string };
+type CharacterSummary = {
+  id: string;
+  name: string;
+  className: string;
+  paragon: string;
+  role: string;
+  profiles: ProfileSummary[];
+};
 
 export type PackReviewItem = {
   id: string;
@@ -36,6 +46,14 @@ type WorkspaceControlsProps = {
   personalBindCount: number;
   personalSourceName: string;
   personalImportMessage: string;
+  characters: CharacterSummary[];
+  activeCharacterId: string;
+  activeProfileId: string;
+  activeCharacter: CharacterSummary;
+  activeProfile: ProfileSummary;
+  profileStatus: string;
+  canDeleteCharacter: boolean;
+  canDeleteProfile: boolean;
   onViewModeChange: (value: ViewMode) => void;
   onSortModeChange: (value: SortMode) => void;
   onProvenanceFilterChange: (value: ProvenanceFilter) => void;
@@ -53,6 +71,19 @@ type WorkspaceControlsProps = {
   onImportPersonalText: (value: string) => void;
   onImportPersonalFile: (file: File) => void;
   onClearPersonalBinds: () => void;
+  onActiveCharacterChange: (id: string) => void;
+  onActiveProfileChange: (id: string) => void;
+  onAddCharacter: () => void;
+  onAddProfile: () => void;
+  onCharacterNameChange: (value: string) => void;
+  onCharacterClassChange: (value: string) => void;
+  onCharacterParagonChange: (value: string) => void;
+  onCharacterRoleChange: (value: string) => void;
+  onProfileNameChange: (value: string) => void;
+  onDeleteCharacter: () => void;
+  onDeleteProfile: () => void;
+  onExportProfiles: () => void;
+  onImportProfiles: (file: File) => void;
 };
 
 export function WorkspaceControls(props: WorkspaceControlsProps) {
@@ -63,6 +94,15 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
   const panelId = "collections-command-packs";
   const keymapPanelId = "personal-keymap-import";
   const reviewPanelId = "selected-pack-review";
+
+  useEffect(() => {
+    const syncHash = () => {
+      if (window.location.hash === "#my-setup") setKeymapOpen(true);
+    };
+    syncHash();
+    window.addEventListener("hashchange", syncHash);
+    return () => window.removeEventListener("hashchange", syncHash);
+  }, []);
 
   function clearSelection() {
     setReviewOpen(false);
@@ -90,18 +130,41 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
       <section className={styles.keymapPanel} aria-labelledby="personal-keymap-title" id="my-setup">
         <button aria-controls={keymapPanelId} aria-expanded={keymapOpen} className={styles.keymapSummary} onClick={() => setKeymapOpen((value) => !value)} type="button">
           <span>
-            <strong id="personal-keymap-title">Personal keymap</strong>
-            <small>{props.personalBindCount ? `${props.personalBindCount} active binds analyzed locally` : "Import current binds for real conflict detection"}</small>
+            <strong id="personal-keymap-title">My Setup</strong>
+            <small>{props.activeCharacter.name} · {props.activeProfile.name}{props.personalBindCount ? ` · ${props.personalBindCount} imported binds` : ""}</small>
           </span>
-          <span className={props.personalBindCount ? styles.readyBadge : styles.emptyBadge}>{props.personalBindCount ? "Connected" : "Not imported"}</span>
+          <span className={props.personalBindCount ? styles.readyBadge : styles.emptyBadge}>{props.personalBindCount ? "Profile ready" : "Local only"}</span>
           <span aria-hidden="true">{keymapOpen ? "−" : "+"}</span>
         </button>
         {keymapOpen ? (
           <div className={styles.keymapBody} id={keymapPanelId} data-testid="personal-keymap-panel">
+            <ProfileWorkspaceManager
+              characters={props.characters}
+              activeCharacterId={props.activeCharacterId}
+              activeProfileId={props.activeProfileId}
+              activeCharacter={props.activeCharacter}
+              activeProfile={props.activeProfile}
+              canDeleteCharacter={props.canDeleteCharacter}
+              canDeleteProfile={props.canDeleteProfile}
+              status={props.profileStatus}
+              onActiveCharacterChange={props.onActiveCharacterChange}
+              onActiveProfileChange={props.onActiveProfileChange}
+              onAddCharacter={props.onAddCharacter}
+              onAddProfile={props.onAddProfile}
+              onCharacterNameChange={props.onCharacterNameChange}
+              onCharacterClassChange={props.onCharacterClassChange}
+              onCharacterParagonChange={props.onCharacterParagonChange}
+              onCharacterRoleChange={props.onCharacterRoleChange}
+              onProfileNameChange={props.onProfileNameChange}
+              onDeleteCharacter={props.onDeleteCharacter}
+              onDeleteProfile={props.onDeleteProfile}
+              onExport={props.onExportProfiles}
+              onImport={props.onImportProfiles}
+            />
             <div className={styles.keymapCopy}>
-              <strong>Analyze your current Neverwinter binds</strong>
-              <p>Paste <code>/bind</code> and <code>/unbind</code> lines or choose a text file. Analysis happens in this browser; the keymap is not uploaded.</p>
-              {props.personalBindCount ? <p className={styles.keymapSource}>Current profile: {props.personalSourceName || "Pasted keymap"}</p> : null}
+              <strong>Analyze this profile’s Neverwinter binds</strong>
+              <p>Paste <code>/bind</code> and <code>/unbind</code> lines or choose a text file. Analysis stays local and belongs only to the active profile.</p>
+              {props.personalBindCount ? <p className={styles.keymapSource}>Imported source: {props.personalSourceName || "Pasted keymap"}</p> : null}
             </div>
             <textarea aria-label="Paste personal Neverwinter binds" onChange={(event) => setImportText(event.target.value)} placeholder={'/bind r gensendmessage Chat_Reply activate\n/bind ctrl+5 invoke'} rows={5} value={importText} />
             <div className={styles.keymapActions}>
@@ -109,7 +172,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
               <label className={styles.fileButton}>Choose bind .txt<input accept=".txt,.cfg,text/plain" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) props.onImportPersonalFile(file); event.currentTarget.value = ""; }} type="file" /></label>
               <button disabled={!props.personalBindCount} onClick={props.onClearPersonalBinds} type="button">Clear personal keymap</button>
             </div>
-            <p aria-live="polite" className={styles.importStatus} role="status">{props.personalImportMessage || (props.personalBindCount ? "Personal conflict detection is active." : "No personal keymap has been analyzed yet.")}</p>
+            <p aria-live="polite" className={styles.importStatus} role="status">{props.personalImportMessage || (props.personalBindCount ? "Personal conflict detection is active." : "No personal keymap has been analyzed for this profile yet.")}</p>
           </div>
         ) : null}
       </section>
