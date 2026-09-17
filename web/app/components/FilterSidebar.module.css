@@ -12,9 +12,6 @@
 .close { display: none; width: 38px; padding: 0; font-size: 18px; }
 .section { display: grid; gap: 11px; padding-top: 17px; border-top: 1px solid var(--line); }
 .section h3 { font: 600 9.5px var(--sans); letter-spacing: .17em; text-transform: uppercase; }
-.navigationGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
-.navigationGrid a { display: flex; align-items: center; justify-content: center; min-height: 40px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-mute); text-align: center; text-decoration: none; font: 500 10px var(--sans); transition: border-color 160ms ease, color 160ms ease, background-color 160ms ease; }
-.navigationGrid a:hover,.navigationGrid a:focus-visible { border-color: var(--coral); color: var(--ink); background: color-mix(in srgb, var(--coral) 5%, transparent); }
 .options { display: grid; }
 .option { display: grid; grid-template-columns: 8px minmax(0,1fr) 16px; align-items: center; gap: 8px; width: 100%; min-height: 42px; padding: 8px 0; border: 0; border-bottom: 1px dotted var(--line); background: transparent; color: var(--ink-mute); text-align: left; cursor: pointer; font: 400 13px var(--body); transition: color 160ms ease, background-color 160ms ease; }
 .option::before { content: ''; width: 5px; height: 5px; justify-self: center; border-radius: 50%; background: transparent; }
@@ -39,5 +36,5 @@
 .drawerFooter { position: sticky; bottom: 0; margin-top: auto; padding: 14px 20px; border-top: 1px solid var(--line); background: var(--paper); }
 .showResults { width: 100%; min-height: 48px; border: 0; border-radius: 999px; background: var(--coral); color: #fff; font: 600 13px var(--sans); cursor: pointer; }
 @media (max-width:1080px) { .mobileTrigger { display: inline-flex; align-items: center; justify-content: center; gap: 8px; } .desktopPanel { display: none; } .drawerLayer { display: flex; } }
-@media (max-width:560px) { .drawer { width: 100%; border-left: 0; } .navigationGrid { grid-template-columns: 1fr; } }
-@media (prefers-reduced-motion: reduce) { .reset,.close,.navigationGrid a,.option,.select,.difficulty { transition: none; } }
+@media (max-width:560px) { .drawer { width: 100%; border-left: 0; } }
+@media (prefers-reduced-motion: reduce) { .reset,.close,.option,.select,.difficulty { transition: none; } }
