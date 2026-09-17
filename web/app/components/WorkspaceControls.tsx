@@ -87,7 +87,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
         <label className={styles.safeToggle}><input checked={props.safeOnly} onChange={(event) => props.onSafeOnlyChange(event.target.checked)} type="checkbox" />Safe or intentional only</label>
       </section>
 
-      <section className={styles.keymapPanel} aria-labelledby="personal-keymap-title">
+      <section className={styles.keymapPanel} aria-labelledby="personal-keymap-title" id="my-setup">
         <button aria-controls={keymapPanelId} aria-expanded={keymapOpen} className={styles.keymapSummary} onClick={() => setKeymapOpen((value) => !value)} type="button">
           <span>
             <strong id="personal-keymap-title">Personal keymap</strong>

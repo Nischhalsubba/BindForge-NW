@@ -2,6 +2,7 @@ import Image from "next/image";
 import { consoleCommands } from "../data/commands";
 import { keyCombos } from "../data/keyCombos";
 import { keybindPresets } from "../data/keybindPresets";
+import styles from "./AppHeader.module.css";
 import { Icon } from "./Icon";
 import { SettingsPanel } from "./SettingsPanel";
 
@@ -19,7 +20,7 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
   const statusDetail = feedback.state === "error"
     ? "The generated bind is focused. Press Ctrl+C to copy it manually."
     : feedback.state === "idle"
-      ? "Search an existing keybind or choose one of the three builders below."
+      ? "Browse keybinds, review your setup, or build something new."
       : "The generated bind is now on your clipboard.";
 
   return (
@@ -30,7 +31,7 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
         <span><i className="pulse" /> Live catalogue · EN</span>
       </div>
 
-      <nav className="site-nav" aria-label="Primary navigation">
+      <nav className={`site-nav ${styles.primaryNav}`} aria-label="Primary navigation">
         <a className="site-brand" href="#top" aria-label="Neverwinter Keybind home">
           <span className="brand-mark">
             <Image
@@ -45,16 +46,14 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
           </span>
           <span className="brand-copy"><b>Neverwinter Keybind</b><small>Command field manual</small></span>
         </a>
-        <div className="site-nav-links">
-          <a href="#search-keybinds">Search <span>01</span></a>
-          <a href="#compose-keybind">Compose <span>02</span></a>
-          <a href="#build-command">Command <span>03</span></a>
-          <a href="#say-message">Say <span>04</span></a>
+        <div className={`site-nav-links ${styles.primaryLinks}`}>
+          <a href="#search-keybinds">Keybinds <span>01</span></a>
+          <a href="#my-setup">My Setup <span>02</span></a>
+          <a href="#compose-keybind">Build <span>03</span></a>
         </div>
-        <a className="nav-cta" href="#compose-keybind">Create keybind</a>
       </nav>
 
-      <section className="hero" aria-labelledby="neverwinter-keybind-title" data-reveal>
+      <section className={`hero ${styles.primaryHero}`} aria-labelledby="neverwinter-keybind-title" data-reveal>
         <div className="hero-copy">
           <p className="label">I. Neverwinter command utility</p>
           <h1 className="display" id="neverwinter-keybind-title">
@@ -63,11 +62,11 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
             <span className="display-phrase"><em>Bind it</em><span className="dot">.</span></span>
           </h1>
           <p className="lead">
-            Search a ready-made keybind or build exactly what you need with the verified composer, command builder, and say-message tool.
+            Find proven keybinds, understand your current setup, or build exactly what you need without learning Neverwinter command syntax first.
           </p>
           <div className="hero-actions" aria-label="Start using Neverwinter Keybind">
-            <a className="btn btn-primary" href="#search-keybinds">Search keybinds ↗</a>
-            <a className="btn btn-ghost" href="#compose-keybind">Compose a keybind</a>
+            <a className="btn btn-primary" href="#search-keybinds">Browse keybinds ↗</a>
+            <a className="btn btn-ghost" href="#my-setup">Review my setup</a>
           </div>
           <div className="hero-stats" aria-label="Catalogue summary">
             <span><i>01</i><strong>{keybindPresets.length}</strong><small>Curated presets</small></span>
@@ -76,7 +75,7 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
           </div>
         </div>
 
-        <div className="hero-plate" aria-label="Primary Neverwinter Keybind tools">
+        <div className="hero-plate" aria-label="Primary Neverwinter Keybind destinations">
           <span className="corner corner-tl" aria-hidden="true" />
           <span className="corner corner-tr" aria-hidden="true" />
           <span className="corner corner-bl" aria-hidden="true" />
@@ -87,11 +86,10 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
             <code>/bind lbutton &quot;+EvaluateLeftClick$$+tacticalSpecial$$+Actionleft$$+Actionright&quot;</code>
             <small>Choose the key and actions. BindForge handles the command structure.</small>
           </div>
-          <ol className="hero-index" aria-label="Primary Neverwinter Keybind tools">
-            <li><span>01</span><b>Search</b><small>Find existing keybinds.</small></li>
-            <li><span>02</span><b>Compose</b><small>Combine verified actions.</small></li>
-            <li><span>03</span><b>Command</b><small>Bind a supported command.</small></li>
-            <li><span>04</span><b>Say</b><small>Create a chat bind.</small></li>
+          <ol className={`hero-index ${styles.heroIndex}`} aria-label="Primary Neverwinter Keybind destinations">
+            <li><span>01</span><b>Keybinds</b><small>Browse presets and class packs.</small></li>
+            <li><span>02</span><b>My Setup</b><small>Import binds and review conflicts.</small></li>
+            <li><span>03</span><b>Build</b><small>Compose keybinds, commands, and chat binds.</small></li>
           </ol>
           <div className={`ready-state ready-state-${feedback.state}`} aria-live="polite">
             <Icon name="shield" />

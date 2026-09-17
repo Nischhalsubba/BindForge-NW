@@ -10,12 +10,6 @@ import styles from "./FilterSidebar.module.css";
 
 const classFilters = ["All", ...Array.from(new Set(keybindPresets.map((preset) => preset.className)))] as Array<KeybindClass | "All">;
 const actionFilters = ["All", ...Array.from(new Set(keybindPresets.map((preset) => preset.type)))] as Array<KeybindType | "All">;
-const workspaceLinks = [
-  { href: "#search-keybinds", label: "Search keybinds" },
-  { href: "#compose-keybind", label: "Compose keybind" },
-  { href: "#build-command", label: "Build command" },
-  { href: "#say-message", label: "Say message" },
-];
 
 export function FilterSidebar() {
   const { state, setClassName, setActionType, setDifficulty, resetFilters } = useBindForge();
@@ -58,7 +52,6 @@ export function FilterSidebar() {
 
   function renderPanel(prefix: "desktop" | "drawer", includeClose: boolean) {
     const titleId = `${prefix}-filter-panel-title`;
-    const navigationTitleId = `${prefix}-navigation-title`;
     const classTitleId = `${prefix}-class-filter-title`;
     const actionTitleId = `${prefix}-action-filter-title`;
     const difficultyTitleId = `${prefix}-difficulty-filter-title`;
@@ -75,15 +68,6 @@ export function FilterSidebar() {
             {includeClose ? <button aria-label="Close filters" className={styles.close} onClick={closeDrawer} ref={closeRef} type="button"><Icon name="close" /></button> : null}
           </div>
         </div>
-
-        <nav className={`${styles.section} ${styles.navigation}`} aria-labelledby={navigationTitleId}>
-          <h3 id={navigationTitleId}>Jump to</h3>
-          <div className={styles.navigationGrid}>
-            {workspaceLinks.map((link) => (
-              <a data-gsap-nav href={link.href} key={link.href} onClick={includeClose ? closeDrawer : undefined}>{link.label}</a>
-            ))}
-          </div>
-        </nav>
 
         <section className={styles.section} role="group" aria-labelledby={classTitleId}>
           <h3 id={classTitleId}>Class</h3>
@@ -169,7 +153,7 @@ export function FilterSidebar() {
         ref={triggerRef}
         type="button"
       >
-        <Icon name="filter" /> Filters &amp; navigation
+        <Icon name="filter" /> Filters
       </button>
 
       <aside aria-labelledby="desktop-filter-panel-title" className={styles.desktopPanel} id="filter-panel">

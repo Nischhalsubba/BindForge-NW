@@ -8,7 +8,7 @@ async function waitForWorkspace(page: import("@playwright/test").Page) {
 }
 
 async function visibleFilterPanel(page: import("@playwright/test").Page) {
-  const trigger = page.getByRole("button", { name: "Filters & navigation", exact: true });
+  const trigger = page.getByRole("button", { name: "Filters", exact: true });
   if (await trigger.isVisible()) {
     if (await trigger.getAttribute("aria-expanded") !== "true") await trigger.click();
   }

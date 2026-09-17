@@ -3,7 +3,7 @@ import type { Page } from "@playwright/test";
 import axe from "axe-core";
 
 async function openFiltersWhenCollapsed(page: Page) {
-  const toggle = page.getByRole("button", { name: "Filters & navigation", exact: true });
+  const toggle = page.getByRole("button", { name: "Filters", exact: true });
   if (await toggle.isVisible()) {
     const expanded = await toggle.getAttribute("aria-expanded");
     if (expanded !== "true") await toggle.click();
@@ -209,7 +209,7 @@ test("clear saved data remains available from Settings", async ({ page }) => {
 
 test("mobile filter drawer closes with Show results and restores focus", async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.includes("mobile") && !testInfo.project.name.includes("tablet"), "Drawer behavior is for narrow viewports");
-  const trigger = page.getByRole("button", { name: "Filters & navigation", exact: true });
+  const trigger = page.getByRole("button", { name: "Filters", exact: true });
   await trigger.click();
   const drawer = page.getByRole("dialog", { name: "Filters" });
   await expect(drawer).toBeVisible();
@@ -222,7 +222,7 @@ test("mobile filter drawer closes with Show results and restores focus", async (
 
 test("mobile filter drawer closes with Escape", async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.includes("mobile") && !testInfo.project.name.includes("tablet"), "Drawer behavior is for narrow viewports");
-  const trigger = page.getByRole("button", { name: "Filters & navigation", exact: true });
+  const trigger = page.getByRole("button", { name: "Filters", exact: true });
   await trigger.click();
   await expect(page.getByRole("dialog", { name: "Filters" })).toBeVisible();
   await page.keyboard.press("Escape");

@@ -110,7 +110,7 @@ test("captures compact mode and the mobile filter drawer", async ({ page }, test
   await expectNoDocumentOverflow(page);
   await page.screenshot({ fullPage: true, path: testInfo.outputPath("workspace-compact.png") });
 
-  const filters = page.getByRole("button", { name: "Filters & navigation", exact: true });
+  const filters = page.getByRole("button", { name: "Filters", exact: true });
   if (await filters.isVisible()) {
     await filters.click();
     await expect(page.getByRole("dialog", { name: "Filters" })).toBeVisible();
@@ -126,7 +126,7 @@ test("captures the light-theme workspace", async ({ page }, testInfo) => {
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await page.getByRole("button", { name: "Close settings" }).click();
 
-  const primaryAction = page.getByRole("link", { name: "Search keybinds ↗", exact: true });
+  const primaryAction = page.getByRole("link", { name: "Browse keybinds ↗", exact: true });
   await expectOwnContrast(primaryAction);
   await primaryAction.hover();
   await expectOwnContrast(primaryAction);
@@ -152,7 +152,7 @@ test("keeps the ultra-wide hero and workspace readable at reduced effective zoom
   const siteNav = page.locator(".site-nav");
   const navLink = page.locator(".site-nav-links a").first();
   const navMeta = page.locator(".brand-copy small");
-  const primaryAction = page.getByRole("link", { name: "Search keybinds ↗", exact: true });
+  const primaryAction = page.getByRole("link", { name: "Browse keybinds ↗", exact: true });
   const pageSurface = page.locator("body");
   const heroLead = page.locator(".hero .lead");
   const plateMeta = heroPlate.locator(".plate-meta");

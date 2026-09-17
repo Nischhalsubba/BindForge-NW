@@ -33,7 +33,7 @@ test("200%-zoom-equivalent layout keeps the primary journey usable", async ({ pa
 
   await expect(page.getByRole("tablist", { name: "Primary keybind tools" })).toBeVisible();
   await expect(page.getByLabel("Search keybind library")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Filters & navigation", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Filters", exact: true })).toBeVisible();
   await expectNoOverflow(page);
 });
 

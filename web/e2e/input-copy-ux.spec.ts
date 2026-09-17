@@ -224,12 +224,10 @@ test("bind and unbind keep the same full command while only the verb changes", a
   expect(unbind).toBe(bind.replace(/^\/bind /, "/unbind "));
 });
 
-test("workspace navigation links point to the four primary tools", async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name.includes("mobile") || testInfo.project.name.includes("tablet"), "Desktop sidebar navigation is hidden on narrow layouts.");
+test("filter sidebar stays focused on filtering instead of duplicating primary navigation", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.includes("mobile") || testInfo.project.name.includes("tablet"), "Desktop sidebar is hidden on narrow layouts.");
   await waitForLibrary(page);
   const sidebar = page.locator("#filter-panel");
-  await expect(sidebar.getByRole("link", { name: "Search keybinds", exact: true })).toHaveAttribute("href", "#search-keybinds");
-  await expect(sidebar.getByRole("link", { name: "Compose keybind", exact: true })).toHaveAttribute("href", "#compose-keybind");
-  await expect(sidebar.getByRole("link", { name: "Build command", exact: true })).toHaveAttribute("href", "#build-command");
-  await expect(sidebar.getByRole("link", { name: "Say message", exact: true })).toHaveAttribute("href", "#say-message");
+  await expect(sidebar.getByRole("navigation")).toHaveCount(0);
+  await expect(sidebar.getByRole("heading", { name: "Filters", exact: true })).toBeVisible();
 });
