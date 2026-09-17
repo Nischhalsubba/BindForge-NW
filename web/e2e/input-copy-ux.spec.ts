@@ -224,12 +224,13 @@ test("bind and unbind keep the same full command while only the verb changes", a
   expect(unbind).toBe(bind.replace(/^\/bind /, "/unbind "));
 });
 
-test("workspace navigation links point to the four primary tools", async ({ page }, testInfo) => {
+test("workspace navigation follows the three-destination information architecture", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name.includes("mobile") || testInfo.project.name.includes("tablet"), "Desktop sidebar navigation is hidden on narrow layouts.");
   await waitForLibrary(page);
   const sidebar = page.locator("#filter-panel");
-  await expect(sidebar.getByRole("link", { name: "Search keybinds", exact: true })).toHaveAttribute("href", "#search-keybinds");
-  await expect(sidebar.getByRole("link", { name: "Compose keybind", exact: true })).toHaveAttribute("href", "#compose-keybind");
-  await expect(sidebar.getByRole("link", { name: "Build command", exact: true })).toHaveAttribute("href", "#build-command");
-  await expect(sidebar.getByRole("link", { name: "Say message", exact: true })).toHaveAttribute("href", "#say-message");
+  const jumpLinks = sidebar.getByRole("navigation").getByRole("link");
+  await expect(jumpLinks).toHaveCount(3);
+  await expect(sidebar.getByRole("link", { name: "Keybinds", exact: true })).toHaveAttribute("href", "#search-keybinds");
+  await expect(sidebar.getByRole("link", { name: "My Setup", exact: true })).toHaveAttribute("href", "#my-setup");
+  await expect(sidebar.getByRole("link", { name: "Build", exact: true })).toHaveAttribute("href", "#compose-keybind");
 });
