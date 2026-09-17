@@ -31,6 +31,8 @@ test("migrates existing edited keys and personal binds into deterministic defaul
   assert.equal(workspace.activeProfileId, "profile-default");
   assert.equal(workspace.characters.length, 1);
   assert.equal(workspace.characters[0].name, "My Character");
+  assert.equal(workspace.characters[0].className, "Unassigned");
+  assert.equal(workspace.characters[0].role, "DPS");
   assert.equal(workspace.characters[0].profiles.length, 1);
   assert.deepEqual(workspace.characters[0].profiles[0].keyValues, { fighter: "ctrl+7", bard: "f9" });
   assert.deepEqual(workspace.characters[0].profiles[0].personalBinds, [personalBind]);
@@ -39,11 +41,13 @@ test("migrates existing edited keys and personal binds into deterministic defaul
 
 test("validates a round-trippable workspace and resolves the active character and profile", () => {
   const workspace = createDefaultProfileWorkspace({ keyValues: { fighter: "ctrl+7" } });
+  workspace.characters[0].profiles[0].updatedAt = "2026-09-17T12:00:00.000Z";
   const parsed = parseProfileWorkspaceJson(JSON.stringify(workspace));
   assert.equal(parsed.ok, true);
   if (!parsed.ok) return;
   assert.equal(getActiveCharacter(parsed.value)?.id, "character-default");
   assert.equal(getActiveProfile(parsed.value)?.id, "profile-default");
+  assert.equal(getActiveProfile(parsed.value)?.updatedAt, "2026-09-17T12:00:00.000Z");
 });
 
 test("rejects unsupported versions and unresolved active ids", () => {
@@ -77,9 +81,11 @@ test("clones profiles without sharing mutable key or personal-bind objects", () 
   const workspace = createDefaultProfileWorkspace({ keyValues: { fighter: "ctrl+7" }, personalBinds: [personalBind] });
   const original = getActiveProfile(workspace);
   assert.ok(original);
+  original.updatedAt = "2026-09-17T12:00:00.000Z";
   const copy = cloneProfile(original, { id: "profile-aoe", name: "AoE" });
   assert.equal(copy.id, "profile-aoe");
   assert.equal(copy.name, "AoE");
+  assert.equal(copy.updatedAt, "2026-09-17T12:00:00.000Z");
   assert.deepEqual(copy.keyValues, original.keyValues);
   assert.deepEqual(copy.personalBinds, original.personalBinds);
   assert.notEqual(copy.keyValues, original.keyValues);
