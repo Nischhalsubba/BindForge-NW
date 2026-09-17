@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import styles from "./WorkspaceControls.module.css";
+import styles from "./ProfileWorkspaceManager.module.css";
 
 type ProfileSummary = { id: string; name: string };
 type CharacterSummary = {
