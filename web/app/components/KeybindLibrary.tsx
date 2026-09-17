@@ -201,6 +201,12 @@ function createId(prefix: string) {
   const suffix = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
   return `${prefix}-${suffix}`;
 }
+function keyValuesEqual(left: Record<string, string>, right: Record<string, string>) {
+  const leftEntries = Object.entries(left);
+  const rightEntries = Object.entries(right);
+  if (leftEntries.length !== rightEntries.length) return false;
+  return leftEntries.every(([key, value]) => right[key] === value);
+}
 
 export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   const { state, hydrated: settingsHydrated, setKey, replaceKeys, setSearch, resetFilters } = useBindForge();
@@ -266,6 +272,24 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     if (!profilesHydrated || !profileWorkspace) return;
     try { window.localStorage.setItem(PROFILE_WORKSPACE_KEY, JSON.stringify(profileWorkspace)); } catch { /* session only */ }
   }, [profileWorkspace, profilesHydrated]);
+
+  useEffect(() => {
+    if (!profilesHydrated) return;
+    setProfileWorkspace((current) => {
+      if (!current) return current;
+      const character = current.characters.find((item) => item.id === current.activeCharacterId);
+      const profile = character?.profiles.find((item) => item.id === current.activeProfileId);
+      if (!character || !profile || keyValuesEqual(profile.keyValues, state.keys)) return current;
+      const updatedAt = new Date().toISOString();
+      return {
+        ...current,
+        characters: current.characters.map((item) => item.id === character.id ? {
+          ...item,
+          profiles: item.profiles.map((candidate) => candidate.id === profile.id ? { ...candidate, keyValues: { ...state.keys }, updatedAt } : candidate),
+        } : item),
+      };
+    });
+  }, [profilesHydrated, state.keys]);
 
   useEffect(() => {
     setVisibleGroupCount(INITIAL_VISIBLE_GROUPS);
