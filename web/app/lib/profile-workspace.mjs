@@ -3,6 +3,46 @@ export const PROFILE_WORKSPACE_VERSION = 1;
 const DEFAULT_CHARACTER_ID = "character-default";
 const DEFAULT_PROFILE_ID = "profile-default";
 
+/**
+ * @typedef {object} PersonalBind
+ * @property {"bind"} mode
+ * @property {string} key
+ * @property {string} command
+ * @property {string} raw
+ * @property {number} lineNumber
+ */
+
+/**
+ * @typedef {object} KeymapProfile
+ * @property {string} id
+ * @property {string} name
+ * @property {Record<string, string>} keyValues
+ * @property {PersonalBind[]} personalBinds
+ * @property {string} personalSourceName
+ * @property {string} personalImportedAt
+ * @property {string} updatedAt
+ */
+
+/**
+ * @typedef {object} CharacterProfile
+ * @property {string} id
+ * @property {string} name
+ * @property {string} className
+ * @property {string} role
+ * @property {string} paragon
+ * @property {KeymapProfile[]} profiles
+ */
+
+/**
+ * @typedef {object} ProfileWorkspace
+ * @property {number} version
+ * @property {string} activeCharacterId
+ * @property {string} activeProfileId
+ * @property {CharacterProfile[]} characters
+ */
+
+/** @typedef {{ ok: true, value: ProfileWorkspace } | { ok: false, error: string }} ProfileWorkspaceParseResult */
+
 function isRecord(value) {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
@@ -74,6 +114,15 @@ function sanitizeCharacter(value) {
   };
 }
 
+/**
+ * @param {{
+ *   keyValues?: Record<string, string>,
+ *   personalBinds?: PersonalBind[],
+ *   personalSourceName?: string,
+ *   personalImportedAt?: string
+ * }} [options]
+ * @returns {ProfileWorkspace}
+ */
 export function createDefaultProfileWorkspace({
   keyValues = {},
   personalBinds = [],
@@ -103,15 +152,22 @@ export function createDefaultProfileWorkspace({
   };
 }
 
+/** @param {ProfileWorkspace | null | undefined} workspace */
 export function getActiveCharacter(workspace) {
   return workspace?.characters?.find((character) => character.id === workspace.activeCharacterId) ?? null;
 }
 
+/** @param {ProfileWorkspace | null | undefined} workspace */
 export function getActiveProfile(workspace) {
   const character = getActiveCharacter(workspace);
   return character?.profiles?.find((profile) => profile.id === workspace.activeProfileId) ?? null;
 }
 
+/**
+ * @param {KeymapProfile} profile
+ * @param {{ id: string, name: string }} identity
+ * @returns {KeymapProfile}
+ */
 export function cloneProfile(profile, { id, name }) {
   return {
     id,
@@ -124,6 +180,10 @@ export function cloneProfile(profile, { id, name }) {
   };
 }
 
+/**
+ * @param {unknown} value
+ * @returns {ProfileWorkspaceParseResult}
+ */
 export function parseProfileWorkspaceValue(value) {
   if (!isRecord(value) || value.version !== PROFILE_WORKSPACE_VERSION) {
     return { ok: false, error: "Unsupported My Setup backup version." };
@@ -153,6 +213,10 @@ export function parseProfileWorkspaceValue(value) {
   return { ok: true, value: workspace };
 }
 
+/**
+ * @param {string} text
+ * @returns {ProfileWorkspaceParseResult}
+ */
 export function parseProfileWorkspaceJson(text) {
   try {
     return parseProfileWorkspaceValue(JSON.parse(text));
