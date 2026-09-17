@@ -53,6 +53,26 @@ test("rejects unsupported versions and unresolved active ids", () => {
   assert.equal(invalidActive.ok, false);
 });
 
+test("rejects duplicate character and profile ids", () => {
+  const workspace = createDefaultProfileWorkspace({ keyValues: {} });
+  const duplicateCharacter = {
+    ...workspace,
+    characters: [workspace.characters[0], { ...workspace.characters[0], name: "Duplicate" }],
+  };
+  const duplicateCharacterResult = parseProfileWorkspaceValue(duplicateCharacter);
+  assert.equal(duplicateCharacterResult.ok, false);
+
+  const duplicateProfile = {
+    ...workspace,
+    characters: [{
+      ...workspace.characters[0],
+      profiles: [workspace.characters[0].profiles[0], { ...workspace.characters[0].profiles[0], name: "AoE" }],
+    }],
+  };
+  const duplicateProfileResult = parseProfileWorkspaceValue(duplicateProfile);
+  assert.equal(duplicateProfileResult.ok, false);
+});
+
 test("clones profiles without sharing mutable key or personal-bind objects", () => {
   const workspace = createDefaultProfileWorkspace({ keyValues: { fighter: "ctrl+7" }, personalBinds: [personalBind] });
   const original = getActiveProfile(workspace);
