@@ -112,7 +112,9 @@ const hashToView = new Map(tools.map((tool) => [tool.hash, tool.view]));
 const catalogPacks = buildCatalogPacks(keybindPresets);
 
 function viewFromHash(hash: string): WorkspaceView {
-  return hashToView.get(hash.replace(/^#/, "")) ?? "search";
+  const target = hash.replace(/^#/, "");
+  if (target === "my-setup") return "search";
+  return hashToView.get(target) ?? "search";
 }
 
 function isTechnicalTool(view: WorkspaceView) {
@@ -145,6 +147,14 @@ export function PrimaryWorkspace({ onCopy }: { onCopy: CopyHandler }) {
       window.removeEventListener("popstate", syncFromHash);
     };
   }, []);
+
+  useEffect(() => {
+    if (activeView !== "search" || window.location.hash !== "#my-setup") return;
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById("my-setup")?.scrollIntoView({ block: "start" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [activeView]);
 
   function selectTool(tool: WorkspaceTool) {
     setActiveView(tool.view);
