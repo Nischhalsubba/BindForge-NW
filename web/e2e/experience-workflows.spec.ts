@@ -36,6 +36,7 @@ test("primary navigation uses Keybinds, My Setup, and Build without removing bui
   const destinations = primaryNav.locator(".site-nav-links > a");
 
   await expect(destinations).toHaveCount(3);
+  await expect(primaryNav.locator(".nav-cta")).toHaveCount(0);
   await expect(destinations.nth(0)).toBeVisible();
   await expect(destinations.nth(0)).toHaveText(/Keybinds/);
   await expect(destinations.nth(0)).toHaveAttribute("href", "#search-keybinds");
