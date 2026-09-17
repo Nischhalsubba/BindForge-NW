@@ -98,7 +98,7 @@ test("personal keymap import drives real conflict detection and final pack revie
   const keyField = firstCard.getByLabel(/Key combination for/);
   const keyValue = await keyField.inputValue();
 
-  const personalToggle = page.getByRole("button", { name: /Personal keymap/i });
+  const personalToggle = page.getByRole("button", { name: /^My Setup/i });
   await personalToggle.click();
   const personalPanel = page.getByTestId("personal-keymap-panel");
   await expect(personalPanel).toBeVisible();
