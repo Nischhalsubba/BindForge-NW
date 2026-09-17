@@ -7,7 +7,7 @@ on:
       - deps/eslint-10-compatible
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   generate:
@@ -24,6 +24,17 @@ jobs:
         run: |
           rm -f package-lock.json
           npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Commit refreshed lockfile when it changed
+        run: |
+          if git diff --quiet -- web/package-lock.json; then
+            echo "Lockfile already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/package-lock.json
+          git commit -m "Refresh package lock for dependency compatibility"
+          git push
       - name: Upload lockfile
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
