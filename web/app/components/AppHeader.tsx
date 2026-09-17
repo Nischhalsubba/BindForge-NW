@@ -2,6 +2,7 @@ import Image from "next/image";
 import { consoleCommands } from "../data/commands";
 import { keyCombos } from "../data/keyCombos";
 import { keybindPresets } from "../data/keybindPresets";
+import styles from "./AppHeader.module.css";
 import { Icon } from "./Icon";
 import { SettingsPanel } from "./SettingsPanel";
 
@@ -30,7 +31,7 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
         <span><i className="pulse" /> Live catalogue · EN</span>
       </div>
 
-      <nav className="site-nav" aria-label="Primary navigation">
+      <nav className={`site-nav ${styles.primaryNav}`} aria-label="Primary navigation">
         <a className="site-brand" href="#top" aria-label="Neverwinter Keybind home">
           <span className="brand-mark">
             <Image
@@ -45,7 +46,7 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
           </span>
           <span className="brand-copy"><b>Neverwinter Keybind</b><small>Command field manual</small></span>
         </a>
-        <div className="site-nav-links">
+        <div className={`site-nav-links ${styles.primaryLinks}`}>
           <a href="#search-keybinds">Keybinds <span>01</span></a>
           <a href="#my-setup">My Setup <span>02</span></a>
           <a href="#compose-keybind">Build <span>03</span></a>
@@ -53,7 +54,7 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
         <a className="nav-cta" href="#compose-keybind">Build a keybind</a>
       </nav>
 
-      <section className="hero" aria-labelledby="neverwinter-keybind-title" data-reveal>
+      <section className={`hero ${styles.primaryHero}`} aria-labelledby="neverwinter-keybind-title" data-reveal>
         <div className="hero-copy">
           <p className="label">I. Neverwinter command utility</p>
           <h1 className="display" id="neverwinter-keybind-title">
@@ -86,7 +87,7 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
             <code>/bind lbutton &quot;+EvaluateLeftClick$$+tacticalSpecial$$+Actionleft$$+Actionright&quot;</code>
             <small>Choose the key and actions. BindForge handles the command structure.</small>
           </div>
-          <ol className="hero-index" aria-label="Primary Neverwinter Keybind destinations">
+          <ol className={`hero-index ${styles.heroIndex}`} aria-label="Primary Neverwinter Keybind destinations">
             <li><span>01</span><b>Keybinds</b><small>Browse presets and class packs.</small></li>
             <li><span>02</span><b>My Setup</b><small>Import binds and review conflicts.</small></li>
             <li><span>03</span><b>Build</b><small>Compose keybinds, commands, and chat binds.</small></li>
