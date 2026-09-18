@@ -186,7 +186,7 @@ export function FirstVisitOrientation() {
 
   return createPortal(
     <div className={styles.tourLayer}>
-      <button aria-label="Skip guided tour" className={styles.tourBackdrop} onClick={closeTour} type="button" />
+      <div aria-hidden="true" className={styles.tourBackdrop} />
       <section
         aria-labelledby="guided-tour-title"
         aria-modal="true"
