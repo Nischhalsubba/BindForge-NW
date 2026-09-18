@@ -29,6 +29,7 @@ type KeybindCardProps = {
   status: KeybindSafetyStatus;
   canReplace: boolean;
   replacementKey?: string | null;
+  reassignmentOptions: string[];
   query: string;
   onKeyChange: (value: string) => void;
   onCopy: CopyHandler;
@@ -50,6 +51,8 @@ function highlight(value: string, query: string) {
 function KeybindCardComponent(props: KeybindCardProps) {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [copyState, setCopyState] = useState<CopyState>("idle");
+  const [moveOpen, setMoveOpen] = useState(false);
+  const [moveKey, setMoveKey] = useState("");
   const preview = useRef<HTMLElement>(null);
   const timer = useRef<number | null>(null);
   const line = buildPresetLine(props.preset, props.keyValue, props.mode);
@@ -138,8 +141,20 @@ function KeybindCardComponent(props: KeybindCardProps) {
           </div>
           <div className="card-actions card-detail-actions">
             {props.canReplace && directReplacement ? <button className="replacement-button" data-replacement-key={directReplacement} onClick={() => props.onKeyChange(directReplacement)} type="button">Use next safer key</button> : null}
+            {props.reassignmentOptions.length ? <button aria-expanded={moveOpen} className="secondary-button" onClick={() => { setMoveOpen((value) => !value); if (!moveKey) setMoveKey(props.reassignmentOptions[0]); }} type="button">Move binding to…</button> : null}
             <button className="secondary-button" onClick={props.onReset} type="button"><Icon name="reset" /> Reset suggestion</button>
           </div>
+          {moveOpen && props.reassignmentOptions.length ? (
+            <div className="reassignment-panel" data-testid="reassignment-panel">
+              <label>Evidence-backed destination
+                <select aria-label={`Move ${props.preset.title} binding to`} onChange={(event) => setMoveKey(event.target.value)} value={moveKey || props.reassignmentOptions[0]}>
+                  {props.reassignmentOptions.map((key) => <option key={key} value={key}>{key}</option>)}
+                </select>
+              </label>
+              <p><strong>Current → Proposed:</strong> <code>{currentKey || "—"}</code> → <code>{moveKey || props.reassignmentOptions[0]}</code>. The destination was not found in the active imported profile; verify it in game after applying.</p>
+              <button className="primary-button" onClick={() => { const next = moveKey || props.reassignmentOptions[0]; props.onKeyChange(next); setMoveOpen(false); }} type="button">Apply reassignment</button>
+            </div>
+          ) : null}
         </div>
       ) : null}
 
