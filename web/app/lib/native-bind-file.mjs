@@ -27,12 +27,12 @@ export function buildNativeBindFile(entries = []) {
 
   for (const entry of Array.isArray(entries) ? entries : []) {
     const key = nativeKey(entry?.key);
-    const command = safeNativeCommand(entry?.command);
-    if (!key || !command) {
-      skipped.push({ key: normalizeCombo(entry?.key), reason: !key ? "missing-key" : "unsupported-command" });
+    const nativeCommand = safeNativeCommand(entry?.command);
+    if (!key || !nativeCommand.command) {
+      skipped.push({ key: normalizeCombo(entry?.key), reason: !key ? "missing-key" : nativeCommand.reason });
       continue;
     }
-    lines.push(`${key} "${command}"`);
+    lines.push(`${key} "${nativeCommand.command}"`);
   }
 
   return {

@@ -29,3 +29,13 @@ test("builds a restore file only from imported evidence and reports unresolved k
   assert.equal(result.content, 'CTRL+R "old_command"\n');
   assert.deepEqual(result.unresolvedKeys, ["f2"]);
 });
+
+
+test("skips commands with embedded quotes instead of inventing an unverified bind-file escape rule", () => {
+  const result = buildNativeBindFile([
+    { key: "v", command: '" +Hardtargetlock $$ target \"<target name>\" $$ +specialClassPower "'.trim() },
+  ]);
+  assert.equal(result.content, "");
+  assert.equal(result.skipped.length, 1);
+  assert.equal(result.skipped[0].reason, "embedded-quotes");
+});

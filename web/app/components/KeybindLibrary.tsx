@@ -621,7 +621,10 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     }
     const filename = nativeFilename();
     downloadText(filename, result.content);
-    setNativePackStatus(`Downloaded ${filename}. Copy the load command next and test the file in Neverwinter before relying on it.`);
+    const skipped = result.skipped.length
+      ? ` ${result.skipped.length} selected command${result.skipped.length === 1 ? " was" : "s were"} left out because BindForge could not verify safe bind-file quoting for it.`
+      : "";
+    setNativePackStatus(`Downloaded ${filename}.${skipped} Copy the load command next and test the file in Neverwinter before relying on it.`);
   }
   async function copyNativeLoadCommand() {
     if (!selectedPresets.length) return;
@@ -642,7 +645,10 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     const unresolved = restore.unresolvedKeys.length
       ? ` ${restore.unresolvedKeys.length} selected key${restore.unresolvedKeys.length === 1 ? " had" : "s had"} no imported previous binding and were left out.`
       : "";
-    setNativePackStatus(`Downloaded evidence-based restore file ${filename}.${unresolved}`);
+    const skipped = restore.skipped.length
+      ? ` ${restore.skipped.length} imported previous binding${restore.skipped.length === 1 ? " was" : "s were"} also skipped because its bind-file quoting was not safely verified.`
+      : "";
+    setNativePackStatus(`Downloaded evidence-based restore file ${filename}.${unresolved}${skipped}`);
   }
   async function shareView() {
     const params = new URLSearchParams();
