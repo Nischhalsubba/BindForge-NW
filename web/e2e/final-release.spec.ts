@@ -4,6 +4,7 @@ async function prepare(page: Page) {
   await page.goto("/");
   await page.evaluate(() => {
     window.localStorage.clear();
+    window.localStorage.setItem("bindforge-nw:first-visit:v2", "seen");
     window.localStorage.setItem("bindforge-nw:first-visit:v1", "seen");
   });
   await page.reload();
