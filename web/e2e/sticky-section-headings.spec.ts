@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 const FIRST_VISIT_KEY = "bindforge-nw:first-visit:v2";
 
