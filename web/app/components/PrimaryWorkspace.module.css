@@ -75,9 +75,29 @@
 }
 
 .experienceBar small {
+  grid-column: 2 / 4;
   color: var(--ink-faint);
   font-family: var(--mono);
-  text-align: right;
+}
+
+.experienceAction {
+  min-height: 40px;
+  padding: 8px 13px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font: 650 11px var(--sans);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.experienceAction:hover,
+.experienceAction:focus-visible {
+  border-color: var(--coral);
+  color: var(--coral);
+  outline: 2px solid color-mix(in srgb, var(--coral) 45%, transparent);
+  outline-offset: 2px;
 }
 
 .tabs {
@@ -89,7 +109,7 @@
 }
 
 .simpleTabs {
-  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.3fr) minmax(0, .72fr) minmax(0, .72fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .advancedTabs {
@@ -320,8 +340,8 @@
   .tab { min-height: 118px; padding: 19px 17px; }
   .tabCopy strong { font-size: 15px; }
   .tabCopy small { font-size: 11px; }
-  .experienceBar { grid-template-columns: auto minmax(0, 1fr); }
-  .experienceBar small { grid-column: 2; text-align: left; }
+  .experienceBar { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .experienceBar small { grid-column: 2 / 4; }
 }
 
 @media (max-width: 1080px) {
@@ -344,9 +364,10 @@
   .intro, .searchHeading { grid-template-columns: 1fr; gap: 18px; }
   .intro p, .searchHeading p { font-size: 15px; }
   .title { max-width: 18ch; }
-  .experienceBar { grid-template-columns: 1fr; gap: 0.45rem; }
-  .experienceBar small { grid-column: auto; text-align: left; }
+  .experienceBar { grid-template-columns: 1fr; gap: 0.55rem; }
+  .experienceBar small { grid-column: auto; }
   .experienceBadge { justify-self: start; }
+  .experienceAction { justify-self: start; }
   .tabs,
   .simpleTabs {
     display: flex;
