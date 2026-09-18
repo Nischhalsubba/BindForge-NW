@@ -26,6 +26,13 @@ test("Beginner View hides technical and secondary surfaces until requested", asy
   await expect(page.getByRole("button", { name: /Collections & command packs/i })).toHaveCount(0);
   await expect(page.getByText("Share, export & portable tools", { exact: true })).toHaveCount(0);
   await expect(page.locator(".active-filter-row")).toHaveCount(0);
+  await expect(page.getByText("Command output", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Reset keybind library filters" })).toHaveCount(0);
+
+  const firstCard = page.locator(".bind-card:visible").first();
+  await expect(firstCard.getByText("Select", { exact: true })).toHaveCount(0);
+  await expect(firstCard.locator("button.favourite-button")).toHaveCount(0);
+  await expect(firstCard.getByRole("button", { name: /Copy command:/ })).toBeVisible();
 
   const summary = page.getByTestId("experience-workspace-summary");
   await expect(summary).toContainText("Beginner View");
