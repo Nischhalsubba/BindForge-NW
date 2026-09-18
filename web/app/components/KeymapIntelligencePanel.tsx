@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { compareProfiles } from "../lib/keymap-intelligence.mjs";
 import type { ProfileHistorySnapshot } from "../lib/profile-history.mjs";
 import styles from "./KeymapIntelligencePanel.module.css";
@@ -26,7 +26,7 @@ export function KeymapIntelligencePanel({
   const alternatives = profiles.filter((profile) => profile.id !== activeProfile.id);
   const [compareId, setCompareId] = useState(alternatives[0]?.id ?? "");
   const compared = alternatives.find((profile) => profile.id === compareId) ?? alternatives[0] ?? null;
-  const comparison = useMemo(() => compared ? compareProfiles(activeProfile, compared) : null, [activeProfile, compared]);
+  const comparison = compared ? compareProfiles(activeProfile, compared) : null;
 
   return (
     <section className={styles.root} aria-labelledby="keymap-intelligence-title" data-testid="keymap-intelligence-panel">
