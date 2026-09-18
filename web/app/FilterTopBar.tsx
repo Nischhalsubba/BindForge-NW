@@ -7,7 +7,7 @@ export default function FilterTopBar({ resultCount }: { resultCount: number }) {
   const beginner = state.preferences.experience === "simple";
 
   return (
-    <section className="filter-top-bar" aria-label="Keybind search and output controls" data-testid="filter-toolbar">
+    <section className="filter-top-bar" aria-label="Keybind search and output controls" data-testid="filter-toolbar" data-tour="keybind-search">
       <div className="filter-top-summary" aria-live="polite">
         <span>Keybind library</span>
         <strong data-testid="result-count">{resultCount} keybinds</strong>
