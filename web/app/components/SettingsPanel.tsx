@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import LocalSettingsManager from "../LocalSettingsManager";
 import ThemeSwitcher from "../ThemeSwitcher";
 import { AccessibilityPreferences } from "../AccessibilityPreferences";
+import { CatalogueTrustPanel } from "./CatalogueTrustPanel";
 import styles from "./SettingsPanel.module.css";
 
 export function SettingsPanel() {
@@ -65,6 +66,10 @@ export function SettingsPanel() {
             <section className={styles.section} aria-labelledby="accessibility-settings-title">
               <div className={styles.sectionHeading}><h3 id="accessibility-settings-title">Accessibility &amp; experience</h3><p>Adjust reading size, spacing, motion, assistance, and how much technical detail BindForge shows.</p></div>
               <AccessibilityPreferences />
+            </section>
+            <section className={styles.section} aria-labelledby="catalogue-trust-settings-title">
+              <div className={styles.sectionHeading}><h3 id="catalogue-trust-settings-title">Catalogue trust</h3><p>See verification debt and compare a live Neverwinter command list against the local reference catalogue.</p></div>
+              <CatalogueTrustPanel />
             </section>
             <section className={styles.section} aria-labelledby="backup-settings-title">
               <div className={styles.sectionHeading}><h3 id="backup-settings-title">Data and backup</h3><p>Export, restore, or clear your locally saved setup and preferences.</p></div>
