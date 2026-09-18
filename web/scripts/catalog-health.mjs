@@ -1,5 +1,6 @@
 // Builds a catalog-health report from the typed preset-section modules and blocks structural corruption.
 import { readdir, writeFile } from "node:fs/promises";
+import { verificationHistoryForPreset } from "../app/lib/verification-history.mjs";
 
 const sectionsDirectory = new URL("../app/data/keybindPresetSections/", import.meta.url);
 const outputPath = new URL("../catalog-health.json", import.meta.url);
@@ -54,6 +55,30 @@ const missingVerificationDate = normalized.filter((preset) => !preset.verifiedAt
 const invalidVerificationDates = normalized.filter((preset) => preset.verifiedAt && !/^\d{4}-\d{2}-\d{2}$/.test(preset.verifiedAt)).map(({ id, verifiedAt, sectionFile }) => ({ id, verifiedAt, sectionFile }));
 const riskyWithoutExperimentalFlag = normalized.filter((preset) => preset.difficulty === "Risky" && preset.confidence !== "experimental").map(({ id, title, confidence, sectionFile }) => ({ id, title, confidence, sectionFile }));
 const missingRequiredFields = normalized.filter((preset) => !preset.id || !preset.title || !preset.command || !preset.plainEnglish || !preset.defaultKey || !preset.difficulty).map(({ id, title, sectionFile }) => ({ id, title, sectionFile }));
+const invalidVerificationHistory = normalized.flatMap((preset) => {
+  if (!Array.isArray(preset.verificationHistory)) return [];
+  return preset.verificationHistory.flatMap((entry, index) => {
+    const validDate = entry && /^\d{4}-\d{2}-\d{2}$/.test(String(entry.date ?? ""));
+    const validResult = entry && ["working", "needs-retest", "changed", "unknown"].includes(entry.result);
+    return validDate && validResult ? [] : [{ id: preset.id, index, entry, sectionFile: preset.sectionFile }];
+  });
+});
+const verificationRows = normalized.map((preset) => {
+  const latest = verificationHistoryForPreset(preset)[0];
+  return { preset, date: latest?.date ?? (preset.verifiedAt || null) };
+});
+const staleCutoffMs = 180 * 24 * 60 * 60 * 1000;
+const nowMs = Date.now();
+const staleVerification = verificationRows.filter(({ date }) => {
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+  const age = nowMs - new Date(`${date}T00:00:00Z`).getTime();
+  return Number.isFinite(age) && age > staleCutoffMs;
+}).map(({ preset, date }) => ({ id: preset.id, title: preset.title, verifiedAt: date, sectionFile: preset.sectionFile }));
+const recentVerificationCount = verificationRows.filter(({ date }) => {
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+  const age = nowMs - new Date(`${date}T00:00:00Z`).getTime();
+  return Number.isFinite(age) && age >= 0 && age <= staleCutoffMs;
+}).length;
 
 const report = {
   generatedAt: new Date().toISOString(),
@@ -62,6 +87,7 @@ const report = {
   coverage: {
     sourceUrlPercent: normalized.length ? Math.round(((normalized.length - missingSource.length) / normalized.length) * 100) : 0,
     verifiedAtPercent: normalized.length ? Math.round(((normalized.length - missingVerificationDate.length) / normalized.length) * 100) : 0,
+    recentVerificationPercent: normalized.length ? Math.round((recentVerificationCount / normalized.length) * 100) : 0,
   },
   findings: {
     duplicateIds,
@@ -70,6 +96,8 @@ const report = {
     missingSource,
     missingVerificationDate,
     invalidVerificationDates,
+    invalidVerificationHistory,
+    staleVerification,
     riskyWithoutExperimentalFlag,
   },
 };
@@ -78,5 +106,5 @@ await writeFile(outputPath, `${JSON.stringify(report, null, 2)}\n`);
 console.log(JSON.stringify(report, null, 2));
 
 // Provenance gaps are reported without blocking unrelated work. Structural catalog corruption blocks CI.
-const blocking = duplicateIds.length + missingRequiredFields.length + invalidVerificationDates.length;
+const blocking = duplicateIds.length + missingRequiredFields.length + invalidVerificationDates.length + invalidVerificationHistory.length;
 if (blocking > 0) process.exitCode = 1;
