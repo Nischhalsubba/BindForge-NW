@@ -12,10 +12,10 @@ test("critical browse, My Setup, and settings flow works outside Chromium", asyn
   await page.getByRole("link", { name: /My Setup/i }).click();
   await expect(page.getByTestId("personal-keymap-panel")).toBeVisible();
 
-  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await page.getByRole("button", { name: "Local data & backup", exact: true }).click();
   await expect(page.getByTestId("settings-layer")).toBeVisible();
   await page.getByRole("button", { name: "Close settings" }).click();
-  await expect(page.getByRole("button", { name: "Settings", exact: true })).toBeFocused();
+  await expect(page.getByRole("button", { name: "Local data & backup", exact: true })).toBeFocused();
 
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
