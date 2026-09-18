@@ -124,7 +124,7 @@ function isTechnicalTool(view: WorkspaceView) {
 export function PrimaryWorkspace({ onCopy }: { onCopy: CopyHandler }) {
   const [activeView, setActiveView] = useState<WorkspaceView>("search");
   const [portableToolsOpen, setPortableToolsOpen] = useState(false);
-  const { state, resetFilters, setActionType, setClassName, setDifficulty, setMode, setSearch, updatePreferences } = useBindForge();
+  const { state, hydrated, resetFilters, setActionType, setClassName, setDifficulty, setMode, setSearch, updatePreferences } = useBindForge();
   const experience = state.preferences.experience;
   const visibleTools = useMemo(
     () => experience === "simple" ? tools.filter((tool) => tool.view === "search" || tool.view === "compose") : tools,
@@ -242,6 +242,7 @@ export function PrimaryWorkspace({ onCopy }: { onCopy: CopyHandler }) {
         <p>{experienceCopy[experience].description}</p>
         <button
           className={styles.experienceAction}
+          disabled={!hydrated}
           onClick={() => updatePreferences({ experience: experience === "simple" ? "standard" : "simple" })}
           type="button"
         >
