@@ -59,3 +59,18 @@ test("refreshes keyboard state when switching profiles and remains contained on 
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
 });
+
+
+test("uses roving keyboard focus and arrow navigation instead of one Tab stop per key", async ({ page }) => {
+  const keyboard = page.getByTestId("visual-keyboard-map");
+  const tabbableKeys = keyboard.locator("button[data-keyboard-key][tabindex='0']");
+  await expect(tabbableKeys).toHaveCount(1);
+  await expect(tabbableKeys).toHaveAttribute("data-testid", "keyboard-key-escape");
+
+  await tabbableKeys.focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(page.locator(":focus")).toHaveAttribute("data-testid", "keyboard-key-f1");
+
+  await page.keyboard.press("ArrowDown");
+  await expect(page.locator(":focus")).toHaveAttribute("data-keyboard-key");
+});
