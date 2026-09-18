@@ -2,6 +2,7 @@ import Image from "next/image";
 import { consoleCommands } from "../data/commands";
 import { keyCombos } from "../data/keyCombos";
 import { keybindPresets } from "../data/keybindPresets";
+import { catalogFreshnessSummary } from "../lib/catalog-freshness.mjs";
 import styles from "./AppHeader.module.css";
 import { Icon } from "./Icon";
 import { SettingsPanel } from "./SettingsPanel";
@@ -9,6 +10,7 @@ import { SettingsPanel } from "./SettingsPanel";
 export type CopyFeedback = { state: "idle" | "copied" | "fallback" | "error"; label: string };
 
 export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
+  const freshness = catalogFreshnessSummary(keybindPresets, new Date(), 180);
   const statusTitle = feedback.state === "copied"
     ? `Copied ${feedback.label}`
     : feedback.state === "fallback"
@@ -28,7 +30,7 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
       <div className="topbar">
         <span><b>Vol. 01</b> / Issue Nº 26</span>
         <span>Filed under <b>Neverwinter systems</b></span>
-        <span><i className="pulse" /> Live catalogue · EN</span>
+        <span title={`${freshness.needReview} presets have stale or missing verification dates`}><i className="pulse" /> Catalogue · {freshness.recentPercent}% recent · {freshness.needReview} review · EN</span>
       </div>
 
       <nav className={`site-nav ${styles.primaryNav}`} aria-label="Primary navigation">

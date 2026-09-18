@@ -49,10 +49,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        project:
-          - mobile-chromium
-          - tablet-chromium
-          - desktop-chromium
+        include:
+          - project: mobile-chromium
+            browser: chromium
+          - project: tablet-chromium
+            browser: chromium
+          - project: desktop-chromium
+            browser: chromium
+          - project: desktop-firefox-smoke
+            browser: firefox
+          - project: desktop-webkit-smoke
+            browser: webkit
     defaults:
       run:
         working-directory: web
@@ -73,8 +80,8 @@ jobs:
       - name: Build production application
         run: npm run build
 
-      - name: Install Chromium
-        run: npx --no-install playwright install --with-deps chromium
+      - name: Install browser
+        run: npx --no-install playwright install --with-deps "${{ matrix.browser }}"
 
       - name: Run browser project
         run: npx --no-install playwright test --project="${{ matrix.project }}"

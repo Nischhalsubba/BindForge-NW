@@ -14,10 +14,14 @@ BindForge has completed the planned product/workflow work and is in final access
 - Simple / Standard / Advanced experience-level behavior
 - Editable `/bind` and `/unbind` generation
 - Trust labels and provenance for Verified, Community tested, and Experimental data
+- Structured verification history, 180-day freshness reporting, and scheduled source-link health evidence
 - Class/role quick packs derived only from existing catalogue metadata
 - Personal keymap paste/file import with local conflict analysis
 - Selected-pack duplicate detection, native-key warnings, safer-key guidance, and explicit override paths
 - Sticky selection/review flow with final bind output and rollback/unbind copy/download
+- Native Neverwinter bind-file export with a matching `/bind_load_file` command and restore files derived only from imported previous bindings
+- Live `/cmdlist` reconciliation that distinguishes matched commands, research candidates, and catalogue commands not observed in the pasted client/context
+- Persistent visual keyboard letter layouts for US ANSI/QWERTY, QWERTZ, and AZERTY
 - Favourites, named collections, portable sharing, and versioned browser-local backup/restore
 - Post-copy “Use this in Neverwinter” guidance with worked/failed recovery paths
 - First-visit task orientation and persistent terminology/trust glossary
@@ -37,7 +41,8 @@ BindForge has completed the planned product/workflow work and is in final access
 | Unit and catalogue tests | Pass |
 | Next.js production build | Pass |
 | Playwright TypeScript | Pass |
-| Mobile/tablet/desktop regression | Pass |
+| Mobile/tablet/desktop Chromium regression | Pass |
+| Firefox/WebKit critical-flow smoke | Pass |
 | 200%-zoom-equivalent geometry | Pass |
 | Extra-large text / high contrast / larger controls | Pass |
 | Reduced-motion behavior | Pass |

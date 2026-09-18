@@ -12,6 +12,11 @@ The project follows Semantic Versioning:
 
 ### Added
 
+- Neverwinter loadable keybind-file export with matching `/bind_load_file` copy action and imported-evidence restore export
+- Live `/cmdlist` reconciliation for catalogue research candidates
+- Persistent US ANSI/QWERTY, QWERTZ, and AZERTY visual keyboard letter layouts
+- Structured verification history, catalogue freshness status, and scheduled source-link health reporting
+- Firefox and WebKit critical-flow browser gates alongside the full Chromium regression matrix
 - Security and dependency governance
 - Catalog-health reporting and scheduled maintenance
 - Contributor, support, issue, and pull-request guidance

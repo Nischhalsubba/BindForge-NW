@@ -77,3 +77,12 @@ test("uses roving keyboard focus and arrow navigation instead of one Tab stop pe
   await page.keyboard.press("ArrowDown");
   await expect(page.locator(":focus")).toHaveAttribute("data-keyboard-key");
 });
+
+
+test("persists the selected visual keyboard layout locally", async ({ page }) => {
+  const layout = page.getByLabel("Visual keyboard layout");
+  await expect(layout).toHaveValue("us-ansi");
+  await layout.selectOption("qwertz");
+  await expect(layout).toHaveValue("qwertz");
+  await expect.poll(() => page.evaluate(() => window.localStorage.getItem("bindforge-nw:keyboard-layout:v1"))).toBe("qwertz");
+});

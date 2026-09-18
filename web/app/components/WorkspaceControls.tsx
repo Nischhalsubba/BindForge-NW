@@ -82,6 +82,11 @@ type WorkspaceControlsProps = {
   onRemoveSelected: (id: string) => void;
   onCopyPack: (mode: "bind" | "unbind") => void;
   onDownloadPack: (mode: "bind" | "unbind") => void;
+  nativeFilename: string;
+  nativePackStatus: string;
+  onDownloadNativePack: () => void;
+  onCopyNativeLoadCommand: () => void;
+  onDownloadNativeRestore: () => void;
   onImportPersonalText: (value: string) => void;
   onImportPersonalFile: (file: File) => void;
   onClearPersonalBinds: () => void;
@@ -227,6 +232,20 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
               <button disabled={!props.selectedCount} onClick={() => props.onDownloadPack("bind")} type="button">Download bind .txt</button>
               <button disabled={!props.selectedCount} onClick={() => props.onDownloadPack("unbind")} type="button">Download unbind .txt</button>
             </div>
+            <section className={styles.nativePack} aria-labelledby="native-pack-title">
+              <div>
+                <strong id="native-pack-title">Neverwinter loadable file</strong>
+                <p>Export selected bindings in Cryptic-style keybind-file format, then load the matching filename with <code>/bind_load_file</code>. Saved bind files are associated with the game’s <code>Live</code> install area, but exact paths vary by launcher and installation. Test the file in game because BindForge cannot confirm the client applied it.</p>
+                <p><a href="https://neverwinter.fandom.com/wiki/Console_command" rel="noreferrer" target="_blank">Neverwinter command reference</a> · <a href="https://slashmacros.com/macro/neverwinter/save-keybinds" rel="noreferrer" target="_blank">Save/load workflow reference</a></p>
+                <code className={styles.nativeFilename}>{props.nativeFilename}</code>
+              </div>
+              <div className={styles.nativePackActions}>
+                <button className={styles.primary} disabled={!props.selectedCount} onClick={props.onDownloadNativePack} type="button">Download Neverwinter file</button>
+                <button disabled={!props.selectedCount} onClick={props.onCopyNativeLoadCommand} type="button">Copy /bind_load_file command</button>
+                <button disabled={!props.selectedCount || !props.personalBindCount} onClick={props.onDownloadNativeRestore} type="button">Download imported restore</button>
+              </div>
+              <p aria-live="polite" className={styles.nativeStatus} role="status">{props.nativePackStatus || "Restore export uses only previous bindings found in this profile’s imported keymap; missing history is never guessed."}</p>
+            </section>
           </div>
         ) : null}
       </section> : null}
@@ -265,7 +284,11 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
                 <button onClick={() => props.onCopyPack("unbind")} type="button">Copy rollback pack</button>
                 <button onClick={() => props.onDownloadPack("bind")} type="button">Download bind .txt</button>
                 <button onClick={() => props.onDownloadPack("unbind")} type="button">Download rollback .txt</button>
+                <button className={styles.primary} onClick={props.onDownloadNativePack} type="button">Download Neverwinter file</button>
+                <button onClick={props.onCopyNativeLoadCommand} type="button">Copy /bind_load_file</button>
+                <button disabled={!props.personalBindCount} onClick={props.onDownloadNativeRestore} type="button">Download imported restore</button>
               </div>
+              <p aria-live="polite" className={styles.nativeStatus} role="status">{props.nativePackStatus}</p>
             </div>
           ) : null}
         </aside>

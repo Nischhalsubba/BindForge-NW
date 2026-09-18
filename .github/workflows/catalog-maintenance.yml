@@ -41,11 +41,17 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Generate catalog health report
         run: npm run catalog:health
+      - name: Check source link health
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: npm run catalog:sources
+        continue-on-error: true
       - name: Upload catalog health report
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.0
         with:
           name: catalog-health
-          path: web/catalog-health.json
+          path: |
+            web/catalog-health.json
+            web/catalog-source-health.json
           retention-days: 30
           if-no-files-found: error

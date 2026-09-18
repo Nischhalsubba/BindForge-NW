@@ -1,13 +1,16 @@
 "use client";
 
-import { useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { keybindPresets } from "../data/keybindPresets";
 import {
   buildVisualKeyboardState,
   VISUAL_KEYBOARD_ROWS,
   type VisualKeyboardKeyState,
 } from "../lib/visual-keyboard.mjs";
+import { getVisualKeyboardRowsForLayout, KEYBOARD_LAYOUTS } from "../lib/keyboard-layouts.mjs";
 import styles from "./VisualKeyboardMap.module.css";
+
+const KEYBOARD_LAYOUT_STORAGE_KEY = "bindforge-nw:keyboard-layout:v1";
 
 type PersonalBind = {
   mode: "bind";
@@ -44,7 +47,25 @@ export function VisualKeyboardMap({
 }: VisualKeyboardMapProps) {
   const [selection, setSelection] = useState<{ profileId: string; keyId: string } | null>(null);
   const [focusKeyId, setFocusKeyId] = useState("escape");
+  const [layoutId, setLayoutId] = useState("us-ansi");
   const keyRefs = useRef(new Map<string, HTMLButtonElement>());
+  const keyboardRows = useMemo(() => getVisualKeyboardRowsForLayout(VISUAL_KEYBOARD_ROWS, layoutId), [layoutId]);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      try {
+        const saved = window.localStorage.getItem(KEYBOARD_LAYOUT_STORAGE_KEY);
+        if (saved && KEYBOARD_LAYOUTS.some((layout) => layout.id === saved)) setLayoutId(saved);
+      } catch { /* use US ANSI for this session */ }
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  function changeLayout(value: string) {
+    const next = KEYBOARD_LAYOUTS.some((layout) => layout.id === value) ? value : "us-ansi";
+    setLayoutId(next);
+    try { window.localStorage.setItem(KEYBOARD_LAYOUT_STORAGE_KEY, next); } catch { /* session only */ }
+  }
   const model = useMemo(
     () => buildVisualKeyboardState({ presets: keybindPresets, keyValues, personalBinds }),
     [keyValues, personalBinds],
@@ -58,7 +79,7 @@ export function VisualKeyboardMap({
 
     let rowIndex = -1;
     let columnIndex = -1;
-    VISUAL_KEYBOARD_ROWS.some((row, candidateRowIndex) => {
+    keyboardRows.some((row, candidateRowIndex) => {
       const candidateColumnIndex = row.findIndex((key) => key.id === currentId);
       if (candidateColumnIndex < 0) return false;
       rowIndex = candidateRowIndex;
@@ -70,12 +91,12 @@ export function VisualKeyboardMap({
     let targetRowIndex = rowIndex;
     let targetColumnIndex = columnIndex;
     if (event.key === "ArrowLeft") targetColumnIndex = Math.max(0, columnIndex - 1);
-    if (event.key === "ArrowRight") targetColumnIndex = Math.min(VISUAL_KEYBOARD_ROWS[rowIndex].length - 1, columnIndex + 1);
+    if (event.key === "ArrowRight") targetColumnIndex = Math.min(keyboardRows[rowIndex].length - 1, columnIndex + 1);
     if (event.key === "ArrowUp") targetRowIndex = Math.max(0, rowIndex - 1);
-    if (event.key === "ArrowDown") targetRowIndex = Math.min(VISUAL_KEYBOARD_ROWS.length - 1, rowIndex + 1);
-    targetColumnIndex = Math.min(targetColumnIndex, VISUAL_KEYBOARD_ROWS[targetRowIndex].length - 1);
+    if (event.key === "ArrowDown") targetRowIndex = Math.min(keyboardRows.length - 1, rowIndex + 1);
+    targetColumnIndex = Math.min(targetColumnIndex, keyboardRows[targetRowIndex].length - 1);
 
-    const target = VISUAL_KEYBOARD_ROWS[targetRowIndex][targetColumnIndex];
+    const target = keyboardRows[targetRowIndex][targetColumnIndex];
     if (!target || target.id === currentId) return;
 
     event.preventDefault();
@@ -90,6 +111,15 @@ export function VisualKeyboardMap({
           <span className={styles.eyebrow}>Visual keymap</span>
           <h3 id="visual-keyboard-title">Keyboard map</h3>
           <p>{characterName} · {profileName}</p>
+        </div>
+        <div className={styles.headingTools}>
+          <label className={styles.layoutControl}>
+            Keyboard layout
+            <select aria-label="Visual keyboard layout" onChange={(event) => changeLayout(event.target.value)} value={layoutId}>
+              {KEYBOARD_LAYOUTS.map((layout) => <option key={layout.id} value={layout.id}>{layout.label}</option>)}
+            </select>
+          </label>
+          <p className={styles.layoutNote}>Letter positions adapt to the selected layout. Neverwinter key tokens and punctuation stay canonical, so verify unusual keys in game.</p>
         </div>
         <p className={styles.guidance}>
           {model.hasPersonalKeymap
@@ -121,7 +151,7 @@ export function VisualKeyboardMap({
         role="region"
       >
         <div className={styles.keyboard}>
-          {VISUAL_KEYBOARD_ROWS.map((row, rowIndex) => (
+          {keyboardRows.map((row, rowIndex) => (
             <div className={styles.row} key={rowIndex} role="group" aria-label={`Keyboard row ${rowIndex + 1}`}>
               {row.map((definition) => {
                 const key = model.byKey.get(definition.id) as VisualKeyboardKeyState;

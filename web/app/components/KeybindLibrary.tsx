@@ -14,6 +14,12 @@ import {
   resolveBindMap,
 } from "../lib/keybind-core.mjs";
 import {
+  buildBindLoadCommand,
+  buildNativeBindFile,
+  buildNativeRestoreFile,
+  makeNativeBindFilename,
+} from "../lib/native-bind-file.mjs";
+import {
   cloneProfile,
   createDefaultProfileWorkspace,
   getActiveCharacter,
@@ -218,6 +224,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   const [visibleGroupCount, setVisibleGroupCount] = useState(INITIAL_VISIBLE_GROUPS);
   const [personalImportMessage, setPersonalImportMessage] = useState("");
   const [profileStatus, setProfileStatus] = useState("");
+  const [nativePackStatus, setNativePackStatus] = useState("");
   const [hydrated, setHydrated] = useState(false);
   const [profilesHydrated, setProfilesHydrated] = useState(false);
 
@@ -320,7 +327,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   const resolvedWorkspace = profileWorkspace ?? fallbackWorkspace;
   const activeCharacter = (getActiveCharacter(resolvedWorkspace) as CharacterProfile | null) ?? resolvedWorkspace.characters[0];
   const activeProfile = (getActiveProfile(resolvedWorkspace) as KeymapProfile | null) ?? activeCharacter.profiles[0];
-  const personalBinds = activeProfile.personalBinds ?? [];
+  const personalBinds = useMemo(() => activeProfile.personalBinds ?? [], [activeProfile.personalBinds]);
   const personalSourceName = activeProfile.personalSourceName ?? "";
 
   const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
@@ -601,6 +608,48 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   function linesFor(mode: "bind" | "unbind") { return selectedPresets.map((preset) => buildPresetLine(preset, state.keys[preset.id] ?? preset.defaultKey, mode)).join("\n"); }
   async function copyPack(mode: "bind" | "unbind") { if (selectedPresets.length) await onCopy(linesFor(mode), `${selectedPresets.length} ${mode} commands`, null); }
   function downloadPack(mode: "bind" | "unbind") { if (selectedPresets.length) downloadText(`bindforge-${mode}-pack-${new Date().toISOString().slice(0, 10)}.txt`, `${linesFor(mode)}\n`); }
+  function nativeFilename() { return makeNativeBindFilename(activeCharacter.name, activeProfile.name); }
+  function nativeEntries() {
+    return selectedPresets.map((preset) => ({ key: state.keys[preset.id] ?? preset.defaultKey, command: preset.command }));
+  }
+  function downloadNativePack() {
+    if (!selectedPresets.length) return;
+    const result = buildNativeBindFile(nativeEntries());
+    if (!result.content) {
+      setNativePackStatus("No valid Neverwinter bind-file lines could be generated from this selection.");
+      return;
+    }
+    const filename = nativeFilename();
+    downloadText(filename, result.content);
+    const skipped = result.skipped.length
+      ? ` ${result.skipped.length} selected command${result.skipped.length === 1 ? " was" : "s were"} left out because BindForge could not verify safe bind-file quoting for it.`
+      : "";
+    setNativePackStatus(`Downloaded ${filename}.${skipped} Copy the load command next and test the file in Neverwinter before relying on it.`);
+  }
+  async function copyNativeLoadCommand() {
+    if (!selectedPresets.length) return;
+    const filename = nativeFilename();
+    await onCopy(buildBindLoadCommand(filename), "Neverwinter bind-file load command", null);
+    setNativePackStatus(`Load command copied for ${filename}. Keep the downloaded file name unchanged so the command matches it.`);
+  }
+  function downloadNativeRestore() {
+    if (!selectedPresets.length) return;
+    const keys = selectedPresets.map((preset) => state.keys[preset.id] ?? preset.defaultKey);
+    const restore = buildNativeRestoreFile(keys, personalBinds);
+    if (!restore.content) {
+      setNativePackStatus("No previous imported bindings were found for these selected keys, so BindForge did not invent a restore file.");
+      return;
+    }
+    const filename = nativeFilename().replace(/\.txt$/i, "-restore.txt");
+    downloadText(filename, restore.content);
+    const unresolved = restore.unresolvedKeys.length
+      ? ` ${restore.unresolvedKeys.length} selected key${restore.unresolvedKeys.length === 1 ? " had" : "s had"} no imported previous binding and were left out.`
+      : "";
+    const skipped = restore.skipped.length
+      ? ` ${restore.skipped.length} imported previous binding${restore.skipped.length === 1 ? " was" : "s were"} also skipped because its bind-file quoting was not safely verified.`
+      : "";
+    setNativePackStatus(`Downloaded evidence-based restore file ${filename}.${unresolved}${skipped}`);
+  }
   async function shareView() {
     const params = new URLSearchParams();
     if (selectedIds.length === 1) params.set("preset", selectedIds[0]);
@@ -658,6 +707,11 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
         onRemoveSelected={(id) => setSelectedIds((current) => current.filter((item) => item !== id))}
         onCopyPack={(mode) => { void copyPack(mode); }}
         onDownloadPack={downloadPack}
+        nativeFilename={nativeFilename()}
+        nativePackStatus={nativePackStatus}
+        onDownloadNativePack={downloadNativePack}
+        onCopyNativeLoadCommand={() => { void copyNativeLoadCommand(); }}
+        onDownloadNativeRestore={downloadNativeRestore}
         onImportPersonalText={(text) => importPersonalBinds(text)}
         onImportPersonalFile={(file) => { void importPersonalFile(file); }}
         onClearPersonalBinds={clearPersonalBinds}

@@ -16,15 +16,15 @@ async function openAsFirstVisit(page: Page) {
 }
 
 async function expectSpotlightOverlaps(spotlight: Locator, target: Locator) {
-  const [spotlightBox, targetBox] = await Promise.all([spotlight.boundingBox(), target.boundingBox()]);
-  expect(spotlightBox).not.toBeNull();
-  expect(targetBox).not.toBeNull();
-  const overlapX = Math.min(spotlightBox!.x + spotlightBox!.width, targetBox!.x + targetBox!.width)
-    - Math.max(spotlightBox!.x, targetBox!.x);
-  const overlapY = Math.min(spotlightBox!.y + spotlightBox!.height, targetBox!.y + targetBox!.height)
-    - Math.max(spotlightBox!.y, targetBox!.y);
-  expect(overlapX).toBeGreaterThan(0);
-  expect(overlapY).toBeGreaterThan(0);
+  await expect.poll(async () => {
+    const [spotlightBox, targetBox] = await Promise.all([spotlight.boundingBox(), target.boundingBox()]);
+    if (!spotlightBox || !targetBox) return false;
+    const overlapX = Math.min(spotlightBox.x + spotlightBox.width, targetBox.x + targetBox.width)
+      - Math.max(spotlightBox.x, targetBox.x);
+    const overlapY = Math.min(spotlightBox.y + spotlightBox.height, targetBox.y + targetBox.height)
+      - Math.max(spotlightBox.y, targetBox.y);
+    return overlapX > 0 && overlapY > 0;
+  }, { timeout: 2000 }).toBe(true);
 }
 
 test("first-run walkthrough uses anchored coachmarks on real UI instead of a centered popup", async ({ page }) => {

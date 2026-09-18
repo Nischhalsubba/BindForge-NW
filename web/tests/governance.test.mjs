@@ -53,8 +53,12 @@ test("quality workflow uses least privilege and runs complete checks inside the 
   assert.match(workflow, /mobile-chromium/);
   assert.match(workflow, /tablet-chromium/);
   assert.match(workflow, /desktop-chromium/);
+  assert.match(workflow, /desktop-firefox-smoke/);
+  assert.match(workflow, /desktop-webkit-smoke/);
+  assert.match(workflow, /browser: firefox/);
+  assert.match(workflow, /browser: webkit/);
   assert.match(workflow, /npx --no-install playwright test --project=/);
-  assert.match(workflow, /npx --no-install playwright install --with-deps chromium/);
+  assert.match(workflow, /npx --no-install playwright install --with-deps "\$\{\{ matrix\.browser \}\}"/);
   assert.match(workflow, /fail-fast: false/);
   assert.doesNotMatch(workflow, /uses:\s+[^\s]+@v\d/);
 });
