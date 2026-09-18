@@ -3,8 +3,12 @@ import { expect, test } from "@playwright/test";
 async function waitForWorkspace(page: import("@playwright/test").Page) {
   await page.goto("/");
   await expect(page.getByTestId("filter-toolbar").first()).toBeVisible();
-  await expect(page.locator('[data-testid="secondary-controls"]:visible').first()).toBeVisible();
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
+  const experience = page.getByTestId("experience-workspace-summary");
+  if (await experience.getByRole("button", { name: "Show more tools" }).isVisible()) {
+    await experience.getByRole("button", { name: "Show more tools" }).click();
+  }
+  await expect(page.locator('[data-testid="secondary-controls"]:visible').first()).toBeVisible();
 }
 
 async function visibleFilterPanel(page: import("@playwright/test").Page) {
