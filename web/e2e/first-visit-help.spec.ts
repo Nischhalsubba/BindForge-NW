@@ -20,7 +20,7 @@ async function markTourSeen(page: Page) {
   }, FIRST_VISIT_KEY);
 }
 
-test("first visit uses an accessible five-step guided overlay and remembers completion", async ({ page }) => {
+test("first visit uses an accessible seven-step contextual walkthrough and remembers completion", async ({ page }) => {
   await openAsFirstVisit(page);
 
   const guide = page.getByTestId("first-visit-orientation");
