@@ -104,6 +104,8 @@ test("coachmark keeps keyboard controls contained and restores focus on replay",
   await expect(guide).toBeVisible();
   await expect(guide.getByRole("heading", { name: "Know where you are" })).toBeFocused();
 
+  const close = guide.getByRole("button", { name: "Close guided tour" });
+  await close.focus();
   await page.keyboard.press("Shift+Tab");
   await expect(guide.getByRole("button", { name: "Next" })).toBeFocused();
 
