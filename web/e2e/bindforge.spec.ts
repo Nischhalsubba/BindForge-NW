@@ -64,6 +64,10 @@ test.beforeEach(async ({ page }) => {
   await page.reload();
   await expect(page.getByRole("heading", { level: 1, name: /Find it. Build it. Bind it/ })).toBeVisible();
   await waitForHydration(page);
+  const experience = page.getByTestId("experience-workspace-summary");
+  const showMore = experience.getByRole("button", { name: "Show more tools" });
+  if (await showMore.isVisible()) await showMore.click();
+  await expect(page.getByTestId("secondary-controls")).toBeVisible();
 });
 
 test("keeps all four primary workflows one click away", async ({ page }) => {
