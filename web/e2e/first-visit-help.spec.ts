@@ -65,6 +65,7 @@ test("guided overlay supports Back, Skip, and Escape", async ({ page }) => {
   await guide.getByRole("button", { name: "Skip tour" }).focus();
   await page.keyboard.press("Escape");
   await expect(guide).toHaveCount(0);
+  await expect(page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: /Keybinds/ })).toBeFocused();
 });
 
 test("help glossary can replay the guided tour after onboarding", async ({ page }) => {
