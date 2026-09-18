@@ -45,7 +45,10 @@ function attachRuntimeFailureGuards(page: Page) {
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
-  await page.evaluate(() => window.localStorage.clear());
+  await page.evaluate(() => {
+    window.localStorage.clear();
+    window.localStorage.setItem("bindforge-nw:first-visit:v2", "seen");
+  });
   await page.reload();
   await waitForLibrary(page);
 });
