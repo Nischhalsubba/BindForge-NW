@@ -63,6 +63,8 @@ test("keeps collection and command pack tools collapsed until requested", async 
   await expect(panel.getByRole("button", { name: "Select visible" })).toBeVisible();
   await expect(panel.getByRole("button", { name: "Copy bind pack" })).toBeVisible();
   await expect(panel.getByRole("button", { name: "Download bind .txt" })).toBeVisible();
+  await expect(panel.getByRole("button", { name: "Download Neverwinter file" })).toBeVisible();
+  await expect(panel.getByRole("button", { name: "Copy /bind_load_file command" })).toBeVisible();
 
   await toggle.click();
   await expect(toggle).toHaveAttribute("aria-expanded", "false");
@@ -91,6 +93,15 @@ test("preserves selection and pack actions inside the collapsed panel", async ({
   await expect(page.getByRole("button", { name: /Collections & command packs/i })).toContainText(/selected/);
   await expect(panel.getByRole("button", { name: "Copy bind pack" })).toBeEnabled();
   await expect(panel.getByRole("button", { name: "Clear selection" })).toBeEnabled();
+  await expect(panel.getByRole("button", { name: "Download Neverwinter file" })).toBeEnabled();
+  await expect(panel.getByRole("button", { name: "Copy /bind_load_file command" })).toBeEnabled();
+  await expect(panel.getByRole("button", { name: "Download imported restore" })).toBeDisabled();
+
+  const downloadPromise = page.waitForEvent("download");
+  await panel.getByRole("button", { name: "Download Neverwinter file" }).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toMatch(/^bindforge-.*\.txt$/);
+
   await panel.getByRole("button", { name: "Clear selection" }).click();
   await expect(panel.getByRole("button", { name: "Copy bind pack" })).toBeDisabled();
 });

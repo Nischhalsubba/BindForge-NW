@@ -33,3 +33,17 @@ test("experimental Fighter bind stays visibly experimental and explains its evid
   await expect(trustSummary).toContainText(/Test carefully/i);
   await expect(card.getByLabel("Preset evidence and verification")).toContainText(/User submitted/i);
 });
+
+
+test("catalogue trust settings reconcile live cmdlist output without auto-verifying it", async ({ page }) => {
+  await page.getByRole("button", { name: "Local data & backup", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Catalogue trust" })).toBeVisible();
+
+  const input = page.getByLabel("Paste Neverwinter cmdlist output");
+  await input.fill("/bind Bind a key to a command\n/new_live_command Newly observed");
+  await page.getByRole("button", { name: "Compare with BindForge" }).click();
+
+  await expect(page.getByText(/research candidates/i).last()).toBeVisible();
+  await page.getByText(/Research candidates/).last().click();
+  await expect(page.getByText("/new_live_command", { exact: true })).toBeVisible();
+});
