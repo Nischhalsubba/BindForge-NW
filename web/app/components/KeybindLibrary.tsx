@@ -654,7 +654,9 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
         onExportProfiles={exportProfiles}
         onImportProfiles={(file) => { void importProfiles(file); }}
       />
-      <div className="active-filter-row" aria-label="Active filters"><span>{state.className === "All" ? "All classes" : state.className}</span><span>{state.actionType === "All" ? "All actions" : state.actionType}</span><span>{state.difficulty === "All" ? "All difficulty levels" : state.difficulty}</span><span>{activeCollection === "all" ? "All collections" : activeCollection}</span></div>
+      {state.preferences.experience !== "simple" ? (
+        <div className="active-filter-row" aria-label="Active filters"><span>{state.className === "All" ? "All classes" : state.className}</span><span>{state.actionType === "All" ? "All actions" : state.actionType}</span><span>{state.difficulty === "All" ? "All difficulty levels" : state.difficulty}</span><span>{activeCollection === "all" ? "All collections" : activeCollection}</span></div>
+      ) : null}
 
       {filtered.length ? (
         <>
