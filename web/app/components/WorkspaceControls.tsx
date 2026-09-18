@@ -181,18 +181,21 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
               keyValues={props.activeProfile.keyValues}
               personalBinds={props.activeProfile.personalBinds}
             />
-            <div className={styles.keymapCopy}>
-              <strong>Analyze this profile’s Neverwinter binds</strong>
-              <p>Paste <code>/bind</code> and <code>/unbind</code> lines or choose a text file. Analysis stays local and belongs only to the active profile.</p>
-              {props.personalBindCount ? <p className={styles.keymapSource}>Imported source: {props.personalSourceName || "Pasted keymap"}</p> : null}
-            </div>
-            <textarea aria-label="Paste personal Neverwinter binds" onChange={(event) => setImportText(event.target.value)} placeholder={'/bind r gensendmessage Chat_Reply activate\n/bind ctrl+5 invoke'} rows={5} value={importText} />
-            <div className={styles.keymapActions}>
-              <button className={styles.primary} disabled={!importText.trim()} onClick={() => props.onImportPersonalText(importText)} type="button">Analyze pasted binds</button>
-              <label className={styles.fileButton}>Choose bind .txt<input accept=".txt,.cfg,text/plain" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) props.onImportPersonalFile(file); event.currentTarget.value = ""; }} type="file" /></label>
-              <button disabled={!props.personalBindCount} onClick={props.onClearPersonalBinds} type="button">Clear personal keymap</button>
-            </div>
-            <p aria-live="polite" className={styles.importStatus} role="status">{props.personalImportMessage || (props.personalBindCount ? "Personal conflict detection is active." : "No personal keymap has been analyzed for this profile yet.")}</p>
+            <section className={styles.keymapAnalyzer} data-testid="keymap-analyzer" aria-labelledby="keymap-analyzer-title">
+              <div className={styles.keymapCopy}>
+                <span className={styles.keymapEyebrow}>Profile evidence</span>
+                <strong id="keymap-analyzer-title">Analyze this profile’s Neverwinter binds</strong>
+                <p>Paste <code>/bind</code> and <code>/unbind</code> lines or choose a text file. Analysis stays local and belongs only to the active profile.</p>
+                {props.personalBindCount ? <p className={styles.keymapSource}>Imported source: {props.personalSourceName || "Pasted keymap"}</p> : null}
+              </div>
+              <textarea aria-label="Paste personal Neverwinter binds" onChange={(event) => setImportText(event.target.value)} placeholder={'/bind r gensendmessage Chat_Reply activate\n/bind ctrl+5 invoke'} rows={5} value={importText} />
+              <div className={styles.keymapActions}>
+                <button className={styles.primary} disabled={!importText.trim()} onClick={() => props.onImportPersonalText(importText)} type="button">Analyze pasted binds</button>
+                <label className={styles.fileButton}>Choose bind .txt<input accept=".txt,.cfg,text/plain" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) props.onImportPersonalFile(file); event.currentTarget.value = ""; }} type="file" /></label>
+                <button disabled={!props.personalBindCount} onClick={props.onClearPersonalBinds} type="button">Clear personal keymap</button>
+              </div>
+              <p aria-live="polite" className={styles.importStatus} role="status">{props.personalImportMessage || (props.personalBindCount ? "Personal conflict detection is active." : "No personal keymap has been analyzed for this profile yet.")}</p>
+            </section>
           </div>
         ) : null}
       </section>
