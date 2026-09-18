@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useBindForge } from "../BindForgeProvider";
+import { analyzeRawKeymap } from "../lib/keymap-intelligence.mjs";
+import type { ProfileHistorySnapshot } from "../lib/profile-history.mjs";
 import type { PresetConfidence, PresetSourceType } from "../data/keybindTypes";
 import { ProfileWorkspaceManager } from "./ProfileWorkspaceManager";
 import { VisualKeyboardMap } from "./VisualKeyboardMap";
+import { KeymapIntelligencePanel } from "./KeymapIntelligencePanel";
 import styles from "./WorkspaceControls.module.css";
 
 type ViewMode = "cards" | "compact";
@@ -87,6 +90,10 @@ type WorkspaceControlsProps = {
   onDownloadNativePack: () => void;
   onCopyNativeLoadCommand: () => void;
   onDownloadNativeRestore: () => void;
+  hasImportedEvidence: boolean;
+  unusedKeyRecommendations: string[];
+  profileHistory: ProfileHistorySnapshot[];
+  onRestoreProfileSnapshot: (snapshotId: string) => void;
   onImportPersonalText: (value: string) => void;
   onImportPersonalFile: (file: File) => void;
   onClearPersonalBinds: () => void;
@@ -112,6 +119,8 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
   const [keymapOpen, setKeymapOpen] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [importText, setImportText] = useState("");
+  const [importPreview, setImportPreview] = useState<ReturnType<typeof analyzeRawKeymap> | null>(null);
+  const [importPreviewMessage, setImportPreviewMessage] = useState("");
   const panelId = "collections-command-packs";
   const keymapPanelId = "personal-keymap-import";
   const reviewPanelId = "selected-pack-review";
@@ -133,6 +142,39 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
   function removeSelected(id: string) {
     if (props.selectedCount <= 1) setReviewOpen(false);
     props.onRemoveSelected(id);
+  }
+
+  function previewImport(text: string) {
+    const analysis = analyzeRawKeymap(text);
+    setImportPreview(analysis);
+    setImportPreviewMessage(
+      analysis.hasBlockingErrors
+        ? "No valid bind operations were found. Review the ignored lines before importing."
+        : `${analysis.activeBinds.length} active binds will remain after applying the file. ${analysis.overwrites.length} overwrite${analysis.overwrites.length === 1 ? "" : "s"}, ${analysis.orphanUnbinds.length} orphan unbind${analysis.orphanUnbinds.length === 1 ? "" : "s"}, and ${analysis.ignored.length} ignored line${analysis.ignored.length === 1 ? "" : "s"} detected.`,
+    );
+  }
+
+  async function previewImportFile(file: File) {
+    if (file.size > 512 * 1024) {
+      setImportPreview(null);
+      setImportPreviewMessage("That bind file is larger than 512 KB. Choose a smaller text export.");
+      return;
+    }
+    try {
+      const text = await file.text();
+      setImportText(text);
+      previewImport(text);
+    } catch {
+      setImportPreview(null);
+      setImportPreviewMessage("The selected bind file could not be read.");
+    }
+  }
+
+  function confirmImport() {
+    if (!importPreview || importPreview.hasBlockingErrors) return;
+    props.onImportPersonalText(importText);
+    setImportPreview(null);
+    setImportPreviewMessage("");
   }
 
   return (
@@ -189,6 +231,14 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
               keyValues={props.activeProfile.keyValues}
               personalBinds={props.activeProfile.personalBinds}
             />
+            <KeymapIntelligencePanel
+              activeProfile={{ ...props.activeProfile, characterName: props.activeCharacter.name }}
+              profiles={props.characters.flatMap((character) => character.profiles.map((profile) => ({ ...profile, characterName: character.name })))}
+              recommendations={props.unusedKeyRecommendations}
+              hasImportedEvidence={props.hasImportedEvidence}
+              history={props.profileHistory}
+              onRestoreSnapshot={props.onRestoreProfileSnapshot}
+            />
             <section className={styles.keymapAnalyzer} data-testid="keymap-analyzer" aria-labelledby="keymap-analyzer-title">
               <div className={styles.keymapCopy}>
                 <span className={styles.keymapEyebrow}>Profile evidence</span>
@@ -196,13 +246,28 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
                 <p>Paste <code>/bind</code> and <code>/unbind</code> lines or choose a text file. Analysis stays local and belongs only to the active profile.</p>
                 {props.personalBindCount ? <p className={styles.keymapSource}>Imported source: {props.personalSourceName || "Pasted keymap"}</p> : null}
               </div>
-              <textarea aria-label="Paste personal Neverwinter binds" onChange={(event) => setImportText(event.target.value)} placeholder={'/bind r gensendmessage Chat_Reply activate\n/bind ctrl+5 invoke'} rows={5} value={importText} />
+              <textarea aria-label="Paste personal Neverwinter binds" onChange={(event) => { setImportText(event.target.value); setImportPreview(null); setImportPreviewMessage(""); }} placeholder={'/bind r gensendmessage Chat_Reply activate\n/bind ctrl+5 invoke'} rows={5} value={importText} />
               <div className={styles.keymapActions}>
-                <button className={styles.primary} disabled={!importText.trim()} onClick={() => props.onImportPersonalText(importText)} type="button">Analyze pasted binds</button>
-                <label className={styles.fileButton}>Choose bind .txt<input accept=".txt,.cfg,text/plain" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) props.onImportPersonalFile(file); event.currentTarget.value = ""; }} type="file" /></label>
+                <button className={styles.primary} disabled={!importText.trim()} onClick={() => previewImport(importText)} type="button">Preview import</button>
+                <label className={styles.fileButton}>Choose bind .txt<input accept=".txt,.cfg,text/plain" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) void previewImportFile(file); event.currentTarget.value = ""; }} type="file" /></label>
                 <button disabled={!props.personalBindCount} onClick={props.onClearPersonalBinds} type="button">Clear personal keymap</button>
               </div>
-              <p aria-live="polite" className={styles.importStatus} role="status">{props.personalImportMessage || (props.personalBindCount ? "Personal conflict detection is active." : "No personal keymap has been analyzed for this profile yet.")}</p>
+              {importPreview ? (
+                <div className={styles.importPreview} data-testid="keymap-import-preview">
+                  <div className={styles.importPreviewSummary}>
+                    <strong>Validation preview</strong>
+                    <span>{importPreview.activeBinds.length} active · {importPreview.overwrites.length} overwrites · {importPreview.orphanUnbinds.length} orphan unbinds · {importPreview.ignored.length} ignored</span>
+                  </div>
+                  {importPreview.overwrites.length ? <details><summary>Overwritten earlier binds ({importPreview.overwrites.length})</summary><ul>{importPreview.overwrites.slice(0,20).map((item) => <li key={`${item.key}-${item.next.lineNumber}`}><code>{item.key}</code><span>{item.previous.command} → {item.next.command}</span></li>)}</ul></details> : null}
+                  {importPreview.orphanUnbinds.length ? <details><summary>Orphan unbinds ({importPreview.orphanUnbinds.length})</summary><p>These unbind lines did not have a prior bind earlier in this pasted file. They are preserved as cleanup evidence but do not create an active bind.</p></details> : null}
+                  {importPreview.ignored.length ? <details><summary>Ignored lines ({importPreview.ignored.length})</summary><code>{importPreview.ignored.slice(0,20).map((item) => `Line ${item.lineNumber}: ${item.raw}`).join("\n")}</code></details> : null}
+                  <div className={styles.keymapActions}>
+                    <button className={styles.primary} disabled={importPreview.hasBlockingErrors} onClick={confirmImport} type="button">Confirm import</button>
+                    <button onClick={() => { setImportPreview(null); setImportPreviewMessage(""); }} type="button">Cancel preview</button>
+                  </div>
+                </div>
+              ) : null}
+              <p aria-live="polite" className={styles.importStatus} role="status">{importPreviewMessage || props.personalImportMessage || (props.personalBindCount ? "Personal conflict detection is active." : "No personal keymap has been analyzed for this profile yet.")}</p>
             </section>
           </div>
         ) : null}
