@@ -2,6 +2,10 @@ import { expect, test } from "@playwright/test";
 
 async function waitForWorkspace(page: import("@playwright/test").Page) {
   await page.goto("/");
+  const summary = page.getByTestId("experience-workspace-summary");
+  if (await summary.getByRole("button", { name: "Show more tools" }).isVisible()) {
+    await summary.getByRole("button", { name: "Show more tools" }).click();
+  }
   const tabs = page.getByRole("tablist", { name: "Primary keybind tools" });
   await expect(tabs).toBeVisible();
   await expect(tabs.getByRole("tab", { name: "Search existing keybinds", exact: true })).toHaveAttribute("aria-selected", "true");
