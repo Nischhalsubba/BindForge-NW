@@ -92,12 +92,17 @@
   white-space: nowrap;
 }
 
-.experienceAction:hover,
+.experienceAction:hover:not(:disabled),
 .experienceAction:focus-visible {
   border-color: var(--coral);
   color: var(--coral);
   outline: 2px solid color-mix(in srgb, var(--coral) 45%, transparent);
   outline-offset: 2px;
+}
+
+.experienceAction:disabled {
+  opacity: .5;
+  cursor: wait;
 }
 
 .tabs {
