@@ -91,7 +91,7 @@ export function FirstVisitOrientation() {
       const permanentlySeen = window.localStorage.getItem(FIRST_VISIT_KEY) === "seen";
       const presentedThisSession = window.sessionStorage.getItem(FIRST_VISIT_SESSION_KEY) === "seen";
       shouldShow = !permanentlySeen && !presentedThisSession;
-      if (shouldShow) window.sessionStorage.setItem(FIRST_VISIT_SESSION_KEY, "seen");
+      if (permanentlySeen || shouldShow) window.sessionStorage.setItem(FIRST_VISIT_SESSION_KEY, "seen");
     } catch {
       shouldShow = true;
     }
