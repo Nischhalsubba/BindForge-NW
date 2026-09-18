@@ -235,8 +235,8 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
             <section className={styles.nativePack} aria-labelledby="native-pack-title">
               <div>
                 <strong id="native-pack-title">Neverwinter loadable file</strong>
-                <p>Export selected bindings in game keybind-file format, then load the matching filename with <code>/bind_load_file</code>. On Windows, saved bind data is normally under the game’s <code>Live/localdata</code> area; install paths vary. Test in game after patches because BindForge cannot confirm the client applied it.</p>
-                <p><a href="https://neverwinter.fandom.com/wiki/Console_command" rel="noreferrer" target="_blank">Neverwinter command reference</a> · <a href="https://www.pcgamingwiki.com/wiki/Neverwinter" rel="noreferrer" target="_blank">File-location reference</a></p>
+                <p>Export selected bindings in Cryptic-style keybind-file format, then load the matching filename with <code>/bind_load_file</code>. Saved bind files are associated with the game’s <code>Live</code> install area, but exact paths vary by launcher and installation. Test the file in game because BindForge cannot confirm the client applied it.</p>
+                <p><a href="https://neverwinter.fandom.com/wiki/Console_command" rel="noreferrer" target="_blank">Neverwinter command reference</a> · <a href="https://slashmacros.com/macro/neverwinter/save-keybinds" rel="noreferrer" target="_blank">Save/load workflow reference</a></p>
                 <code className={styles.nativeFilename}>{props.nativeFilename}</code>
               </div>
               <div className={styles.nativePackActions}>

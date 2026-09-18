@@ -51,7 +51,7 @@ const normalized = presets.map((preset) => ({
 const duplicateIds = duplicateValues("id");
 const duplicateCommands = duplicateValues("command");
 const missingSource = normalized.filter((preset) => !preset.sourceUrl).map(({ id, title, sourceType, sectionFile }) => ({ id, title, sourceType, sectionFile }));
-const missingVerificationDate = normalized.filter((preset) => !preset.verifiedAt).map(({ id, title, sectionFile }) => ({ id, title, sectionFile }));
+const missingVerificationDate = normalized.filter((preset) => !verificationHistoryForPreset(preset)[0]?.date).map(({ id, title, sectionFile }) => ({ id, title, sectionFile }));
 const invalidVerificationDates = normalized.filter((preset) => preset.verifiedAt && !/^\d{4}-\d{2}-\d{2}$/.test(preset.verifiedAt)).map(({ id, verifiedAt, sectionFile }) => ({ id, verifiedAt, sectionFile }));
 const riskyWithoutExperimentalFlag = normalized.filter((preset) => preset.difficulty === "Risky" && preset.confidence !== "experimental").map(({ id, title, confidence, sectionFile }) => ({ id, title, confidence, sectionFile }));
 const missingRequiredFields = normalized.filter((preset) => !preset.id || !preset.title || !preset.command || !preset.plainEnglish || !preset.defaultKey || !preset.difficulty).map(({ id, title, sectionFile }) => ({ id, title, sectionFile }));
