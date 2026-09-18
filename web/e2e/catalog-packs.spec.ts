@@ -27,6 +27,9 @@ test("class and role packs are catalogue-backed and open deterministic result se
 });
 
 test("an opened quick pack can flow into the existing selection and pack review", async ({ page }) => {
+  const experience = page.getByTestId("experience-workspace-summary");
+  await experience.getByRole("button", { name: "Show more tools" }).click();
+
   const packs = visiblePacks(page);
   await packs.locator("summary").click();
   const barbarian = packs.locator('article[data-pack-id="barbarian-dps"]');
