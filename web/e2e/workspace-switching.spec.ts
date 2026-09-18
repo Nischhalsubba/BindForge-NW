@@ -2,6 +2,8 @@ import { expect, test } from "@playwright/test";
 
 async function waitForWorkspace(page: import("@playwright/test").Page) {
   await page.goto("/");
+  await expect(page.getByLabel("Search keybind library").first()).toBeEditable();
+  await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
   const summary = page.getByTestId("experience-workspace-summary");
   const showMore = summary.getByRole("button", { name: "Show more tools" });
   if (await showMore.isVisible()) {
