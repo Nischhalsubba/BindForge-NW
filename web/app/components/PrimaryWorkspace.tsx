@@ -124,7 +124,7 @@ function isTechnicalTool(view: WorkspaceView) {
 export function PrimaryWorkspace({ onCopy }: { onCopy: CopyHandler }) {
   const [activeView, setActiveView] = useState<WorkspaceView>("search");
   const [portableToolsOpen, setPortableToolsOpen] = useState(false);
-  const { state, resetFilters, setActionType, setClassName, setDifficulty, setSearch, updatePreferences } = useBindForge();
+  const { state, resetFilters, setActionType, setClassName, setDifficulty, setMode, setSearch, updatePreferences } = useBindForge();
   const experience = state.preferences.experience;
   const visibleTools = useMemo(
     () => experience === "simple" ? tools.filter((tool) => tool.view === "search" || tool.view === "compose") : tools,
@@ -151,6 +151,13 @@ export function PrimaryWorkspace({ onCopy }: { onCopy: CopyHandler }) {
       window.removeEventListener("popstate", syncFromHash);
     };
   }, []);
+
+  useEffect(() => {
+    if (experience !== "simple") return;
+    if (state.actionType !== "All") setActionType("All");
+    if (state.difficulty !== "All") setDifficulty("All");
+    if (state.mode !== "bind") setMode("bind");
+  }, [experience, setActionType, setDifficulty, setMode, state.actionType, state.difficulty, state.mode]);
 
   useEffect(() => {
     if (experience === "simple" && isTechnicalTool(activeView)) {
