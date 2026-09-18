@@ -55,7 +55,7 @@ test("Show more tools switches to Standard, reveals hidden controls, and persist
   await expect(page.getByRole("tablist", { name: "Primary keybind tools" }).getByRole("tab")).toHaveCount(4);
 });
 
-test("Beginner View keeps class filtering but hides action type and difficulty filters", async ({ page }, testInfo) => {
+test("Beginner View keeps class filtering but hides action type and difficulty filters", async ({ page }) => {
   const filterButton = page.getByRole("button", { name: "Filters", exact: true });
   if (await filterButton.isVisible()) {
     await filterButton.click();
