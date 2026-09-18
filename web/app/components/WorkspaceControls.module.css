@@ -23,19 +23,21 @@
 .emptyBadge { color: var(--ink-faint); }
 
 .keymapBody,.packBody { display: grid; gap: 14px; padding: 18px; border-top: 1px solid var(--line); }
-.keymapBody { grid-template-columns: minmax(180px,.75fr) minmax(260px,1.25fr); align-items: start; }
-.keymapCopy { display: grid; gap: 8px; }
+.keymapBody { grid-template-columns: minmax(0,1fr); align-items: start; }
+.keymapAnalyzer { display: grid; gap: 12px; padding: 16px; border: 1px solid var(--line); background: color-mix(in srgb, var(--paper) 64%, transparent); }
+.keymapCopy { display: grid; gap: 7px; max-width: 76ch; }
+.keymapEyebrow { color: var(--coral); font: 600 9px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
 .keymapCopy strong { font: 700 15px/1.2 var(--sans); }
 .keymapCopy p { margin: 0; color: var(--ink-mute); font-size: 12px; line-height: 1.55; }
 .keymapCopy code { font-family: var(--mono); }
 .keymapSource { padding-top: 8px; border-top: 1px solid var(--line-soft); color: var(--ink) !important; font-family: var(--mono); overflow-wrap: anywhere; }
 .keymapBody textarea { width: 100%; min-height: 132px; padding: 12px; border: 1px solid var(--line-strong); border-radius: 0; background: color-mix(in srgb, var(--paper) 58%, transparent); color: var(--ink); font: 500 12px/1.55 var(--mono); resize: vertical; }
-.keymapActions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; }
+.keymapActions { display: flex; flex-wrap: wrap; gap: 8px; }
 .keymapActions button,.fileButton,.collectionRow button,.packActions button,.trayActions button,.reviewActions button,.reviewIdentity button { min-height: 42px; padding: 8px 13px; border: 1px solid var(--line-strong); border-radius: 999px; background: transparent; color: var(--ink); font: 500 11px var(--sans); cursor: pointer; transition: border-color 160ms ease, color 160ms ease, background-color 160ms ease; }
 .keymapActions button:hover:not(:disabled),.fileButton:hover,.collectionRow button:hover:not(:disabled),.packActions button:hover:not(:disabled),.trayActions button:hover:not(:disabled),.reviewActions button:hover:not(:disabled),.reviewIdentity button:hover:not(:disabled) { border-color: var(--coral); color: var(--coral); background: color-mix(in srgb, var(--coral) 5%, transparent); }
 .keymapActions button:disabled,.collectionRow button:disabled,.packActions button:disabled,.trayActions button:disabled,.reviewActions button:disabled,.reviewIdentity button:disabled { opacity: .4; cursor: not-allowed; }
 .fileButton { display: inline-flex; align-items: center; justify-content: center; }
-.importStatus { grid-column: 1 / -1; margin: 0; padding: 10px 12px; border-left: 2px solid var(--mustard); background: color-mix(in srgb, var(--mustard) 8%, transparent); color: var(--ink-mute); font-size: 12px; }
+.importStatus { margin: 0; padding: 10px 12px; border-left: 2px solid var(--mustard); background: color-mix(in srgb, var(--mustard) 8%, transparent); color: var(--ink-mute); font-size: 12px; }
 
 .collectionRow,.packActions { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; }
 .collectionRow label { flex: 1 1 13rem; min-width: 10rem; }
@@ -70,6 +72,6 @@
 .reviewActions { position: sticky; bottom: -18px; display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 0 0; border-top: 1px solid var(--line); background: var(--paper); }
 
 @media (max-width:1180px) { .secondary { grid-template-columns: minmax(170px,1fr) repeat(2,minmax(140px,.85fr)); } .summary { grid-row: 1 / span 2; } .safeToggle { grid-column: 2 / span 2; } }
-@media (max-width:1050px) { .secondary { grid-template-columns: repeat(2,minmax(0,1fr)); }.summary { grid-column: 1/-1; grid-row:auto; }.safeToggle { grid-column:auto; }.keymapBody { grid-template-columns: 1fr; }.keymapActions,.importStatus { grid-column:auto; }.reviewHeading { grid-template-columns:1fr; gap:10px; } }
-@media (max-width:680px) { .secondary { grid-template-columns: 1fr; padding: 14px; }.summary { grid-column:auto; }.keymapSummary,.packSummary,.keymapBody,.packBody { padding: 14px; }.keymapSummary,.packSummary { grid-template-columns:minmax(0,1fr) auto 20px; }.collectionRow > *,.packActions > *,.keymapActions > * { width: 100%; flex-basis: 100%; }.collectionRow label { min-width: 0; }.selectionTray { bottom: 8px; }.traySummary { align-items: stretch; flex-direction: column; }.trayActions { justify-content: stretch; }.trayActions > * { flex: 1 1 auto; }.reviewPanel { max-height: 72vh; padding: 14px; }.reviewIdentity { grid-template-columns:1fr auto; }.reviewIdentity > code { justify-self:start; }.reviewIdentity button { grid-column:2; grid-row:1 / span 2; }.reviewActions > * { flex: 1 1 100%; } }
+@media (max-width:1050px) { .secondary { grid-template-columns: repeat(2,minmax(0,1fr)); }.summary { grid-column: 1/-1; grid-row:auto; }.safeToggle { grid-column:auto; }.reviewHeading { grid-template-columns:1fr; gap:10px; } }
+@media (max-width:680px) { .secondary { grid-template-columns: 1fr; padding: 14px; }.summary { grid-column:auto; }.keymapSummary,.packSummary,.keymapBody,.packBody { padding: 14px; }.keymapAnalyzer { padding: 13px; }.keymapSummary,.packSummary { grid-template-columns:minmax(0,1fr) auto 20px; }.collectionRow > *,.packActions > *,.keymapActions > * { width: 100%; flex-basis: 100%; }.collectionRow label { min-width: 0; }.selectionTray { bottom: 8px; }.traySummary { align-items: stretch; flex-direction: column; }.trayActions { justify-content: stretch; }.trayActions > * { flex: 1 1 auto; }.reviewPanel { max-height: 72vh; padding: 14px; }.reviewIdentity { grid-template-columns:1fr auto; }.reviewIdentity > code { justify-self:start; }.reviewIdentity button { grid-column:2; grid-row:1 / span 2; }.reviewActions > * { flex: 1 1 100%; } }
 @media (prefers-reduced-motion: reduce) { .secondary select,.collectionRow select,.collectionRow input,.keymapSummary,.packSummary,.keymapActions button,.fileButton,.collectionRow button,.packActions button,.trayActions button,.reviewActions button,.reviewIdentity button { transition:none; } }
