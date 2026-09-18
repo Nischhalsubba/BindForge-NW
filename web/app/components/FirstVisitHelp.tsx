@@ -126,8 +126,6 @@ export function FirstVisitOrientation() {
     shell?.setAttribute("inert", "");
     shell?.setAttribute("aria-hidden", "true");
 
-    const focusFrame = window.requestAnimationFrame(() => headingRef.current?.focus());
-
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         event.preventDefault();
@@ -150,7 +148,6 @@ export function FirstVisitOrientation() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => {
-      window.cancelAnimationFrame(focusFrame);
       document.body.style.overflow = previousOverflow;
       if (shell) {
         if (!shellHadInert) shell.removeAttribute("inert");
@@ -159,7 +156,13 @@ export function FirstVisitOrientation() {
       }
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [visible, step]);
+  }, [visible]);
+
+  useEffect(() => {
+    if (!visible) return;
+    const frame = window.requestAnimationFrame(() => headingRef.current?.focus());
+    return () => window.cancelAnimationFrame(frame);
+  }, [step, visible]);
 
   function closeTour() {
     markSeen();
