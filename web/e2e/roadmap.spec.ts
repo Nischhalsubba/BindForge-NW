@@ -21,6 +21,9 @@ test.beforeEach(async ({ page }) => {
   await page.evaluate(() => window.localStorage.clear());
   await page.reload();
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
+  const experience = page.getByTestId("experience-workspace-summary");
+  await experience.getByRole("button", { name: "Show more tools" }).click();
+  await expect(secondaryControls(page)).toBeVisible();
 });
 
 test("advanced browsing changes view, sorting, provenance, and collapsed groups", async ({ page }) => {
