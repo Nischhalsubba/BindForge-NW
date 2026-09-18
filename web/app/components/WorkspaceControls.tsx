@@ -3,12 +3,25 @@
 import { useEffect, useState } from "react";
 import type { PresetConfidence, PresetSourceType } from "../data/keybindTypes";
 import { ProfileWorkspaceManager } from "./ProfileWorkspaceManager";
+import { VisualKeyboardMap } from "./VisualKeyboardMap";
 import styles from "./WorkspaceControls.module.css";
 
 type ViewMode = "cards" | "compact";
 type SortMode = "recommended" | "title" | "difficulty" | "class";
 type ProvenanceFilter = "all" | PresetSourceType | PresetConfidence;
-type ProfileSummary = { id: string; name: string };
+type ProfilePersonalBind = {
+  mode: "bind";
+  key: string;
+  command: string;
+  raw: string;
+  lineNumber: number;
+};
+type ProfileSummary = {
+  id: string;
+  name: string;
+  keyValues: Record<string, string>;
+  personalBinds: ProfilePersonalBind[];
+};
 type CharacterSummary = {
   id: string;
   name: string;
@@ -160,6 +173,13 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
               onDeleteProfile={props.onDeleteProfile}
               onExport={props.onExportProfiles}
               onImport={props.onImportProfiles}
+            />
+            <VisualKeyboardMap
+              characterName={props.activeCharacter.name}
+              profileId={props.activeProfile.id}
+              profileName={props.activeProfile.name}
+              keyValues={props.activeProfile.keyValues}
+              personalBinds={props.activeProfile.personalBinds}
             />
             <div className={styles.keymapCopy}>
               <strong>Analyze this profile’s Neverwinter binds</strong>
