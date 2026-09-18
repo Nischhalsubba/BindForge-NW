@@ -141,46 +141,72 @@ function coachmarkPosition(rect: TargetRect) {
     if (targetMiddle > viewportHeight * 0.5) {
       return {
         placement: "mobile-top",
-        style: { top: gutter, left: gutter, right: gutter } satisfies CSSProperties,
+        style: { top: gutter, left: gutter, right: gutter, maxHeight: viewportHeight - gutter * 2 } satisfies CSSProperties,
       };
     }
     return {
       placement: "mobile-bottom",
-      style: { bottom: gutter, left: gutter, right: gutter } satisfies CSSProperties,
+      style: { bottom: gutter, left: gutter, right: gutter, maxHeight: viewportHeight - gutter * 2 } satisfies CSSProperties,
     };
   }
 
   if (viewportWidth - rect.right >= cardWidth + gap + gutter) {
+    const top = clamp(rect.top, gutter, Math.max(gutter, viewportHeight - estimatedHeight - gutter));
     return {
       placement: "right",
       style: {
         left: rect.right + gap,
-        top: clamp(rect.top, gutter, Math.max(gutter, viewportHeight - estimatedHeight - gutter)),
+        top,
+        maxHeight: viewportHeight - top - gutter,
       } satisfies CSSProperties,
     };
   }
 
   if (rect.left >= cardWidth + gap + gutter) {
+    const top = clamp(rect.top, gutter, Math.max(gutter, viewportHeight - estimatedHeight - gutter));
     return {
       placement: "left",
       style: {
         right: viewportWidth - rect.left + gap,
-        top: clamp(rect.top, gutter, Math.max(gutter, viewportHeight - estimatedHeight - gutter)),
+        top,
+        maxHeight: viewportHeight - top - gutter,
       } satisfies CSSProperties,
     };
   }
 
   const left = clamp(rect.left, gutter, Math.max(gutter, viewportWidth - cardWidth - gutter));
-  if (viewportHeight - rect.bottom >= estimatedHeight + gap + gutter) {
+  const availableBelow = viewportHeight - rect.bottom - gap - gutter;
+  if (availableBelow >= 180) {
+    const top = rect.bottom + gap;
     return {
       placement: "below",
-      style: { left, top: rect.bottom + gap } satisfies CSSProperties,
+      style: {
+        left,
+        top,
+        maxHeight: viewportHeight - top - gutter,
+      } satisfies CSSProperties,
+    };
+  }
+
+  const availableAbove = rect.top - gap - gutter;
+  if (availableAbove >= 180) {
+    return {
+      placement: "above",
+      style: {
+        left,
+        bottom: viewportHeight - rect.top + gap,
+        maxHeight: availableAbove,
+      } satisfies CSSProperties,
     };
   }
 
   return {
-    placement: "above",
-    style: { left, bottom: viewportHeight - rect.top + gap } satisfies CSSProperties,
+    placement: "viewport-top",
+    style: {
+      left,
+      top: gutter,
+      maxHeight: viewportHeight - gutter * 2,
+    } satisfies CSSProperties,
   };
 }
 
