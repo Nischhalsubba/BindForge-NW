@@ -9,7 +9,8 @@ test("critical browse, My Setup, and settings flow works outside Chromium", asyn
   await search.fill("bank");
   await expect(page.locator(".bind-card").first()).toBeVisible();
 
-  await page.getByRole("link", { name: /My Setup/i }).click();
+  const primaryNav = page.getByRole("navigation", { name: "Primary navigation" });
+  await primaryNav.getByRole("link", { name: /My Setup/, exact: true }).click();
   await expect(page.getByTestId("personal-keymap-panel")).toBeVisible();
 
   await page.getByRole("button", { name: "Local data & backup", exact: true }).click();
