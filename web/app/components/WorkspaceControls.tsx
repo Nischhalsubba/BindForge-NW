@@ -40,6 +40,8 @@ export type PackReviewItem = {
   title: string;
   keyValue: string;
   line: string;
+  currentEvidence: string;
+  rollbackLine: string;
   statusLevel: "safe" | "info" | "warn" | "danger";
   statusMessage: string;
   confidence: string;
@@ -340,7 +342,12 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
                       <button aria-label={`Remove ${item.title} from selected pack`} onClick={() => removeSelected(item.id)} type="button">Remove</button>
                     </div>
                     <p>{item.statusMessage}</p>
-                    <code className={styles.reviewCommand}>{item.line}</code>
+                    <div className={styles.changePreview} aria-label={`Current to proposed change for ${item.title}`}>
+                      <span><small>Current</small><code>{item.currentEvidence}</code></span>
+                      <b aria-hidden="true">→</b>
+                      <span><small>Proposed</small><code>{item.line}</code></span>
+                    </div>
+                    <div className={styles.rollbackPreview}><small>Rollback</small><code>{item.rollbackLine}</code></div>
                   </article>
                 ))}
               </div>
