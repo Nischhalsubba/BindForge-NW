@@ -14,7 +14,11 @@ async function openCompactView(page: import("@playwright/test").Page) {
   await page.goto("/");
   const experience = page.getByTestId("experience-workspace-summary");
   const showMore = experience.getByRole("button", { name: "Show more tools" });
-  if (await showMore.isVisible()) await showMore.click();
+  if (await showMore.isVisible()) {
+    await showMore.click();
+    await expect(experience).toContainText("Standard experience");
+  }
+  await expect(page.getByTestId("secondary-controls")).toBeVisible();
   await expect(libraryView(page)).toBeVisible();
   await libraryView(page).selectOption("compact");
   await expect(page.getByTestId("compact-bind-row").first()).toBeVisible();
