@@ -49,10 +49,24 @@ test("Show more tools switches to Standard, reveals hidden controls, and persist
   await expect(page.getByRole("button", { name: /Collections & command packs/i })).toBeVisible();
   await expect(page.getByText("Share, export & portable tools", { exact: true })).toBeVisible();
 
-  await page.waitForTimeout(350);
+  await page.waitForFunction(() => {
+    const raw = window.localStorage.getItem("bindforge-nw:settings:v2");
+    if (!raw) return false;
+    try {
+      const saved = JSON.parse(raw) as { version?: number; preferences?: { experience?: string } };
+      return saved.version === 3 && saved.preferences?.experience === "standard";
+    } catch {
+      return false;
+    }
+  });
+
   await page.reload();
-  await expect(page.getByTestId("experience-workspace-summary")).toContainText("Standard experience");
-  await expect(page.getByRole("tablist", { name: "Primary keybind tools" }).getByRole("tab")).toHaveCount(4);
+  await expect(page.getByLabel("Search keybind library").first()).toBeEditable();
+  await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
+  const restoredSummary = page.locator('[data-testid="experience-workspace-summary"]:visible').first();
+  const restoredTabs = page.locator('[role="tablist"][aria-label="Primary keybind tools"]:visible').first();
+  await expect(restoredSummary).toContainText("Standard experience");
+  await expect(restoredTabs.getByRole("tab")).toHaveCount(4);
 });
 
 test("Beginner View keeps class filtering but hides action type and difficulty filters", async ({ page }) => {
