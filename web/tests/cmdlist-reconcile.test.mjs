@@ -29,3 +29,10 @@ test("reconciles pasted game commands against the BindForge catalogue without cl
   assert.equal(result.pastedCount, 3);
   assert.equal(result.catalogCount, 3);
 });
+
+
+test("parses chat-prefixed cmdlist output and ignores headings", () => {
+  const parsed = parseCmdlist("[System] bind Bind a key\n[12:34] [System] bind_load_file Load a file\nCommands available:\nUsage: /cmdlist");
+  assert.deepEqual(parsed.commands, ["bind", "bind_load_file", "cmdlist"]);
+  assert.equal(parsed.ignored.some((line) => /Commands available/.test(line.raw)), true);
+});

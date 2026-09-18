@@ -3,13 +3,15 @@ function normalizeCommandName(value) {
 }
 
 function commandFromLine(rawLine) {
-  const line = String(rawLine ?? "").trim();
-  if (!line) return null;
+  const original = String(rawLine ?? "").trim();
+  if (!original) return null;
+  const line = original.replace(/^(?:\[[^\]]+\]\s*)+/, "");
 
   const slashMatch = line.match(/(?:^|\s)\/([A-Za-z][A-Za-z0-9_]*)\b/);
   if (slashMatch) return normalizeCommandName(slashMatch[1]);
 
-  const first = line.split(/\s+/, 1)[0];
+  const first = line.split(/\s+/, 1)[0].replace(/:$/, "");
+  if (["command", "commands", "available", "usage", "system"].includes(first.toLowerCase())) return null;
   if (/^[A-Za-z][A-Za-z0-9_]*$/.test(first) && /\s/.test(line)) return normalizeCommandName(first);
   return null;
 }
