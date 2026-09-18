@@ -327,7 +327,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   const resolvedWorkspace = profileWorkspace ?? fallbackWorkspace;
   const activeCharacter = (getActiveCharacter(resolvedWorkspace) as CharacterProfile | null) ?? resolvedWorkspace.characters[0];
   const activeProfile = (getActiveProfile(resolvedWorkspace) as KeymapProfile | null) ?? activeCharacter.profiles[0];
-  const personalBinds = activeProfile.personalBinds ?? [];
+  const personalBinds = useMemo(() => activeProfile.personalBinds ?? [], [activeProfile.personalBinds]);
   const personalSourceName = activeProfile.personalSourceName ?? "";
 
   const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
