@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useBindForge } from "../BindForgeProvider";
-import { analyzeRawKeymap } from "../lib/keymap-intelligence.mjs";
+import { analyzeRawKeymap, compareProfiles } from "../lib/keymap-intelligence.mjs";
 import type { ProfileHistorySnapshot } from "../lib/profile-history.mjs";
 import type { PresetConfidence, PresetSourceType } from "../data/keybindTypes";
 import { ProfileWorkspaceManager } from "./ProfileWorkspaceManager";
@@ -126,6 +126,10 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
   const panelId = "collections-command-packs";
   const keymapPanelId = "personal-keymap-import";
   const reviewPanelId = "selected-pack-review";
+  const importComparison = importPreview ? compareProfiles(
+    { id: props.activeProfile.id, name: props.activeProfile.name, keyValues: {}, personalBinds: props.activeProfile.personalBinds },
+    { id: "preview", name: "Preview", keyValues: {}, personalBinds: importPreview.activeBinds },
+  ) : null;
 
   useEffect(() => {
     const syncHash = () => {
@@ -257,9 +261,10 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
               {importPreview ? (
                 <div className={styles.importPreview} data-testid="keymap-import-preview">
                   <div className={styles.importPreviewSummary}>
-                    <strong>Validation preview</strong>
+                    <strong>Validation & migration preview</strong>
                     <span>{importPreview.activeBinds.length} active · {importPreview.overwrites.length} overwrites · {importPreview.orphanUnbinds.length} orphan unbinds · {importPreview.ignored.length} ignored</span>
                   </div>
+                  {importComparison ? <p>This import would change <strong>{importComparison.importedChanges.length}</strong> active key entries compared with the profile currently stored in My Setup.</p> : null}
                   {importPreview.overwrites.length ? <details><summary>Overwritten earlier binds ({importPreview.overwrites.length})</summary><ul>{importPreview.overwrites.slice(0,20).map((item) => <li key={`${item.key}-${item.next.lineNumber}`}><code>{item.key}</code><span>{item.previous.command} → {item.next.command}</span></li>)}</ul></details> : null}
                   {importPreview.orphanUnbinds.length ? <details><summary>Orphan unbinds ({importPreview.orphanUnbinds.length})</summary><p>These unbind lines did not have a prior bind earlier in this pasted file. They are preserved as cleanup evidence but do not create an active bind.</p></details> : null}
                   {importPreview.ignored.length ? <details><summary>Ignored lines ({importPreview.ignored.length})</summary><code>{importPreview.ignored.slice(0,20).map((item) => `Line ${item.lineNumber}: ${item.raw}`).join("\n")}</code></details> : null}
