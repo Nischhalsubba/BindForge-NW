@@ -79,3 +79,16 @@ test("marks duplicate customized BindForge assignments on one combo as a conflic
   assert.equal(model.byKey.get("9")?.state, "conflict");
   assert.equal(model.byKey.get("9")?.customAssignments.length, 2);
 });
+
+
+test("maps punctuation combos onto their physical keyboard keys", () => {
+  const model = buildVisualKeyboardState({
+    presets,
+    keyValues: { fighter: "ctrl+,", mount: "f7" },
+    personalBinds: [],
+  });
+
+  assert.equal(model.byKey.get("comma")?.state, "customized");
+  assert.equal(model.byKey.get("comma")?.customAssignments[0].combo, "ctrl+,");
+  assert.equal(model.unmappedAssignments.length, 0);
+});
