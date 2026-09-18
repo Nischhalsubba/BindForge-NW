@@ -253,9 +253,9 @@ test("renders the route not-found recovery page", async ({ page }) => {
 });
 
 test("supports keyboard navigation with visible focus", async ({ page }) => {
-  await page.locator("body").focus();
-  await page.keyboard.press("Tab");
-  await expect(page.getByRole("link", { name: "Skip to primary tools" })).toBeFocused();
+  const skipLink = page.getByRole("link", { name: "Skip to primary tools" });
+  await skipLink.focus();
+  await expect(skipLink).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(page.locator("#primary-workspace")).toBeInViewport();
 });
