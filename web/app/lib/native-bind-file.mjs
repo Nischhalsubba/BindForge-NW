@@ -17,8 +17,9 @@ function nativeKey(value) {
 
 function safeNativeCommand(value) {
   const command = unwrapOuterQuotes(normalizeCommandText(value));
-  if (!command || /[\r\n]/.test(command)) return null;
-  return command.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  if (!command || /[\r\n]/.test(command)) return { command: null, reason: "unsupported-command" };
+  if (command.includes('"')) return { command: null, reason: "embedded-quotes" };
+  return { command: command.replace(/\\/g, "\\\\"), reason: null };
 }
 
 export function buildNativeBindFile(entries = []) {
