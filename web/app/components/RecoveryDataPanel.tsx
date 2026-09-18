@@ -22,7 +22,10 @@ export function RecoveryDataPanel() {
   const [status, setStatus] = useState("");
 
   useEffect(() => {
-    try { setRecords(parseRecoveryRecords(window.localStorage.getItem(RECOVERY_STORAGE_KEY))); } catch { setRecords([]); }
+    const frame = window.requestAnimationFrame(() => {
+      try { setRecords(parseRecoveryRecords(window.localStorage.getItem(RECOVERY_STORAGE_KEY))); } catch { setRecords([]); }
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   function clear() {
