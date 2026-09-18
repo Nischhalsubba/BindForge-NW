@@ -253,6 +253,7 @@ test("renders the route not-found recovery page", async ({ page }) => {
 });
 
 test("supports keyboard navigation with visible focus", async ({ page }) => {
+  await page.locator("body").focus();
   await page.keyboard.press("Tab");
   await expect(page.getByRole("link", { name: "Skip to primary tools" })).toBeFocused();
   await page.keyboard.press("Enter");
