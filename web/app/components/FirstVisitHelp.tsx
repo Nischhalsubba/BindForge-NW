@@ -167,7 +167,10 @@ export function FirstVisitOrientation() {
   function closeTour() {
     markSeen();
     setVisible(false);
-    window.requestAnimationFrame(() => restoreFocusRef.current?.focus());
+    window.requestAnimationFrame(() => {
+      const fallback = document.querySelector<HTMLElement>('.site-nav-links a');
+      (restoreFocusRef.current ?? fallback)?.focus();
+    });
   }
 
   function finishBeginner() {
