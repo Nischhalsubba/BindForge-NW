@@ -74,6 +74,17 @@ function assignmentBaseKey(combo) {
     numpadmultiply: "multiply",
     numpaddivide: "divide",
     numpaddecimal: "decimal",
+    "`": "grave",
+    "-": "minus",
+    "=": "equals",
+    "[": "leftbracket",
+    "]": "rightbracket",
+    "\\": "backslash",
+    ";": "semicolon",
+    "'": "quote",
+    ",": "comma",
+    ".": "period",
+    "/": "slash",
   };
   return aliases[key] ?? key;
 }
