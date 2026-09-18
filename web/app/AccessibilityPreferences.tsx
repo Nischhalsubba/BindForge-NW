@@ -47,7 +47,7 @@ export function AccessibilityPreferences() {
   const preferences = state.preferences;
 
   const experienceOptions: ChoiceOption<Preferences["experience"]>[] = [
-    { value: "simple", label: "Simple", description: "Guided workflows and plain-language help." },
+    { value: "simple", label: "Beginner View", description: "Search and Compose first; technical tools stay hidden until you reveal them." },
     { value: "standard", label: "Standard", description: "Everyday tools with familiar controls." },
     { value: "advanced", label: "Advanced", description: "Technical details and power-user tools." },
   ];
