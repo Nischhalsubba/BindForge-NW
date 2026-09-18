@@ -5,6 +5,7 @@ test.beforeEach(async ({ page }) => {
   await page.evaluate(() => window.localStorage.clear());
   await page.reload();
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
+  await page.getByTestId("experience-workspace-summary").getByRole("button", { name: "Show more tools" }).click();
 });
 
 test("portable share tools stay unmounted until the drawer is opened", async ({ page }) => {
