@@ -13,6 +13,7 @@ const actionFilters = ["All", ...Array.from(new Set(keybindPresets.map((preset) 
 
 export function FilterSidebar() {
   const { state, setClassName, setActionType, setDifficulty, resetFilters } = useBindForge();
+  const beginner = state.preferences.experience === "simple";
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -87,38 +88,42 @@ export function FilterSidebar() {
           </div>
         </section>
 
-        <section className={styles.section} aria-labelledby={actionTitleId}>
-          <h3 id={actionTitleId}>Action type</h3>
-          <select
-            aria-label="Filter keybinds by action type"
-            className={styles.select}
-            onChange={(event) => setActionType(event.target.value as typeof state.actionType)}
-            value={state.actionType}
-          >
-            {actionFilters.map((actionType) => (
-              <option key={actionType} value={actionType}>
-                {actionType === "All" ? "All actions" : actionType}
-              </option>
-            ))}
-          </select>
-        </section>
-
-        <section className={styles.section} role="group" aria-labelledby={difficultyTitleId}>
-          <h3 id={difficultyTitleId}>Difficulty</h3>
-          <div className={styles.difficultyOptions}>
-            {(["All", "Easy", "Advanced", "Risky"] as const).map((item) => (
-              <button
-                aria-pressed={state.difficulty === item}
-                className={styles.difficulty}
-                key={item}
-                onClick={() => setDifficulty(item)}
-                type="button"
+        {!beginner ? (
+          <>
+            <section className={styles.section} aria-labelledby={actionTitleId}>
+              <h3 id={actionTitleId}>Action type</h3>
+              <select
+                aria-label="Filter keybinds by action type"
+                className={styles.select}
+                onChange={(event) => setActionType(event.target.value as typeof state.actionType)}
+                value={state.actionType}
               >
-                {item}
-              </button>
-            ))}
-          </div>
-        </section>
+                {actionFilters.map((actionType) => (
+                  <option key={actionType} value={actionType}>
+                    {actionType === "All" ? "All actions" : actionType}
+                  </option>
+                ))}
+              </select>
+            </section>
+
+            <section className={styles.section} role="group" aria-labelledby={difficultyTitleId}>
+              <h3 id={difficultyTitleId}>Difficulty</h3>
+              <div className={styles.difficultyOptions}>
+                {(["All", "Easy", "Advanced", "Risky"] as const).map((item) => (
+                  <button
+                    aria-pressed={state.difficulty === item}
+                    className={styles.difficulty}
+                    key={item}
+                    onClick={() => setDifficulty(item)}
+                    type="button"
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            </section>
+          </>
+        ) : null}
 
         <div className={styles.tip}>
           <Icon name="shield" />
