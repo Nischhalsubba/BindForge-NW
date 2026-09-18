@@ -34,12 +34,13 @@ function classify(status) {
   return "review";
 }
 
-async function safeRequest(rawUrl, method) {
+async function safeRequest(rawUrl, method, signal) {
   let current = await assertSafeSourceUrl(rawUrl);
   for (let redirects = 0; redirects <= 5; redirects += 1) {
     const response = await fetch(current, {
       method,
       redirect: "manual",
+      signal,
       headers: {
         "user-agent": "BindForge-NW-catalog-health/1.0",
         ...(method === "GET" ? { range: "bytes=0-0" } : {}),
@@ -60,17 +61,11 @@ async function inspect(url) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 12_000);
   try {
-    // The timeout is enforced by racing the request; every redirect hop is separately URL/DNS validated.
-    const request = (method) => Promise.race([
-      safeRequest(url, method),
-      new Promise((_, reject) => {
-        controller.signal.addEventListener("abort", () => reject(Object.assign(new Error("source check timed out"), { name: "AbortError" })), { once: true });
-      }),
-    ]);
-    let result = await request("HEAD");
+    // Every redirect hop is separately URL/DNS validated and the same timeout aborts the actual fetch.
+    let result = await safeRequest(url, "HEAD", controller.signal);
     if (result.response.status === 405) {
       await result.response.body?.cancel();
-      result = await request("GET");
+      result = await safeRequest(url, "GET", controller.signal);
     }
     await result.response.body?.cancel();
     return {
