@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { keybindPresets } from "../data/keybindPresets";
 import {
   buildVisualKeyboardState,
@@ -43,6 +43,8 @@ export function VisualKeyboardMap({
   personalBinds,
 }: VisualKeyboardMapProps) {
   const [selection, setSelection] = useState<{ profileId: string; keyId: string } | null>(null);
+  const [focusKeyId, setFocusKeyId] = useState("escape");
+  const keyRefs = useRef(new Map<string, HTMLButtonElement>());
   const model = useMemo(
     () => buildVisualKeyboardState({ presets: keybindPresets, keyValues, personalBinds }),
     [keyValues, personalBinds],
@@ -50,6 +52,36 @@ export function VisualKeyboardMap({
 
   const selectedKeyId = selection?.profileId === profileId ? selection.keyId : null;
   const selected = selectedKeyId ? model.byKey.get(selectedKeyId) ?? null : null;
+
+  function moveKeyboardFocus(event: KeyboardEvent<HTMLButtonElement>, currentId: string) {
+    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
+
+    let rowIndex = -1;
+    let columnIndex = -1;
+    VISUAL_KEYBOARD_ROWS.some((row, candidateRowIndex) => {
+      const candidateColumnIndex = row.findIndex((key) => key.id === currentId);
+      if (candidateColumnIndex < 0) return false;
+      rowIndex = candidateRowIndex;
+      columnIndex = candidateColumnIndex;
+      return true;
+    });
+    if (rowIndex < 0 || columnIndex < 0) return;
+
+    let targetRowIndex = rowIndex;
+    let targetColumnIndex = columnIndex;
+    if (event.key === "ArrowLeft") targetColumnIndex = Math.max(0, columnIndex - 1);
+    if (event.key === "ArrowRight") targetColumnIndex = Math.min(VISUAL_KEYBOARD_ROWS[rowIndex].length - 1, columnIndex + 1);
+    if (event.key === "ArrowUp") targetRowIndex = Math.max(0, rowIndex - 1);
+    if (event.key === "ArrowDown") targetRowIndex = Math.min(VISUAL_KEYBOARD_ROWS.length - 1, rowIndex + 1);
+    targetColumnIndex = Math.min(targetColumnIndex, VISUAL_KEYBOARD_ROWS[targetRowIndex].length - 1);
+
+    const target = VISUAL_KEYBOARD_ROWS[targetRowIndex][targetColumnIndex];
+    if (!target || target.id === currentId) return;
+
+    event.preventDefault();
+    setFocusKeyId(target.id);
+    keyRefs.current.get(target.id)?.focus();
+  }
 
   return (
     <section className={styles.section} aria-labelledby="visual-keyboard-title" data-testid="visual-keyboard-map">
@@ -87,7 +119,6 @@ export function VisualKeyboardMap({
         aria-label="Visual keyboard. Scroll horizontally inside this region on narrow screens."
         className={styles.viewport}
         role="region"
-        tabIndex={0}
       >
         <div className={styles.keyboard}>
           {VISUAL_KEYBOARD_ROWS.map((row, rowIndex) => (
@@ -99,11 +130,22 @@ export function VisualKeyboardMap({
                     aria-label={key.accessibleLabel}
                     aria-pressed={selectedKeyId === definition.id}
                     className={styles.key}
+                    data-keyboard-key="true"
                     data-state={key.state}
                     data-testid={`keyboard-key-${definition.id}`}
                     key={definition.id}
-                    onClick={() => setSelection({ profileId, keyId: definition.id })}
+                    onClick={() => {
+                      setFocusKeyId(definition.id);
+                      setSelection({ profileId, keyId: definition.id });
+                    }}
+                    onFocus={() => setFocusKeyId(definition.id)}
+                    onKeyDown={(event) => moveKeyboardFocus(event, definition.id)}
+                    ref={(node) => {
+                      if (node) keyRefs.current.set(definition.id, node);
+                      else keyRefs.current.delete(definition.id);
+                    }}
                     style={{ flexBasis: `${Math.max(44, (definition.width ?? 1) * 46)}px` }}
+                    tabIndex={focusKeyId === definition.id ? 0 : -1}
                     type="button"
                   >
                     <span className={styles.keyLabel}>{definition.label}</span>
