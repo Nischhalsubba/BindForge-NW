@@ -713,7 +713,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
                         const canReplace = (duplicate || Boolean(warning) || personalConflict) && !preset.intentionalNativeOverride;
                         return library.viewMode === "compact"
                           ? <CompactKeybindRow {...shared} canReplace={canReplace} copyDisabled={duplicate} keyValue={keyValue} line={buildPresetLine(preset, keyValue, state.mode)} mode={state.mode} onKeyChange={(value) => updateProfileKey(preset.id, value)} onReset={() => resetProfileKey(preset)} replacementKey={replacementFor(preset)} status={status} />
-                          : <KeybindCard {...shared} canReplace={canReplace} keyValue={keyValue} mode={state.mode} onKeyChange={(value) => updateProfileKey(preset.id, value)} onReset={() => resetProfileKey(preset)} query={state.search} replacementKey={replacementFor(preset)} status={status} />;
+                          : <KeybindCard {...shared} beginner={state.preferences.experience === "simple"} canReplace={canReplace} keyValue={keyValue} mode={state.mode} onKeyChange={(value) => updateProfileKey(preset.id, value)} onReset={() => resetProfileKey(preset)} query={state.search} replacementKey={replacementFor(preset)} status={status} />;
                       })}
                     </div>
                   )}
