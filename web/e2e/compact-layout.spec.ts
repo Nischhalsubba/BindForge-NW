@@ -12,6 +12,8 @@ function libraryView(page: import("@playwright/test").Page) {
 
 async function openCompactView(page: import("@playwright/test").Page) {
   await page.goto("/");
+  await expect(page.getByLabel("Search keybind library").first()).toBeEditable();
+  await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
   const experience = page.getByTestId("experience-workspace-summary");
   const showMore = experience.getByRole("button", { name: "Show more tools" });
   if (await showMore.isVisible()) {
