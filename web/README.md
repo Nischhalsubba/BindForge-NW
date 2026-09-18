@@ -31,6 +31,9 @@ BindForge NW helps Neverwinter players find, edit, validate, organize, share and
 | Personal keymap import | Paste or open bind text locally so new presets can be compared against the player's actual imported keys |
 | Conflict planner | Selected-pack duplicates, imported-keymap conflicts, native-key warnings, override guidance and safer-key suggestions |
 | Pack review | Review exact final commands, remove items, copy/download bind packs and prepare rollback/unbind output |
+| Native bind-file export | Download selected commands as a Neverwinter keybind file, copy the matching `/bind_load_file` command, and export an evidence-only restore file from imported prior binds |
+| Command reconciliation | Paste live `/cmdlist` output to identify catalogue matches, research candidates, and commands not observed in that pasted client/context |
+| Visual keyboard layouts | Persist US ANSI/QWERTY, QWERTZ, or AZERTY letter positioning without changing canonical Neverwinter key tokens |
 | Class & role quick packs | Evidence-backed catalogue groupings that preserve current verification levels and never invent build recommendations |
 | Trust and provenance | Verified, Community tested and Experimental labels plus source/evidence context and verification dates where known |
 | Favourites and collections | Save useful presets and named local collections in the browser |
@@ -105,7 +108,7 @@ npx playwright install chromium
 npm run check:release
 ```
 
-Release regression coverage includes keyboard/focus behavior, touch geometry, overflow, themes, high contrast, reduced motion, enlarged text, 200%-zoom-equivalent geometry, tablet landscape, saved-data migration, the four workflows, packs, personal conflict review and first-visit help.
+Release regression coverage includes keyboard/focus behavior, touch geometry, overflow, themes, high contrast, reduced motion, enlarged text, 200%-zoom-equivalent geometry, tablet landscape, saved-data migration, the four workflows, packs, personal conflict review and first-visit help. Chromium keeps the full mobile/tablet/desktop matrix; Firefox and WebKit run a focused critical-flow smoke gate.
 
 ## Repository layout
 
