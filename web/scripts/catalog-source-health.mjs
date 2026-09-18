@@ -1,5 +1,6 @@
 // Scheduled source health report. Network failures are evidence to review, not automatic proof that a source is invalid.
 import { readdir, writeFile } from "node:fs/promises";
+import { assertSafeSourceUrl, SourceUrlSafetyError } from "../app/lib/source-url-safety.mjs";
 
 const sectionsDirectory = new URL("../app/data/keybindPresetSections/", import.meta.url);
 const outputPath = new URL("../catalog-source-health.json", import.meta.url);
@@ -33,37 +34,63 @@ function classify(status) {
   return "review";
 }
 
+async function safeRequest(rawUrl, method) {
+  let current = await assertSafeSourceUrl(rawUrl);
+  for (let redirects = 0; redirects <= 5; redirects += 1) {
+    const response = await fetch(current, {
+      method,
+      redirect: "manual",
+      headers: {
+        "user-agent": "BindForge-NW-catalog-health/1.0",
+        ...(method === "GET" ? { range: "bytes=0-0" } : {}),
+      },
+    });
+    if (response.status < 300 || response.status >= 400) {
+      return { response, finalUrl: current.href, redirects };
+    }
+    const location = response.headers.get("location");
+    await response.body?.cancel();
+    if (!location) return { response, finalUrl: current.href, redirects };
+    current = await assertSafeSourceUrl(new URL(location, current).href);
+  }
+  throw new SourceUrlSafetyError("too many source redirects");
+}
+
 async function inspect(url) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 12_000);
   try {
-    let response = await fetch(url, {
-      method: "HEAD",
-      redirect: "follow",
-      signal: controller.signal,
-      headers: { "user-agent": "BindForge-NW-catalog-health/1.0" },
-    });
-    if (response.status === 405) {
-      response = await fetch(url, {
-        method: "GET",
-        redirect: "follow",
-        signal: controller.signal,
-        headers: { "user-agent": "BindForge-NW-catalog-health/1.0", range: "bytes=0-0" },
-      });
+    // The timeout is enforced by racing the request; every redirect hop is separately URL/DNS validated.
+    const request = (method) => Promise.race([
+      safeRequest(url, method),
+      new Promise((_, reject) => {
+        controller.signal.addEventListener("abort", () => reject(Object.assign(new Error("source check timed out"), { name: "AbortError" })), { once: true });
+      }),
+    ]);
+    let result = await request("HEAD");
+    if (result.response.status === 405) {
+      await result.response.body?.cancel();
+      result = await request("GET");
     }
+    await result.response.body?.cancel();
     return {
       url,
-      finalUrl: response.url || url,
-      status: response.status,
-      classification: classify(response.status),
-      redirected: Boolean(response.redirected || (response.url && response.url !== url)),
+      finalUrl: result.finalUrl,
+      status: result.response.status,
+      classification: classify(result.response.status),
+      redirected: result.redirects > 0,
+      redirectCount: result.redirects,
     };
   } catch (error) {
     return {
       url,
       finalUrl: url,
       status: null,
-      classification: error?.name === "AbortError" ? "timeout" : "network-error",
+      classification: error instanceof SourceUrlSafetyError
+        ? "unsafe-url"
+        : error?.name === "AbortError"
+          ? "timeout"
+          : "network-error",
       redirected: false,
       error: error instanceof Error ? error.message : String(error),
     };
@@ -84,7 +111,7 @@ const report = {
     return counts;
   }, {}),
   sources,
-  note: "Blocked/rate-limited/network results require human review and do not automatically invalidate a catalogue source.",
+  note: "Blocked/rate-limited/network results require human review and do not automatically invalidate a catalogue source. Unsafe private/reserved targets and redirect hops are never fetched.",
 };
 
 await writeFile(outputPath, `${JSON.stringify(report, null, 2)}\n`);
