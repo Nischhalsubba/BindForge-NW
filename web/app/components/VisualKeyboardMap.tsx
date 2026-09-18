@@ -52,10 +52,13 @@ export function VisualKeyboardMap({
   const keyboardRows = useMemo(() => getVisualKeyboardRowsForLayout(VISUAL_KEYBOARD_ROWS, layoutId), [layoutId]);
 
   useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(KEYBOARD_LAYOUT_STORAGE_KEY);
-      if (saved && KEYBOARD_LAYOUTS.some((layout) => layout.id === saved)) setLayoutId(saved);
-    } catch { /* use US ANSI for this session */ }
+    const frame = window.requestAnimationFrame(() => {
+      try {
+        const saved = window.localStorage.getItem(KEYBOARD_LAYOUT_STORAGE_KEY);
+        if (saved && KEYBOARD_LAYOUTS.some((layout) => layout.id === saved)) setLayoutId(saved);
+      } catch { /* use US ANSI for this session */ }
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   function changeLayout(value: string) {
