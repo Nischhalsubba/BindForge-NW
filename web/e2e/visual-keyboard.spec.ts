@@ -18,7 +18,7 @@ test.beforeEach(async ({ page }) => {
 test("visualizes active-profile keyboard evidence without claiming unknown keys are free", async ({ page }) => {
   const keyboard = page.getByTestId("visual-keyboard-map");
   await expect(keyboard).toBeVisible();
-  await expect(keyboard.getByText("Unknown", { exact: true })).toBeVisible();
+  await expect(keyboard.getByLabel("Keyboard state summary").getByText("Unknown", { exact: true })).toBeVisible();
   await expect(keyboard.getByTestId("keyboard-key-7")).toHaveAttribute("data-state", "unknown");
 });
 
