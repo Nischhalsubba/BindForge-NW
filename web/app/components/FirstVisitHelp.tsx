@@ -240,7 +240,7 @@ export function ContextualHelpGlossary() {
   }
 
   return (
-    <details className={styles.help} id="bindforge-help">
+    <details className={styles.help} data-tour="help" id="bindforge-help">
       <summary>Help, terms & confidence labels</summary>
       <div className={styles.helpBody}>
         <div className={styles.helpIntro}>
