@@ -92,3 +92,28 @@ test("maps punctuation combos onto their physical keyboard keys", () => {
   assert.equal(model.byKey.get("comma")?.customAssignments[0].combo, "ctrl+,");
   assert.equal(model.unmappedAssignments.length, 0);
 });
+
+
+test("maps BindForge captured key tokens onto their physical keycaps", () => {
+  const model = buildVisualKeyboardState({
+    presets: [
+      { id: "bracket", title: "Bracket", defaultKey: "f8", command: "bracket-command" },
+      { id: "quote", title: "Quote", defaultKey: "f9", command: "quote-command" },
+      { id: "subtract", title: "Subtract", defaultKey: "f10", command: "subtract-command" },
+      { id: "numpad-enter", title: "Numpad Enter", defaultKey: "f11", command: "enter-command" },
+    ],
+    keyValues: {
+      bracket: "ctrl+lbracket",
+      quote: "alt+apostrophe",
+      subtract: "numpadsubtract",
+      "numpad-enter": "numpadenter",
+    },
+    personalBinds: [],
+  });
+
+  assert.equal(model.byKey.get("leftbracket")?.state, "customized");
+  assert.equal(model.byKey.get("quote")?.state, "customized");
+  assert.equal(model.byKey.get("subtract")?.state, "customized");
+  assert.equal(model.byKey.get("numpadenter")?.state, "customized");
+  assert.equal(model.unmappedAssignments.length, 0);
+});
