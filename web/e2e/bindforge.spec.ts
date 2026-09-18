@@ -60,7 +60,10 @@ async function waitForSavedSettings(page: Page, expected: { search?: string; cus
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
-  await page.evaluate(() => window.localStorage.clear());
+  await page.evaluate(() => {
+    window.localStorage.clear();
+    window.localStorage.setItem("bindforge-nw:first-visit:v2", "seen");
+  });
   await page.reload();
   await expect(page.getByRole("heading", { level: 1, name: /Find it. Build it. Bind it/ })).toBeVisible();
   await waitForHydration(page);
