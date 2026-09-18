@@ -194,7 +194,7 @@ export function FirstVisitOrientation() {
             <p className={styles.eyebrow}>{current.eyebrow}</p>
             <p className={styles.progress}>{step + 1} of {steps.length}</p>
           </div>
-          <button aria-label="Skip tour" className={styles.close} onClick={closeTour} type="button">×</button>
+          <button aria-label="Close guided tour" className={styles.close} onClick={closeTour} type="button">×</button>
         </header>
 
         <div className={styles.tourBody}>
