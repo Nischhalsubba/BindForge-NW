@@ -13,12 +13,15 @@ import {
   parseBindText,
   resolveBindMap,
 } from "../lib/keybind-core.mjs";
+import { buildChangePreview, recommendUnusedKeys } from "../lib/keymap-intelligence.mjs";
 import {
   buildBindLoadCommand,
   buildNativeBindFile,
   buildNativeRestoreFile,
   makeNativeBindFilename,
 } from "../lib/native-bind-file.mjs";
+import { makeProfileSnapshot, pushProfileSnapshot, restoreSnapshotProfile } from "../lib/profile-history.mjs";
+import type { ProfileHistorySnapshot } from "../lib/profile-history.mjs";
 import {
   cloneProfile,
   createDefaultProfileWorkspace,
@@ -39,6 +42,7 @@ import type { PackReviewItem } from "./WorkspaceControls";
 
 const LIBRARY_SETTINGS_KEY = "bindforge-nw:library:v1";
 const PROFILE_WORKSPACE_KEY = "bindforge-nw:profiles:v1";
+const PROFILE_HISTORY_KEY = "bindforge-nw:profile-history:v1";
 const INITIAL_VISIBLE_GROUPS = keybindPresets.length;
 const GROUP_BATCH_SIZE = 3;
 const MAX_PERSONAL_BIND_FILE_BYTES = 512 * 1024;
@@ -218,6 +222,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   const { state, hydrated: settingsHydrated, setKey, replaceKeys, setSearch, resetFilters } = useBindForge();
   const [library, setLibrary] = useState<StoredLibraryState>(defaultLibraryState);
   const [profileWorkspace, setProfileWorkspace] = useState<ProfileWorkspace | null>(null);
+  const [profileHistory, setProfileHistory] = useState<Record<string, ProfileHistorySnapshot[]>>({});
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [activeCollection, setActiveCollection] = useState("all");
   const [collectionName, setCollectionName] = useState("");
@@ -230,6 +235,13 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
 
   useEffect(() => {
     setLibrary(readStoredLibraryState());
+    try {
+      const rawHistory = window.localStorage.getItem(PROFILE_HISTORY_KEY);
+      if (rawHistory) {
+        const parsed = JSON.parse(rawHistory);
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) setProfileHistory(parsed as Record<string, ProfileHistorySnapshot[]>);
+      }
+    } catch { /* history starts empty */ }
     const params = new URLSearchParams(window.location.search);
     const presetId = params.get("preset");
     const collection = params.get("collection");
@@ -242,6 +254,11 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     if (!hydrated) return;
     try { window.localStorage.setItem(LIBRARY_SETTINGS_KEY, JSON.stringify(library)); } catch { /* session only */ }
   }, [hydrated, library]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    try { window.localStorage.setItem(PROFILE_HISTORY_KEY, JSON.stringify(profileHistory)); } catch { /* session only */ }
+  }, [hydrated, profileHistory]);
 
   useEffect(() => {
     if (!settingsHydrated || !hydrated || profilesHydrated) return;
@@ -340,6 +357,20 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   }, {}), [selectedPresets, state.keys]);
   const personalByKey = useMemo(() => new Map(personalBinds.map((entry) => [normalizedKey(entry.key), entry])), [personalBinds]);
   const hasPersonalKeymap = Boolean(personalBinds.length || personalSourceName);
+  const customizedAssignments = useMemo(() => keybindPresets.flatMap((preset) => {
+    const key = state.keys[preset.id] ?? preset.defaultKey;
+    return normalizeCombo(key) !== normalizeCombo(preset.defaultKey)
+      ? [{ presetId: preset.id, title: preset.title, key, command: preset.command }]
+      : [];
+  }), [state.keys]);
+  const unusedKeyRecommendations = useMemo(() => recommendUnusedKeys({
+    hasImportedEvidence: hasPersonalKeymap,
+    personalBinds,
+    currentAssignments: customizedAssignments,
+    candidates: SAFE_KEY_SUGGESTIONS,
+    limit: 10,
+  }), [customizedAssignments, hasPersonalKeymap, personalBinds]);
+  const activeProfileHistory = profileHistory[activeProfile.id] ?? [];
 
   const filtered = useMemo(() => {
     const query = state.search.trim();
@@ -389,16 +420,37 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     const key = normalizedKey(keyValue);
     const duplicate = (selectedKeyUseCounts[key] ?? 0) > 1;
     const status = statusFor(preset, keyValue, duplicate, personalByKey.get(key), hasPersonalKeymap);
+    const preview = buildChangePreview({
+      presetId: preset.id,
+      title: preset.title,
+      currentKey: preset.defaultKey,
+      proposedKey: keyValue,
+      proposedCommand: preset.command,
+      personalBinds,
+      currentAssignments: selectedPresets.map((selected) => ({
+        presetId: selected.id,
+        title: selected.title,
+        key: state.keys[selected.id] ?? selected.defaultKey,
+        command: selected.command,
+      })),
+    });
+    const rollbackLine = preview.rollback.command
+      ? `/bind ${preview.rollback.key} ${preview.rollback.command}`
+      : `/unbind ${preview.proposedKey}`;
     return {
       id: preset.id,
       title: preset.title,
       keyValue: normalizeCombo(keyValue),
       line: buildPresetLine(preset, keyValue, "bind"),
+      currentEvidence: preview.overwrittenImportedCommand
+        ? `Imported now: /bind ${preview.proposedKey} ${preview.overwrittenImportedCommand}`
+        : "Imported now: no bind found on this proposed key",
+      rollbackLine,
       statusLevel: status.level,
       statusMessage: status.message,
       confidence: `${preset.confidence ? preset.confidence.replace("-", " ") : "unverified"}${preset.verifiedAt ? ` · checked ${preset.verifiedAt}` : ""}`,
     };
-  }), [hasPersonalKeymap, personalByKey, selectedKeyUseCounts, selectedPresets, state.keys]);
+  }), [hasPersonalKeymap, personalBinds, personalByKey, selectedKeyUseCounts, selectedPresets, state.keys]);
   const selectedReviewCount = useMemo(() => selectedReviewItems.filter((item) => item.statusLevel !== "safe").length, [selectedReviewItems]);
   const conflictCount = useMemo(() => filtered.filter((preset) => {
     const keyValue = state.keys[preset.id] ?? preset.defaultKey;
@@ -416,6 +468,15 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     if (!profileWorkspace) return;
     saveWorkspace({ ...profileWorkspace, characters: profileWorkspace.characters.map((character) => character.id === profileWorkspace.activeCharacterId ? { ...character, ...patch } : character) });
   }
+  function captureActiveProfile(reason: string) {
+    if (!profilesHydrated || !activeProfile) return;
+    const snapshot = makeProfileSnapshot(activeProfile, reason) as ProfileHistorySnapshot;
+    setProfileHistory((current) => ({
+      ...current,
+      [activeProfile.id]: pushProfileSnapshot(current[activeProfile.id] ?? [], snapshot, 12),
+    }));
+  }
+
   function patchActiveProfile(patch: Partial<KeymapProfile>) {
     if (!profileWorkspace) return;
     const updatedAt = new Date().toISOString();
@@ -458,6 +519,8 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     setActiveCollection("all");
   }
   function updateProfileKey(presetId: string, value: string) {
+    if ((activeProfile.keyValues[presetId] ?? "") === value) return;
+    captureActiveProfile("Before key edit");
     setKey(presetId, value);
     patchActiveProfile({ keyValues: { ...activeProfile.keyValues, [presetId]: value } });
   }
@@ -543,6 +606,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
       return;
     }
     const active = resolveBindMap(parsed.entries) as PersonalBind[];
+    captureActiveProfile("Before keymap import");
     patchActiveProfile({ personalBinds: active, personalSourceName: sourceName, personalImportedAt: new Date().toISOString() });
     const ignoredNote = parsed.ignored.length ? ` ${parsed.ignored.length} unsupported ${parsed.ignored.length === 1 ? "line was" : "lines were"} ignored.` : "";
     setPersonalImportMessage(`${active.length} active ${active.length === 1 ? "bind" : "binds"} analyzed. Personal conflict detection is active.${ignoredNote}`);
@@ -559,6 +623,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     }
   }
   function clearPersonalBinds() {
+    captureActiveProfile("Before clearing imported keymap");
     patchActiveProfile({ personalBinds: [], personalSourceName: "", personalImportedAt: "" });
     setPersonalImportMessage("Personal keymap cleared for this profile. BindForge is using common conflict guidance only.");
   }
@@ -592,6 +657,25 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
       setProfileStatus("The My Setup backup could not be read.");
     }
   }
+  function restoreProfileSnapshot(snapshotId: string) {
+    if (!profileWorkspace) return;
+    const snapshot = (profileHistory[activeProfile.id] ?? []).find((item) => item.id === snapshotId);
+    if (!snapshot) return;
+    captureActiveProfile("Before history restore");
+    const restored = restoreSnapshotProfile(activeProfile, snapshot) as KeymapProfile;
+    const next: ProfileWorkspace = {
+      ...profileWorkspace,
+      characters: profileWorkspace.characters.map((character) => character.id === activeCharacter.id ? {
+        ...character,
+        profiles: character.profiles.map((profile) => profile.id === activeProfile.id ? restored : profile),
+      } : character),
+    };
+    saveWorkspace(next);
+    replaceKeys(restored.keyValues);
+    setPersonalImportMessage("");
+    setProfileStatus(`Restored local snapshot from ${new Date(snapshot.createdAt).toLocaleString()}.`);
+  }
+
   function clearSecondaryFiltersKeepSearch() {
     const query = state.search;
     resetFilters();
@@ -712,6 +796,10 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
         onDownloadNativePack={downloadNativePack}
         onCopyNativeLoadCommand={() => { void copyNativeLoadCommand(); }}
         onDownloadNativeRestore={downloadNativeRestore}
+        hasImportedEvidence={hasPersonalKeymap}
+        unusedKeyRecommendations={unusedKeyRecommendations}
+        profileHistory={activeProfileHistory}
+        onRestoreProfileSnapshot={restoreProfileSnapshot}
         onImportPersonalText={(text) => importPersonalBinds(text)}
         onImportPersonalFile={(file) => { void importPersonalFile(file); }}
         onClearPersonalBinds={clearPersonalBinds}
@@ -769,8 +857,8 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
                         };
                         const canReplace = (duplicate || Boolean(warning) || personalConflict) && !preset.intentionalNativeOverride;
                         return library.viewMode === "compact"
-                          ? <CompactKeybindRow {...shared} canReplace={canReplace} copyDisabled={duplicate} keyValue={keyValue} line={buildPresetLine(preset, keyValue, state.mode)} mode={state.mode} onKeyChange={(value) => updateProfileKey(preset.id, value)} onReset={() => resetProfileKey(preset)} replacementKey={replacementFor(preset)} status={status} />
-                          : <KeybindCard {...shared} beginner={state.preferences.experience === "simple"} canReplace={canReplace} keyValue={keyValue} mode={state.mode} onKeyChange={(value) => updateProfileKey(preset.id, value)} onReset={() => resetProfileKey(preset)} query={state.search} replacementKey={replacementFor(preset)} status={status} />;
+                          ? <CompactKeybindRow {...shared} canReplace={canReplace} copyDisabled={duplicate} keyValue={keyValue} line={buildPresetLine(preset, keyValue, state.mode)} mode={state.mode} onKeyChange={(value) => updateProfileKey(preset.id, value)} onReset={() => resetProfileKey(preset)} replacementKey={replacementFor(preset)} reassignmentOptions={unusedKeyRecommendations} status={status} />
+                          : <KeybindCard {...shared} beginner={state.preferences.experience === "simple"} canReplace={canReplace} keyValue={keyValue} mode={state.mode} onKeyChange={(value) => updateProfileKey(preset.id, value)} onReset={() => resetProfileKey(preset)} query={state.search} replacementKey={replacementFor(preset)} reassignmentOptions={unusedKeyRecommendations} status={status} />;
                       })}
                     </div>
                   )}
