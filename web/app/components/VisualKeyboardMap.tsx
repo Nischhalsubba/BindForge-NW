@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { keybindPresets } from "../data/keybindPresets";
 import {
   buildVisualKeyboardState,
@@ -42,16 +42,13 @@ export function VisualKeyboardMap({
   keyValues,
   personalBinds,
 }: VisualKeyboardMapProps) {
-  const [selectedKeyId, setSelectedKeyId] = useState<string | null>(null);
+  const [selection, setSelection] = useState<{ profileId: string; keyId: string } | null>(null);
   const model = useMemo(
     () => buildVisualKeyboardState({ presets: keybindPresets, keyValues, personalBinds }),
     [keyValues, personalBinds],
   );
 
-  useEffect(() => {
-    setSelectedKeyId(null);
-  }, [profileId]);
-
+  const selectedKeyId = selection?.profileId === profileId ? selection.keyId : null;
   const selected = selectedKeyId ? model.byKey.get(selectedKeyId) ?? null : null;
 
   return (
@@ -105,7 +102,7 @@ export function VisualKeyboardMap({
                     data-state={key.state}
                     data-testid={`keyboard-key-${definition.id}`}
                     key={definition.id}
-                    onClick={() => setSelectedKeyId(definition.id)}
+                    onClick={() => setSelection({ profileId, keyId: definition.id })}
                     style={{ flexBasis: `${Math.max(44, (definition.width ?? 1) * 46)}px` }}
                     type="button"
                   >
