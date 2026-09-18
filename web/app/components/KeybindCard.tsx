@@ -79,7 +79,7 @@ function KeybindCardComponent(props: KeybindCardProps) {
         : "Copy command";
 
   return (
-    <article className={`bind-card ${props.selected ? "is-selected" : ""} ${copyState === "copied" || copyState === "fallback" ? "is-copied" : ""}`} data-gsap-enter data-preset-id={props.preset.id}>
+    <article className={`bind-card ${props.selected ? "is-selected" : ""} ${copyState === "copied" || copyState === "fallback" ? "is-copied" : ""}`} data-gsap-enter data-preset-id={props.preset.id} data-tour="keybind-card">
       <header className="card-header">
         <div className="card-meta">
           <span className={`level-pill level-${props.preset.difficulty.toLowerCase()}`}>{props.preset.difficulty}</span>

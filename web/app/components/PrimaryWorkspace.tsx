@@ -237,7 +237,7 @@ export function PrimaryWorkspace({ onCopy }: { onCopy: CopyHandler }) {
         <p>Start with the job you came to do. Switching tools keeps your place on the page, so the workspace no longer jumps around underneath you.</p>
       </header>
 
-      <div className={styles.experienceBar} data-testid="experience-workspace-summary">
+      <div className={styles.experienceBar} data-testid="experience-workspace-summary" data-tour="beginner-view">
         <span className={styles.experienceBadge}>{experienceCopy[experience].label}</span>
         <p>{experienceCopy[experience].description}</p>
         <button
@@ -263,6 +263,7 @@ export function PrimaryWorkspace({ onCopy }: { onCopy: CopyHandler }) {
             aria-label={tool.title}
             aria-selected={activeView === tool.view}
             className={`${styles.tab} ${activeView === tool.view ? styles.active : ""}`}
+            data-tour={tool.view === "compose" ? "build" : undefined}
             id={`primary-tab-${tool.view}`}
             key={tool.view}
             onClick={() => selectTool(tool)}

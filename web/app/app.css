@@ -549,3 +549,69 @@ html[data-theme='dark'] .command-specimen small {
     transform: none;
   }
 }
+
+
+/* Keep the active catalogue category visible while its cards are being reviewed. */
+.bind-group {
+  min-width: 0;
+  overflow: visible;
+}
+
+.group-heading {
+  position: sticky;
+  top: 0;
+  z-index: 24;
+  align-items: center;
+  min-height: 64px;
+  margin-bottom: 18px;
+  padding: 10px 0 14px;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--paper) 94%, transparent);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--ink) 9%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.group-title-context {
+  color: var(--ink-faint);
+  font-weight: 600;
+}
+
+.group-heading-actions {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 680px) {
+  .group-heading {
+    gap: 10px;
+    min-height: 56px;
+    padding: 8px 0 10px;
+  }
+
+  .group-heading > div:first-child {
+    min-width: 0;
+  }
+
+  .group-heading h3 {
+    font-size: clamp(18px, 5.5vw, 24px);
+    overflow-wrap: anywhere;
+  }
+
+  .group-heading p {
+    display: none;
+  }
+
+  .group-heading-actions {
+    align-items: center;
+    gap: 6px;
+  }
+
+  .group-heading-actions > span {
+    font-size: 9px;
+  }
+
+  .group-heading-actions .icon-text-button {
+    min-width: 44px;
+    min-height: 44px;
+    padding-inline: 10px;
+  }
+}

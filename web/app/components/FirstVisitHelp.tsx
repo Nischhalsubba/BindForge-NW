@@ -1,7 +1,7 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useBindForge } from "../BindForgeProvider";
 import styles from "./FirstVisitHelp.module.css";
 
@@ -9,60 +9,96 @@ const FIRST_VISIT_KEY = "bindforge-nw:first-visit:v2";
 const FIRST_VISIT_SESSION_KEY = "bindforge-nw:first-visit-presented:v2";
 const TOUR_EVENT = "bindforge:open-guided-tour";
 
-const steps = [
+type TourStep = {
+  eyebrow: string;
+  title: string;
+  intro: string;
+  points: readonly string[];
+  selector: string;
+};
+
+type TargetRect = {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+  width: number;
+  height: number;
+};
+
+const steps: readonly TourStep[] = [
   {
-    eyebrow: "Start here",
-    title: "Welcome to BindForge",
-    intro: "BindForge helps you find, understand, and prepare Neverwinter keybinds without needing to learn command syntax first.",
+    eyebrow: "01 · Navigation",
+    title: "Know where you are",
+    intro: "BindForge has only three primary destinations. Everything else lives inside one of them.",
     points: [
-      "Nothing is applied to Neverwinter automatically. BindForge prepares commands for you to copy or save.",
-      "Begin with Keybinds if you only want something proven and ready to use.",
-      "Use My Setup when you want BindForge to understand your character’s existing keys.",
+      "Keybinds is for finding proven presets.",
+      "My Setup is for your characters, profiles, imports, and conflicts.",
+      "Build is for creating something when a preset is not enough.",
     ],
+    selector: '[data-tour="primary-nav"]',
   },
   {
-    eyebrow: "01 · Keybinds",
-    title: "Find a keybind",
-    intro: "Search in normal player language, choose your class when useful, then inspect the safety message before copying.",
+    eyebrow: "02 · Beginner View",
+    title: "Start simple, reveal more when ready",
+    intro: "Beginner View intentionally hides technical controls so the first screen stays understandable.",
     points: [
-      "Search things like “fighter cancel”, “mount quickly”, or “hide HUD”.",
-      "Beginner View keeps only the most useful filtering visible.",
-      "Copy the command, apply it in Neverwinter, and test it before depending on it.",
+      "Search and Compose stay prominent.",
+      "Use “Show more tools” whenever you want the Standard workspace. Nothing is deleted.",
     ],
+    selector: '[data-tour="beginner-view"]',
   },
   {
-    eyebrow: "02 · My Setup",
-    title: "Review My Setup",
-    intro: "My Setup keeps different characters and keymap profiles separate, so Tank, DPS, Heal, AoE, or ST setups do not overwrite each other.",
+    eyebrow: "03 · Search",
+    title: "Search without learning commands",
+    intro: "Describe what you want in normal player language. BindForge searches titles, common wording, abbreviations, and command text.",
     points: [
-      "Choose or add a character and profile.",
-      "Paste or import your current Neverwinter binds. Analysis stays in your browser.",
-      "The keyboard map shows Unknown, Available, Imported, Customized, and Conflict states.",
-      "A conflict means you should inspect the key before replacing anything.",
+      "Class filtering can narrow the catalogue without exposing technical filters.",
+      "The result count updates as you search.",
     ],
+    selector: '[data-tour="keybind-search"]',
   },
   {
-    eyebrow: "03 · Build",
-    title: "Build without command syntax",
-    intro: "Compose is the beginner-friendly builder. Choose a key, add supported actions, and BindForge assembles the command structure.",
+    eyebrow: "04 · Keybind cards",
+    title: "Read a keybind card",
+    intro: "Each card explains what the bind does, lets you choose a key, shows safety/conflict information, and gives you a copy-ready command.",
     points: [
-      "Use Compose when an existing preset does not match what you need.",
-      "Direct command building and Say-message tools are hidden in Beginner View to reduce noise.",
-      "Those technical tools are still available whenever you switch to Standard or Advanced.",
+      "Copy command is the main action.",
+      "Details reveals evidence and the raw command only when you need it.",
     ],
+    selector: '[data-tour="keybind-card"]',
   },
   {
-    eyebrow: "Safety & confidence",
-    title: "Stay safe and reveal more when ready",
-    intro: "Beginner View hides secondary controls, technical filters, command-pack tools, and portable utilities until you ask for them.",
+    eyebrow: "05 · My Setup",
+    title: "Keep characters and profiles separate",
+    intro: "My Setup is where BindForge learns your real keyboard state without mixing one character or loadout into another.",
     points: [
-      "Back up your current binds before testing unfamiliar commands.",
-      "Verified, Community tested, and Experimental labels describe the strength of the available evidence.",
-      "Use rollback or unbind output when you need to reverse a change.",
-      "Choose “Show more tools” when you are ready; nothing is deleted when Beginner View hides it.",
+      "Create separate profiles for Tank, DPS, Heal, AoE, ST, or experiments.",
+      "Import current Neverwinter binds to reveal occupied keys and real conflicts.",
     ],
+    selector: '[data-tour="my-setup"]',
   },
-] as const;
+  {
+    eyebrow: "06 · Build",
+    title: "Build when a preset is not enough",
+    intro: "Compose is the beginner-friendly builder. You choose the key and supported actions; BindForge assembles the command structure.",
+    points: [
+      "Direct Command and Say tools remain available in Standard and Advanced.",
+      "Nothing is sent to the game automatically—you still review, copy, and test it.",
+    ],
+    selector: '[data-tour="build"]',
+  },
+  {
+    eyebrow: "07 · Help",
+    title: "Help stays available after the tour",
+    intro: "You can reopen this walkthrough later and use the glossary when BindForge or Neverwinter terminology is unfamiliar.",
+    points: [
+      "Verification labels describe evidence strength, not permanent guarantees.",
+      "Back up current binds and keep rollback output before testing unfamiliar commands.",
+    ],
+    selector: '[data-tour="help"]',
+  },
+];
 
 function markSeen() {
   try { window.localStorage.setItem(FIRST_VISIT_KEY, "seen"); } catch { /* session only */ }
@@ -76,16 +112,115 @@ function focusableElements(root: HTMLElement | null) {
   )).filter((element) => !element.hasAttribute("hidden"));
 }
 
+function clamp(value: number, minimum: number, maximum: number) {
+  return Math.min(Math.max(value, minimum), maximum);
+}
+
+function rectFromElement(element: HTMLElement): TargetRect {
+  const rect = element.getBoundingClientRect();
+  return {
+    left: rect.left,
+    top: rect.top,
+    right: rect.right,
+    bottom: rect.bottom,
+    width: rect.width,
+    height: rect.height,
+  };
+}
+
+function coachmarkPosition(rect: TargetRect) {
+  const gutter = 16;
+  const gap = 18;
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  const cardWidth = Math.min(390, viewportWidth - gutter * 2);
+  const estimatedHeight = Math.min(360, viewportHeight - gutter * 2);
+
+  if (viewportWidth <= 720) {
+    const targetMiddle = rect.top + rect.height / 2;
+    if (targetMiddle > viewportHeight * 0.5) {
+      return {
+        placement: "mobile-top",
+        style: { top: gutter, left: gutter, right: gutter, maxHeight: viewportHeight - gutter * 2 } satisfies CSSProperties,
+      };
+    }
+    return {
+      placement: "mobile-bottom",
+      style: { bottom: gutter, left: gutter, right: gutter, maxHeight: viewportHeight - gutter * 2 } satisfies CSSProperties,
+    };
+  }
+
+  if (viewportWidth - rect.right >= cardWidth + gap + gutter) {
+    const top = clamp(rect.top, gutter, Math.max(gutter, viewportHeight - estimatedHeight - gutter));
+    return {
+      placement: "right",
+      style: {
+        left: rect.right + gap,
+        top,
+        maxHeight: viewportHeight - top - gutter,
+      } satisfies CSSProperties,
+    };
+  }
+
+  if (rect.left >= cardWidth + gap + gutter) {
+    const top = clamp(rect.top, gutter, Math.max(gutter, viewportHeight - estimatedHeight - gutter));
+    return {
+      placement: "left",
+      style: {
+        right: viewportWidth - rect.left + gap,
+        top,
+        maxHeight: viewportHeight - top - gutter,
+      } satisfies CSSProperties,
+    };
+  }
+
+  const left = clamp(rect.left, gutter, Math.max(gutter, viewportWidth - cardWidth - gutter));
+  const availableBelow = viewportHeight - rect.bottom - gap - gutter;
+  if (availableBelow >= 180) {
+    const top = rect.bottom + gap;
+    return {
+      placement: "below",
+      style: {
+        left,
+        top,
+        maxHeight: viewportHeight - top - gutter,
+      } satisfies CSSProperties,
+    };
+  }
+
+  const availableAbove = rect.top - gap - gutter;
+  if (availableAbove >= 180) {
+    return {
+      placement: "above",
+      style: {
+        left,
+        bottom: viewportHeight - rect.top + gap,
+        maxHeight: availableAbove,
+      } satisfies CSSProperties,
+    };
+  }
+
+  return {
+    placement: "viewport-top",
+    style: {
+      left,
+      top: gutter,
+      maxHeight: viewportHeight - gutter * 2,
+    } satisfies CSSProperties,
+  };
+}
+
 export function FirstVisitOrientation() {
   const { hydrated, updatePreferences } = useBindForge();
   const [visible, setVisible] = useState(false);
+  const [autoRequested, setAutoRequested] = useState(false);
   const [step, setStep] = useState(0);
+  const [targetRect, setTargetRect] = useState<TargetRect | null>(null);
   const dialogRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    let frame = 0;
     let shouldShow = false;
     try {
       const permanentlySeen = window.localStorage.getItem(FIRST_VISIT_KEY) === "seen";
@@ -95,14 +230,20 @@ export function FirstVisitOrientation() {
     } catch {
       shouldShow = true;
     }
-    if (shouldShow) frame = window.requestAnimationFrame(() => {
+    if (!shouldShow) return;
+    const frame = window.requestAnimationFrame(() => setAutoRequested(true));
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  useEffect(() => {
+    if (!autoRequested || !hydrated) return;
+    const frame = window.requestAnimationFrame(() => {
       setStep(0);
       setVisible(true);
+      setAutoRequested(false);
     });
-    return () => {
-      if (frame) window.cancelAnimationFrame(frame);
-    };
-  }, []);
+    return () => window.cancelAnimationFrame(frame);
+  }, [autoRequested, hydrated]);
 
   useEffect(() => {
     function replay() {
@@ -117,12 +258,9 @@ export function FirstVisitOrientation() {
   useEffect(() => {
     if (!visible) return;
 
-    const previousOverflow = document.body.style.overflow;
     const shell = document.querySelector<HTMLElement>(".app-shell");
     const shellHadInert = shell?.hasAttribute("inert") ?? false;
     const previousAriaHidden = shell?.getAttribute("aria-hidden") ?? null;
-
-    document.body.style.overflow = "hidden";
     shell?.setAttribute("inert", "");
     shell?.setAttribute("aria-hidden", "true");
 
@@ -148,7 +286,6 @@ export function FirstVisitOrientation() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.body.style.overflow = previousOverflow;
       if (shell) {
         if (!shellHadInert) shell.removeAttribute("inert");
         if (previousAriaHidden === null) shell.removeAttribute("aria-hidden");
@@ -160,6 +297,41 @@ export function FirstVisitOrientation() {
 
   useEffect(() => {
     if (!visible) return;
+    const current = steps[step];
+    const target = document.querySelector<HTMLElement>(current.selector);
+    if (!target) {
+      const missingFrame = window.requestAnimationFrame(() => setTargetRect(null));
+      return () => window.cancelAnimationFrame(missingFrame);
+    }
+
+    const targetElement = target;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    targetElement.scrollIntoView({
+      behavior: reducedMotion ? "auto" : "smooth",
+      block: "center",
+      inline: "nearest",
+    });
+
+    let frame = 0;
+    function updateTarget() {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        setTargetRect(rectFromElement(targetElement));
+      });
+    }
+
+    updateTarget();
+    window.addEventListener("resize", updateTarget);
+    window.addEventListener("scroll", updateTarget, true);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("resize", updateTarget);
+      window.removeEventListener("scroll", updateTarget, true);
+    };
+  }, [step, visible]);
+
+  useEffect(() => {
+    if (!visible) return;
     const frame = window.requestAnimationFrame(() => headingRef.current?.focus());
     return () => window.cancelAnimationFrame(frame);
   }, [step, visible]);
@@ -167,8 +339,9 @@ export function FirstVisitOrientation() {
   function closeTour() {
     markSeen();
     setVisible(false);
+    setTargetRect(null);
     window.requestAnimationFrame(() => {
-      const fallback = document.querySelector<HTMLElement>('.site-nav-links a');
+      const fallback = document.querySelector<HTMLElement>(".site-nav-links a");
       (restoreFocusRef.current ?? fallback)?.focus();
     });
   }
@@ -183,18 +356,41 @@ export function FirstVisitOrientation() {
   const current = steps[step];
   const isFirst = step === 0;
   const isLast = step === steps.length - 1;
+  const position = targetRect ? coachmarkPosition(targetRect) : {
+    placement: "mobile-bottom",
+    style: { bottom: 16, left: 16, right: 16 } satisfies CSSProperties,
+  };
+
+  const spotlightStyle = targetRect ? {
+    left: Math.max(6, targetRect.left - 8),
+    top: Math.max(6, targetRect.top - 8),
+    width: Math.min(window.innerWidth - Math.max(6, targetRect.left - 8) - 6, targetRect.width + 16),
+    height: Math.min(window.innerHeight - Math.max(6, targetRect.top - 8) - 6, targetRect.height + 16),
+  } satisfies CSSProperties : undefined;
 
   return createPortal(
     <div className={styles.tourLayer}>
-      <div aria-hidden="true" className={styles.tourBackdrop} />
+      <div aria-hidden="true" className={styles.interactionShield} />
+      {targetRect ? (
+        <div
+          aria-hidden="true"
+          className={styles.spotlight}
+          data-testid="tour-spotlight"
+          style={spotlightStyle}
+        />
+      ) : null}
       <section
         aria-labelledby="guided-tour-title"
         aria-modal="true"
-        className={styles.tourDialog}
+        className={styles.coachmark}
+        data-placement={position.placement}
         data-testid="first-visit-orientation"
+        data-tour-layout="coachmark"
         ref={dialogRef}
         role="dialog"
+        style={position.style}
       >
+        <span aria-hidden="true" className={styles.pointer} />
         <header className={styles.tourHeader}>
           <div>
             <p className={styles.eyebrow}>{current.eyebrow}</p>
@@ -240,7 +436,7 @@ export function ContextualHelpGlossary() {
   }
 
   return (
-    <details className={styles.help} id="bindforge-help">
+    <details className={styles.help} data-tour="help" id="bindforge-help">
       <summary>Help, terms & confidence labels</summary>
       <div className={styles.helpBody}>
         <div className={styles.helpIntro}>

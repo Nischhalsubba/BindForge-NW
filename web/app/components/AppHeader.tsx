@@ -46,7 +46,7 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
           </span>
           <span className="brand-copy"><b>Neverwinter Keybind</b><small>Command field manual</small></span>
         </a>
-        <div className={`site-nav-links ${styles.primaryLinks}`}>
+        <div className={`site-nav-links ${styles.primaryLinks}`} data-tour="primary-nav">
           <a href="#search-keybinds">Keybinds <span>01</span></a>
           <a href="#my-setup">My Setup <span>02</span></a>
           <a href="#compose-keybind">Build <span>03</span></a>
