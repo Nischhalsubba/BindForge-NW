@@ -7,6 +7,9 @@ async function prepare(page: Page) {
   await page.evaluate(() => window.localStorage.clear());
   await page.reload();
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
+  const experience = page.getByTestId("experience-workspace-summary");
+  await experience.getByRole("button", { name: "Show more tools" }).click();
+  await expect(page.getByTestId("secondary-controls")).toBeVisible();
 }
 
 test.beforeEach(async ({ page }) => {
