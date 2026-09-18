@@ -292,6 +292,27 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   }, [profilesHydrated, state.keys]);
 
   useEffect(() => {
+    if (!hydrated || state.preferences.experience !== "simple") return;
+    setActiveCollection("all");
+    setCollectionName("");
+    setSelectedIds([]);
+    setLibrary((current) => {
+      const alreadySimple = current.viewMode === "cards"
+        && current.sortMode === "recommended"
+        && current.provenanceFilter === "all"
+        && current.safeOnly === false;
+      if (alreadySimple) return current;
+      return {
+        ...current,
+        viewMode: "cards",
+        sortMode: "recommended",
+        provenanceFilter: "all",
+        safeOnly: false,
+      };
+    });
+  }, [hydrated, state.preferences.experience]);
+
+  useEffect(() => {
     setVisibleGroupCount(INITIAL_VISIBLE_GROUPS);
   }, [state.search, state.className, state.actionType, state.difficulty, activeCollection, library.provenanceFilter, library.safeOnly, library.sortMode]);
 
