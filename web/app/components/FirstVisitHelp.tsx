@@ -204,7 +204,9 @@ export function FirstVisitOrientation() {
     } catch {
       shouldShow = true;
     }
-    if (shouldShow) setAutoRequested(true);
+    if (!shouldShow) return;
+    const frame = window.requestAnimationFrame(() => setAutoRequested(true));
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {
@@ -272,8 +274,8 @@ export function FirstVisitOrientation() {
     const current = steps[step];
     const target = document.querySelector<HTMLElement>(current.selector);
     if (!target) {
-      setTargetRect(null);
-      return;
+      const missingFrame = window.requestAnimationFrame(() => setTargetRect(null));
+      return () => window.cancelAnimationFrame(missingFrame);
     }
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
