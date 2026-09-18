@@ -27,24 +27,30 @@ test("first visit uses an accessible five-step guided overlay and remembers comp
   await expect(guide).toBeVisible();
   await expect(guide).toHaveAttribute("role", "dialog");
   await expect(guide).toHaveAttribute("aria-modal", "true");
-  await expect(guide.getByText("1 of 5", { exact: true })).toBeVisible();
-  await expect(guide.getByRole("heading", { name: "Welcome to BindForge" })).toBeVisible();
-  await expect(guide).toContainText("Nothing is applied to Neverwinter automatically");
+  await expect(guide.getByText("1 of 7", { exact: true })).toBeVisible();
+  await expect(guide.getByRole("heading", { name: "Know where you are" })).toBeVisible();
+  await expect(guide).toContainText("Keybinds is for finding proven presets");
 
   await guide.getByRole("button", { name: "Next" }).click();
-  await expect(guide.getByText("2 of 5", { exact: true })).toBeVisible();
-  await expect(guide.getByRole("heading", { name: "Find a keybind" })).toBeVisible();
+  await expect(guide.getByText("2 of 7", { exact: true })).toBeVisible();
+  await expect(guide.getByRole("heading", { name: "Start simple, reveal more when ready" })).toBeVisible();
 
   await guide.getByRole("button", { name: "Next" }).click();
-  await expect(guide.getByRole("heading", { name: "Review My Setup" })).toBeVisible();
+  await expect(guide.getByRole("heading", { name: "Search without learning commands" })).toBeVisible();
 
   await guide.getByRole("button", { name: "Next" }).click();
-  await expect(guide.getByRole("heading", { name: "Build without command syntax" })).toBeVisible();
+  await expect(guide.getByRole("heading", { name: "Read a keybind card" })).toBeVisible();
 
   await guide.getByRole("button", { name: "Next" }).click();
-  await expect(guide.getByText("5 of 5", { exact: true })).toBeVisible();
-  await expect(guide.getByRole("heading", { name: "Stay safe and reveal more when ready" })).toBeVisible();
-  await expect(guide).toContainText("Beginner View");
+  await expect(guide.getByRole("heading", { name: "Keep characters and profiles separate" })).toBeVisible();
+
+  await guide.getByRole("button", { name: "Next" }).click();
+  await expect(guide.getByRole("heading", { name: "Build when a preset is not enough" })).toBeVisible();
+
+  await guide.getByRole("button", { name: "Next" }).click();
+  await expect(guide.getByText("7 of 7", { exact: true })).toBeVisible();
+  await expect(guide.getByRole("heading", { name: "Help stays available after the tour" })).toBeVisible();
+  await expect(guide).toContainText("Back up current binds");
 
   await guide.getByRole("button", { name: "Start in Beginner View" }).click();
   await expect(guide).toHaveCount(0);
@@ -60,7 +66,7 @@ test("guided overlay supports Back, Skip, and Escape", async ({ page }) => {
   const guide = page.getByTestId("first-visit-orientation");
   await guide.getByRole("button", { name: "Next" }).click();
   await guide.getByRole("button", { name: "Back" }).click();
-  await expect(guide.getByText("1 of 5", { exact: true })).toBeVisible();
+  await expect(guide.getByText("1 of 7", { exact: true })).toBeVisible();
 
   await guide.getByRole("button", { name: "Skip tour" }).focus();
   await page.keyboard.press("Escape");
@@ -82,7 +88,7 @@ test("help glossary can replay the guided tour after onboarding", async ({ page 
   await replay.click();
   const guide = page.getByTestId("first-visit-orientation");
   await expect(guide).toBeVisible();
-  await expect(guide.getByRole("heading", { name: "Welcome to BindForge" })).toBeVisible();
+  await expect(guide.getByRole("heading", { name: "Know where you are" })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(guide).toHaveCount(0);
   await expect(replay).toBeFocused();
