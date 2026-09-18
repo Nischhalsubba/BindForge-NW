@@ -161,11 +161,13 @@ export function PrimaryWorkspace({ onCopy }: { onCopy: CopyHandler }) {
 
   useEffect(() => {
     if (experience === "simple" && isTechnicalTool(activeView)) {
-      setActiveView("compose");
-      if (window.location.hash === "#build-command" || window.location.hash === "#say-message") {
-        window.history.replaceState(null, "", "#compose-keybind");
-      }
-      return;
+      const frame = window.requestAnimationFrame(() => {
+        setActiveView("compose");
+        if (window.location.hash === "#build-command" || window.location.hash === "#say-message") {
+          window.history.replaceState(null, "", "#compose-keybind");
+        }
+      });
+      return () => window.cancelAnimationFrame(frame);
     }
     if (activeView !== "search" || window.location.hash !== "#my-setup") return;
     const frame = window.requestAnimationFrame(() => {
