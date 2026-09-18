@@ -4,6 +4,7 @@ import { useBindForge } from "./BindForgeProvider";
 
 export default function FilterTopBar({ resultCount }: { resultCount: number }) {
   const { state, setMode, setSearch, resetFilters } = useBindForge();
+  const beginner = state.preferences.experience === "simple";
 
   return (
     <section className="filter-top-bar" aria-label="Keybind search and output controls" data-testid="filter-toolbar">
@@ -27,20 +28,24 @@ export default function FilterTopBar({ resultCount }: { resultCount: number }) {
         <span className="sr-only" id="keybind-library-search-help">Plain-language search accepts separate words, common abbreviations, command text, and small typos.</span>
       </label>
 
-      <div className="filter-top-output">
-        <span>Command output</span>
-        <div
-          aria-label="Command output mode. Switching modes changes only bind to unbind; the key and command stay intact."
-          className="filter-top-mode"
-          role="group"
-          title="Only /bind changes to /unbind. The key and full command stay intact."
-        >
-          <button aria-pressed={state.mode === "bind"} onClick={() => setMode("bind")} type="button">Bind</button>
-          <button aria-pressed={state.mode === "unbind"} onClick={() => setMode("unbind")} type="button">Unbind</button>
-        </div>
-      </div>
+      {!beginner ? (
+        <>
+          <div className="filter-top-output">
+            <span>Command output</span>
+            <div
+              aria-label="Command output mode. Switching modes changes only bind to unbind; the key and command stay intact."
+              className="filter-top-mode"
+              role="group"
+              title="Only /bind changes to /unbind. The key and full command stay intact."
+            >
+              <button aria-pressed={state.mode === "bind"} onClick={() => setMode("bind")} type="button">Bind</button>
+              <button aria-pressed={state.mode === "unbind"} onClick={() => setMode("unbind")} type="button">Unbind</button>
+            </div>
+          </div>
 
-      <button aria-label="Reset keybind library filters" className="filter-top-reset" onClick={resetFilters} type="button">Reset</button>
+          <button aria-label="Reset keybind library filters" className="filter-top-reset" onClick={resetFilters} type="button">Reset</button>
+        </>
+      ) : null}
     </section>
   );
 }
