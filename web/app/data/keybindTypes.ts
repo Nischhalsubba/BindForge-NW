@@ -16,6 +16,14 @@ export type KeybindType =
 export type KeybindClass = "Any Class" | "Bard" | "Paladin" | "Ranger" | "Fighter / Cleric" | "Warlock" | "Barbarian";
 export type PresetSourceType = "official" | "wiki" | "community" | "user-submitted";
 export type PresetConfidence = "verified" | "community-tested" | "experimental";
+export type VerificationResult = "working" | "needs-retest" | "changed" | "unknown";
+export type VerificationHistoryRecord = {
+  date: string;
+  result: VerificationResult;
+  gameVersion?: string;
+  sourceUrl?: string;
+  note?: string;
+};
 
 export type KeybindPreset = {
   id: string;
@@ -32,6 +40,7 @@ export type KeybindPreset = {
   sourceType?: PresetSourceType;
   sourceUrl?: string;
   verifiedAt?: string;
+  verificationHistory?: VerificationHistoryRecord[];
   gameVersion?: string;
   confidence?: PresetConfidence;
   notes?: string;
