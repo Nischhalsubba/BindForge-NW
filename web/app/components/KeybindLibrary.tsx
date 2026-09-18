@@ -21,6 +21,7 @@ import {
   makeNativeBindFilename,
 } from "../lib/native-bind-file.mjs";
 import { makeProfileSnapshot, pushProfileSnapshot, restoreSnapshotProfile } from "../lib/profile-history.mjs";
+import { RECOVERY_STORAGE_KEY, appendRecoveryRecord, makeRecoveryRecord, parseRecoveryRecords } from "../lib/recovery-data.mjs";
 import type { ProfileHistorySnapshot } from "../lib/profile-history.mjs";
 import {
   cloneProfile,
@@ -118,6 +119,13 @@ const defaultLibraryState: StoredLibraryState = {
   personalBinds: [], personalSourceName: "", personalImportedAt: "",
 };
 
+function preserveRecovery(storageKey: string, raw: string, reason: string) {
+  if (!raw) return;
+  try {
+    const existing = parseRecoveryRecords(window.localStorage.getItem(RECOVERY_STORAGE_KEY));
+    window.localStorage.setItem(RECOVERY_STORAGE_KEY, JSON.stringify(appendRecoveryRecord(existing, makeRecoveryRecord(storageKey, raw, reason), 8)));
+  } catch { /* recovery storage unavailable */ }
+}
 function unique(values: string[]) { return Array.from(new Set(values)); }
 function difficultyRank(value: KeybindPreset["difficulty"]) { return value === "Easy" ? 0 : value === "Advanced" ? 1 : 2; }
 function warningForKey(value: string) {
@@ -176,8 +184,9 @@ function sanitizePersonalBinds(value: unknown): PersonalBind[] {
   });
 }
 function readStoredLibraryState(): StoredLibraryState {
+  let value: string | null = null;
   try {
-    const value = window.localStorage.getItem(LIBRARY_SETTINGS_KEY);
+    value = window.localStorage.getItem(LIBRARY_SETTINGS_KEY);
     if (!value) return defaultLibraryState;
     const parsed = JSON.parse(value) as Partial<StoredLibraryState>;
     return {
@@ -193,6 +202,7 @@ function readStoredLibraryState(): StoredLibraryState {
       personalImportedAt: typeof parsed.personalImportedAt === "string" ? parsed.personalImportedAt : "",
     };
   } catch {
+    if (value) preserveRecovery(LIBRARY_SETTINGS_KEY, value, "Library preferences could not be parsed");
     return defaultLibraryState;
   }
 }
@@ -268,6 +278,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
       if (stored) {
         const parsed = parseProfileWorkspaceJson(stored);
         if (parsed.ok) next = parsed.value as ProfileWorkspace;
+        else preserveRecovery(PROFILE_WORKSPACE_KEY, stored, parsed.error || "Profile workspace could not be validated");
       }
     } catch { /* create a safe local workspace below */ }
 
