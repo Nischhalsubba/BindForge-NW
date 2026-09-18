@@ -292,6 +292,27 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   }, [profilesHydrated, state.keys]);
 
   useEffect(() => {
+    if (!hydrated || state.preferences.experience !== "simple") return;
+    setActiveCollection("all");
+    setCollectionName("");
+    setSelectedIds([]);
+    setLibrary((current) => {
+      const alreadySimple = current.viewMode === "cards"
+        && current.sortMode === "recommended"
+        && current.provenanceFilter === "all"
+        && current.safeOnly === false;
+      if (alreadySimple) return current;
+      return {
+        ...current,
+        viewMode: "cards",
+        sortMode: "recommended",
+        provenanceFilter: "all",
+        safeOnly: false,
+      };
+    });
+  }, [hydrated, state.preferences.experience]);
+
+  useEffect(() => {
     setVisibleGroupCount(INITIAL_VISIBLE_GROUPS);
   }, [state.search, state.className, state.actionType, state.difficulty, activeCollection, library.provenanceFilter, library.safeOnly, library.sortMode]);
 
@@ -654,7 +675,9 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
         onExportProfiles={exportProfiles}
         onImportProfiles={(file) => { void importProfiles(file); }}
       />
-      <div className="active-filter-row" aria-label="Active filters"><span>{state.className === "All" ? "All classes" : state.className}</span><span>{state.actionType === "All" ? "All actions" : state.actionType}</span><span>{state.difficulty === "All" ? "All difficulty levels" : state.difficulty}</span><span>{activeCollection === "all" ? "All collections" : activeCollection}</span></div>
+      {state.preferences.experience !== "simple" ? (
+        <div className="active-filter-row" aria-label="Active filters"><span>{state.className === "All" ? "All classes" : state.className}</span><span>{state.actionType === "All" ? "All actions" : state.actionType}</span><span>{state.difficulty === "All" ? "All difficulty levels" : state.difficulty}</span><span>{activeCollection === "all" ? "All collections" : activeCollection}</span></div>
+      ) : null}
 
       {filtered.length ? (
         <>
@@ -690,7 +713,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
                         const canReplace = (duplicate || Boolean(warning) || personalConflict) && !preset.intentionalNativeOverride;
                         return library.viewMode === "compact"
                           ? <CompactKeybindRow {...shared} canReplace={canReplace} copyDisabled={duplicate} keyValue={keyValue} line={buildPresetLine(preset, keyValue, state.mode)} mode={state.mode} onKeyChange={(value) => updateProfileKey(preset.id, value)} onReset={() => resetProfileKey(preset)} replacementKey={replacementFor(preset)} status={status} />
-                          : <KeybindCard {...shared} canReplace={canReplace} keyValue={keyValue} mode={state.mode} onKeyChange={(value) => updateProfileKey(preset.id, value)} onReset={() => resetProfileKey(preset)} query={state.search} replacementKey={replacementFor(preset)} status={status} />;
+                          : <KeybindCard {...shared} beginner={state.preferences.experience === "simple"} canReplace={canReplace} keyValue={keyValue} mode={state.mode} onKeyChange={(value) => updateProfileKey(preset.id, value)} onReset={() => resetProfileKey(preset)} query={state.search} replacementKey={replacementFor(preset)} status={status} />;
                       })}
                     </div>
                   )}

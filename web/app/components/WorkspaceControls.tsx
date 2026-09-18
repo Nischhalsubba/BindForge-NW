@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useBindForge } from "../BindForgeProvider";
 import type { PresetConfidence, PresetSourceType } from "../data/keybindTypes";
 import { ProfileWorkspaceManager } from "./ProfileWorkspaceManager";
 import { VisualKeyboardMap } from "./VisualKeyboardMap";
@@ -100,6 +101,8 @@ type WorkspaceControlsProps = {
 };
 
 export function WorkspaceControls(props: WorkspaceControlsProps) {
+  const { state } = useBindForge();
+  const beginner = state.preferences.experience === "simple";
   const [packToolsOpen, setPackToolsOpen] = useState(false);
   const [keymapOpen, setKeymapOpen] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
@@ -129,7 +132,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
 
   return (
     <div className={styles.workspace}>
-      <section className={styles.secondary} aria-label="Library display and safety options" data-testid="secondary-controls">
+      {!beginner ? <section className={styles.secondary} aria-label="Library display and safety options" data-testid="secondary-controls">
         <div className={styles.summary}>
           <strong>{props.resultCount} keybinds found</strong>
           <span>{props.conflictCount} need review</span>
@@ -138,7 +141,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
         <label>Sort<select aria-label="Sort keybinds" onChange={(event) => props.onSortModeChange(event.target.value as SortMode)} value={props.sortMode}><option value="recommended">Recommended</option><option value="title">Title</option><option value="difficulty">Difficulty</option><option value="class">Class</option></select></label>
         <label>Source<select aria-label="Filter by provenance" onChange={(event) => props.onProvenanceFilterChange(event.target.value as ProvenanceFilter)} value={props.provenanceFilter}><option value="all">All sources</option><option value="official">Official</option><option value="wiki">Wiki</option><option value="community">Community</option><option value="user-submitted">User submitted</option><option value="verified">Verified</option><option value="community-tested">Community tested</option><option value="experimental">Experimental</option></select></label>
         <label className={styles.safeToggle}><input checked={props.safeOnly} onChange={(event) => props.onSafeOnlyChange(event.target.checked)} type="checkbox" />Safe or intentional only</label>
-      </section>
+      </section> : null}
 
       <section className={styles.keymapPanel} aria-labelledby="personal-keymap-title" id="my-setup">
         <button aria-controls={keymapPanelId} aria-expanded={keymapOpen} className={styles.keymapSummary} onClick={() => setKeymapOpen((value) => !value)} type="button">
@@ -200,7 +203,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
         ) : null}
       </section>
 
-      <section className={styles.packPanel} aria-labelledby="pack-tools-title" id="collections">
+      {!beginner ? <section className={styles.packPanel} aria-labelledby="pack-tools-title" id="collections">
         <button aria-controls={panelId} aria-expanded={packToolsOpen} className={styles.packSummary} data-gsap-nav onClick={() => setPackToolsOpen((value) => !value)} type="button">
           <span><strong id="pack-tools-title">Collections &amp; command packs</strong><small>Save, share, copy, or download selected presets</small></span>
           <span className={styles.selectionBadge}>{props.selectedCount} selected</span>
@@ -226,7 +229,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
             </div>
           </div>
         ) : null}
-      </section>
+      </section> : null}
 
       {props.selectedCount ? (
         <aside className={styles.selectionTray} data-testid="selection-tray" aria-label="Selected bind pack review">

@@ -4,9 +4,15 @@ import axe from "axe-core";
 /** Resets browser state and waits for the keybind catalogue before each release test. */
 async function prepare(page: Page) {
   await page.goto("/");
-  await page.evaluate(() => window.localStorage.clear());
+  await page.evaluate(() => {
+    window.localStorage.clear();
+    window.localStorage.setItem("bindforge-nw:first-visit:v2", "seen");
+  });
   await page.reload();
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
+  const experience = page.getByTestId("experience-workspace-summary");
+  await experience.getByRole("button", { name: "Show more tools" }).click();
+  await expect(page.getByTestId("secondary-controls")).toBeVisible();
 }
 
 test.beforeEach(async ({ page }) => {

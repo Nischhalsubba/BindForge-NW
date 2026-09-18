@@ -1,18 +1,88 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { useEffect, useRef, useState } from "react";
+import { useBindForge } from "../BindForgeProvider";
 import styles from "./FirstVisitHelp.module.css";
 
-const FIRST_VISIT_KEY = "bindforge-nw:first-visit:v1";
-const FIRST_VISIT_SESSION_KEY = "bindforge-nw:first-visit-presented:v1";
+const FIRST_VISIT_KEY = "bindforge-nw:first-visit:v2";
+const FIRST_VISIT_SESSION_KEY = "bindforge-nw:first-visit-presented:v2";
+const TOUR_EVENT = "bindforge:open-guided-tour";
+
+const steps = [
+  {
+    eyebrow: "Start here",
+    title: "Welcome to BindForge",
+    intro: "BindForge helps you find, understand, and prepare Neverwinter keybinds without needing to learn command syntax first.",
+    points: [
+      "Nothing is applied to Neverwinter automatically. BindForge prepares commands for you to copy or save.",
+      "Begin with Keybinds if you only want something proven and ready to use.",
+      "Use My Setup when you want BindForge to understand your character’s existing keys.",
+    ],
+  },
+  {
+    eyebrow: "01 · Keybinds",
+    title: "Find a keybind",
+    intro: "Search in normal player language, choose your class when useful, then inspect the safety message before copying.",
+    points: [
+      "Search things like “fighter cancel”, “mount quickly”, or “hide HUD”.",
+      "Beginner View keeps only the most useful filtering visible.",
+      "Copy the command, apply it in Neverwinter, and test it before depending on it.",
+    ],
+  },
+  {
+    eyebrow: "02 · My Setup",
+    title: "Review My Setup",
+    intro: "My Setup keeps different characters and keymap profiles separate, so Tank, DPS, Heal, AoE, or ST setups do not overwrite each other.",
+    points: [
+      "Choose or add a character and profile.",
+      "Paste or import your current Neverwinter binds. Analysis stays in your browser.",
+      "The keyboard map shows Unknown, Available, Imported, Customized, and Conflict states.",
+      "A conflict means you should inspect the key before replacing anything.",
+    ],
+  },
+  {
+    eyebrow: "03 · Build",
+    title: "Build without command syntax",
+    intro: "Compose is the beginner-friendly builder. Choose a key, add supported actions, and BindForge assembles the command structure.",
+    points: [
+      "Use Compose when an existing preset does not match what you need.",
+      "Direct command building and Say-message tools are hidden in Beginner View to reduce noise.",
+      "Those technical tools are still available whenever you switch to Standard or Advanced.",
+    ],
+  },
+  {
+    eyebrow: "Safety & confidence",
+    title: "Stay safe and reveal more when ready",
+    intro: "Beginner View hides secondary controls, technical filters, command-pack tools, and portable utilities until you ask for them.",
+    points: [
+      "Back up your current binds before testing unfamiliar commands.",
+      "Verified, Community tested, and Experimental labels describe the strength of the available evidence.",
+      "Use rollback or unbind output when you need to reverse a change.",
+      "Choose “Show more tools” when you are ready; nothing is deleted when Beginner View hides it.",
+    ],
+  },
+] as const;
 
 function markSeen() {
   try { window.localStorage.setItem(FIRST_VISIT_KEY, "seen"); } catch { /* session only */ }
   try { window.sessionStorage.setItem(FIRST_VISIT_SESSION_KEY, "seen"); } catch { /* no-op */ }
 }
 
+function focusableElements(root: HTMLElement | null) {
+  if (!root) return [];
+  return Array.from(root.querySelectorAll<HTMLElement>(
+    'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+  )).filter((element) => !element.hasAttribute("hidden"));
+}
+
 export function FirstVisitOrientation() {
+  const { hydrated, updatePreferences } = useBindForge();
   const [visible, setVisible] = useState(false);
+  const [step, setStep] = useState(0);
+  const dialogRef = useRef<HTMLElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     let frame = 0;
@@ -21,53 +91,154 @@ export function FirstVisitOrientation() {
       const permanentlySeen = window.localStorage.getItem(FIRST_VISIT_KEY) === "seen";
       const presentedThisSession = window.sessionStorage.getItem(FIRST_VISIT_SESSION_KEY) === "seen";
       shouldShow = !permanentlySeen && !presentedThisSession;
-      if (shouldShow) window.sessionStorage.setItem(FIRST_VISIT_SESSION_KEY, "seen");
+      if (permanentlySeen || shouldShow) window.sessionStorage.setItem(FIRST_VISIT_SESSION_KEY, "seen");
     } catch {
       shouldShow = true;
     }
-    if (shouldShow) frame = window.requestAnimationFrame(() => setVisible(true));
+    if (shouldShow) frame = window.requestAnimationFrame(() => {
+      setStep(0);
+      setVisible(true);
+    });
     return () => {
       if (frame) window.cancelAnimationFrame(frame);
     };
   }, []);
 
-  if (!visible) return null;
+  useEffect(() => {
+    function replay() {
+      restoreFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      setStep(0);
+      setVisible(true);
+    }
+    window.addEventListener(TOUR_EVENT, replay);
+    return () => window.removeEventListener(TOUR_EVENT, replay);
+  }, []);
 
-  function dismiss() {
+  useEffect(() => {
+    if (!visible) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const shell = document.querySelector<HTMLElement>(".app-shell");
+    const shellHadInert = shell?.hasAttribute("inert") ?? false;
+    const previousAriaHidden = shell?.getAttribute("aria-hidden") ?? null;
+
+    document.body.style.overflow = "hidden";
+    shell?.setAttribute("inert", "");
+    shell?.setAttribute("aria-hidden", "true");
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeTour();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const focusable = focusableElements(dialogRef.current);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      if (shell) {
+        if (!shellHadInert) shell.removeAttribute("inert");
+        if (previousAriaHidden === null) shell.removeAttribute("aria-hidden");
+        else shell.setAttribute("aria-hidden", previousAriaHidden);
+      }
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [visible]);
+
+  useEffect(() => {
+    if (!visible) return;
+    const frame = window.requestAnimationFrame(() => headingRef.current?.focus());
+    return () => window.cancelAnimationFrame(frame);
+  }, [step, visible]);
+
+  function closeTour() {
     markSeen();
     setVisible(false);
+    window.requestAnimationFrame(() => {
+      const fallback = document.querySelector<HTMLElement>('.site-nav-links a');
+      (restoreFocusRef.current ?? fallback)?.focus();
+    });
   }
 
-  return (
-    <aside aria-label="First visit guide" className={styles.orientation} data-testid="first-visit-orientation">
-      <div className={styles.header}>
-        <div className={styles.headerCopy}>
-          <p className={styles.eyebrow}>New to BindForge?</p>
-          <h2 className={styles.title}>Start with the job you came to do.</h2>
+  function finishBeginner() {
+    updatePreferences({ experience: "simple" });
+    closeTour();
+  }
+
+  if (!visible || typeof document === "undefined") return null;
+
+  const current = steps[step];
+  const isFirst = step === 0;
+  const isLast = step === steps.length - 1;
+
+  return createPortal(
+    <div className={styles.tourLayer}>
+      <div aria-hidden="true" className={styles.tourBackdrop} />
+      <section
+        aria-labelledby="guided-tour-title"
+        aria-modal="true"
+        className={styles.tourDialog}
+        data-testid="first-visit-orientation"
+        ref={dialogRef}
+        role="dialog"
+      >
+        <header className={styles.tourHeader}>
+          <div>
+            <p className={styles.eyebrow}>{current.eyebrow}</p>
+            <p className={styles.progress}>{step + 1} of {steps.length}</p>
+          </div>
+          <button aria-label="Close guided tour" className={styles.close} onClick={closeTour} type="button">×</button>
+        </header>
+
+        <div className={styles.tourBody}>
+          <h2 id="guided-tour-title" ref={headingRef} tabIndex={-1}>{current.title}</h2>
+          <p className={styles.intro}>{current.intro}</p>
+          <ul className={styles.tourPoints}>
+            {current.points.map((point) => <li key={point}>{point}</li>)}
+          </ul>
         </div>
-        <button aria-label="Dismiss first visit guide" className={styles.close} onClick={dismiss} type="button">×</button>
-      </div>
-      <p className={styles.intro}>You do not need to know Neverwinter command syntax. Pick a path; advanced details stay available when you want them.</p>
-      <div className={styles.paths}>
-        <a className={styles.path} href="#search-keybinds" onClick={dismiss}>
-          <strong>Find a keybind</strong>
-          <small>Search existing presets in normal player language.</small>
-        </a>
-        <a className={styles.path} href="#compose-keybind" onClick={dismiss}>
-          <strong>Build a keybind</strong>
-          <small>Choose a key and combine supported actions visually.</small>
-        </a>
-        <a className={styles.path} href="#build-command" onClick={dismiss}>
-          <strong>Advanced tools</strong>
-          <small>Work directly with supported commands and technical options.</small>
-        </a>
-      </div>
-      <a className={styles.footerLink} href="#bindforge-help" onClick={dismiss}>What do the terms and trust labels mean?</a>
-    </aside>
+
+        <div className={styles.stepRail} aria-label="Guided tour progress">
+          {steps.map((item, index) => (
+            <span aria-current={index === step ? "step" : undefined} className={styles.stepDot} key={item.title}>
+              <span className="sr-only">Step {index + 1}: {item.title}</span>
+            </span>
+          ))}
+        </div>
+
+        <footer className={styles.tourFooter}>
+          <button className={styles.secondaryAction} disabled={isFirst} onClick={() => setStep((value) => Math.max(0, value - 1))} type="button">Back</button>
+          <button className={styles.skipAction} onClick={closeTour} type="button">Skip tour</button>
+          {isLast ? (
+            <button className={styles.primaryAction} disabled={!hydrated} onClick={finishBeginner} type="button">Start in Beginner View</button>
+          ) : (
+            <button className={styles.primaryAction} onClick={() => setStep((value) => Math.min(steps.length - 1, value + 1))} type="button">Next</button>
+          )}
+        </footer>
+      </section>
+    </div>,
+    document.body,
   );
 }
 
 export function ContextualHelpGlossary() {
+  function replayTour() {
+    window.dispatchEvent(new Event(TOUR_EVENT));
+  }
+
   return (
     <details className={styles.help} id="bindforge-help">
       <summary>Help, terms & confidence labels</summary>
@@ -75,6 +246,7 @@ export function ContextualHelpGlossary() {
         <div className={styles.helpIntro}>
           <h2>Read the tool without learning the jargon first.</h2>
           <p>BindForge keeps command details available for experienced players, but the core actions can be understood in plain language. Verification labels describe evidence, not a guarantee that a command will keep working after every Neverwinter update.</p>
+          <button className={styles.replayButton} onClick={replayTour} type="button">Replay guided tour</button>
         </div>
         <dl className={styles.glossary}>
           <div className={styles.term}><dt>Bind</dt><dd>Assign a key or key combination to a Neverwinter command.</dd></div>

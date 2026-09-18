@@ -2,7 +2,10 @@ import { expect, test, type Page } from "@playwright/test";
 
 async function prepare(page: Page) {
   await page.goto("/");
-  await page.evaluate(() => window.localStorage.clear());
+  await page.evaluate(() => {
+    window.localStorage.clear();
+    window.localStorage.setItem("bindforge-nw:first-visit:v2", "seen");
+  });
   await page.reload();
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
   const primaryNav = page.getByRole("navigation", { name: "Primary navigation" });

@@ -3,7 +3,10 @@ import type { Page } from "@playwright/test";
 
 async function waitForLibrary(page: Page) {
   await page.goto("/");
-  await page.evaluate(() => window.localStorage.clear());
+  await page.evaluate(() => {
+    window.localStorage.clear();
+    window.localStorage.setItem("bindforge-nw:first-visit:v2", "seen");
+  });
   await page.reload();
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
   await expect(page.locator(".bind-card").first()).toBeVisible();

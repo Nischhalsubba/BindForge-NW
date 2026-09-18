@@ -2,7 +2,16 @@ import { expect, test } from "@playwright/test";
 
 async function waitForWorkspace(page: import("@playwright/test").Page) {
   await page.goto("/");
+  await expect(page.getByLabel("Search keybind library").first()).toBeEditable();
+  await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
+  const summary = page.getByTestId("experience-workspace-summary");
+  const showMore = summary.getByRole("button", { name: "Show more tools" });
+  if (await showMore.isVisible()) {
+    await showMore.click();
+    await expect(summary).toContainText("Standard experience");
+  }
   const tabs = page.getByRole("tablist", { name: "Primary keybind tools" });
+  await expect(tabs.getByRole("tab")).toHaveCount(4);
   await expect(tabs).toBeVisible();
   await expect(tabs.getByRole("tab", { name: "Search existing keybinds", exact: true })).toHaveAttribute("aria-selected", "true");
   return tabs;

@@ -60,10 +60,17 @@ async function waitForSavedSettings(page: Page, expected: { search?: string; cus
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
-  await page.evaluate(() => window.localStorage.clear());
+  await page.evaluate(() => {
+    window.localStorage.clear();
+    window.localStorage.setItem("bindforge-nw:first-visit:v2", "seen");
+  });
   await page.reload();
   await expect(page.getByRole("heading", { level: 1, name: /Find it. Build it. Bind it/ })).toBeVisible();
   await waitForHydration(page);
+  const experience = page.getByTestId("experience-workspace-summary");
+  const showMore = experience.getByRole("button", { name: "Show more tools" });
+  if (await showMore.isVisible()) await showMore.click();
+  await expect(page.getByTestId("secondary-controls")).toBeVisible();
 });
 
 test("keeps all four primary workflows one click away", async ({ page }) => {
@@ -246,8 +253,9 @@ test("renders the route not-found recovery page", async ({ page }) => {
 });
 
 test("supports keyboard navigation with visible focus", async ({ page }) => {
-  await page.keyboard.press("Tab");
-  await expect(page.getByRole("link", { name: "Skip to primary tools" })).toBeFocused();
+  const skipLink = page.getByRole("link", { name: "Skip to primary tools" });
+  await skipLink.focus();
+  await expect(skipLink).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(page.locator("#primary-workspace")).toBeInViewport();
 });

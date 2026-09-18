@@ -13,6 +13,13 @@ export default defineConfig({
     baseURL: "http://127.0.0.1:3000",
     browserName: "chromium",
     contextOptions: { reducedMotion: "reduce" },
+    storageState: {
+      cookies: [],
+      origins: [{
+        origin: "http://127.0.0.1:3000",
+        localStorage: [{ name: "bindforge-nw:first-visit:v2", value: "seen" }],
+      }],
+    },
     // Screenshots are sufficient for layout/UX regressions and keep CI artifacts small enough to inspect.
     trace: "off",
     screenshot: "only-on-failure",

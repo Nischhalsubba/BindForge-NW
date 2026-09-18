@@ -12,6 +12,15 @@ function libraryView(page: import("@playwright/test").Page) {
 
 async function openCompactView(page: import("@playwright/test").Page) {
   await page.goto("/");
+  await expect(page.getByLabel("Search keybind library").first()).toBeEditable();
+  await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
+  const experience = page.getByTestId("experience-workspace-summary");
+  const showMore = experience.getByRole("button", { name: "Show more tools" });
+  if (await showMore.isVisible()) {
+    await showMore.click();
+    await expect(experience).toContainText("Standard experience");
+  }
+  await expect(page.getByTestId("secondary-controls")).toBeVisible();
   await expect(libraryView(page)).toBeVisible();
   await libraryView(page).selectOption("compact");
   await expect(page.getByTestId("compact-bind-row").first()).toBeVisible();

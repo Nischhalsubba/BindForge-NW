@@ -2,7 +2,10 @@ import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
-  await page.evaluate(() => window.localStorage.clear());
+  await page.evaluate(() => {
+    window.localStorage.clear();
+    window.localStorage.setItem("bindforge-nw:first-visit:v2", "seen");
+  });
   await page.reload();
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
 });
@@ -27,6 +30,9 @@ test("class and role packs are catalogue-backed and open deterministic result se
 });
 
 test("an opened quick pack can flow into the existing selection and pack review", async ({ page }) => {
+  const experience = page.getByTestId("experience-workspace-summary");
+  await experience.getByRole("button", { name: "Show more tools" }).click();
+
   const packs = visiblePacks(page);
   await packs.locator("summary").click();
   const barbarian = packs.locator('article[data-pack-id="barbarian-dps"]');

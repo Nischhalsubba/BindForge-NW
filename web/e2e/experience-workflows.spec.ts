@@ -25,7 +25,10 @@ async function waitForStableWorkspace(page: Page) {
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
-  await page.evaluate(() => window.localStorage.clear());
+  await page.evaluate(() => {
+    window.localStorage.clear();
+    window.localStorage.setItem("bindforge-nw:first-visit:v2", "seen");
+  });
   await page.reload();
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
   await waitForStableWorkspace(page);
@@ -56,18 +59,20 @@ test("primary navigation uses Keybinds, My Setup, and Build without removing bui
   await expect(page.getByRole("tab", { name: "Compose your own keybind", exact: true })).toHaveAttribute("aria-selected", "true");
 });
 
-test("Simple experience emphasizes Search and Compose without removing technical tools", async ({ page }) => {
+test("Beginner View keeps only Search and Compose visible", async ({ page }) => {
   const { workspace, tabs } = await waitForStableWorkspace(page);
 
   await expect(workspace).toHaveAttribute("data-experience-level", "simple");
   await expect(tabs).toHaveAttribute("data-experience", "simple");
-  await expect(page.getByTestId("experience-workspace-summary")).toContainText("Simple experience");
-  await expect(page.getByTestId("experience-workspace-summary")).toContainText("Search and Compose are emphasized");
+  await expect(page.getByTestId("experience-workspace-summary")).toContainText("Beginner View");
+  await expect(page.getByTestId("experience-workspace-summary")).toContainText("core Search and Compose");
+  await expect(tabs.getByRole("tab")).toHaveCount(2);
   await expect(tabs.getByRole("tab", { name: "Search existing keybinds", exact: true })).toBeVisible();
   await expect(tabs.getByRole("tab", { name: "Compose your own keybind", exact: true })).toBeVisible();
-  await expect(tabs.getByRole("tab", { name: "Build your own command", exact: true })).toHaveAttribute("data-secondary-in-simple", "true");
-  await expect(tabs.getByRole("tab", { name: "Create your own say message", exact: true })).toHaveAttribute("data-secondary-in-simple", "true");
+  await expect(tabs.getByRole("tab", { name: "Build your own command", exact: true })).toHaveCount(0);
+  await expect(tabs.getByRole("tab", { name: "Create your own say message", exact: true })).toHaveCount(0);
   await expect(page.getByTestId("advanced-portable-tools")).toHaveCount(0);
+  await expect(page.getByText("Share, export & portable tools", { exact: true })).toHaveCount(0);
 });
 
 test("Standard experience restores equal everyday tool priority", async ({ page }) => {
@@ -92,10 +97,11 @@ test("Advanced experience surfaces portable technical tools without an extra dis
   await expect(page.getByText("Share, export & portable tools", { exact: true })).toHaveCount(0);
 });
 
-test("technical deep links remain available in Simple experience", async ({ page }) => {
+test("technical deep links are redirected to Compose while Beginner View is active", async ({ page }) => {
   await page.goto("/#build-command");
   await waitForStableWorkspace(page);
   await expect(page.locator("html")).toHaveAttribute("data-experience", "simple");
-  await expect(page.getByRole("tab", { name: "Build your own command", exact: true })).toHaveAttribute("aria-selected", "true");
-  await expect(page.locator(".command-lab")).toBeVisible();
+  await expect(page).toHaveURL(/#compose-keybind$/);
+  await expect(page.getByRole("tab", { name: "Compose your own keybind", exact: true })).toHaveAttribute("aria-selected", "true");
+  await expect(page.locator(".command-lab")).toHaveCount(0);
 });

@@ -34,6 +34,7 @@ type KeybindCardProps = {
   onSelect: () => void;
   onFavourite: () => void;
   onReset: () => void;
+  beginner?: boolean;
 };
 
 function highlight(value: string, query: string) {
@@ -85,10 +86,12 @@ function KeybindCardComponent(props: KeybindCardProps) {
           <span>{props.preset.className}</span>
           <PresetTrustBadge preset={props.preset} />
         </div>
-        <div className="card-header-actions">
-          <button aria-label={`${props.favourite ? "Remove" : "Add"} ${props.preset.title} ${props.favourite ? "from" : "to"} favourites`} aria-pressed={props.favourite} className="icon-text-button favourite-button" onClick={props.onFavourite} type="button"><Icon filled={props.favourite} name="star" /></button>
-          <label className="select-preset"><input checked={props.selected} onChange={props.onSelect} type="checkbox" /><span>Select</span></label>
-        </div>
+        {!props.beginner ? (
+          <div className="card-header-actions">
+            <button aria-label={`${props.favourite ? "Remove" : "Add"} ${props.preset.title} ${props.favourite ? "from" : "to"} favourites`} aria-pressed={props.favourite} className="icon-text-button favourite-button" onClick={props.onFavourite} type="button"><Icon filled={props.favourite} name="star" /></button>
+            <label className="select-preset"><input checked={props.selected} onChange={props.onSelect} type="checkbox" /><span>Select</span></label>
+          </div>
+        ) : null}
       </header>
 
       <div className="card-copy">

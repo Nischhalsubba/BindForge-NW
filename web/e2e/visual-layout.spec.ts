@@ -13,6 +13,12 @@ function libraryView(page: Page) {
   return page.getByTestId("secondary-controls").getByLabel("Library view");
 }
 
+async function showMoreTools(page: Page) {
+  const summary = page.getByTestId("experience-workspace-summary");
+  const button = summary.getByRole("button", { name: "Show more tools" });
+  if (await button.isVisible()) await button.click();
+}
+
 function parseCssRgb(value: string) {
   const channels = value.match(/[\d.]+/g)?.map(Number);
   if (!channels || channels.length < 3) throw new Error(`Unsupported CSS colour: ${value}`);
@@ -85,13 +91,15 @@ async function expectNoDocumentOverflow(page: Page) {
 test("captures the consolidated default workspace without geometry regressions", async ({ page }, testInfo) => {
   await waitForLibrary(page);
   await expectNoDocumentOverflow(page);
-  await expect(page.getByTestId("secondary-controls")).toBeVisible();
-  await expect(page.getByRole("button", { name: /Collections & command packs/ })).toBeVisible();
+  await expect(page.getByTestId("secondary-controls")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /Collections & command packs/ })).toHaveCount(0);
+  await expect(page.getByTestId("experience-workspace-summary")).toContainText("Beginner View");
   await page.screenshot({ fullPage: true, path: testInfo.outputPath("workspace-default.png") });
 });
 
 test("captures expanded pack tools and settings surfaces", async ({ page }, testInfo) => {
   await waitForLibrary(page);
+  await showMoreTools(page);
   await page.getByRole("button", { name: /Collections & command packs/ }).click();
   await expect(page.getByTestId("pack-tools-panel")).toBeVisible();
   await expectNoDocumentOverflow(page);
@@ -105,6 +113,7 @@ test("captures expanded pack tools and settings surfaces", async ({ page }, test
 
 test("captures compact mode and the mobile filter drawer", async ({ page }, testInfo) => {
   await waitForLibrary(page);
+  await showMoreTools(page);
   await libraryView(page).selectOption("compact");
   await expect(page.getByTestId("compact-bind-row").first()).toBeVisible();
   await expectNoDocumentOverflow(page);
