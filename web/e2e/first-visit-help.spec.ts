@@ -54,7 +54,7 @@ test("first visit uses an accessible five-step guided overlay and remembers comp
   await expect(page.getByTestId("first-visit-orientation")).toHaveCount(0);
 });
 
-test("guided overlay supports Back, Skip, Escape and restores focus", async ({ page }) => {
+test("guided overlay supports Back, Skip, and Escape", async ({ page }) => {
   await openAsFirstVisit(page);
 
   const guide = page.getByTestId("first-visit-orientation");
@@ -77,8 +77,12 @@ test("help glossary can replay the guided tour after onboarding", async ({ page 
   await expect(help).toContainText("Unbind / rollback");
   await expect(help).toContainText("Personal keymap");
 
-  await help.getByRole("button", { name: "Replay guided tour" }).click();
+  const replay = help.getByRole("button", { name: "Replay guided tour" });
+  await replay.click();
   const guide = page.getByTestId("first-visit-orientation");
   await expect(guide).toBeVisible();
   await expect(guide.getByRole("heading", { name: "Welcome to BindForge" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(guide).toHaveCount(0);
+  await expect(replay).toBeFocused();
 });
