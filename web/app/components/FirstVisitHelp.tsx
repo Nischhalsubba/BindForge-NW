@@ -278,8 +278,9 @@ export function FirstVisitOrientation() {
       return () => window.cancelAnimationFrame(missingFrame);
     }
 
+    const targetElement = target;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    target.scrollIntoView({
+    targetElement.scrollIntoView({
       behavior: reducedMotion ? "auto" : "smooth",
       block: "center",
       inline: "nearest",
@@ -289,7 +290,7 @@ export function FirstVisitOrientation() {
     function updateTarget() {
       window.cancelAnimationFrame(frame);
       frame = window.requestAnimationFrame(() => {
-        setTargetRect(rectFromElement(target));
+        setTargetRect(rectFromElement(targetElement));
       });
     }
 
