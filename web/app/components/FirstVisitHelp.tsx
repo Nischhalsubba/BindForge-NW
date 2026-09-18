@@ -77,7 +77,7 @@ function focusableElements(root: HTMLElement | null) {
 }
 
 export function FirstVisitOrientation() {
-  const { updatePreferences } = useBindForge();
+  const { hydrated, updatePreferences } = useBindForge();
   const [visible, setVisible] = useState(false);
   const [step, setStep] = useState(0);
   const dialogRef = useRef<HTMLElement>(null);
@@ -223,7 +223,7 @@ export function FirstVisitOrientation() {
           <button className={styles.secondaryAction} disabled={isFirst} onClick={() => setStep((value) => Math.max(0, value - 1))} type="button">Back</button>
           <button className={styles.skipAction} onClick={closeTour} type="button">Skip tour</button>
           {isLast ? (
-            <button className={styles.primaryAction} onClick={finishBeginner} type="button">Start in Beginner View</button>
+            <button className={styles.primaryAction} disabled={!hydrated} onClick={finishBeginner} type="button">Start in Beginner View</button>
           ) : (
             <button className={styles.primaryAction} onClick={() => setStep((value) => Math.min(steps.length - 1, value + 1))} type="button">Next</button>
           )}
