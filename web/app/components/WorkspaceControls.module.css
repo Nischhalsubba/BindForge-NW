@@ -82,3 +82,14 @@
 .nativeFilename{width:fit-content;max-width:100%;overflow-wrap:anywhere;font:600 11px var(--mono);color:var(--ink)}
 .nativeStatus{grid-column:1/-1;padding-top:9px;border-top:1px solid var(--line)}
 @media(max-width:760px){.nativePack{grid-template-columns:1fr}.nativePackActions{justify-content:stretch}.nativePackActions button{flex:1 1 180px}}
+
+.importPreview{display:grid;gap:10px;padding:13px;border:1px solid var(--line-strong);background:var(--bone)}
+.importPreviewSummary{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline}
+.importPreviewSummary strong{font:700 13px var(--sans)}
+.importPreviewSummary span{color:var(--ink-faint);font:500 9px var(--mono);text-transform:uppercase;letter-spacing:.04em}
+.importPreview details{font-size:11px}.importPreview summary{cursor:pointer;font-weight:650}.importPreview ul{display:grid;gap:6px;margin:8px 0 0;padding:0;list-style:none}.importPreview li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px}.importPreview li code{padding:3px 5px;border:1px solid var(--line);background:var(--paper);font:600 10px var(--mono)}.importPreview li span{overflow-wrap:anywhere;color:var(--ink-mute)}.importPreview>details>code{display:block;max-height:160px;overflow:auto;margin-top:8px;padding:8px;border:1px solid var(--line);white-space:pre-wrap;font:500 10px/1.45 var(--mono)}
+
+.changePreview{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:center;padding:9px;border:1px solid var(--line);background:var(--paper)}
+.changePreview>span,.rollbackPreview{display:grid;gap:4px;min-width:0}.changePreview small,.rollbackPreview small{color:var(--ink-faint);font:600 8px var(--mono);letter-spacing:.06em;text-transform:uppercase}.changePreview code,.rollbackPreview code{white-space:pre-wrap;overflow-wrap:anywhere;font:500 10px/1.4 var(--mono)}.changePreview>b{color:var(--coral)}
+.rollbackPreview{padding:8px 9px;border-left:2px solid var(--mustard);background:color-mix(in srgb,var(--mustard) 7%,transparent)}
+@media(max-width:680px){.changePreview{grid-template-columns:1fr}.changePreview>b{transform:rotate(90deg);justify-self:center}}

@@ -30,7 +30,8 @@ test("shows customized and imported collisions as accessible conflicts with assi
   await firstCard.locator("input[data-key-capture='true']").fill("ctrl+7");
 
   await page.getByLabel("Paste personal Neverwinter binds").fill("/bind ctrl+7 Existing_Player_Command activate");
-  await page.getByRole("button", { name: "Analyze pasted binds" }).click();
+  await page.getByRole("button", { name: "Preview import" }).click();
+  await page.getByTestId("keymap-import-preview").getByRole("button", { name: "Confirm import" }).click();
 
   const seven = page.getByTestId("keyboard-key-7");
   await expect(seven).toHaveAttribute("data-state", "conflict");
@@ -48,7 +49,8 @@ test("refreshes keyboard state when switching profiles and remains contained on 
   const firstCard = page.locator(".bind-card:visible").first();
   await firstCard.locator("input[data-key-capture='true']").fill("ctrl+7");
   await page.getByLabel("Paste personal Neverwinter binds").fill("/bind ctrl+7 Existing_Player_Command activate");
-  await page.getByRole("button", { name: "Analyze pasted binds" }).click();
+  await page.getByRole("button", { name: "Preview import" }).click();
+  await page.getByTestId("keymap-import-preview").getByRole("button", { name: "Confirm import" }).click();
   await expect(page.getByTestId("keyboard-key-7")).toHaveAttribute("data-state", "conflict");
 
   await page.getByRole("button", { name: "Add profile" }).click();

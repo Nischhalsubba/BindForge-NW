@@ -19,6 +19,7 @@ import {
 } from "./lib/backup-schema.mjs";
 import type { SavedSettingsV3 } from "./lib/backup-schema.mjs";
 import type { KeybindClass, KeybindType } from "./data/keybindPresets";
+import { RECOVERY_STORAGE_KEY, appendRecoveryRecord, makeRecoveryRecord, parseRecoveryRecords } from "./lib/recovery-data.mjs";
 
 const SETTINGS_KEY = "bindforge-nw:settings:v2";
 const LEGACY_SETTINGS_KEY = "bindforge-nw:settings:v1";
@@ -157,6 +158,12 @@ function storageRemove(key: string) {
   }
 }
 
+function preserveRecovery(storageKey: string, raw: string, reason: string) {
+  if (!raw) return;
+  const existing = parseRecoveryRecords(storageGet(RECOVERY_STORAGE_KEY));
+  storageSet(RECOVERY_STORAGE_KEY, JSON.stringify(appendRecoveryRecord(existing, makeRecoveryRecord(storageKey, raw, reason), 8)));
+}
+
 function stateFromBackup(settings: SavedSettingsV3, preferenceOverride?: AccessibilityPreferences): BindForgeState {
   const defaults = defaultState();
   const preferences = preferenceOverride ? { ...preferenceOverride } : { ...settings.preferences };
@@ -227,6 +234,7 @@ function readStoredBackup(): StoredBackupResult {
       }
       return { backup: parsed.value, storageAvailable, migratedFrom: null };
     }
+    preserveRecovery(SETTINGS_KEY, current, parsed.error || "Current settings could not be validated");
   }
 
   const legacy = storageGet(LEGACY_SETTINGS_KEY);
@@ -242,6 +250,7 @@ function readStoredBackup(): StoredBackupResult {
       storageAvailable = storageRemove(LEGACY_SETTINGS_KEY) && storageAvailable;
       return { backup, storageAvailable, migratedFrom: parsed.migratedFrom };
     }
+    preserveRecovery(LEGACY_SETTINGS_KEY, legacy, parsed.error || "Legacy settings could not be validated");
   }
 
   return { backup: createDefaultBackup(DEFAULT_SAVED_AT), storageAvailable, migratedFrom: null };

@@ -23,7 +23,7 @@ test("uses a full-width vertical My Setup flow on desktop", async ({ page }, tes
   await expect(analyzer).toBeVisible();
   await expect(analyzer.getByText("Analyze this profile’s Neverwinter binds", { exact: true })).toBeVisible();
   await expect(analyzer.getByLabel("Paste personal Neverwinter binds")).toBeVisible();
-  await expect(analyzer.getByRole("button", { name: "Analyze pasted binds" })).toBeVisible();
+  await expect(analyzer.getByRole("button", { name: "Preview import" })).toBeVisible();
 
   const geometry = await Promise.all([
     panel.boundingBox(),

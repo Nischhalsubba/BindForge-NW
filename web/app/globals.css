@@ -210,3 +210,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+
+.reassignment-panel{display:grid;gap:9px;margin-top:10px;padding:11px;border:1px solid var(--line);background:color-mix(in srgb,var(--paper-warm) 72%,transparent)}
+.reassignment-panel label{display:grid;gap:5px;color:var(--ink-faint);font:600 9px var(--mono);letter-spacing:.05em;text-transform:uppercase}
+.reassignment-panel select{min-height:42px;padding:7px 9px;border:1px solid var(--line-strong);background:var(--paper);color:var(--ink);font:500 12px var(--sans);text-transform:none;letter-spacing:0}
+.reassignment-panel p{margin:0;color:var(--ink-mute);font-size:11px;line-height:1.5}.reassignment-panel code{font:600 10px var(--mono)}

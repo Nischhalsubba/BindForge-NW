@@ -31,6 +31,7 @@ type CompactKeybindRowProps = {
   copyDisabled: boolean;
   canReplace: boolean;
   replacementKey?: string | null;
+  reassignmentOptions: string[];
   onKeyChange: (value: string) => void;
   onCopy: CopyHandler;
   onSelect: () => void;
@@ -55,6 +56,7 @@ export function CompactKeybindRow({
   copyDisabled,
   canReplace,
   replacementKey,
+  reassignmentOptions,
   onKeyChange,
   onCopy,
   onSelect,
@@ -63,6 +65,8 @@ export function CompactKeybindRow({
 }: CompactKeybindRowProps) {
   const [expanded, setExpanded] = useState(false);
   const [copyState, setCopyState] = useState<CopyState>("idle");
+  const [moveOpen, setMoveOpen] = useState(false);
+  const [moveKey, setMoveKey] = useState("");
   const copyButton = useRef<HTMLButtonElement>(null);
   const detailsId = `${preset.id}-compact-details`;
   const currentKey = normalizeCombo(keyValue);
@@ -194,8 +198,16 @@ export function CompactKeybindRow({
                 Use next safer key
               </button>
             ) : null}
+            {reassignmentOptions.length ? <button aria-expanded={moveOpen} onClick={() => { setMoveOpen((value) => !value); if (!moveKey) setMoveKey(reassignmentOptions[0]); }} type="button">Move binding to…</button> : null}
             <button onClick={onReset} type="button"><Icon name="reset" /> Reset suggestion</button>
           </div>
+          {moveOpen && reassignmentOptions.length ? (
+            <div className={styles.reassignment} data-testid="reassignment-panel">
+              <label>Evidence-backed destination<select aria-label={`Move ${preset.title} binding to`} onChange={(event) => setMoveKey(event.target.value)} value={moveKey || reassignmentOptions[0]}>{reassignmentOptions.map((key) => <option key={key} value={key}>{key}</option>)}</select></label>
+              <p><strong>Current → Proposed:</strong> <code>{currentKey || "—"}</code> → <code>{moveKey || reassignmentOptions[0]}</code>. Destination not found in the active imported profile; verify in game.</p>
+              <button onClick={() => { onKeyChange(moveKey || reassignmentOptions[0]); setMoveOpen(false); }} type="button">Apply reassignment</button>
+            </div>
+          ) : null}
         </div>
       ) : null}
 
