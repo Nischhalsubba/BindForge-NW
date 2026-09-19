@@ -66,7 +66,7 @@ jobs:
       - name: Install dependencies
         if: steps.changes.outputs.deployable == 'true'
         working-directory: web
-        run: npm ci
+        run: npm ci --no-audit --no-fund
 
       - name: Run production release checks
         if: steps.changes.outputs.deployable == 'true'
@@ -81,12 +81,40 @@ jobs:
           git fetch origin main
           test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
 
-      - name: Authorize exactly one production deployment
+      - name: Prepare protected production release branch
         if: steps.changes.outputs.deployable == 'true'
         shell: bash
         run: |
           set -euo pipefail
+          source_sha="$(git rev-parse HEAD)"
+          branch="release/production-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          requested_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit --allow-empty -m "release: production [deploy]"
-          git push origin HEAD:main
+          git switch -c "$branch"
+
+          cat > .github/production-release.json <<EOF
+          {
+            "sourceMainSha": "$source_sha",
+            "requestedAt": "$requested_at",
+            "workflowRun": "https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID",
+            "managedBy": ".github/workflows/release-production.yml"
+          }
+          EOF
+
+          git add .github/production-release.json
+          git commit -m "release: production [deploy]"
+          git push --set-upstream origin "$branch"
+
+          pr_url="https://github.com/$GITHUB_REPOSITORY/compare/main...$branch?expand=1"
+          {
+            echo "### Production release branch prepared"
+            echo
+            echo "- Source main: `$source_sha`"
+            echo "- Release branch: `$branch`"
+            echo "- Open the release pull request: $pr_url"
+            echo
+            echo "Use the title `release: production [deploy]`. Merge only after the required Core, browser, Dependency Audit, and CodeQL checks are green."
+            echo "Netlify stays fail-closed: production runs only when the merged release history contains this marker commit and the release manifest change."
+          } >> "$GITHUB_STEP_SUMMARY"

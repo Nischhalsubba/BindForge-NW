@@ -46,7 +46,7 @@ jobs:
           PY
           )"
 
-          for required in 'CONTEXT' 'PULL_REQUEST' 'BRANCH' 'COMMIT_REF' 'git log -1 --pretty=%s' '[deploy]'; do
+          for required in 'CONTEXT' 'PULL_REQUEST' 'BRANCH' 'COMMIT_REF' 'git log -1 --pretty=%s' 'production-release.json' '[deploy]'; do
             if ! grep -Fq "$required" <<<"$ignore_cmd"; then
               echo "::error::Netlify ignore gate is missing required control: $required"
               exit 1
@@ -74,10 +74,21 @@ jobs:
           git -C "$tmp" commit -qm "mention [deploy] but keep working"
           middle_sha="$(git -C "$tmp" rev-parse HEAD)"
 
-          echo release >> "$tmp/state"
+          echo markerless >> "$tmp/state"
           git -C "$tmp" add state
+          git -C "$tmp" commit -qm "markerless release [deploy]"
+          markerless_release_sha="$(git -C "$tmp" rev-parse HEAD)"
+
+          git -C "$tmp" switch -q -c release-test "$middle_sha"
+          mkdir -p "$tmp/.github"
+          printf '{"sourceMainSha":"test"}\n' > "$tmp/.github/production-release.json"
+          git -C "$tmp" add .github/production-release.json
           git -C "$tmp" commit -qm "release candidate [deploy]"
           release_sha="$(git -C "$tmp" rev-parse HEAD)"
+
+          git -C "$tmp" switch -q -C main-test "$middle_sha"
+          git -C "$tmp" merge -q --no-ff release-test -m "Merge release pull request"
+          merged_release_sha="$(git -C "$tmp" rev-parse HEAD)"
 
           assert_rc() {
             expected="$1"
@@ -105,11 +116,13 @@ jobs:
           assert_rc 0 production "1" "$PRODUCTION_BRANCH" "$release_sha" "non-false pull-request flag must skip"
           assert_rc 0 production false "$PRODUCTION_BRANCH" "$body_only_sha" "body-only marker must skip"
           assert_rc 0 production false "$PRODUCTION_BRANCH" "$middle_sha" "non-suffix marker must skip"
+          assert_rc 0 production false "$PRODUCTION_BRANCH" "$markerless_release_sha" "marker without release manifest must skip"
           assert_rc 0 deploy-preview true "$PRODUCTION_BRANCH" "$release_sha" "deploy preview must skip"
           assert_rc 0 branch-deploy false "feature/policy-test" "$release_sha" "branch deploy must skip"
           assert_rc 0 production false "feature/policy-test" "$release_sha" "non-production branch must skip"
           assert_rc 0 production false "$PRODUCTION_BRANCH" "not-a-valid-ref" "invalid commit ref must fail closed"
-          assert_rc 1 production false "$PRODUCTION_BRANCH" "$release_sha" "explicit production release must build"
+          assert_rc 1 production false "$PRODUCTION_BRANCH" "$release_sha" "explicit release marker commit must build"
+          assert_rc 1 production false "$PRODUCTION_BRANCH" "$merged_release_sha" "merge of verified release marker must build"
 
       - name: Reject expensive or bypass deployment paths
         shell: bash
@@ -140,7 +153,8 @@ jobs:
           echo "Netlify policy verified:"
           echo "- only production context is eligible"
           echo "- PR and branch deploys skip"
-          echo "- only main commit subjects ending exactly in [deploy] can build"
+          echo "- release marker must end exactly in [deploy] and change .github/production-release.json"
+          echo "- merge commits are eligible only when their second parent is that release marker"
           echo "- invalid commit refs fail closed"
           echo "- build hooks, hosted PR preview dependencies, and direct CLI deploys are rejected in CI workflows"
           echo "- Lighthouse stays outside Netlify builds"

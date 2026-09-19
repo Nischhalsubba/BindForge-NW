@@ -1,0 +1,7 @@
+{
+  "productionCommit": "d1404b3292e56c806df39a0287ff4fb5c37d64a7",
+  "sourceMainSha": "0c8ddc87dcbbad2b33a034301ad3d3b75a8804db",
+  "releasedAt": "2026-09-19T08:05:40Z",
+  "managedBy": ".github/workflows/release-production.yml",
+  "note": "Updated automatically by the controlled production release PR workflow."
+}
