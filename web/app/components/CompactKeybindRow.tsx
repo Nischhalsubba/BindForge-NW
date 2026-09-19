@@ -71,6 +71,7 @@ export function CompactKeybindRow({
   const [moveKey, setMoveKey] = useState("");
   const copyButton = useRef<HTMLButtonElement>(null);
   const detailsId = `${preset.id}-compact-details`;
+  const movePanelId = `${preset.id}-compact-move-binding`;
   const currentKey = normalizeCombo(keyValue);
   const effectiveKey = keyValue.trim() || preset.defaultKey;
   const canCopyKey = isCompleteCombo(effectiveKey);
@@ -202,11 +203,11 @@ export function CompactKeybindRow({
                 Use next safer key
               </button>
             ) : null}
-            {reassignmentOptions.length ? <button aria-expanded={moveOpen} onClick={() => { setMoveOpen((value) => !value); if (!moveKey) setMoveKey(reassignmentOptions[0]); }} type="button">Move binding to…</button> : null}
+            {reassignmentOptions.length ? <button aria-controls={movePanelId} aria-expanded={moveOpen} onClick={() => { setMoveOpen((value) => !value); if (!moveKey) setMoveKey(reassignmentOptions[0]); }} type="button">Move binding to…</button> : null}
             <button onClick={onReset} type="button"><Icon name="reset" /> Reset suggestion</button>
           </div>
           {moveOpen && reassignmentOptions.length ? (
-            <div className={styles.reassignment} data-testid="reassignment-panel">
+            <div aria-label={`Reassign ${preset.title}`} className={styles.reassignment} data-testid="reassignment-panel" id={movePanelId} role="region">
               <label>Evidence-backed destination<select aria-label={`Move ${preset.title} binding to`} onChange={(event) => setMoveKey(event.target.value)} value={moveKey || reassignmentOptions[0]}>{reassignmentOptions.map((key) => <option key={key} value={key}>{key}</option>)}</select></label>
               <p><strong>Current → Proposed:</strong> <code>{currentKey || "—"}</code> → <code>{moveKey || reassignmentOptions[0]}</code>. Destination not found in the active imported profile; verify in game.</p>
               <button onClick={() => { onKeyChange(moveKey || reassignmentOptions[0]); setMoveOpen(false); }} type="button">Apply reassignment</button>
