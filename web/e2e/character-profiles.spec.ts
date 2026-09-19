@@ -118,7 +118,8 @@ test("keeps edited keys and imported conflict data isolated by profile", async (
 
   await keyInput.fill("ctrl+7");
   await page.getByLabel("Paste personal Neverwinter binds").fill("/bind ctrl+7 invoke");
-  await page.getByRole("button", { name: "Analyze pasted binds" }).click();
+  await page.getByRole("button", { name: "Preview import" }).click();
+  await page.getByTestId("keymap-import-preview").getByRole("button", { name: "Confirm import" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Personal conflict detection is active" })).toBeVisible();
 
   await page.getByRole("button", { name: "Add profile" }).click();

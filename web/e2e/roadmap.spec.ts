@@ -109,7 +109,8 @@ test("personal keymap import drives real conflict detection and final pack revie
   const personalPanel = page.getByTestId("personal-keymap-panel");
   await expect(personalPanel).toBeVisible();
   await personalPanel.getByLabel("Paste personal Neverwinter binds").fill(`/bind ${keyValue} Existing_Player_Command activate`);
-  await personalPanel.getByRole("button", { name: "Analyze pasted binds" }).click();
+  await personalPanel.getByRole("button", { name: "Preview import" }).click();
+  await personalPanel.getByTestId("keymap-import-preview").getByRole("button", { name: "Confirm import" }).click();
   await expect(personalPanel.getByRole("status").filter({ hasText: "1 active bind analyzed" })).toBeVisible();
   await expect(firstCard.locator(".key-status")).toContainText("Your imported keymap uses this key");
 
