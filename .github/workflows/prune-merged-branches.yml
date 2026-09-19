@@ -1,0 +1,138 @@
+name: Prune merged historical branches
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/prune-merged-branches.yml'
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: Delete branches that pass every safety check
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  pull-requests: read
+
+concurrency:
+  group: prune-merged-historical-branches
+  cancel-in-progress: false
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Check out main with full history
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Fetch all remote branches
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --prune origin '+refs/heads/*:refs/remotes/origin/*'
+
+      - name: Verify and prune safe historical branches
+        shell: bash
+        env:
+          APPLY_INPUT: ${{ inputs.apply }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+
+          # The merge that introduces this workflow is the one-time cleanup trigger.
+          # Manual runs default to dry-run unless apply=true is explicitly selected.
+          apply=false
+          if [ "$EVENT_NAME" = "push" ] || [ "$APPLY_INPUT" = "true" ]; then
+            apply=true
+          fi
+
+          owner="${GITHUB_REPOSITORY%%/*}"
+          deleted=0
+          kept_unique=0
+          kept_open_pr=0
+          kept_changed=0
+          kept_delete_error=0
+          candidates=0
+
+          {
+            echo "## Historical branch cleanup"
+            echo
+            echo "- Mode: `$([ "$apply" = true ] && echo apply || echo dry-run)`"
+            echo "- Main: `$(git rev-parse origin/main)`"
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          while IFS= read -r branch; do
+            [ -n "$branch" ] || continue
+            [ "$branch" != "main" ] || continue
+            candidates=$((candidates + 1))
+
+            # Refresh the candidate immediately before judging it.
+            if ! git fetch --quiet origin "refs/heads/$branch:refs/remotes/origin/$branch"; then
+              echo "KEEP (changed/disappeared): $branch" >> "$GITHUB_STEP_SUMMARY"
+              kept_changed=$((kept_changed + 1))
+              continue
+            fi
+
+            candidate_sha="$(git rev-parse "origin/$branch")"
+
+            # Never delete a branch that has work not already contained in main.
+            if ! git merge-base --is-ancestor "$candidate_sha" origin/main; then
+              echo "KEEP (unique commits): $branch @ $candidate_sha" >> "$GITHUB_STEP_SUMMARY"
+              kept_unique=$((kept_unique + 1))
+              continue
+            fi
+
+            # Re-check open PR heads immediately before any deletion.
+            open_pr_count="$(
+              curl -fsS -G                 -H "Accept: application/vnd.github+json"                 -H "Authorization: Bearer $GH_TOKEN"                 -H "X-GitHub-Api-Version: 2022-11-28"                 --data-urlencode "state=open"                 --data-urlencode "head=$owner:$branch"                 --data-urlencode "per_page=1"                 "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls"               | jq 'length'
+            )"
+            if [ "$open_pr_count" -gt 0 ]; then
+              echo "KEEP (open PR): $branch @ $candidate_sha" >> "$GITHUB_STEP_SUMMARY"
+              kept_open_pr=$((kept_open_pr + 1))
+              continue
+            fi
+
+            # Fail closed if the remote ref changed after verification.
+            remote_sha="$(git ls-remote --heads origin "refs/heads/$branch" | awk '{print $1}')"
+            if [ "$remote_sha" != "$candidate_sha" ]; then
+              echo "KEEP (ref changed during audit): $branch" >> "$GITHUB_STEP_SUMMARY"
+              kept_changed=$((kept_changed + 1))
+              continue
+            fi
+
+            if [ "$apply" != true ]; then
+              echo "WOULD DELETE: $branch @ $candidate_sha" >> "$GITHUB_STEP_SUMMARY"
+              continue
+            fi
+
+            if git push origin --delete "$branch"; then
+              echo "DELETED: $branch @ $candidate_sha" >> "$GITHUB_STEP_SUMMARY"
+              deleted=$((deleted + 1))
+            else
+              echo "KEEP (delete rejected): $branch @ $candidate_sha" >> "$GITHUB_STEP_SUMMARY"
+              kept_delete_error=$((kept_delete_error + 1))
+            fi
+          done < <(
+            git for-each-ref --format='%(refname:strip=3)' refs/remotes/origin               | grep -v '^HEAD$'               | sort
+          )
+
+          {
+            echo
+            echo "### Summary"
+            echo "- Audited: $candidates"
+            echo "- Deleted: $deleted"
+            echo "- Kept with unique commits: $kept_unique"
+            echo "- Kept because of open PR: $kept_open_pr"
+            echo "- Kept because ref changed/disappeared: $kept_changed"
+            echo "- Kept because deletion was rejected: $kept_delete_error"
+          } >> "$GITHUB_STEP_SUMMARY"
