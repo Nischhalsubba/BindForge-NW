@@ -1,3 +1,4 @@
+import { LATEST_IMPORTANT_GAME_UPDATE, verificationNeedsGameUpdateReview } from "./game-version.mjs";
 import { latestVerificationForPreset } from "./verification-history.mjs";
 
 function validDate(value) {
@@ -11,6 +12,7 @@ export function catalogFreshnessSummary(presets = [], now = new Date(), staleDay
   let recent = 0;
   let stale = 0;
   let undated = 0;
+  let needsGameUpdateReview = 0;
   const dates = [];
 
   for (const preset of rows) {
@@ -18,9 +20,11 @@ export function catalogFreshnessSummary(presets = [], now = new Date(), staleDay
     const date = validDate(latest?.date ?? preset?.verifiedAt);
     if (!date) {
       undated += 1;
+      needsGameUpdateReview += 1;
       continue;
     }
     dates.push(date);
+    if (verificationNeedsGameUpdateReview(date)) needsGameUpdateReview += 1;
     const age = nowMs - new Date(`${date}T00:00:00Z`).getTime();
     if (Number.isFinite(age) && age >= 0 && age <= maxAgeMs) recent += 1;
     else stale += 1;
@@ -38,5 +42,7 @@ export function catalogFreshnessSummary(presets = [], now = new Date(), staleDay
     datedPercent: total ? Math.round((dated / total) * 100) : 0,
     recentPercent: total ? Math.round((recent / total) * 100) : 0,
     newestDate: dates.sort().at(-1) ?? null,
+    needsGameUpdateReview,
+    latestImportantUpdate: { ...LATEST_IMPORTANT_GAME_UPDATE },
   };
 }

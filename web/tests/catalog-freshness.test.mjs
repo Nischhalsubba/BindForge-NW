@@ -20,6 +20,12 @@ test("summarizes dated, stale, and undated catalogue verification", () => {
     datedPercent: 67,
     recentPercent: 33,
     newestDate: "2026-09-01",
+    needsGameUpdateReview: 3,
+    latestImportantUpdate: {
+      date: "2026-09-17",
+      label: "September 17, 2026 live patch",
+      sourceUrl: "https://www.playneverwinter.com/en/news-details/11557773",
+    },
   });
 });
 
@@ -38,4 +44,15 @@ test("preserves explicit verification history and migrates a legacy verification
   assert.equal(legacy.length, 1);
   assert.equal(legacy[0].result, "unknown");
   assert.match(legacy[0].note, /legacy/i);
+});
+
+
+test("tracks re-verification debt against the latest important Neverwinter update", () => {
+  const summary = catalogFreshnessSummary([
+    { verifiedAt: "2026-09-18" },
+    { verifiedAt: "2026-09-16" },
+    {},
+  ], new Date("2026-09-19T00:00:00Z"), 180);
+  assert.equal(summary.needsGameUpdateReview, 2);
+  assert.equal(summary.latestImportantUpdate.date, "2026-09-17");
 });

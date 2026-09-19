@@ -1,3 +1,4 @@
+import { LATEST_IMPORTANT_GAME_UPDATE, verificationNeedsGameUpdateReview } from "./game-version.mjs";
 import { latestVerificationForPreset } from "./verification-history.mjs";
 
 const TRUST_LEVELS = {
@@ -34,7 +35,11 @@ export function presetTrustInfo(preset) {
   const trust = TRUST_LEVELS[confidence];
   const sourceLabel = SOURCE_LABELS[preset?.sourceType] ?? "Community source";
   const latestVerification = latestVerificationForPreset(preset);
-  const checkedLabel = latestVerification?.date ? `Checked ${latestVerification.date}` : "Verification date pending";
+  const checkedLabel = latestVerification?.date
+    ? verificationNeedsGameUpdateReview(latestVerification.date)
+      ? `Checked ${latestVerification.date} · recheck after ${LATEST_IMPORTANT_GAME_UPDATE.date}`
+      : `Checked ${latestVerification.date}`
+    : `Verification pending · recheck after ${LATEST_IMPORTANT_GAME_UPDATE.date}`;
   const versionLabel = latestVerification?.gameVersion
     ? String(latestVerification.gameVersion)
     : preset?.gameVersion

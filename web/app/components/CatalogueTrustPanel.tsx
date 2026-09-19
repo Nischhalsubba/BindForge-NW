@@ -16,10 +16,10 @@ export function CatalogueTrustPanel() {
     <div className={styles.root}>
       <div className={styles.freshness} aria-label="Catalogue verification freshness">
         <span><strong>{freshness.recentPercent}%</strong><small>recently verified</small></span>
-        <span><strong>{freshness.needReview}</strong><small>need review</small></span>
+        <span><strong>{freshness.needsGameUpdateReview}</strong><small>recheck after latest patch</small></span>
         <span><strong>{freshness.newestDate ?? "—"}</strong><small>newest evidence date</small></span>
       </div>
-      <p className={styles.note}>“Recently verified” means a recorded verification within 180 days. Missing dates stay visible as review debt rather than being treated as current.</p>
+      <p className={styles.note}>“Recently verified” means a recorded verification within 180 days. {freshness.needsGameUpdateReview} presets have missing or pre-{freshness.latestImportantUpdate.date} evidence and are explicitly flagged for re-verification after <a href={freshness.latestImportantUpdate.sourceUrl} rel="noreferrer" target="_blank">{freshness.latestImportantUpdate.label}</a>.</p>
 
       <section className={styles.cmdlist} aria-labelledby="cmdlist-audit-title">
         <div>

@@ -34,6 +34,7 @@ type ProfileWorkspaceManagerProps = {
   onDeleteCharacter: () => void;
   onDeleteProfile: () => void;
   onExport: () => void;
+  onExportActiveProfile: () => void;
   onImport: (file: File) => void;
 };
 
@@ -42,6 +43,9 @@ const roles = ["DPS", "Tank", "Heal", "Hybrid"];
 
 export function ProfileWorkspaceManager(props: ProfileWorkspaceManagerProps) {
   const [manageOpen, setManageOpen] = useState(false);
+  const profileIndex = Math.max(0, props.activeCharacter.profiles.findIndex((profile) => profile.id === props.activeProfileId));
+  const previousProfile = props.activeCharacter.profiles[profileIndex - 1] ?? null;
+  const nextProfile = props.activeCharacter.profiles[profileIndex + 1] ?? null;
 
   return (
     <section className={styles.profileWorkspace} aria-labelledby="profile-workspace-title">
@@ -68,6 +72,10 @@ export function ProfileWorkspaceManager(props: ProfileWorkspaceManagerProps) {
           </select>
         </label>
         <button onClick={() => { props.onAddProfile(); setManageOpen(true); }} type="button">Add profile</button>
+        <div className={styles.quickSwitch} aria-label="Quick profile switching">
+          <button disabled={!previousProfile} onClick={() => previousProfile && props.onActiveProfileChange(previousProfile.id)} type="button">← Previous profile</button>
+          <button disabled={!nextProfile} onClick={() => nextProfile && props.onActiveProfileChange(nextProfile.id)} type="button">Next profile →</button>
+        </div>
       </div>
 
       <button aria-expanded={manageOpen} className={styles.manageToggle} onClick={() => setManageOpen((value) => !value)} type="button">
@@ -86,6 +94,7 @@ export function ProfileWorkspaceManager(props: ProfileWorkspaceManagerProps) {
         <div className={styles.profileActions}>
           <button disabled={!props.canDeleteCharacter} onClick={props.onDeleteCharacter} type="button">Delete character</button>
           <button disabled={!props.canDeleteProfile} onClick={props.onDeleteProfile} type="button">Delete profile</button>
+          <button onClick={props.onExportActiveProfile} type="button">Export active profile</button>
           <button onClick={props.onExport} type="button">Export My Setup</button>
           <label className={styles.fileButton}>Import My Setup<input accept="application/json,.json" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) props.onImport(file); event.currentTarget.value = ""; }} type="file" /></label>
         </div>

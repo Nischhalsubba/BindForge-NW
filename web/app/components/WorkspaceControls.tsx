@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useBindForge } from "../BindForgeProvider";
 import { analyzeRawKeymap, compareProfiles } from "../lib/keymap-intelligence.mjs";
 import type { ProfileHistorySnapshot } from "../lib/profile-history.mjs";
 import type { PresetConfidence, PresetSourceType } from "../data/keybindTypes";
+import { recordLocalAnalyticsEvent } from "../lib/local-analytics-client";
 import { ProfileWorkspaceManager } from "./ProfileWorkspaceManager";
 import { VisualKeyboardMap } from "./VisualKeyboardMap";
 import { KeymapIntelligencePanel } from "./KeymapIntelligencePanel";
@@ -92,6 +93,8 @@ type WorkspaceControlsProps = {
   onDownloadNativePack: () => void;
   onCopyNativeLoadCommand: () => void;
   onDownloadNativeRestore: () => void;
+  onDownloadCommunityPack: (gameVersion: string) => void;
+  onExportActiveProfile: () => void;
   hasImportedEvidence: boolean;
   unusedKeyRecommendations: string[];
   profileHistory: ProfileHistorySnapshot[];
@@ -123,6 +126,8 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
   const [importText, setImportText] = useState("");
   const [importPreview, setImportPreview] = useState<ReturnType<typeof analyzeRawKeymap> | null>(null);
   const [importPreviewMessage, setImportPreviewMessage] = useState("");
+  const [communityPackVersion, setCommunityPackVersion] = useState("");
+  const importRef = useRef<HTMLTextAreaElement>(null);
   const panelId = "collections-command-packs";
   const keymapPanelId = "personal-keymap-import";
   const reviewPanelId = "selected-pack-review";
@@ -153,6 +158,10 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
   function previewImport(text: string) {
     const analysis = analyzeRawKeymap(text);
     setImportPreview(analysis);
+    recordLocalAnalyticsEvent({ name: "import_previewed", context: { route: "my-setup", actionType: "import", outcome: analysis.hasBlockingErrors ? "blocked" : "ready" } });
+    if (analysis.hasBlockingErrors) {
+      recordLocalAnalyticsEvent({ name: "workflow_error", context: { route: "my-setup", actionType: "import", outcome: "validation-blocked" } });
+    }
     setImportPreviewMessage(
       analysis.hasBlockingErrors
         ? "No valid bind operations were found. Review the ignored lines before importing."
@@ -163,6 +172,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
   async function previewImportFile(file: File) {
     if (file.size > 512 * 1024) {
       setImportPreview(null);
+      recordLocalAnalyticsEvent({ name: "workflow_error", context: { route: "my-setup", actionType: "import", outcome: "file-too-large" } });
       setImportPreviewMessage("That bind file is larger than 512 KB. Choose a smaller text export.");
       return;
     }
@@ -172,6 +182,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
       previewImport(text);
     } catch {
       setImportPreview(null);
+      recordLocalAnalyticsEvent({ name: "workflow_error", context: { route: "my-setup", actionType: "import", outcome: "file-read-failed" } });
       setImportPreviewMessage("The selected bind file could not be read.");
     }
   }
@@ -179,6 +190,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
   function confirmImport() {
     if (!importPreview || importPreview.hasBlockingErrors) return;
     props.onImportPersonalText(importText);
+    recordLocalAnalyticsEvent({ name: "import_confirmed", context: { route: "my-setup", actionType: "import", outcome: "confirmed" } });
     setImportPreview(null);
     setImportPreviewMessage("");
   }
@@ -228,6 +240,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
               onDeleteCharacter={props.onDeleteCharacter}
               onDeleteProfile={props.onDeleteProfile}
               onExport={props.onExportProfiles}
+              onExportActiveProfile={props.onExportActiveProfile}
               onImport={props.onImportProfiles}
             />
             <VisualKeyboardMap
@@ -252,7 +265,17 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
                 <p>Paste <code>/bind</code> and <code>/unbind</code> lines or choose a text file. Analysis stays local and belongs only to the active profile.</p>
                 {props.personalBindCount ? <p className={styles.keymapSource}>Imported source: {props.personalSourceName || "Pasted keymap"}</p> : null}
               </div>
-              <textarea aria-label="Paste personal Neverwinter binds" onChange={(event) => { setImportText(event.target.value); setImportPreview(null); setImportPreviewMessage(""); }} placeholder={'/bind r gensendmessage Chat_Reply activate\n/bind ctrl+5 invoke'} rows={5} value={importText} />
+              {!props.personalBindCount ? (
+                <div className={styles.keymapEmpty} data-testid="keymap-empty-actions">
+                  <div><strong>No imported profile evidence yet</strong><p>Choose how you want to start. BindForge will not label keys unused until you import your current binds.</p></div>
+                  <div>
+                    <button onClick={() => importRef.current?.focus()} type="button">Import current binds</button>
+                    <button onClick={() => setImportPreviewMessage("Started clean. Key availability remains unknown until you import current binds.")} type="button">Start clean</button>
+                    <button onClick={props.onAddProfile} type="button">Clone profile</button>
+                  </div>
+                </div>
+              ) : null}
+              <textarea aria-label="Paste personal Neverwinter binds" onChange={(event) => { setImportText(event.target.value); setImportPreview(null); setImportPreviewMessage(""); }} placeholder={'/bind r gensendmessage Chat_Reply activate\n/bind ctrl+5 invoke'} ref={importRef} rows={5} value={importText} />
               <div className={styles.keymapActions}>
                 <button className={styles.primary} disabled={!importText.trim()} onClick={() => previewImport(importText)} type="button">Preview import</button>
                 <label className={styles.fileButton}>Choose bind .txt<input accept=".txt,.cfg,text/plain" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) void previewImportFile(file); event.currentTarget.value = ""; }} type="file" /></label>
@@ -304,6 +327,11 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
               <button disabled={!props.selectedCount} onClick={() => props.onDownloadPack("bind")} type="button">Download bind .txt</button>
               <button disabled={!props.selectedCount} onClick={() => props.onDownloadPack("unbind")} type="button">Download unbind .txt</button>
             </div>
+            <section className={styles.communityPack} aria-labelledby="community-pack-title">
+              <div><strong id="community-pack-title">Versioned community pack</strong><p>Export the selected preset IDs with an explicit Neverwinter version. The artifact stays unverified until reviewed; nothing is uploaded silently.</p></div>
+              <label>Game version / patch<input aria-label="Community pack game version" onChange={(event) => setCommunityPackVersion(event.target.value)} placeholder="Required" value={communityPackVersion} /></label>
+              <button disabled={!props.selectedCount || !communityPackVersion.trim()} onClick={() => props.onDownloadCommunityPack(communityPackVersion)} type="button">Download community pack</button>
+            </section>
             <section className={styles.nativePack} aria-labelledby="native-pack-title">
               <div>
                 <strong id="native-pack-title">Neverwinter loadable file</strong>

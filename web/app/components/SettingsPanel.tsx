@@ -7,6 +7,7 @@ import ThemeSwitcher from "../ThemeSwitcher";
 import { AccessibilityPreferences } from "../AccessibilityPreferences";
 import { CatalogueTrustPanel } from "./CatalogueTrustPanel";
 import { RecoveryDataPanel } from "./RecoveryDataPanel";
+import { PrivacyAnalyticsPanel } from "./PrivacyAnalyticsPanel";
 import styles from "./SettingsPanel.module.css";
 
 export function SettingsPanel() {
@@ -71,6 +72,10 @@ export function SettingsPanel() {
             <section className={styles.section} aria-labelledby="catalogue-trust-settings-title">
               <div className={styles.sectionHeading}><h3 id="catalogue-trust-settings-title">Catalogue trust</h3><p>See verification debt and compare a live Neverwinter command list against the local reference catalogue.</p></div>
               <CatalogueTrustPanel />
+            </section>
+            <section className={styles.section} aria-labelledby="analytics-settings-title">
+              <div className={styles.sectionHeading}><h3 id="analytics-settings-title">Privacy-conscious usage insights</h3><p>Review the coarse, device-local events BindForge uses to understand workflow friction without collecting your keymaps or identity.</p></div>
+              <PrivacyAnalyticsPanel />
             </section>
             <section className={styles.section} aria-labelledby="recovery-settings-title">
               <div className={styles.sectionHeading}><h3 id="recovery-settings-title">Recovery archive</h3><p>When locally saved JSON is invalid, BindForge preserves the raw value here before using a safe fallback.</p></div>

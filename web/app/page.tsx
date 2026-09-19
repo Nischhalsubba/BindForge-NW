@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AppHeader } from "./components/AppHeader";
+import { CommandPalette } from "./components/CommandPalette";
 import type { CopyFeedback } from "./components/AppHeader";
 import { ContextualHelpGlossary, FirstVisitOrientation } from "./components/FirstVisitHelp";
 import { GsapMotionEnhancer } from "./components/GsapMotionEnhancer";
@@ -80,6 +81,7 @@ export default function Home() {
 
       <PrimaryWorkspace onCopy={copyText} />
       <ContextualHelpGlossary />
+      <CommandPalette />
 
       <footer className="app-footer" data-reveal>
         <SectionRule roman="III" meta="Notes / provenance / studio" page="003" />

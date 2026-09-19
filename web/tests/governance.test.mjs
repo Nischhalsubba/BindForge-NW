@@ -27,6 +27,8 @@ const workspaceFiles = [
   "docs/RELEASE_TEMPLATE.md",
   "docs/FINAL_PROJECT_STATUS.md",
   "scripts/catalog-health.mjs",
+  "scripts/client-boundary-audit.mjs",
+  "docs/ADR-WEB-ONLY-PWA.md",
 ];
 
 /** Resolves a repository-relative path against the supplied URL root. */
@@ -89,6 +91,19 @@ test("catalog health is part of the normal release check", async () => {
   const packageInfo = JSON.parse(await readFile(resolveFrom(workspaceRoot, "package.json"), "utf8"));
   assert.equal(packageInfo.scripts["catalog:health"], "node scripts/catalog-health.mjs");
   assert.match(packageInfo.scripts.check, /npm run catalog:health/);
+});
+
+test("client component source weight is part of the normal quality gate", async () => {
+  const packageInfo = JSON.parse(await readFile(resolveFrom(workspaceRoot, "package.json"), "utf8"));
+  assert.equal(packageInfo.scripts["client:audit"], "node scripts/client-boundary-audit.mjs");
+  assert.match(packageInfo.scripts.check, /npm run client:audit/);
+});
+
+test("PWA posture is explicitly web-only and the retired service worker stays retired", async () => {
+  const adr = await readFile(resolveFrom(workspaceRoot, "docs/ADR-WEB-ONLY-PWA.md"), "utf8");
+  assert.match(adr, /Decision: intentionally web-only/i);
+  assert.match(adr, /no service worker/i);
+  assert.match(adr, /catalogue freshness/i);
 });
 
 test("public attribution remains Archew", async () => {

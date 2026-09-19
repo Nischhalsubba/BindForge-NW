@@ -6,6 +6,10 @@ export type ConsoleCommand = {
   aliases: string[];
   params: string;
   category: string;
+  sourceUrl?: string;
+  verifiedAt?: string;
+  gameVersion?: string;
+  verificationStatus?: "reference-confirmed" | "needs-retest";
 };
 
 export const consoleCommands = [
@@ -71,7 +75,11 @@ export const consoleCommands = [
     "bindCommand": "bind",
     "aliases": [],
     "params": "keybind /command",
-    "category": "Performance information"
+    "category": "Performance information",
+    "sourceUrl": "https://neverwinter.fandom.com/wiki/Console_command",
+    "verifiedAt": "2026-09-19",
+    "gameVersion": "2026-09-17 live patch baseline (reference review)",
+    "verificationStatus": "reference-confirmed"
   },
   {
     "id": "showdevui",
@@ -662,7 +670,11 @@ export const consoleCommands = [
     "bindCommand": "bind_load_file",
     "aliases": [],
     "params": "",
-    "category": "All Neverwinter Online"
+    "category": "All Neverwinter Online",
+    "sourceUrl": "https://neverwinter.fandom.com/wiki/Console_command",
+    "verifiedAt": "2026-09-19",
+    "gameVersion": "2026-09-17 live patch baseline (reference review)",
+    "verificationStatus": "reference-confirmed"
   },
   {
     "id": "bind_local",
@@ -686,7 +698,11 @@ export const consoleCommands = [
     "bindCommand": "bind_local_load_file",
     "aliases": [],
     "params": "",
-    "category": "All Neverwinter Online"
+    "category": "All Neverwinter Online",
+    "sourceUrl": "https://neverwinter.fandom.com/wiki/Console_command",
+    "verifiedAt": "2026-09-19",
+    "gameVersion": "2026-09-17 live patch baseline (reference review)",
+    "verificationStatus": "reference-confirmed"
   },
   {
     "id": "bind_local_save",
@@ -702,7 +718,11 @@ export const consoleCommands = [
     "bindCommand": "bind_local_save_file",
     "aliases": [],
     "params": "",
-    "category": "All Neverwinter Online"
+    "category": "All Neverwinter Online",
+    "sourceUrl": "https://neverwinter.fandom.com/wiki/Console_command",
+    "verifiedAt": "2026-09-19",
+    "gameVersion": "2026-09-17 live patch baseline (reference review)",
+    "verificationStatus": "reference-confirmed"
   },
   {
     "id": "bind_pop_profile",
@@ -734,7 +754,11 @@ export const consoleCommands = [
     "bindCommand": "bind_save_file",
     "aliases": [],
     "params": "",
-    "category": "All Neverwinter Online"
+    "category": "All Neverwinter Online",
+    "sourceUrl": "https://neverwinter.fandom.com/wiki/Console_command",
+    "verifiedAt": "2026-09-19",
+    "gameVersion": "2026-09-17 live patch baseline (reference review)",
+    "verificationStatus": "reference-confirmed"
   },
   {
     "id": "blacksmith",
@@ -1134,7 +1158,11 @@ export const consoleCommands = [
     "bindCommand": "cmdlist",
     "aliases": [],
     "params": "",
-    "category": "All Neverwinter Online"
+    "category": "All Neverwinter Online",
+    "sourceUrl": "https://neverwinter.fandom.com/wiki/Console_command",
+    "verifiedAt": "2026-09-19",
+    "gameVersion": "2026-09-17 live patch baseline (reference review)",
+    "verificationStatus": "reference-confirmed"
   },
   {
     "id": "cmds",
@@ -3944,7 +3972,11 @@ export const consoleCommands = [
     "bindCommand": "ui_load_file",
     "aliases": [],
     "params": "",
-    "category": "All Neverwinter Online"
+    "category": "All Neverwinter Online",
+    "sourceUrl": "https://neverwinter.fandom.com/wiki/Console_command",
+    "verifiedAt": "2026-09-19",
+    "gameVersion": "2026-09-17 live patch baseline (reference review)",
+    "verificationStatus": "reference-confirmed"
   },
   {
     "id": "ui_resolution",
@@ -3968,7 +4000,11 @@ export const consoleCommands = [
     "bindCommand": "ui_save_file",
     "aliases": [],
     "params": "",
-    "category": "All Neverwinter Online"
+    "category": "All Neverwinter Online",
+    "sourceUrl": "https://neverwinter.fandom.com/wiki/Console_command",
+    "verifiedAt": "2026-09-19",
+    "gameVersion": "2026-09-17 live patch baseline (reference review)",
+    "verificationStatus": "reference-confirmed"
   },
   {
     "id": "ui_tooltipdelay",
@@ -4024,7 +4060,11 @@ export const consoleCommands = [
     "bindCommand": "unbind",
     "aliases": [],
     "params": "",
-    "category": "All Neverwinter Online"
+    "category": "All Neverwinter Online",
+    "sourceUrl": "https://neverwinter.fandom.com/wiki/Console_command",
+    "verifiedAt": "2026-09-19",
+    "gameVersion": "2026-09-17 live patch baseline (reference review)",
+    "verificationStatus": "reference-confirmed"
   },
   {
     "id": "unbind_all",

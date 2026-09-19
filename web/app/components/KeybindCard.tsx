@@ -10,6 +10,8 @@ import { Icon } from "./Icon";
 import { KeyCaptureInput } from "./KeyCaptureInput";
 import { PresetTrustBadge } from "./PresetTrustBadge";
 import { PresetVerificationHistory } from "./PresetVerificationHistory";
+import { CommunityEvidencePanel } from "./CommunityEvidencePanel";
+import { AcademyLinks } from "./AcademyLinks";
 
 export type KeybindSafetyStatus = {
   level: "safe" | "info" | "warn" | "danger";
@@ -57,6 +59,7 @@ function KeybindCardComponent(props: KeybindCardProps) {
   const timer = useRef<number | null>(null);
   const line = buildPresetLine(props.preset, props.keyValue, props.mode);
   const detailsId = `${props.preset.id}-details`;
+  const movePanelId = `${props.preset.id}-move-binding`;
   const currentKey = normalizeCombo(props.keyValue);
   const effectiveKey = props.keyValue.trim() || props.preset.defaultKey;
   const canCopyKey = isCompleteCombo(effectiveKey);
@@ -135,17 +138,19 @@ function KeybindCardComponent(props: KeybindCardProps) {
             {props.preset.sourceUrl ? <a href={props.preset.sourceUrl} rel="noreferrer" target="_blank">Open source</a> : null}
           </div>
           <PresetVerificationHistory preset={props.preset} />
+          <AcademyLinks preset={props.preset} />
+          <CommunityEvidencePanel preset={props.preset} />
           <div className="command-preview">
             <div className="command-label"><span>Command preview</span><span>{props.mode}</span></div>
             <code data-testid="command-preview-output" ref={preview} tabIndex={0}>{line}</code>
           </div>
           <div className="card-actions card-detail-actions">
             {props.canReplace && directReplacement ? <button className="replacement-button" data-replacement-key={directReplacement} onClick={() => props.onKeyChange(directReplacement)} type="button">Use next safer key</button> : null}
-            {props.reassignmentOptions.length ? <button aria-expanded={moveOpen} className="secondary-button" onClick={() => { setMoveOpen((value) => !value); if (!moveKey) setMoveKey(props.reassignmentOptions[0]); }} type="button">Move binding to…</button> : null}
+            {props.reassignmentOptions.length ? <button aria-controls={movePanelId} aria-expanded={moveOpen} className="secondary-button" onClick={() => { setMoveOpen((value) => !value); if (!moveKey) setMoveKey(props.reassignmentOptions[0]); }} type="button">Move binding to…</button> : null}
             <button className="secondary-button" onClick={props.onReset} type="button"><Icon name="reset" /> Reset suggestion</button>
           </div>
           {moveOpen && props.reassignmentOptions.length ? (
-            <div className="reassignment-panel" data-testid="reassignment-panel">
+            <div aria-label={`Reassign ${props.preset.title}`} className="reassignment-panel" data-testid="reassignment-panel" id={movePanelId} role="region">
               <label>Evidence-backed destination
                 <select aria-label={`Move ${props.preset.title} binding to`} onChange={(event) => setMoveKey(event.target.value)} value={moveKey || props.reassignmentOptions[0]}>
                   {props.reassignmentOptions.map((key) => <option key={key} value={key}>{key}</option>)}

@@ -21,3 +21,5 @@
 @media (max-width:1050px) { .profileWorkspaceHeading { grid-template-columns:1fr; gap:8px; } .profileSelectors { grid-template-columns:minmax(0,1fr) auto; } .profileFields { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (max-width:680px) { .profileSelectors { grid-template-columns:1fr; } .profileSelectors button,.profileActions > * { width:100%; } .profileFields { grid-template-columns:1fr; } }
 @media (prefers-reduced-motion:reduce) { .profileSelectors button,.manageToggle,.profileActions button,.fileButton { transition:none; } }
+
+.quickSwitch{grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end}.quickSwitch button{min-height:40px}.quickSwitch button:disabled{opacity:.4;cursor:not-allowed}@media(max-width:680px){.quickSwitch{justify-content:stretch;flex-direction:column}.quickSwitch button{width:100%}}

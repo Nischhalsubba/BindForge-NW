@@ -17,6 +17,8 @@ export type CatalogFreshnessSummary = {
   datedPercent: number;
   recentPercent: number;
   newestDate: string | null;
+  needsGameUpdateReview: number;
+  latestImportantUpdate: { date: string; label: string; sourceUrl: string };
 };
 
 export function catalogFreshnessSummary(
