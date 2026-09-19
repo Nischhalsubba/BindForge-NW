@@ -153,18 +153,15 @@ test("main protection recipe requires PRs, exact verified gates, and no bypass",
   );
 });
 
-test("production release uses a checked PR instead of directly pushing to main", async () => {
+test("production release prepares a protected release branch instead of directly pushing to main", async () => {
   const workflow = await readFile(resolveFrom(repositoryRoot, ".github/workflows/release-production.yml"), "utf8");
-  assert.match(workflow, /pull-requests:\s+write/);
-  assert.match(workflow, /checks:\s+read/);
   assert.match(workflow, /\.github\/production-release\.json/);
-  assert.match(workflow, /gh pr create/);
-  assert.match(workflow, /gh pr merge/);
-  assert.match(workflow, /--squash/);
-  assert.match(workflow, /--subject "release: production \[deploy\]"/);
-  assert.match(workflow, /Core verification/);
-  assert.match(workflow, /Browser regression \(desktop-chromium\)/);
-  assert.match(workflow, /Dependency audit/);
-  assert.match(workflow, /CodeQL/);
+  assert.match(workflow, /release: production \[deploy\]/);
+  assert.match(workflow, /release\/production-/);
+  assert.match(workflow, /git push --set-upstream origin "\$branch"/);
+  assert.match(workflow, /compare\/main\.\.\.\$branch\?expand=1/);
+  assert.match(workflow, /Open the release pull request/);
+  assert.doesNotMatch(workflow, /gh pr create/);
+  assert.doesNotMatch(workflow, /gh pr merge/);
   assert.doesNotMatch(workflow, /git push origin HEAD:main/);
 });
