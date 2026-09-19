@@ -11,6 +11,9 @@ const repositoryFiles = [
   ".github/workflows/quality.yml",
   ".github/workflows/security.yml",
   ".github/workflows/catalog-maintenance.yml",
+  ".github/workflows/release-production.yml",
+  ".github/rulesets/protect-main.json",
+  ".github/production-release.json",
   ".github/SECURITY.md",
   ".github/CODEOWNERS",
   ".github/ISSUE_TEMPLATE/bug_report.yml",
@@ -111,4 +114,57 @@ test("public attribution remains Archew", async () => {
   const readme = await readFile(resolveFrom(workspaceRoot, "README.md"), "utf8");
   assert.equal(packageInfo.author, "Archew");
   assert.match(readme, /Designed and developed by Archew\./);
+});
+
+
+test("main protection recipe requires PRs, exact verified gates, and no bypass", async () => {
+  const recipe = JSON.parse(await readFile(resolveFrom(repositoryRoot, ".github/rulesets/protect-main.json"), "utf8"));
+  assert.equal(recipe.name, "Protect main");
+  assert.equal(recipe.target, "branch");
+  assert.equal(recipe.enforcement, "active");
+  assert.deepEqual(recipe.bypass_actors, []);
+  assert.deepEqual(recipe.conditions.ref_name.include, ["refs/heads/main"]);
+  assert.deepEqual(recipe.conditions.ref_name.exclude, []);
+
+  const types = recipe.rules.map((rule) => rule.type);
+  assert.equal(types.includes("deletion"), true);
+  assert.equal(types.includes("non_fast_forward"), true);
+  assert.equal(types.includes("pull_request"), true);
+  assert.equal(types.includes("required_status_checks"), true);
+
+  const pullRequest = recipe.rules.find((rule) => rule.type === "pull_request");
+  assert.equal(pullRequest.parameters.required_approving_review_count, 0);
+  assert.equal(pullRequest.parameters.required_review_thread_resolution, true);
+
+  const checks = recipe.rules.find((rule) => rule.type === "required_status_checks");
+  assert.equal(checks.parameters.strict_required_status_checks_policy, true);
+  assert.deepEqual(
+    checks.parameters.required_status_checks.map((item) => item.context).sort(),
+    [
+      "Browser regression (desktop-chromium)",
+      "Browser regression (desktop-firefox-smoke)",
+      "Browser regression (desktop-webkit-smoke)",
+      "Browser regression (mobile-chromium)",
+      "Browser regression (tablet-chromium)",
+      "CodeQL",
+      "Core verification",
+      "Dependency audit",
+    ].sort(),
+  );
+});
+
+test("production release uses a checked PR instead of directly pushing to main", async () => {
+  const workflow = await readFile(resolveFrom(repositoryRoot, ".github/workflows/release-production.yml"), "utf8");
+  assert.match(workflow, /pull-requests:\s+write/);
+  assert.match(workflow, /checks:\s+read/);
+  assert.match(workflow, /\.github\/production-release\.json/);
+  assert.match(workflow, /gh pr create/);
+  assert.match(workflow, /gh pr merge/);
+  assert.match(workflow, /--squash/);
+  assert.match(workflow, /--subject "release: production \[deploy\]"/);
+  assert.match(workflow, /Core verification/);
+  assert.match(workflow, /Browser regression \(desktop-chromium\)/);
+  assert.match(workflow, /Dependency audit/);
+  assert.match(workflow, /CodeQL/);
+  assert.doesNotMatch(workflow, /git push origin HEAD:main/);
 });
