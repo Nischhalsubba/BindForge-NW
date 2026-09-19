@@ -39,3 +39,14 @@ test("preserves explicit verification history and migrates a legacy verification
   assert.equal(legacy[0].result, "unknown");
   assert.match(legacy[0].note, /legacy/i);
 });
+
+
+test("tracks re-verification debt against the latest important Neverwinter update", () => {
+  const summary = catalogFreshnessSummary([
+    { verifiedAt: "2026-09-18" },
+    { verifiedAt: "2026-09-16" },
+    {},
+  ], new Date("2026-09-19T00:00:00Z"), 180);
+  assert.equal(summary.needsGameUpdateReview, 2);
+  assert.equal(summary.latestImportantUpdate.date, "2026-09-17");
+});
