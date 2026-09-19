@@ -37,10 +37,15 @@ test("mounts details only after the user requests them", async ({ page }) => {
   await expect(card.locator(".command-preview")).toHaveCount(0);
 });
 
-test("keeps the full filtered group index available for direct navigation", async ({ page }) => {
-  const count = await page.locator(".bind-group").count();
-  expect(count).toBeGreaterThan(2);
+test("progressively renders catalogue groups and can reveal the full filtered index", async ({ page }) => {
+  const initialCount = await page.locator(".bind-group").count();
+  expect(initialCount).toBeGreaterThan(2);
+  expect(initialCount).toBeLessThanOrEqual(8);
+  await expect(page.getByRole("button", { name: "Show more groups" })).toBeVisible();
+  await page.getByRole("button", { name: "Expand all groups" }).click();
   await expect(page.getByRole("button", { name: "Show more groups" })).toHaveCount(0);
+  const expandedCount = await page.locator(".bind-group").count();
+  expect(expandedCount).toBeGreaterThan(initialCount);
 });
 
 test("rebuilds the visible group index immediately when a filter changes", async ({ page }) => {

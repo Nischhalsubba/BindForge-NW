@@ -9,6 +9,7 @@ import {
   baseKey,
   buildPresetLine,
   commandsEquivalent,
+  isCompleteCombo,
   normalizeCombo,
   parseBindText,
   resolveBindMap,
@@ -570,9 +571,22 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   function updateProfileKey(presetId: string, value: string) {
     const preset = keybindPresets.find((item) => item.id === presetId);
     const currentValue = state.keys[presetId] ?? preset?.defaultKey ?? "";
-    if (normalizeCombo(currentValue) === normalizeCombo(value)) return;
+    const currentAwaitingNext = String(currentValue).trim().endsWith("+");
+    const nextAwaitingNext = String(value).trim().endsWith("+");
+    if (normalizeCombo(currentValue) === normalizeCombo(value) && currentAwaitingNext === nextAwaitingNext) return;
+
+    // A trailing + is an intentional temporary builder state. Preserve it so the
+    // next keyboard/mouse token can be appended, but do not record it as a
+    // completed assignment change.
+    if (nextAwaitingNext) {
+      setKey(presetId, value);
+      return;
+    }
+
     captureActiveProfile("Before key edit");
-    patchLibrary({ recentChanges: appendRecentChange(library.recentChanges, { presetId, from: normalizeCombo(currentValue), to: normalizeCombo(value) }, 8) });
+    if (isCompleteCombo(value)) {
+      patchLibrary({ recentChanges: appendRecentChange(library.recentChanges, { presetId, from: normalizeCombo(currentValue), to: normalizeCombo(value) }, 8) });
+    }
     setKey(presetId, value);
     patchActiveProfile({ keyValues: { ...activeProfile.keyValues, [presetId]: value } });
   }
