@@ -123,9 +123,38 @@ jobs:
                 if [ "$(git rev-list --merges --count "$merged_head..$candidate_sha")" -gt 0 ]; then
                   continue
                 fi
-                if ! git cherry origin/main "$candidate_sha" "$merged_head" | grep -q '^+'; then
+                cherry_output="$(git cherry origin/main "$candidate_sha" "$merged_head")"
+                unmatched="$(printf '%s\n' "$cherry_output" | awk '$1 == "+" { print $2 }')"
+
+                if [ -z "$unmatched" ]; then
                   safe=true
                   safe_reason="merged PR head preserved; later patches already represented in main"
+                  merged_pr_safe=$((merged_pr_safe + 1))
+                  break
+                fi
+
+                # Historical agent branches received an automated branch-aware
+                # README commit after their feature PRs were merged. Treat only
+                # that exact generated-doc pattern as disposable. Any other
+                # unmatched commit keeps the branch.
+                generated_only=true
+                while IFS= read -r unmatched_sha; do
+                  [ -n "$unmatched_sha" ] || continue
+                  subject="$(git show -s --format=%s "$unmatched_sha")"
+                  committer="$(git show -s --format=%cn "$unmatched_sha")"
+                  changed_files="$(git diff-tree --no-commit-id --name-only -r "$unmatched_sha" | sed '/^$/d')"
+                  if [ "$subject" != "docs: apply designer README standard" ] \
+                    || [ "$committer" != "github-actions[bot]" ] \
+                    || [ "$changed_files" != "README.md" ] \
+                    || ! git show --format= "$unmatched_sha" -- README.md | grep -q 'interactive-readme-standard:start'; then
+                    generated_only=false
+                    break
+                  fi
+                done <<< "$unmatched"
+
+                if [ "$generated_only" = true ]; then
+                  safe=true
+                  safe_reason="merged PR work preserved; only generated branch-aware README commits remain"
                   merged_pr_safe=$((merged_pr_safe + 1))
                   break
                 fi
