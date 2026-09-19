@@ -27,10 +27,11 @@ test("previews and cleans raw keymap imports before mutating the active profile"
   await expect(preview).toContainText("1 overwrites");
   await expect(preview).toContainText("1 orphan unbind");
   await expect(preview).toContainText("1 ignored");
-  await expect(page.getByText(/No personal keymap has been analyzed/)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Clear personal keymap" })).toBeDisabled();
 
   await preview.getByRole("button", { name: "Confirm import" }).click();
-  await expect(page.getByText(/2 active binds analyzed locally/)).toBeVisible();
+  await expect(page.getByText(/2 active binds analyzed\./)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Clear personal keymap" })).toBeEnabled();
 });
 
 test("shows evidence-backed unused keys and an accessible reassignment confirmation after import", async ({ page }) => {
