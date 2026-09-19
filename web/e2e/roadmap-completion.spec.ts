@@ -53,3 +53,20 @@ test("records only coarse local analytics and recent activity after user actions
   await page.getByRole("button", { name: "Local data & backup", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Privacy-conscious usage insights" })).toBeVisible();
 });
+
+
+test("records blocked import validation as a coarse workflow error without pasted content", async ({ page }) => {
+  await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: /My Setup/, exact: true }).click();
+  const panel = page.getByTestId("personal-keymap-panel");
+  await panel.getByLabel("Paste personal Neverwinter binds").fill("not a valid bind with secret text");
+  await panel.getByRole("button", { name: "Preview import" }).click();
+  await expect(panel.getByRole("status")).toContainText("No valid bind operations");
+
+  const analytics = await page.evaluate(() => JSON.parse(window.localStorage.getItem("bindforge-nw:analytics:v1") || "[]"));
+  const error = analytics.find((event: { name: string }) => event.name === "workflow_error");
+  expect(error).toEqual(expect.objectContaining({
+    name: "workflow_error",
+    context: { route: "my-setup", actionType: "import", outcome: "validation-blocked" },
+  }));
+  expect(JSON.stringify(analytics)).not.toContain("secret text");
+});

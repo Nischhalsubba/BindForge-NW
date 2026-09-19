@@ -33,3 +33,26 @@ test("analytics log is bounded and can be summarized locally", () => {
   assert.equal(summary.byName.preset_copied, 1);
   assert.equal(summary.byRoute["my-setup"], 1);
 });
+
+
+test("analytics summarizes import drop-off, errors, and popular catalogue dimensions without content", () => {
+  const rows = [
+    { name: "import_previewed", occurredAt: "a", context: { route: "my-setup", actionType: "import", outcome: "ready" } },
+    { name: "import_previewed", occurredAt: "b", context: { route: "my-setup", actionType: "import", outcome: "ready" } },
+    { name: "import_confirmed", occurredAt: "c", context: { route: "my-setup", actionType: "import", outcome: "confirmed" } },
+    { name: "workflow_error", occurredAt: "d", context: { route: "my-setup", actionType: "import", outcome: "validation-blocked", importedKeymap: "/bind f1 private" } },
+    { name: "preset_copied", occurredAt: "e", context: { route: "keybinds", className: "Ranger", presetType: "Animation Cancel" } },
+  ];
+  const summary = summarizeAnalyticsEvents(rows);
+  assert.equal(summary.importPreviewReady, 2);
+  assert.equal(summary.importConfirmed, 1);
+  assert.equal(summary.importDropoff, 1);
+  assert.equal(summary.byName.workflow_error, 1);
+  assert.equal(summary.byClassName.Ranger, 1);
+  assert.equal(summary.byPresetType["Animation Cancel"], 1);
+  assert.equal(JSON.stringify(appendAnalyticsEvent([], rows[3])), JSON.stringify([{
+    name: "workflow_error",
+    context: { route: "my-setup", actionType: "import", outcome: "validation-blocked" },
+    occurredAt: "d",
+  }]));
+});

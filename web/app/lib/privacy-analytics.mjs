@@ -36,14 +36,36 @@ export function appendAnalyticsEvent(current = [], input, limit = 200) {
 }
 
 export function summarizeAnalyticsEvents(events = []) {
-  const summary = { total: 0, byName: {}, byRoute: {} };
+  const summary = {
+    total: 0,
+    byName: {},
+    byRoute: {},
+    byClassName: {},
+    byActionType: {},
+    byPresetType: {},
+    importPreviewReady: 0,
+    importConfirmed: 0,
+    importDropoff: 0,
+  };
   for (const raw of Array.isArray(events) ? events : []) {
     const event = sanitizeAnalyticsEvent(raw);
     if (!event) continue;
     summary.total += 1;
     summary.byName[event.name] = (summary.byName[event.name] ?? 0) + 1;
-    const route = event.context.route;
-    if (route) summary.byRoute[route] = (summary.byRoute[route] ?? 0) + 1;
+
+    const dimensions = [
+      ["byRoute", event.context.route],
+      ["byClassName", event.context.className],
+      ["byActionType", event.context.actionType],
+      ["byPresetType", event.context.presetType],
+    ];
+    for (const [bucket, value] of dimensions) {
+      if (value) summary[bucket][value] = (summary[bucket][value] ?? 0) + 1;
+    }
+
+    if (event.name === "import_previewed" && event.context.outcome === "ready") summary.importPreviewReady += 1;
+    if (event.name === "import_confirmed") summary.importConfirmed += 1;
   }
+  summary.importDropoff = Math.max(0, summary.importPreviewReady - summary.importConfirmed);
   return summary;
 }

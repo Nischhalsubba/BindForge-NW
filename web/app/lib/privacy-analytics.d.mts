@@ -29,4 +29,10 @@ export function summarizeAnalyticsEvents(events?: unknown): {
   total: number;
   byName: Record<string, number>;
   byRoute: Record<string, number>;
+  byClassName: Record<string, number>;
+  byActionType: Record<string, number>;
+  byPresetType: Record<string, number>;
+  importPreviewReady: number;
+  importConfirmed: number;
+  importDropoff: number;
 };

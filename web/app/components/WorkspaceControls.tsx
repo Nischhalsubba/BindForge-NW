@@ -158,7 +158,10 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
   function previewImport(text: string) {
     const analysis = analyzeRawKeymap(text);
     setImportPreview(analysis);
-    recordLocalAnalyticsEvent({ name: "import_previewed", context: { route: "my-setup", outcome: analysis.hasBlockingErrors ? "blocked" : "ready" } });
+    recordLocalAnalyticsEvent({ name: "import_previewed", context: { route: "my-setup", actionType: "import", outcome: analysis.hasBlockingErrors ? "blocked" : "ready" } });
+    if (analysis.hasBlockingErrors) {
+      recordLocalAnalyticsEvent({ name: "workflow_error", context: { route: "my-setup", actionType: "import", outcome: "validation-blocked" } });
+    }
     setImportPreviewMessage(
       analysis.hasBlockingErrors
         ? "No valid bind operations were found. Review the ignored lines before importing."
@@ -169,6 +172,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
   async function previewImportFile(file: File) {
     if (file.size > 512 * 1024) {
       setImportPreview(null);
+      recordLocalAnalyticsEvent({ name: "workflow_error", context: { route: "my-setup", actionType: "import", outcome: "file-too-large" } });
       setImportPreviewMessage("That bind file is larger than 512 KB. Choose a smaller text export.");
       return;
     }
@@ -178,6 +182,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
       previewImport(text);
     } catch {
       setImportPreview(null);
+      recordLocalAnalyticsEvent({ name: "workflow_error", context: { route: "my-setup", actionType: "import", outcome: "file-read-failed" } });
       setImportPreviewMessage("The selected bind file could not be read.");
     }
   }
@@ -185,7 +190,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
   function confirmImport() {
     if (!importPreview || importPreview.hasBlockingErrors) return;
     props.onImportPersonalText(importText);
-    recordLocalAnalyticsEvent({ name: "import_confirmed", context: { route: "my-setup", outcome: "confirmed" } });
+    recordLocalAnalyticsEvent({ name: "import_confirmed", context: { route: "my-setup", actionType: "import", outcome: "confirmed" } });
     setImportPreview(null);
     setImportPreviewMessage("");
   }

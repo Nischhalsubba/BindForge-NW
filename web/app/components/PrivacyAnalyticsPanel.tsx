@@ -32,8 +32,10 @@ export function PrivacyAnalyticsPanel() {
       <div className={styles.summary}>
         <span><strong>{summary.total}</strong><small>local events</small></span>
         <span><strong>{summary.byName.zero_result_search ?? 0}</strong><small>zero-result searches</small></span>
+        <span><strong>{summary.importDropoff}</strong><small>ready imports not confirmed</small></span>
         <span><strong>{summary.byName.workflow_error ?? 0}</strong><small>workflow errors</small></span>
       </div>
+      <p>Import drop-off is computed locally as ready import previews minus confirmed imports. Blocked validation previews are counted as workflow errors instead of drop-off.</p>
       <details>
         <summary>Event counts</summary>
         <ul>{Object.entries(summary.byName).sort().map(([name,count]) => <li key={name}><code>{name}</code><span>{count}</span></li>)}</ul>
