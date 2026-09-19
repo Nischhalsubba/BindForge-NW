@@ -143,7 +143,8 @@ jobs:
                   subject="$(git show -s --format=%s "$unmatched_sha")"
                   committer="$(git show -s --format=%cn "$unmatched_sha")"
                   changed_files="$(git diff-tree --no-commit-id --name-only -r "$unmatched_sha" | sed '/^$/d')"
-                  if [ "$subject" != "docs: apply designer README standard" ] \
+                  if { [ "$subject" != "docs: apply designer README standard" ] \
+                    && [ "$subject" != "docs: apply interactive README standard" ]; } \
                     || [ "$committer" != "github-actions[bot]" ] \
                     || [ "$changed_files" != "README.md" ] \
                     || ! git show --format= "$unmatched_sha" -- README.md | grep -q 'interactive-readme-standard:start'; then
