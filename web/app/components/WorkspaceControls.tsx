@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useBindForge } from "../BindForgeProvider";
 import { analyzeRawKeymap, compareProfiles } from "../lib/keymap-intelligence.mjs";
 import type { ProfileHistorySnapshot } from "../lib/profile-history.mjs";
 import type { PresetConfidence, PresetSourceType } from "../data/keybindTypes";
+import { recordLocalAnalyticsEvent } from "../lib/local-analytics-client";
 import { ProfileWorkspaceManager } from "./ProfileWorkspaceManager";
 import { VisualKeyboardMap } from "./VisualKeyboardMap";
 import { KeymapIntelligencePanel } from "./KeymapIntelligencePanel";
@@ -123,6 +124,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
   const [importText, setImportText] = useState("");
   const [importPreview, setImportPreview] = useState<ReturnType<typeof analyzeRawKeymap> | null>(null);
   const [importPreviewMessage, setImportPreviewMessage] = useState("");
+  const importRef = useRef<HTMLTextAreaElement>(null);
   const panelId = "collections-command-packs";
   const keymapPanelId = "personal-keymap-import";
   const reviewPanelId = "selected-pack-review";
@@ -153,6 +155,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
   function previewImport(text: string) {
     const analysis = analyzeRawKeymap(text);
     setImportPreview(analysis);
+    recordLocalAnalyticsEvent({ name: "import_previewed", context: { route: "my-setup", outcome: analysis.hasBlockingErrors ? "blocked" : "ready" } });
     setImportPreviewMessage(
       analysis.hasBlockingErrors
         ? "No valid bind operations were found. Review the ignored lines before importing."
@@ -179,6 +182,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
   function confirmImport() {
     if (!importPreview || importPreview.hasBlockingErrors) return;
     props.onImportPersonalText(importText);
+    recordLocalAnalyticsEvent({ name: "import_confirmed", context: { route: "my-setup", outcome: "confirmed" } });
     setImportPreview(null);
     setImportPreviewMessage("");
   }
@@ -252,7 +256,17 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
                 <p>Paste <code>/bind</code> and <code>/unbind</code> lines or choose a text file. Analysis stays local and belongs only to the active profile.</p>
                 {props.personalBindCount ? <p className={styles.keymapSource}>Imported source: {props.personalSourceName || "Pasted keymap"}</p> : null}
               </div>
-              <textarea aria-label="Paste personal Neverwinter binds" onChange={(event) => { setImportText(event.target.value); setImportPreview(null); setImportPreviewMessage(""); }} placeholder={'/bind r gensendmessage Chat_Reply activate\n/bind ctrl+5 invoke'} rows={5} value={importText} />
+              {!props.personalBindCount ? (
+                <div className={styles.keymapEmpty} data-testid="keymap-empty-actions">
+                  <div><strong>No imported profile evidence yet</strong><p>Choose how you want to start. BindForge will not label keys unused until you import your current binds.</p></div>
+                  <div>
+                    <button onClick={() => importRef.current?.focus()} type="button">Import current binds</button>
+                    <button onClick={() => setImportPreviewMessage("Started clean. Key availability remains unknown until you import current binds.")} type="button">Start clean</button>
+                    <button onClick={props.onAddProfile} type="button">Clone profile</button>
+                  </div>
+                </div>
+              ) : null}
+              <textarea aria-label="Paste personal Neverwinter binds" onChange={(event) => { setImportText(event.target.value); setImportPreview(null); setImportPreviewMessage(""); }} placeholder={'/bind r gensendmessage Chat_Reply activate\n/bind ctrl+5 invoke'} ref={importRef} rows={5} value={importText} />
               <div className={styles.keymapActions}>
                 <button className={styles.primary} disabled={!importText.trim()} onClick={() => previewImport(importText)} type="button">Preview import</button>
                 <label className={styles.fileButton}>Choose bind .txt<input accept=".txt,.cfg,text/plain" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) void previewImportFile(file); event.currentTarget.value = ""; }} type="file" /></label>

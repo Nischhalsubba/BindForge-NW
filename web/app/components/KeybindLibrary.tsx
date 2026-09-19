@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useBindForge } from "../BindForgeProvider";
 import { keybindPresets } from "../data/keybindPresets";
 import type { KeybindPreset, KeybindType } from "../data/keybindPresets";
@@ -31,6 +31,8 @@ import {
   parseProfileWorkspaceJson,
 } from "../lib/profile-workspace.mjs";
 import { scorePresetSearch, suggestPresetSearches } from "../lib/preset-search.mjs";
+import { appendRecentChange, appendRecentPreset, type RecentAssignmentChange } from "../lib/recent-activity.mjs";
+import { recordLocalAnalyticsEvent } from "../lib/local-analytics-client";
 import { SAFE_KEY_SUGGESTIONS, normalizedKey } from "../lib/safe-key-suggestions";
 import type { CopyResultState } from "../page";
 import FilterTopBar from "../FilterTopBar";
@@ -39,12 +41,13 @@ import { Icon } from "./Icon";
 import { KeybindCard } from "./KeybindCard";
 import type { KeybindSafetyStatus } from "./KeybindCard";
 import { WorkspaceControls } from "./WorkspaceControls";
+import { RecentActivityPanel } from "./RecentActivityPanel";
 import type { PackReviewItem } from "./WorkspaceControls";
 
 const LIBRARY_SETTINGS_KEY = "bindforge-nw:library:v1";
 const PROFILE_WORKSPACE_KEY = "bindforge-nw:profiles:v1";
 const PROFILE_HISTORY_KEY = "bindforge-nw:profile-history:v1";
-const INITIAL_VISIBLE_GROUPS = keybindPresets.length;
+const INITIAL_VISIBLE_GROUPS = 8;
 const GROUP_BATCH_SIZE = 3;
 const MAX_PERSONAL_BIND_FILE_BYTES = 512 * 1024;
 const MAX_PROFILE_WORKSPACE_BYTES = 512 * 1024;
@@ -111,12 +114,15 @@ type StoredLibraryState = {
   personalBinds: PersonalBind[];
   personalSourceName: string;
   personalImportedAt: string;
+  recentPresetIds: string[];
+  recentChanges: RecentAssignmentChange[];
 };
 
 const defaultLibraryState: StoredLibraryState = {
   favourites: [], collections: {}, viewMode: "cards", sortMode: "recommended",
   collapsedGroups: [], provenanceFilter: "all", safeOnly: false,
   personalBinds: [], personalSourceName: "", personalImportedAt: "",
+  recentPresetIds: [], recentChanges: [],
 };
 
 function preserveRecovery(storageKey: string, raw: string, reason: string) {
@@ -200,6 +206,14 @@ function readStoredLibraryState(): StoredLibraryState {
       personalBinds: sanitizePersonalBinds(parsed.personalBinds),
       personalSourceName: typeof parsed.personalSourceName === "string" ? parsed.personalSourceName : "",
       personalImportedAt: typeof parsed.personalImportedAt === "string" ? parsed.personalImportedAt : "",
+      recentPresetIds: Array.isArray(parsed.recentPresetIds) ? parsed.recentPresetIds.filter((id): id is string => typeof id === "string").slice(0, 8) : [],
+      recentChanges: Array.isArray(parsed.recentChanges) ? parsed.recentChanges.flatMap((entry) => {
+        if (!entry || typeof entry !== "object") return [];
+        const candidate = entry as Partial<RecentAssignmentChange>;
+        return typeof candidate.presetId === "string" && typeof candidate.from === "string" && typeof candidate.to === "string" && typeof candidate.changedAt === "string"
+          ? [{ presetId: candidate.presetId, from: candidate.from, to: candidate.to, changedAt: candidate.changedAt }]
+          : [];
+      }).slice(0, 8) : [],
     };
   } catch {
     if (value) preserveRecovery(LIBRARY_SETTINGS_KEY, value, "Library preferences could not be parsed");
@@ -242,6 +256,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   const [nativePackStatus, setNativePackStatus] = useState("");
   const [hydrated, setHydrated] = useState(false);
   const [profilesHydrated, setProfilesHydrated] = useState(false);
+  const lastSearchAnalytics = useRef("");
 
   useEffect(() => {
     setLibrary(readStoredLibraryState());
@@ -350,6 +365,21 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   useEffect(() => {
     setVisibleGroupCount(INITIAL_VISIBLE_GROUPS);
   }, [state.search, state.className, state.actionType, state.difficulty, activeCollection, library.provenanceFilter, library.safeOnly, library.sortMode]);
+
+  useEffect(() => {
+    const queryActive = Boolean(state.search.trim());
+    if (!hydrated || !queryActive) return;
+    const signature = [state.className, state.actionType, filtered.length ? "results" : "zero"].join("|");
+    const timer = window.setTimeout(() => {
+      if (lastSearchAnalytics.current === signature) return;
+      lastSearchAnalytics.current = signature;
+      recordLocalAnalyticsEvent({
+        name: filtered.length ? "search_performed" : "zero_result_search",
+        context: { route: "keybinds", className: state.className, actionType: state.actionType, outcome: filtered.length ? "results" : "zero" },
+      });
+    }, 500);
+    return () => window.clearTimeout(timer);
+  }, [filtered.length, hydrated, state.actionType, state.className, state.search]);
 
   const fallbackWorkspace = useMemo(() => createDefaultProfileWorkspace({ keyValues: state.keys }) as ProfileWorkspace, [state.keys]);
   const resolvedWorkspace = profileWorkspace ?? fallbackWorkspace;
@@ -499,7 +529,13 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
       } : character),
     });
   }
-  function toggleSelected(id: string) { setSelectedIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]); }
+  function toggleSelected(id: string) {
+    setSelectedIds((current) => {
+      const selecting = !current.includes(id);
+      if (selecting) recordLocalAnalyticsEvent({ name: "preset_selected", context: { route: "keybinds", outcome: "selected" } });
+      return selecting ? [...current, id] : current.filter((item) => item !== id);
+    });
+  }
   function toggleFavourite(id: string) { patchLibrary({ favourites: favouriteSet.has(id) ? library.favourites.filter((item) => item !== id) : [...library.favourites, id] }); }
   function toggleGroup(groupName: string) { patchLibrary({ collapsedGroups: library.collapsedGroups.includes(groupName) ? library.collapsedGroups.filter((item) => item !== groupName) : [...library.collapsedGroups, groupName] }); }
   function replacementFor(preset: KeybindPreset) {
@@ -530,8 +566,11 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     setActiveCollection("all");
   }
   function updateProfileKey(presetId: string, value: string) {
-    if ((activeProfile.keyValues[presetId] ?? "") === value) return;
+    const preset = keybindPresets.find((item) => item.id === presetId);
+    const currentValue = state.keys[presetId] ?? preset?.defaultKey ?? "";
+    if (normalizeCombo(currentValue) === normalizeCombo(value)) return;
     captureActiveProfile("Before key edit");
+    patchLibrary({ recentChanges: appendRecentChange(library.recentChanges, { presetId, from: normalizeCombo(currentValue), to: normalizeCombo(value) }, 8) });
     setKey(presetId, value);
     patchActiveProfile({ keyValues: { ...activeProfile.keyValues, [presetId]: value } });
   }
@@ -549,6 +588,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     replaceKeys(profile.keyValues);
     setPersonalImportMessage("");
     setProfileStatus(`Switched to ${character.name} · ${profile.name}.`);
+    recordLocalAnalyticsEvent({ name: "profile_switched", context: { route: "my-setup", outcome: "character" } });
   }
   function switchProfile(id: string) {
     if (!profileWorkspace) return;
@@ -558,6 +598,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     replaceKeys(profile.keyValues);
     setPersonalImportMessage("");
     setProfileStatus(`Switched to ${activeCharacter.name} · ${profile.name}.`);
+    recordLocalAnalyticsEvent({ name: "profile_switched", context: { route: "my-setup", outcome: "profile" } });
   }
   function addCharacter() {
     if (!profileWorkspace) return;
@@ -829,6 +870,18 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
         onImportProfiles={(file) => { void importProfiles(file); }}
       />
       {state.preferences.experience !== "simple" ? (
+        <RecentActivityPanel
+          presets={keybindPresets}
+          recentPresetIds={library.recentPresetIds}
+          recentChanges={library.recentChanges}
+          onOpenPreset={(preset) => {
+            resetFilters();
+            setSearch(preset.title);
+            window.requestAnimationFrame(() => document.getElementById("keybind-library")?.scrollIntoView({ block: "start" }));
+          }}
+        />
+      ) : null}
+      {state.preferences.experience !== "simple" ? (
         <div className="active-filter-row" aria-label="Active filters"><span>{state.className === "All" ? "All classes" : state.className}</span><span>{state.actionType === "All" ? "All actions" : state.actionType}</span><span>{state.difficulty === "All" ? "All difficulty levels" : state.difficulty}</span><span>{activeCollection === "all" ? "All collections" : activeCollection}</span></div>
       ) : null}
 
@@ -861,7 +914,14 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
                           duplicate,
                           favourite: favouriteSet.has(preset.id),
                           key: preset.id,
-                          onCopy,
+                          onCopy: async (text: string, label: string, target: HTMLElement | null) => {
+                            const result = await onCopy(text, label, target);
+                            if (result !== "error") {
+                              patchLibrary({ recentPresetIds: appendRecentPreset(library.recentPresetIds, preset.id, 8) });
+                              recordLocalAnalyticsEvent({ name: "preset_copied", context: { route: "keybinds", className: preset.className, presetType: preset.type, outcome: result } });
+                            }
+                            return result;
+                          },
                           onFavourite: () => toggleFavourite(preset.id),
                           onSelect: () => toggleSelected(preset.id),
                           selected: selectedSet.has(preset.id),

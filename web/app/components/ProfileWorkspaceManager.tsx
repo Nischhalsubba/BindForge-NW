@@ -42,6 +42,9 @@ const roles = ["DPS", "Tank", "Heal", "Hybrid"];
 
 export function ProfileWorkspaceManager(props: ProfileWorkspaceManagerProps) {
   const [manageOpen, setManageOpen] = useState(false);
+  const profileIndex = Math.max(0, props.activeCharacter.profiles.findIndex((profile) => profile.id === props.activeProfileId));
+  const previousProfile = props.activeCharacter.profiles[profileIndex - 1] ?? null;
+  const nextProfile = props.activeCharacter.profiles[profileIndex + 1] ?? null;
 
   return (
     <section className={styles.profileWorkspace} aria-labelledby="profile-workspace-title">
@@ -68,6 +71,10 @@ export function ProfileWorkspaceManager(props: ProfileWorkspaceManagerProps) {
           </select>
         </label>
         <button onClick={() => { props.onAddProfile(); setManageOpen(true); }} type="button">Add profile</button>
+        <div className={styles.quickSwitch} aria-label="Quick profile switching">
+          <button disabled={!previousProfile} onClick={() => previousProfile && props.onActiveProfileChange(previousProfile.id)} type="button">← Previous profile</button>
+          <button disabled={!nextProfile} onClick={() => nextProfile && props.onActiveProfileChange(nextProfile.id)} type="button">Next profile →</button>
+        </div>
       </div>
 
       <button aria-expanded={manageOpen} className={styles.manageToggle} onClick={() => setManageOpen((value) => !value)} type="button">
