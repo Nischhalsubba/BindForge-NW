@@ -30,7 +30,7 @@ test("previews and cleans raw keymap imports before mutating the active profile"
   await expect(page.getByRole("button", { name: "Clear personal keymap" })).toBeDisabled();
 
   await preview.getByRole("button", { name: "Confirm import" }).click();
-  await expect(page.getByText(/2 active binds analyzed locally/)).toBeVisible();
+  await expect(page.getByText(/2 active binds analyzed\./)).toBeVisible();
   await expect(page.getByRole("button", { name: "Clear personal keymap" })).toBeEnabled();
 });
 
