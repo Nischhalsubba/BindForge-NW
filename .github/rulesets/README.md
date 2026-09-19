@@ -11,7 +11,9 @@ The ruleset targets only `main` and:
 - blocks deletion of `main`;
 - has no bypass actors.
 
-Production releases do not need a protection bypass. The manual **Release Production** workflow creates a dedicated release PR, waits for the same verified gates, then squash-merges it with the subject `release: production [deploy]`. Netlify remains fail-closed and only builds that explicit production marker on `main`.
+Production releases do not need a protection bypass. The manual **Release Production** workflow validates the current `main`, creates a release branch whose marker commit is `release: production [deploy]`, and prints a prefilled compare URL. A maintainer opens that PR normally, so GitHub emits the ordinary `pull_request` event and every required check runs under the ruleset. Merge the release PR only after those gates are green.
+
+Netlify remains fail-closed. It accepts either the release marker commit itself (squash/rebase) or a normal merge commit whose second parent is that release marker, and only when the marker commit changes `.github/production-release.json`.
 
 ## Apply in GitHub
 
@@ -24,4 +26,4 @@ GitHub requires repository administration permission to create or import a rules
 5. Save the ruleset.
 6. Verify GitHub reports `main` as protected and that a direct push is rejected.
 
-Do not add a deployment requirement to the ruleset. Production authorization remains the separate `[deploy]` release PR flow.
+Do not add a deployment requirement or a bypass actor to the ruleset. Production authorization remains the separate `[deploy]` release-PR flow.

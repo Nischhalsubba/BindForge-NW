@@ -1,7 +1,7 @@
 [build]
   base = "web"
   command = "npm run build"
-  ignore = "if [ \"${CONTEXT:-}\" != \"production\" ] || [ \"${PULL_REQUEST:-}\" != \"false\" ] || [ \"${BRANCH:-}\" != \"main\" ]; then exit 0; fi; subject=\"$(git log -1 --pretty=%s \"${COMMIT_REF:-}\" 2>/dev/null)\" || exit 0; case \"$subject\" in *\"[deploy]\") exit 1 ;; *) exit 0 ;; esac"
+  ignore = "if [ \"\${CONTEXT:-}\" != \"production\" ] || [ \"\${PULL_REQUEST:-}\" != \"false\" ] || [ \"\${BRANCH:-}\" != \"main\" ]; then exit 0; fi; is_release_ref() { ref=\"$1\"; subject=\"$(git log -1 --pretty=%s \"$ref\" 2>/dev/null)\" || return 1; case \"$subject\" in *\"[deploy]\") ;; *) return 1 ;; esac; git diff-tree --no-commit-id --name-only -r \"$ref\" 2>/dev/null | grep -Fxq '.github/production-release.json'; }; ref=\"\${COMMIT_REF:-}\"; if is_release_ref \"$ref\"; then exit 1; fi; second=\"$(git rev-parse \"$ref^2\" 2>/dev/null || true)\"; if [ -n \"$second\" ] && is_release_ref \"$second\"; then exit 1; fi; exit 0"
 
 [[headers]]
   for = "/*"
