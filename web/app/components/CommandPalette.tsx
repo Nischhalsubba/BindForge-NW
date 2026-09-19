@@ -43,7 +43,8 @@ export function CommandPalette() {
       return;
     }
     if (action.hash) {
-      window.location.hash = action.hash;
+      window.history.pushState(null, "", action.hash);
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
       if (action.id === "search") {
         window.setTimeout(() => document.querySelector<HTMLInputElement>('input[aria-label="Search keybind library"]')?.focus(), 0);
       }

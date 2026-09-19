@@ -39,5 +39,6 @@ export function buildCommunityPack({ name, gameVersion = "", presetIds = [], sou
 }
 
 export function canPromoteCommunityEvidence(report) {
+  void report;
   return false;
 }
