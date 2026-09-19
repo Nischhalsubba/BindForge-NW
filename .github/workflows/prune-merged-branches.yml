@@ -24,7 +24,7 @@ concurrency:
 jobs:
   prune:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
@@ -48,8 +48,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          # The merge that introduces this workflow is the one-time cleanup trigger.
-          # Manual runs default to dry-run unless apply=true is explicitly selected.
           apply=false
           if [ "$EVENT_NAME" = "push" ] || [ "$APPLY_INPUT" = "true" ]; then
             apply=true
@@ -62,6 +60,8 @@ jobs:
           kept_changed=0
           kept_delete_error=0
           candidates=0
+          merged_pr_safe=0
+          ancestor_safe=0
 
           {
             echo "## Historical branch cleanup"
@@ -76,7 +76,6 @@ jobs:
             [ "$branch" != "main" ] || continue
             candidates=$((candidates + 1))
 
-            # Refresh the candidate immediately before judging it.
             if ! git fetch --quiet origin "refs/heads/$branch:refs/remotes/origin/$branch"; then
               echo "KEEP (changed/disappeared): $branch" >> "$GITHUB_STEP_SUMMARY"
               kept_changed=$((kept_changed + 1))
@@ -85,14 +84,7 @@ jobs:
 
             candidate_sha="$(git rev-parse "origin/$branch")"
 
-            # Never delete a branch that has work not already contained in main.
-            if ! git merge-base --is-ancestor "$candidate_sha" origin/main; then
-              echo "KEEP (unique commits): $branch @ $candidate_sha" >> "$GITHUB_STEP_SUMMARY"
-              kept_unique=$((kept_unique + 1))
-              continue
-            fi
-
-            # Re-check open PR heads immediately before any deletion.
+            # Re-check open PR heads before doing any deletion analysis.
             open_pr_count="$(
               curl -fsS -G                 -H "Accept: application/vnd.github+json"                 -H "Authorization: Bearer $GH_TOKEN"                 -H "X-GitHub-Api-Version: 2022-11-28"                 --data-urlencode "state=open"                 --data-urlencode "head=$owner:$branch"                 --data-urlencode "per_page=1"                 "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls"               | jq 'length'
             )"
@@ -102,7 +94,51 @@ jobs:
               continue
             fi
 
-            # Fail closed if the remote ref changed after verification.
+            safe=false
+            safe_reason=""
+
+            # Ordinary merge case: the exact branch tip is already in main.
+            if git merge-base --is-ancestor "$candidate_sha" origin/main; then
+              safe=true
+              safe_reason="tip already contained in main"
+              ancestor_safe=$((ancestor_safe + 1))
+            else
+              # Squash/rebase case: GitHub keeps the merged PR's historical head SHA.
+              # A branch is safe only when a merged PR head is still an ancestor of
+              # the current branch AND every commit added after that merged head has
+              # an equivalent patch in main. Merge commits after the PR head fail
+              # closed because patch-id comparison is not sufficient for them.
+              closed_prs="$(
+                curl -fsS -G                   -H "Accept: application/vnd.github+json"                   -H "Authorization: Bearer $GH_TOKEN"                   -H "X-GitHub-Api-Version: 2022-11-28"                   --data-urlencode "state=closed"                   --data-urlencode "head=$owner:$branch"                   --data-urlencode "per_page=100"                   "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls"
+              )"
+
+              while IFS= read -r merged_head; do
+                [ -n "$merged_head" ] || continue
+                if ! git cat-file -e "$merged_head^{commit}" 2>/dev/null; then
+                  continue
+                fi
+                if ! git merge-base --is-ancestor "$merged_head" "$candidate_sha"; then
+                  continue
+                fi
+                if [ "$(git rev-list --merges --count "$merged_head..$candidate_sha")" -gt 0 ]; then
+                  continue
+                fi
+                if ! git cherry origin/main "$candidate_sha" "$merged_head" | grep -q '^+'; then
+                  safe=true
+                  safe_reason="merged PR head preserved; later patches already represented in main"
+                  merged_pr_safe=$((merged_pr_safe + 1))
+                  break
+                fi
+              done < <(printf '%s' "$closed_prs" | jq -r '.[] | select(.merged_at != null) | .head.sha')
+            fi
+
+            if [ "$safe" != true ]; then
+              echo "KEEP (unique/unverified work): $branch @ $candidate_sha" >> "$GITHUB_STEP_SUMMARY"
+              kept_unique=$((kept_unique + 1))
+              continue
+            fi
+
+            # Fail closed if the remote ref changed after the audit.
             remote_sha="$(git ls-remote --heads origin "refs/heads/$branch" | awk '{print $1}')"
             if [ "$remote_sha" != "$candidate_sha" ]; then
               echo "KEEP (ref changed during audit): $branch" >> "$GITHUB_STEP_SUMMARY"
@@ -111,12 +147,12 @@ jobs:
             fi
 
             if [ "$apply" != true ]; then
-              echo "WOULD DELETE: $branch @ $candidate_sha" >> "$GITHUB_STEP_SUMMARY"
+              echo "WOULD DELETE ($safe_reason): $branch @ $candidate_sha" >> "$GITHUB_STEP_SUMMARY"
               continue
             fi
 
             if git push origin --delete "$branch"; then
-              echo "DELETED: $branch @ $candidate_sha" >> "$GITHUB_STEP_SUMMARY"
+              echo "DELETED ($safe_reason): $branch @ $candidate_sha" >> "$GITHUB_STEP_SUMMARY"
               deleted=$((deleted + 1))
             else
               echo "KEEP (delete rejected): $branch @ $candidate_sha" >> "$GITHUB_STEP_SUMMARY"
@@ -131,7 +167,9 @@ jobs:
             echo "### Summary"
             echo "- Audited: $candidates"
             echo "- Deleted: $deleted"
-            echo "- Kept with unique commits: $kept_unique"
+            echo "- Safe by ancestry: $ancestor_safe"
+            echo "- Safe by merged-PR/patch equivalence: $merged_pr_safe"
+            echo "- Kept with unique or unverified work: $kept_unique"
             echo "- Kept because of open PR: $kept_open_pr"
             echo "- Kept because ref changed/disappeared: $kept_changed"
             echo "- Kept because deletion was rejected: $kept_delete_error"
