@@ -60,7 +60,7 @@ test("records blocked import validation as a coarse workflow error without paste
   const panel = page.getByTestId("personal-keymap-panel");
   await panel.getByLabel("Paste personal Neverwinter binds").fill("not a valid bind with secret text");
   await panel.getByRole("button", { name: "Preview import" }).click();
-  await expect(panel.getByRole("status")).toContainText("No valid bind operations");
+  await expect(panel.getByText(/No valid bind operations were found/)).toBeVisible();
 
   const analytics = await page.evaluate(() => JSON.parse(window.localStorage.getItem("bindforge-nw:analytics:v1") || "[]"));
   const error = analytics.find((event: { name: string }) => event.name === "workflow_error");
