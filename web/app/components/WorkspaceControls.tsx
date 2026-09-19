@@ -93,6 +93,8 @@ type WorkspaceControlsProps = {
   onDownloadNativePack: () => void;
   onCopyNativeLoadCommand: () => void;
   onDownloadNativeRestore: () => void;
+  onDownloadCommunityPack: (gameVersion: string) => void;
+  onExportActiveProfile: () => void;
   hasImportedEvidence: boolean;
   unusedKeyRecommendations: string[];
   profileHistory: ProfileHistorySnapshot[];
@@ -124,6 +126,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
   const [importText, setImportText] = useState("");
   const [importPreview, setImportPreview] = useState<ReturnType<typeof analyzeRawKeymap> | null>(null);
   const [importPreviewMessage, setImportPreviewMessage] = useState("");
+  const [communityPackVersion, setCommunityPackVersion] = useState("");
   const importRef = useRef<HTMLTextAreaElement>(null);
   const panelId = "collections-command-packs";
   const keymapPanelId = "personal-keymap-import";
@@ -232,6 +235,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
               onDeleteCharacter={props.onDeleteCharacter}
               onDeleteProfile={props.onDeleteProfile}
               onExport={props.onExportProfiles}
+              onExportActiveProfile={props.onExportActiveProfile}
               onImport={props.onImportProfiles}
             />
             <VisualKeyboardMap
@@ -318,6 +322,11 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
               <button disabled={!props.selectedCount} onClick={() => props.onDownloadPack("bind")} type="button">Download bind .txt</button>
               <button disabled={!props.selectedCount} onClick={() => props.onDownloadPack("unbind")} type="button">Download unbind .txt</button>
             </div>
+            <section className={styles.communityPack} aria-labelledby="community-pack-title">
+              <div><strong id="community-pack-title">Versioned community pack</strong><p>Export the selected preset IDs with an explicit Neverwinter version. The artifact stays unverified until reviewed; nothing is uploaded silently.</p></div>
+              <label>Game version / patch<input aria-label="Community pack game version" onChange={(event) => setCommunityPackVersion(event.target.value)} placeholder="Required" value={communityPackVersion} /></label>
+              <button disabled={!props.selectedCount || !communityPackVersion.trim()} onClick={() => props.onDownloadCommunityPack(communityPackVersion)} type="button">Download community pack</button>
+            </section>
             <section className={styles.nativePack} aria-labelledby="native-pack-title">
               <div>
                 <strong id="native-pack-title">Neverwinter loadable file</strong>

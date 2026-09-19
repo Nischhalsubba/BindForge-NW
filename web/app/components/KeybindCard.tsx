@@ -10,6 +10,8 @@ import { Icon } from "./Icon";
 import { KeyCaptureInput } from "./KeyCaptureInput";
 import { PresetTrustBadge } from "./PresetTrustBadge";
 import { PresetVerificationHistory } from "./PresetVerificationHistory";
+import { CommunityEvidencePanel } from "./CommunityEvidencePanel";
+import { AcademyLinks } from "./AcademyLinks";
 
 export type KeybindSafetyStatus = {
   level: "safe" | "info" | "warn" | "danger";
@@ -135,6 +137,8 @@ function KeybindCardComponent(props: KeybindCardProps) {
             {props.preset.sourceUrl ? <a href={props.preset.sourceUrl} rel="noreferrer" target="_blank">Open source</a> : null}
           </div>
           <PresetVerificationHistory preset={props.preset} />
+          <AcademyLinks preset={props.preset} />
+          <CommunityEvidencePanel preset={props.preset} />
           <div className="command-preview">
             <div className="command-label"><span>Command preview</span><span>{props.mode}</span></div>
             <code data-testid="command-preview-output" ref={preview} tabIndex={0}>{line}</code>

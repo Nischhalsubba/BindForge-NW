@@ -10,6 +10,8 @@ import { Icon } from "./Icon";
 import { KeyCaptureInput } from "./KeyCaptureInput";
 import { PresetTrustBadge } from "./PresetTrustBadge";
 import { PresetVerificationHistory } from "./PresetVerificationHistory";
+import { CommunityEvidencePanel } from "./CommunityEvidencePanel";
+import { AcademyLinks } from "./AcademyLinks";
 import styles from "./CompactKeybindRow.module.css";
 
 type CopyHandler = (text: string, label: string, target: HTMLElement | null) => Promise<CopyResultState>;
@@ -174,6 +176,8 @@ export function CompactKeybindRow({
           </div>
 
           <PresetVerificationHistory preset={preset} />
+          <AcademyLinks preset={preset} />
+          <CommunityEvidencePanel preset={preset} />
           <div className={styles.commandBlock}>
             <div className={styles.commandLabel}><span>Command preview</span><span>{mode}</span></div>
             <code data-testid="compact-command-preview-output" tabIndex={0}>{line}</code>

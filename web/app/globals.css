@@ -215,3 +215,5 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .reassignment-panel label{display:grid;gap:5px;color:var(--ink-faint);font:600 9px var(--mono);letter-spacing:.05em;text-transform:uppercase}
 .reassignment-panel select{min-height:42px;padding:7px 9px;border:1px solid var(--line-strong);background:var(--paper);color:var(--ink);font:500 12px var(--sans);text-transform:none;letter-spacing:0}
 .reassignment-panel p{margin:0;color:var(--ink-mute);font-size:11px;line-height:1.5}.reassignment-panel code{font:600 10px var(--mono)}
+
+.academy-context-links{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-top:9px;padding-top:9px;border-top:1px solid var(--line);font-size:11px}.academy-context-links>span{color:var(--ink-faint);font:600 9px var(--mono);text-transform:uppercase;letter-spacing:.05em}.academy-context-links a{color:var(--coral);text-underline-offset:3px}

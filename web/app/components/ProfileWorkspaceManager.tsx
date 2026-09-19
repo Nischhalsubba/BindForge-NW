@@ -34,6 +34,7 @@ type ProfileWorkspaceManagerProps = {
   onDeleteCharacter: () => void;
   onDeleteProfile: () => void;
   onExport: () => void;
+  onExportActiveProfile: () => void;
   onImport: (file: File) => void;
 };
 
@@ -93,6 +94,7 @@ export function ProfileWorkspaceManager(props: ProfileWorkspaceManagerProps) {
         <div className={styles.profileActions}>
           <button disabled={!props.canDeleteCharacter} onClick={props.onDeleteCharacter} type="button">Delete character</button>
           <button disabled={!props.canDeleteProfile} onClick={props.onDeleteProfile} type="button">Delete profile</button>
+          <button onClick={props.onExportActiveProfile} type="button">Export active profile</button>
           <button onClick={props.onExport} type="button">Export My Setup</button>
           <label className={styles.fileButton}>Import My Setup<input accept="application/json,.json" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) props.onImport(file); event.currentTarget.value = ""; }} type="file" /></label>
         </div>

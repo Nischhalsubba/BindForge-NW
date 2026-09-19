@@ -33,6 +33,8 @@ import {
 import { scorePresetSearch, suggestPresetSearches } from "../lib/preset-search.mjs";
 import { appendRecentChange, appendRecentPreset, type RecentAssignmentChange } from "../lib/recent-activity.mjs";
 import { recordLocalAnalyticsEvent } from "../lib/local-analytics-client";
+import { buildCommunityPack } from "../lib/community-evidence.mjs";
+import { buildResearchCandidate } from "../lib/research-candidate.mjs";
 import { SAFE_KEY_SUGGESTIONS, normalizedKey } from "../lib/safe-key-suggestions";
 import type { CopyResultState } from "../page";
 import FilterTopBar from "../FilterTopBar";
@@ -679,6 +681,18 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     patchActiveProfile({ personalBinds: [], personalSourceName: "", personalImportedAt: "" });
     setPersonalImportMessage("Personal keymap cleared for this profile. BindForge is using common conflict guidance only.");
   }
+  function exportActiveProfile() {
+    const payload = {
+      schemaVersion: 1,
+      kind: "bindforge-shareable-profile",
+      exportedAt: new Date().toISOString(),
+      provenance: "local-user-export",
+      character: { name: activeCharacter.name, className: activeCharacter.className, role: activeCharacter.role, paragon: activeCharacter.paragon },
+      profile: activeProfile,
+    };
+    downloadText(`bindforge-profile-${activeCharacter.name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-${activeProfile.name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(payload, null, 2), "application/json;charset=utf-8");
+    setProfileStatus("Active profile exported locally with provenance. Nothing was uploaded.");
+  }
   function exportProfiles() {
     if (!profileWorkspace) return;
     downloadText(`bindforge-my-setup-v1-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(profileWorkspace, null, 2), "application/json;charset=utf-8");
@@ -747,6 +761,17 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   function nativeFilename() { return makeNativeBindFilename(activeCharacter.name, activeProfile.name); }
   function nativeEntries() {
     return selectedPresets.map((preset) => ({ key: state.keys[preset.id] ?? preset.defaultKey, command: preset.command }));
+  }
+  function downloadCommunityPack(gameVersion: string) {
+    const pack = buildCommunityPack({
+      name: activeCollection !== "all" && activeCollection !== "favourites" ? activeCollection : `${activeCharacter.name} · ${activeProfile.name}`,
+      gameVersion,
+      presetIds: selectedPresets.map((preset) => preset.id),
+      source: "bindforge-local-export",
+    });
+    if (!pack) return;
+    downloadText(`bindforge-community-pack-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(pack, null, 2), "application/json;charset=utf-8");
+    setNativePackStatus("Versioned community pack downloaded as unverified local evidence.");
   }
   function downloadNativePack() {
     if (!selectedPresets.length) return;
@@ -848,6 +873,8 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
         onDownloadNativePack={downloadNativePack}
         onCopyNativeLoadCommand={() => { void copyNativeLoadCommand(); }}
         onDownloadNativeRestore={downloadNativeRestore}
+        onDownloadCommunityPack={downloadCommunityPack}
+        onExportActiveProfile={exportActiveProfile}
         hasImportedEvidence={hasPersonalKeymap}
         unusedKeyRecommendations={unusedKeyRecommendations}
         profileHistory={activeProfileHistory}
@@ -958,7 +985,11 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
             <>
               <p>Try a related class, action, or player phrase. Search understands common abbreviations and small typos.</p>
               {searchSuggestions.length ? <div className="card-actions" aria-label="Suggested searches">{searchSuggestions.map((suggestion) => <button className="secondary-button" key={suggestion} onClick={() => applySearchSuggestion(suggestion)} type="button">Try “{suggestion}”</button>)}</div> : null}
-              <button className="text-button" onClick={() => setSearch("")} type="button">Clear search</button>
+              <button className="secondary-button" onClick={() => {
+                const candidate = buildResearchCandidate({ query: state.search, className: state.className, actionType: state.actionType, difficulty: state.difficulty });
+                if (candidate) downloadText(`bindforge-research-candidate-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(candidate, null, 2), "application/json;charset=utf-8");
+              }} type="button">Download research candidate</button>
+                            <button className="text-button" onClick={() => setSearch("")} type="button">Clear search</button>
             </>
           ) : (
             <>
