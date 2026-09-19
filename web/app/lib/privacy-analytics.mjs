@@ -7,7 +7,7 @@ export const ANALYTICS_EVENTS = [
   "import_previewed",
   "import_confirmed",
   "workflow_error",
-] as const;
+];
 
 const ALLOWED = new Set(ANALYTICS_EVENTS);
 const ALLOWED_CONTEXT = new Set(["route", "className", "actionType", "presetType", "outcome"]);

@@ -366,21 +366,6 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     setVisibleGroupCount(INITIAL_VISIBLE_GROUPS);
   }, [state.search, state.className, state.actionType, state.difficulty, activeCollection, library.provenanceFilter, library.safeOnly, library.sortMode]);
 
-  useEffect(() => {
-    const queryActive = Boolean(state.search.trim());
-    if (!hydrated || !queryActive) return;
-    const signature = [state.className, state.actionType, filtered.length ? "results" : "zero"].join("|");
-    const timer = window.setTimeout(() => {
-      if (lastSearchAnalytics.current === signature) return;
-      lastSearchAnalytics.current = signature;
-      recordLocalAnalyticsEvent({
-        name: filtered.length ? "search_performed" : "zero_result_search",
-        context: { route: "keybinds", className: state.className, actionType: state.actionType, outcome: filtered.length ? "results" : "zero" },
-      });
-    }, 500);
-    return () => window.clearTimeout(timer);
-  }, [filtered.length, hydrated, state.actionType, state.className, state.search]);
-
   const fallbackWorkspace = useMemo(() => createDefaultProfileWorkspace({ keyValues: state.keys }) as ProfileWorkspace, [state.keys]);
   const resolvedWorkspace = profileWorkspace ?? fallbackWorkspace;
   const activeCharacter = (getActiveCharacter(resolvedWorkspace) as CharacterProfile | null) ?? resolvedWorkspace.characters[0];
@@ -445,6 +430,21 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
             : typeOrder.indexOf(leftPreset.type) - typeOrder.indexOf(rightPreset.type) || leftPreset.title.localeCompare(rightPreset.title);
     }).map(({ preset }) => preset);
   }, [activeCollection, hasPersonalKeymap, library.collections, library.favourites, library.provenanceFilter, library.safeOnly, library.sortMode, personalByKey, selectedKeyUseCounts, selectedSet, state.actionType, state.className, state.difficulty, state.keys, state.search]);
+
+  useEffect(() => {
+    const queryActive = Boolean(state.search.trim());
+    if (!hydrated || !queryActive) return;
+    const signature = [state.className, state.actionType, filtered.length ? "results" : "zero"].join("|");
+    const timer = window.setTimeout(() => {
+      if (lastSearchAnalytics.current === signature) return;
+      lastSearchAnalytics.current = signature;
+      recordLocalAnalyticsEvent({
+        name: filtered.length ? "search_performed" : "zero_result_search",
+        context: { route: "keybinds", className: state.className, actionType: state.actionType, outcome: filtered.length ? "results" : "zero" },
+      });
+    }, 500);
+    return () => window.clearTimeout(timer);
+  }, [filtered.length, hydrated, state.actionType, state.className, state.search]);
 
   const searchOnlyMatchCount = useMemo(() => {
     const query = state.search.trim();
