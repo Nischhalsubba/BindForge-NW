@@ -6,7 +6,7 @@ test("verified presets keep a clear evidence label", () => {
   const trust = presetTrustInfo({ confidence: "verified", sourceType: "official", verifiedAt: "2026-09-01", gameVersion: "Module 32" });
   assert.equal(trust.label, "Verified");
   assert.equal(trust.sourceLabel, "Official source");
-  assert.equal(trust.checkedLabel, "Checked 2026-09-01");
+  assert.equal(trust.checkedLabel, "Checked 2026-09-01 · recheck after 2026-09-17");
   assert.equal(trust.versionLabel, "Module 32");
   assert.equal(trustNeedsCaution({ confidence: "verified" }), false);
 });

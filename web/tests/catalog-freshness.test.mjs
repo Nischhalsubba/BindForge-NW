@@ -20,6 +20,12 @@ test("summarizes dated, stale, and undated catalogue verification", () => {
     datedPercent: 67,
     recentPercent: 33,
     newestDate: "2026-09-01",
+    needsGameUpdateReview: 3,
+    latestImportantUpdate: {
+      date: "2026-09-17",
+      label: "September 17, 2026 live patch",
+      sourceUrl: "https://www.playneverwinter.com/en/news-details/11557773",
+    },
   });
 });
 
