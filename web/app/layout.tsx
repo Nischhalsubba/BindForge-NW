@@ -6,7 +6,7 @@ import "./app.css";
 
 const productionUrl = new URL("https://neverwinterkeybind.netlify.app");
 const socialImageUrl = new URL("/opengraph-image?v=20260728-neverwinter-keybind", productionUrl).toString();
-const socialTitle = "Neverwinter Keybind | Keybind Builder";
+const socialTitle = "BindForge NW — Neverwinter Keybind Builder";
 const socialDescription =
   "Search presets, choose safer key combinations, and generate copy-ready Neverwinter bind or unbind commands.";
 
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   alternates: { canonical: productionUrl.toString() },
   title: { default: socialTitle, template: "%s | Neverwinter Keybind" },
   description: socialDescription,
-  applicationName: "Neverwinter Keybind",
+  applicationName: "BindForge NW",
   keywords: [
     "Neverwinter keybind builder",
     "Neverwinter bind commands",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: productionUrl.toString(),
-    siteName: "Neverwinter Keybind",
+    siteName: "BindForge NW",
     title: socialTitle,
     description: socialDescription,
     images: [{
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  name: "Neverwinter Keybind",
+  name: "BindForge NW",
   url: `${productionUrl}/`,
   applicationCategory: "GameApplication",
   applicationSubCategory: "Neverwinter keybind builder and console command generator",
