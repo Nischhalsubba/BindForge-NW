@@ -30,11 +30,11 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
       <div className="topbar">
         <span><b>Vol. 01</b> / Issue Nº 26</span>
         <span>Filed under <b>Neverwinter systems</b></span>
-        <span title={`${freshness.needReview} presets have stale or missing verification dates`}><i className="pulse" /> Catalogue · {freshness.recentPercent}% recent · {freshness.needReview} review · EN</span>
+        <span title={`${freshness.recentPercent}% of presets have recent verification dates; ${freshness.needReview} need review`}><i className="pulse" /> Catalogue health · {freshness.needReview} presets need verification · EN</span>
       </div>
 
       <nav className={`site-nav ${styles.primaryNav}`} aria-label="Primary navigation">
-        <a className="site-brand" href="#top" aria-label="Neverwinter Keybind home">
+        <a className="site-brand" href="#top" aria-label="BindForge NW home">
           <span className="brand-mark">
             <Image
               src="/neverwinter-keybind-logo.svg"
@@ -46,7 +46,7 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
               unoptimized
             />
           </span>
-          <span className="brand-copy"><b>Neverwinter Keybind</b><small>Command field manual</small></span>
+          <span className="brand-copy"><b>BindForge NW</b><small>Neverwinter keybind workbench</small></span>
         </a>
         <div className={`site-nav-links ${styles.primaryLinks}`} data-tour="primary-nav">
           <a href="#search-keybinds">Keybinds <span>01</span></a>
@@ -66,7 +66,7 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
           <p className="lead">
             Find proven keybinds, understand your current setup, or build exactly what you need without learning Neverwinter command syntax first.
           </p>
-          <div className="hero-actions" aria-label="Start using Neverwinter Keybind">
+          <div className="hero-actions" aria-label="Start using BindForge NW">
             <a className="btn btn-primary" href="#search-keybinds">Browse keybinds ↗</a>
             <a className="btn btn-ghost" href="#my-setup">Review my setup</a>
           </div>
