@@ -98,11 +98,7 @@ html[data-theme='system'] .brand-mark {
   background: var(--ink);
 }
 
-/* Wide desktop correction: use the available canvas instead of shrinking the product into a poster-sized column. */
-.app-shell {
-  --content: 3000px;
-}
-
+/* Wide desktop correction uses the canonical --content token from app.css. */
 .app-shell .side-rail {
   display: none !important;
 }
