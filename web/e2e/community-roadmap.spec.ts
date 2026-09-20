@@ -26,7 +26,7 @@ test("exports contextual community evidence without upgrading trust", async ({ p
 
 test("exports selected presets as a versioned community pack", async ({ page }) => {
   await page.locator(".bind-card:visible").first().getByText("Select", { exact: true }).click();
-  await page.getByRole("button", { name: /Collections & command packs/ }).click();
+  await page.getByRole("button", { name: /Selected keybinds/ }).click();
   const panel = page.getByTestId("pack-tools-panel");
   await panel.getByLabel("Community pack game version").fill("2026-09-17 patch");
   const downloadPromise = page.waitForEvent("download");
