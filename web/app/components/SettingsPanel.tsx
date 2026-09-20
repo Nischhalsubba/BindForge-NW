@@ -76,7 +76,7 @@ export function SettingsPanel() {
   const layer = open && typeof document !== "undefined"
     ? createPortal(
       <div className={styles.layer} data-testid="settings-layer">
-        <div aria-hidden="true" className={styles.backdrop} onClick={closePanel} />
+        <button aria-label="Dismiss settings" className={styles.backdrop} onClick={closePanel} tabIndex={-1} type="button" />
         <section aria-labelledby="settings-title" aria-modal="true" className={styles.panel} id="app-settings-panel" ref={panelRef} role="dialog">
           <header className={styles.header}>
             <div><p>Experience, trust &amp; local data</p><h2 id="settings-title">Settings</h2></div>
