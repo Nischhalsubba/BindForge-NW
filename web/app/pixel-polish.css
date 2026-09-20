@@ -222,7 +222,7 @@ body {
 
 .group-heading p {
   margin-top: 7px;
-  font-size: 10px;
+  font-size: var(--type-meta);
   letter-spacing: .075em;
 }
 
@@ -232,8 +232,8 @@ body {
 }
 
 .icon-text-button {
-  min-width: 40px;
-  min-height: 40px;
+  min-width: var(--control-min);
+  min-height: var(--control-min);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -286,7 +286,7 @@ body {
   min-width: 0;
   flex-wrap: wrap;
   gap: 7px;
-  font-size: 9px;
+  font-size: var(--type-meta);
 }
 
 .level-pill {
@@ -299,7 +299,7 @@ body {
 }
 
 .select-preset {
-  min-height: 40px;
+  min-height: var(--control-min);
   padding-inline: 4px;
 }
 
