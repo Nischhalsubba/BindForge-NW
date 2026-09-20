@@ -51,6 +51,7 @@ const LIBRARY_SETTINGS_KEY = "bindforge-nw:library:v1";
 const PROFILE_WORKSPACE_KEY = "bindforge-nw:profiles:v1";
 const PROFILE_HISTORY_KEY = "bindforge-nw:profile-history:v1";
 const INITIAL_VISIBLE_GROUPS = 8;
+const BEGINNER_VISIBLE_GROUPS = 3;
 const GROUP_BATCH_SIZE = 3;
 const MAX_PERSONAL_BIND_FILE_BYTES = 512 * 1024;
 const MAX_PROFILE_WORKSPACE_BYTES = 512 * 1024;
@@ -253,7 +254,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [activeCollection, setActiveCollection] = useState("all");
   const [collectionName, setCollectionName] = useState("");
-  const [visibleGroupCount, setVisibleGroupCount] = useState(INITIAL_VISIBLE_GROUPS);
+  const [visibleGroupCount, setVisibleGroupCount] = useState(() => state.preferences.experience === "simple" ? BEGINNER_VISIBLE_GROUPS : INITIAL_VISIBLE_GROUPS);
   const [personalImportMessage, setPersonalImportMessage] = useState("");
   const [profileStatus, setProfileStatus] = useState("");
   const [nativePackStatus, setNativePackStatus] = useState("");
@@ -366,8 +367,8 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   }, [hydrated, state.preferences.experience]);
 
   useEffect(() => {
-    setVisibleGroupCount(INITIAL_VISIBLE_GROUPS);
-  }, [state.search, state.className, state.actionType, state.difficulty, activeCollection, library.provenanceFilter, library.safeOnly, library.sortMode]);
+    setVisibleGroupCount(state.preferences.experience === "simple" ? BEGINNER_VISIBLE_GROUPS : INITIAL_VISIBLE_GROUPS);
+  }, [state.search, state.className, state.actionType, state.difficulty, state.preferences.experience, activeCollection, library.provenanceFilter, library.safeOnly, library.sortMode]);
 
   const fallbackWorkspace = useMemo(() => createDefaultProfileWorkspace({ keyValues: state.keys }) as ProfileWorkspace, [state.keys]);
   const resolvedWorkspace = profileWorkspace ?? fallbackWorkspace;
@@ -563,6 +564,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   }
   function removeActiveCollection() {
     if (activeCollection === "all" || activeCollection === "favourites") return;
+    if (!window.confirm(`Delete collection “${activeCollection}”? The saved collection will be removed from this browser.`)) return;
     const next = { ...library.collections };
     delete next[activeCollection];
     patchLibrary({ collections: next });
@@ -646,6 +648,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   }
   function deleteCharacter() {
     if (!profileWorkspace || profileWorkspace.characters.length <= 1) return;
+    if (!window.confirm(`Delete character “${activeCharacter.name}” and all of its profiles? This cannot be undone unless you exported My Setup first.`)) return;
     const remaining = profileWorkspace.characters.filter((character) => character.id !== activeCharacter.id);
     const character = remaining[0];
     const profile = character.profiles[0];
@@ -656,6 +659,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   }
   function deleteProfile() {
     if (!profileWorkspace || activeCharacter.profiles.length <= 1) return;
+    if (!window.confirm(`Delete profile “${activeProfile.name}”? This cannot be undone unless you exported My Setup first.`)) return;
     const profiles = activeCharacter.profiles.filter((profile) => profile.id !== activeProfile.id);
     const profile = profiles[0];
     saveWorkspace({
@@ -687,10 +691,11 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     try {
       importPersonalBinds(await file.text(), file.name || "Imported bind file");
     } catch {
-      setPersonalImportMessage("The selected bind file could not be read.");
+      setPersonalImportMessage("Unable to read this bind file. Choose a plain-text Neverwinter bind export and try again.");
     }
   }
   function clearPersonalBinds() {
+    if (!window.confirm("Clear the imported personal keymap for this profile? A local profile-history snapshot will be kept before clearing.")) return;
     captureActiveProfile("Before clearing imported keymap");
     patchActiveProfile({ personalBinds: [], personalSourceName: "", personalImportedAt: "" });
     setPersonalImportMessage("Personal keymap cleared for this profile. BindForge is using common conflict guidance only.");
@@ -980,9 +985,11 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
           </div>
           {visibleGroupCount < groupedEntries.length ? (
             <div className="load-more-groups">
-              <p>Showing {visibleGroups.length} of {groupedEntries.length} groups. More groups stay unloaded until requested.</p>
-              <button className="secondary-button" onClick={() => setVisibleGroupCount((count) => Math.min(groupedEntries.length, count + GROUP_BATCH_SIZE))} type="button">Show more groups</button>
-              <button className="text-button" onClick={() => setVisibleGroupCount(groupedEntries.length)} type="button">Expand all groups</button>
+              <p>{state.preferences.experience === "simple"
+                ? `Showing a focused starting set of ${visibleGroups.length} groups. Search, choose a class pack, or browse the full catalogue when you need more.`
+                : `Showing ${visibleGroups.length} of ${groupedEntries.length} groups. More groups stay unloaded until requested.`}</p>
+              <button className="secondary-button" onClick={() => setVisibleGroupCount((count) => Math.min(groupedEntries.length, count + GROUP_BATCH_SIZE))} type="button">{state.preferences.experience === "simple" ? "Show more keybind groups" : "Show more groups"}</button>
+              <button className="text-button" onClick={() => setVisibleGroupCount(groupedEntries.length)} type="button">{state.preferences.experience === "simple" ? "Browse all keybinds" : "Expand all groups"}</button>
             </div>
           ) : null}
         </>
