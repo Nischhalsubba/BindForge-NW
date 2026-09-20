@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 async function openSettings(page: Page) {
-  await page.getByRole("button", { name: "Local data & backup", exact: true }).click();
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
   await expect(page.getByRole("dialog", { name: "Local archive" })).toBeVisible();
 }
 
