@@ -22,7 +22,7 @@ The current field-manual identity is still carried by a small set of named globa
 
 ## Canonical shared values
 
-- Content width: `--content: 1520px`
+- Content width: `--content: 3000px`
 - Functional meta text: `--type-meta: 0.8125rem`
 - Functional label text: `--type-label: 0.875rem`
 - Body text: `--type-body: 1rem`
