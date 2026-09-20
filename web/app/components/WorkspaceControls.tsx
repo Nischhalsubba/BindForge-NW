@@ -183,7 +183,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
     } catch {
       setImportPreview(null);
       recordLocalAnalyticsEvent({ name: "workflow_error", context: { route: "my-setup", actionType: "import", outcome: "file-read-failed" } });
-      setImportPreviewMessage("The selected bind file could not be read.");
+      setImportPreviewMessage("Unable to read this bind file. Choose a plain-text Neverwinter bind export and try again.");
     }
   }
 
@@ -305,12 +305,13 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
 
       {!beginner ? <section className={styles.packPanel} aria-labelledby="pack-tools-title" id="collections">
         <button aria-controls={panelId} aria-expanded={packToolsOpen} className={styles.packSummary} data-gsap-nav onClick={() => setPackToolsOpen((value) => !value)} type="button">
-          <span><strong id="pack-tools-title">Collections &amp; command packs</strong><small>Save, share, copy, or download selected presets</small></span>
+          <span><strong id="pack-tools-title">Selected keybinds</strong><small>Organize selections, review changes, and choose the export format you actually need</small></span>
           <span className={styles.selectionBadge}>{props.selectedCount} selected</span>
           <span aria-hidden="true">{packToolsOpen ? "−" : "+"}</span>
         </button>
         {packToolsOpen ? (
           <div className={styles.packBody} id={panelId} data-testid="pack-tools-panel" data-gsap-enter>
+            <div className={styles.packSectionHeading}><span>01</span><div><strong>Collections</strong><p>Save a reusable set or copy a shareable view link.</p></div></div>
             <div className={styles.collectionRow}>
               <label>Collection<select aria-label="Browse collection" onChange={(event) => props.onActiveCollectionChange(event.target.value)} value={props.activeCollection}><option value="all">All presets</option><option value="favourites">Favourites ({props.favouritesCount})</option>{Object.keys(props.collections).sort().map((name) => <option key={name} value={name}>{name} ({props.collections[name].length})</option>)}</select></label>
               <input aria-label="New collection name" onChange={(event) => props.onCollectionNameChange(event.target.value)} placeholder="New collection name" value={props.collectionName} />
@@ -318,6 +319,7 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
               <button disabled={props.activeCollection === "all" || props.activeCollection === "favourites"} onClick={props.onRemoveCollection} type="button">Delete collection</button>
               <button onClick={props.onShareView} type="button">Copy share link</button>
             </div>
+            <div className={styles.packSectionHeading}><span>02</span><div><strong>Review &amp; export</strong><p>Check conflicts first, then copy or download the exact selected lines.</p></div></div>
             <div className={styles.packActions} aria-label="Selected bind pack">
               <button disabled={!props.visibleCount} onClick={props.onSelectVisible} type="button">Select visible</button>
               <button disabled={!props.selectedCount} onClick={clearSelection} type="button">Clear selection</button>
@@ -327,11 +329,13 @@ export function WorkspaceControls(props: WorkspaceControlsProps) {
               <button disabled={!props.selectedCount} onClick={() => props.onDownloadPack("bind")} type="button">Download bind .txt</button>
               <button disabled={!props.selectedCount} onClick={() => props.onDownloadPack("unbind")} type="button">Download unbind .txt</button>
             </div>
+            <div className={styles.packSectionHeading}><span>03</span><div><strong>Community sharing</strong><p>Attach a game version before exporting an unverified community artifact.</p></div></div>
             <section className={styles.communityPack} aria-labelledby="community-pack-title">
-              <div><strong id="community-pack-title">Versioned community pack</strong><p>Export the selected preset IDs with an explicit Neverwinter version. The artifact stays unverified until reviewed; nothing is uploaded silently.</p></div>
+              <div><strong id="community-pack-title">Versioned community pack</strong><p>Export the selected preset IDs with an explicit Neverwinter version. Nothing is uploaded silently.</p></div>
               <label>Game version / patch<input aria-label="Community pack game version" onChange={(event) => setCommunityPackVersion(event.target.value)} placeholder="Required" value={communityPackVersion} /></label>
               <button disabled={!props.selectedCount || !communityPackVersion.trim()} onClick={() => props.onDownloadCommunityPack(communityPackVersion)} type="button">Download community pack</button>
             </section>
+            <div className={styles.packSectionHeading}><span>04</span><div><strong>Neverwinter files</strong><p>Create a loadable file, matching load command, or evidence-based restore.</p></div></div>
             <section className={styles.nativePack} aria-labelledby="native-pack-title">
               <div>
                 <strong id="native-pack-title">Neverwinter loadable file</strong>
