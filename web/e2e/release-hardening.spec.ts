@@ -44,7 +44,7 @@ test("keeps settings focus inside the dialog and restores it after closing", asy
   await expect(dialog).toBeVisible();
   const close = page.getByRole("button", { name: "Close settings" }).last();
   await expect(close).toBeFocused();
-  await expect(page.getByRole("button", { name: "Dismiss settings" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Dismiss settings" })).toHaveAttribute("tabindex", "-1");
 
   await page.keyboard.press("Shift+Tab");
   const activeAfterShiftTab = await page.evaluate(() => document.activeElement?.textContent?.trim() ?? "");
@@ -85,7 +85,7 @@ test("asks before deleting a profile", async ({ page }) => {
     });
   });
   await deleteProfile.click();
-  await expect(message).resolves.toContain("Delete profile");
+  expect(await message).toContain("Delete profile");
 });
 
 test("asks before deleting a saved collection", async ({ page }) => {
@@ -104,7 +104,7 @@ test("asks before deleting a saved collection", async ({ page }) => {
     });
   });
   await deleteCollection.click();
-  await expect(message).resolves.toContain("Delete collection");
+  expect(await message).toContain("Delete collection");
 });
 
 test("meets touch-target geometry on narrow coarse-style layouts", async ({ page }, testInfo) => {
