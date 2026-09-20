@@ -106,7 +106,7 @@ test("captures expanded pack tools and settings surfaces", async ({ page }, test
   await page.screenshot({ fullPage: true, path: testInfo.outputPath("workspace-pack-tools.png") });
 
   await page.getByRole("button", { name: "Settings", exact: true }).click();
-  await expect(page.getByRole("dialog", { name: "Local archive" })).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "Settings" })).toBeVisible();
   await expectNoDocumentOverflow(page);
   await page.screenshot({ fullPage: true, path: testInfo.outputPath("workspace-settings.png") });
 });
