@@ -49,7 +49,7 @@ test("keeps primary actions visible and secondary controls distinct", async ({ p
 });
 
 test("keeps collection and command pack tools collapsed until requested", async ({ page }) => {
-  const toggle = page.getByRole("button", { name: /Collections & command packs/i });
+  const toggle = page.getByRole("button", { name: /Selected keybinds/i });
   await expect(toggle).toHaveAttribute("aria-expanded", "false");
   await expect(page.getByTestId("pack-tools-panel")).toHaveCount(0);
 
@@ -75,7 +75,7 @@ test("keeps workspace controls within the viewport", async ({ page }) => {
   const viewport = page.viewportSize();
   expect(viewport).not.toBeNull();
 
-  for (const locator of [page.getByTestId("filter-toolbar").first(), page.locator('[data-testid="secondary-controls"]:visible').first(), page.getByRole("button", { name: /Collections & command packs/i })]) {
+  for (const locator of [page.getByTestId("filter-toolbar").first(), page.locator('[data-testid="secondary-controls"]:visible').first(), page.getByRole("button", { name: /Selected keybinds/i })]) {
     const box = await locator.boundingBox();
     expect(box).not.toBeNull();
     expect(box!.x).toBeGreaterThanOrEqual(0);
@@ -87,10 +87,10 @@ test("keeps workspace controls within the viewport", async ({ page }) => {
 });
 
 test("preserves selection and pack actions inside the collapsed panel", async ({ page }) => {
-  await page.getByRole("button", { name: /Collections & command packs/i }).click();
+  await page.getByRole("button", { name: /Selected keybinds/i }).click();
   const panel = page.getByTestId("pack-tools-panel");
   await panel.getByRole("button", { name: "Select visible" }).click();
-  await expect(page.getByRole("button", { name: /Collections & command packs/i })).toContainText(/selected/);
+  await expect(page.getByRole("button", { name: /Selected keybinds/i })).toContainText(/selected/);
   await expect(panel.getByRole("button", { name: "Copy bind pack" })).toBeEnabled();
   await expect(panel.getByRole("button", { name: "Clear selection" })).toBeEnabled();
   await expect(panel.getByRole("button", { name: "Download Neverwinter file" })).toBeEnabled();
