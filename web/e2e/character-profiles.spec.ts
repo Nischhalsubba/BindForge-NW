@@ -94,7 +94,7 @@ test("keeps restored global backup keys in the active profile after reload", asy
     return JSON.stringify(saved);
   });
 
-  await page.getByRole("button", { name: "Local data & backup", exact: true }).click();
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
   await page.getByLabel("Import a Neverwinter Keybind backup file").setInputFiles({
     name: "legacy-bindforge-backup.json",
     mimeType: "application/json",
