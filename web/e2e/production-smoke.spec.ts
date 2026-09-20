@@ -108,7 +108,7 @@ test("production collections and command-pack controls remain reachable", async 
   await firstCard.getByText("Select", { exact: true }).click();
   await expect(firstCard.locator('input[type="checkbox"]')).toBeChecked();
 
-  const packTools = page.getByText("Collections & command packs", { exact: true });
+  const packTools = page.getByText("Selected keybinds", { exact: true });
   await packTools.click();
   await expect(page.getByRole("button", { name: /Copy bind pack/i })).toBeEnabled();
   await expect(page.getByRole("button", { name: /Download bind/i })).toBeEnabled();
