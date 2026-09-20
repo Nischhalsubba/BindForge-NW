@@ -24,7 +24,7 @@ async function expectNoOverflow(page: Page) {
 
 async function openSettings(page: Page) {
   await page.getByRole("button", { name: "Settings", exact: true }).click();
-  await expect(page.getByRole("dialog", { name: "Local archive" })).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "Settings" })).toBeVisible();
 }
 
 test("200%-zoom-equivalent layout keeps the primary journey usable", async ({ page }, testInfo) => {
