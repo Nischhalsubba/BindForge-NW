@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500;1,600;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500;1,600;1,700&display=swap');
 
 :root {
   --paper: #efe7d2;
@@ -21,10 +21,9 @@
   --line-soft: rgba(21, 20, 15, 0.08);
   --shadow: 0 30px 60px -30px rgba(21, 20, 15, 0.18);
   --serif: 'Playfair Display', 'Times New Roman', serif;
-  --sans: 'Inter Tight', 'Inter', system-ui, sans-serif;
+  --sans: 'Inter', system-ui, sans-serif;
   --body: 'Inter', system-ui, sans-serif;
   --mono: 'JetBrains Mono', monospace;
-  --content: 1360px;
   --control-height: 44px;
 
   --background: var(--paper);
