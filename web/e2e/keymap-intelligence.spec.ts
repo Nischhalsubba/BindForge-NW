@@ -81,7 +81,7 @@ test("preserves corrupted profile storage in the recovery archive before safe fa
   await page.reload();
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
 
-  await page.getByRole("button", { name: "Local data & backup", exact: true }).click();
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Recovery archive" })).toBeVisible();
   await expect(page.getByText("bindforge-nw:profiles:v1", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Export recovery data" })).toBeVisible();
