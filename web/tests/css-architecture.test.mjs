@@ -48,7 +48,7 @@ test("content width and font roles have one canonical owner", () => {
   const activeGlobals = [appCss, atelierCss, uiFixesCss, brandingCss, precisionCss, preferencesCss];
   const contentDefinitions = activeGlobals.flatMap((css) => css.match(/--content\s*:/g) ?? []);
   assert.equal(contentDefinitions.length, 1, "Only app.css may define --content");
-  assert.match(appCss, /--content:\s*1520px/);
+  assert.match(appCss, /--content:\s*3000px/);
   assert.equal(atelierCss.includes("Inter Tight"), false);
   assert.match(atelierCss, /family=Inter:wght@300;400;500;600;700;800;900/);
   assert.match(atelierCss, /family=JetBrains\+Mono:wght@400;500;600/);
