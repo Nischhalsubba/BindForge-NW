@@ -91,7 +91,7 @@ test("asks before deleting a profile", async ({ page }) => {
 test("asks before deleting a saved collection", async ({ page }) => {
   const firstCard = page.locator(".bind-card:visible").first();
   await firstCard.getByText("Select", { exact: true }).click();
-  await page.getByRole("button", { name: /Collections & command packs/i }).click();
+  await page.getByRole("button", { name: /Selected keybinds/i }).click();
   await page.getByLabel("New collection name").fill("QA collection");
   await page.getByRole("button", { name: "Save selected" }).click();
   const deleteCollection = page.getByRole("button", { name: "Delete collection" });
