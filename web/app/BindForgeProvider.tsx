@@ -429,7 +429,7 @@ export function BindForgeProvider({ children }: { children: React.ReactNode }) {
             : "Backup restored for this session; browser storage is unavailable",
         );
       } catch {
-        setStatus("The backup file could not be read");
+        setStatus("Unable to restore this backup. Choose a valid BindForge JSON backup and try again.");
       }
     },
     clearSavedData: () => {
