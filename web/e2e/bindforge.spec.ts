@@ -24,7 +24,7 @@ async function closeFilterDrawerIfOpen(page: Page) {
 }
 
 async function openSettings(page: Page) {
-  const trigger = page.getByRole("button", { name: "Local data & backup", exact: true });
+  const trigger = page.getByRole("button", { name: "Settings", exact: true });
   await trigger.click();
   await expect(page.getByRole("dialog", { name: "Local archive" })).toBeVisible();
 }
@@ -238,7 +238,7 @@ test("mobile filter drawer closes with Escape", async ({ page }, testInfo) => {
 });
 
 test("Settings closes with Escape and restores focus", async ({ page }) => {
-  const trigger = page.getByRole("button", { name: "Local data & backup", exact: true });
+  const trigger = page.getByRole("button", { name: "Settings", exact: true });
   await trigger.click();
   await expect(page.getByRole("dialog", { name: "Local archive" })).toBeVisible();
   await page.keyboard.press("Escape");
