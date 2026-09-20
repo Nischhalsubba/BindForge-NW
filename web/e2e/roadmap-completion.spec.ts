@@ -50,7 +50,7 @@ test("records only coarse local analytics and recent activity after user actions
   expect(analytics.some((event: { name: string }) => event.name === "zero_result_search")).toBe(true);
   expect(JSON.stringify(analytics)).not.toContain("definitely-no-match-xyz");
 
-  await page.getByRole("button", { name: "Local data & backup", exact: true }).click();
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Privacy-conscious usage insights" })).toBeVisible();
 });
 

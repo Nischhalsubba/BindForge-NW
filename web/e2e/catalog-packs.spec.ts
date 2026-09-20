@@ -38,7 +38,7 @@ test("an opened quick pack can flow into the existing selection and pack review"
   const barbarian = packs.locator('article[data-pack-id="barbarian-dps"]');
   await barbarian.getByRole("button", { name: /Open .*preset pack/ }).click();
 
-  const packToggle = page.getByRole("button", { name: /Collections & command packs/i }).filter({ visible: true }).first();
+  const packToggle = page.getByRole("button", { name: /Selected keybinds/i }).filter({ visible: true }).first();
   await packToggle.click();
   const panel = page.locator('[data-testid="pack-tools-panel"]:visible').first();
   await panel.getByRole("button", { name: "Select visible" }).click();

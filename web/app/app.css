@@ -56,7 +56,7 @@
   --ease-ui: cubic-bezier(.22, .61, .36, 1);
 
   /* Give the editorial desktop layout more useful horizontal room. */
-  --content: 1520px;
+  --content: 3000px;
 }
 
 html {

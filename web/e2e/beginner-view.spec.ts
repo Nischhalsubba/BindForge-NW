@@ -23,7 +23,7 @@ test("Beginner View hides technical and secondary surfaces until requested", asy
   await expect(tabs.getByRole("tab", { name: "Create your own say message" })).toHaveCount(0);
 
   await expect(page.getByTestId("secondary-controls")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: /Collections & command packs/i })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /Selected keybinds/i })).toHaveCount(0);
   await expect(page.getByText("Share, export & portable tools", { exact: true })).toHaveCount(0);
   await expect(page.locator(".active-filter-row")).toHaveCount(0);
   await expect(page.getByText("Command output", { exact: true })).toHaveCount(0);
@@ -39,6 +39,12 @@ test("Beginner View hides technical and secondary surfaces until requested", asy
   await expect(summary.getByRole("button", { name: "Show more tools" })).toBeVisible();
 });
 
+test("Beginner View starts with a smaller catalogue slice and an explicit browse-all action", async ({ page }) => {
+  const groups = page.locator(".bind-group:visible");
+  expect(await groups.count()).toBeLessThanOrEqual(3);
+  await expect(page.getByRole("button", { name: "Browse all keybinds" })).toBeVisible();
+});
+
 test("Show more tools switches to Standard, reveals hidden controls, and persists", async ({ page }) => {
   const summary = page.getByTestId("experience-workspace-summary");
   await summary.getByRole("button", { name: "Show more tools" }).click();
@@ -46,7 +52,7 @@ test("Show more tools switches to Standard, reveals hidden controls, and persist
   const tabs = page.getByRole("tablist", { name: "Primary keybind tools" });
   await expect(tabs.getByRole("tab")).toHaveCount(4);
   await expect(page.getByTestId("secondary-controls")).toBeVisible();
-  await expect(page.getByRole("button", { name: /Collections & command packs/i })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Selected keybinds/i })).toBeVisible();
   await expect(page.getByText("Share, export & portable tools", { exact: true })).toBeVisible();
 
   await page.waitForFunction(() => {

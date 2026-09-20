@@ -180,10 +180,6 @@ input[data-key-capture='true']:focus + .key-capture-hint {
 }
 
 /* 3. Give the hero a stronger editorial focal point without sacrificing tool readability. */
-.app-shell {
-  --content: 1680px;
-}
-
 .app-shell .app-header,
 .app-shell .workbench-intro,
 .app-shell .workspace,

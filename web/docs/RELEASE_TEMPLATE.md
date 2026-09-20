@@ -29,6 +29,9 @@
 - [ ] Mobile, tablet, and desktop
 - [ ] Dark and light themes
 - [ ] Keyboard and focus behavior
+- [ ] NVDA critical-flow pass recorded
+- [ ] VoiceOver critical-flow pass recorded
+- [ ] Dialog/tour focus restoration and live-status announcements verified with a screen reader
 - [ ] No unexpected console errors
 
 ## Catalog evidence

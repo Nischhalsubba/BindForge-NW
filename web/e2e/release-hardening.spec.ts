@@ -33,26 +33,85 @@ test("does not register or expose the retired service worker", async ({ page }) 
 test("uses unique accessible names for primary controls", async ({ page }) => {
   await expect(page.getByLabel("Search keybind library")).toHaveCount(1);
   await expect(page.getByLabel("Filter keybinds by action type")).toHaveCount(1);
-  await expect(page.getByRole("button", { name: "Local data & backup", exact: true })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Settings", exact: true })).toHaveCount(1);
   await expect(page.getByRole("button", { name: "Reset keybind library filters" })).toHaveCount(1);
 });
 
-test("keeps dialog focus and restores it after closing", async ({ page }) => {
-  const settings = page.getByRole("button", { name: "Local data & backup", exact: true });
+test("keeps settings focus inside the dialog and restores it after closing", async ({ page }) => {
+  const settings = page.getByRole("button", { name: "Settings", exact: true });
   await settings.click();
-  const dialog = page.getByRole("dialog", { name: "Local archive" });
+  const dialog = page.getByRole("dialog", { name: "Settings" });
   await expect(dialog).toBeVisible();
-  await expect(page.getByRole("button", { name: "Close settings" }).last()).toBeFocused();
+  const close = page.getByRole("button", { name: "Close settings" }).last();
+  await expect(close).toBeFocused();
+  await expect(page.getByRole("button", { name: "Dismiss settings" })).toHaveAttribute("tabindex", "-1");
+
+  await page.keyboard.press("Shift+Tab");
+  const activeAfterShiftTab = await page.evaluate(() => document.activeElement?.textContent?.trim() ?? "");
+  expect(activeAfterShiftTab.length).toBeGreaterThan(0);
+  await page.keyboard.press("Tab");
+  await expect(close).toBeFocused();
+
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
   await expect(settings).toBeFocused();
+});
+
+test("preserves an explicit dark theme across appearance revision migration", async ({ page }) => {
+  await page.evaluate(() => {
+    const raw = window.localStorage.getItem("bindforge-nw:settings:v2");
+    const stored = raw ? JSON.parse(raw) : { version: 3, preferences: {} };
+    stored.version = 3;
+    stored.preferences = { ...(stored.preferences ?? {}), theme: "dark" };
+    window.localStorage.setItem("bindforge-nw:settings:v2", JSON.stringify(stored));
+    window.localStorage.setItem("bindforge-nw:theme", "dark");
+    window.localStorage.setItem("bindforge-nw:appearance-revision", "older-revision");
+  });
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme-choice", "dark");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+});
+
+test("asks before deleting a profile", async ({ page }) => {
+  await page.getByRole("link", { name: /My Setup/ }).click();
+  await page.getByRole("button", { name: "Add profile" }).click();
+  const deleteProfile = page.getByRole("button", { name: "Delete profile" });
+  await expect(deleteProfile).toBeEnabled();
+
+  const message = new Promise<string>((resolve) => {
+    page.once("dialog", async (dialog) => {
+      resolve(dialog.message());
+      await dialog.dismiss();
+    });
+  });
+  await deleteProfile.click();
+  expect(await message).toContain("Delete profile");
+});
+
+test("asks before deleting a saved collection", async ({ page }) => {
+  const firstCard = page.locator(".bind-card:visible").first();
+  await firstCard.getByText("Select", { exact: true }).click();
+  await page.getByRole("button", { name: /Selected keybinds/i }).click();
+  await page.getByLabel("New collection name").fill("QA collection");
+  await page.getByRole("button", { name: "Save selected" }).click();
+  const deleteCollection = page.getByRole("button", { name: "Delete collection" });
+  await expect(deleteCollection).toBeEnabled();
+
+  const message = new Promise<string>((resolve) => {
+    page.once("dialog", async (dialog) => {
+      resolve(dialog.message());
+      await dialog.dismiss();
+    });
+  });
+  await deleteCollection.click();
+  expect(await message).toContain("Delete collection");
 });
 
 test("meets touch-target geometry on narrow coarse-style layouts", async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.includes("mobile") && !testInfo.project.name.includes("tablet"), "Touch geometry is checked on narrow projects");
   const controls = [
     page.getByRole("button", { name: "Filters", exact: true }),
-    page.getByRole("button", { name: "Local data & backup", exact: true }),
+    page.getByRole("button", { name: "Settings", exact: true }),
     page.getByRole("button", { name: "Bind", exact: true }),
     page.getByRole("button", { name: "Unbind", exact: true }),
   ];
@@ -86,14 +145,24 @@ test("keeps functional microcopy readable and keyboard focus strongly visible", 
   expect(focusStyle.offset).toBeGreaterThanOrEqual(3);
 });
 
+test("keeps guidance text and controls on the shared accessibility floor", async ({ page }) => {
+  const summary = page.getByTestId("experience-workspace-summary");
+  const action = summary.getByRole("button", { name: "Use Beginner View" });
+  const actionBox = await action.boundingBox();
+  expect(actionBox).not.toBeNull();
+  expect(actionBox!.height).toBeGreaterThanOrEqual(44);
+  const summaryFontSize = await summary.locator("p").evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
+  expect(summaryFontSize).toBeGreaterThanOrEqual(13);
+});
+
 test("passes axe with drawers, settings, and card details open", async ({ page }, testInfo) => {
   await page.addScriptTag({ content: axe.source });
   if (testInfo.project.name.includes("mobile") || testInfo.project.name.includes("tablet")) {
     await page.getByRole("button", { name: "Filters", exact: true }).click();
     await expect(page.getByRole("dialog", { name: "Filters" })).toBeVisible();
   } else {
-    await page.getByRole("button", { name: "Local data & backup", exact: true }).click();
-    await expect(page.getByRole("dialog", { name: "Local archive" })).toBeVisible();
+    await page.getByRole("button", { name: "Settings", exact: true }).click();
+    await expect(page.getByRole("dialog", { name: "Settings" })).toBeVisible();
   }
 
   const violations = await page.evaluate(async () => {
@@ -105,7 +174,7 @@ test("passes axe with drawers, settings, and card details open", async ({ page }
 
 test("has no horizontal overflow in dark and light themes", async ({ page }) => {
   for (const theme of ["dark", "light"] as const) {
-    await page.getByRole("button", { name: "Local data & backup", exact: true }).click();
+    await page.getByRole("button", { name: "Settings", exact: true }).click();
     await page.getByLabel("Appearance").getByRole("button", { name: theme === "dark" ? "Dark" : "Light" }).click();
     await page.getByRole("button", { name: "Close settings" }).last().click();
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);

@@ -1,15 +1,15 @@
 .profileWorkspace { display: grid; gap: 14px; grid-column: 1 / -1; padding: 0 0 16px; border-bottom: 1px solid var(--line); }
 .profileWorkspaceHeading { display: grid; grid-template-columns: minmax(0,.8fr) minmax(260px,1.2fr); gap: 20px; align-items: end; }
 .profileWorkspaceHeading > div { display: grid; gap: 4px; }
-.profileWorkspaceHeading span { color: var(--coral); font: 600 9px var(--mono); text-transform: uppercase; letter-spacing: .1em; }
+.profileWorkspaceHeading span { color: var(--coral); font: 600 var(--type-meta) var(--mono); text-transform: uppercase; letter-spacing: .1em; }
 .profileWorkspaceHeading strong { font: 700 18px/1.15 var(--sans); }
-.profileWorkspaceHeading p { margin: 0; color: var(--ink-mute); font-size: 12px; line-height: 1.5; }
+.profileWorkspaceHeading p { margin: 0; color: var(--ink-mute); font-size: var(--type-meta); line-height: 1.5; }
 .profileSelectors { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr) auto; gap: 8px; align-items: end; }
-.profileSelectors label,.profileFields label { display: grid; gap: 7px; min-width: 0; color: var(--ink-faint); font: 500 9px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
-.profileSelectors select,.profileFields select,.profileFields input { width: 100%; min-width: 0; min-height: 42px; box-sizing: border-box; border: 1px solid var(--line-strong); border-radius: 0; background: color-mix(in srgb, var(--paper) 58%, transparent); color: var(--ink); font: 500 12px var(--body); }
+.profileSelectors label,.profileFields label { display: grid; gap: 7px; min-width: 0; color: var(--ink-faint); font: 500 var(--type-meta) var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+.profileSelectors select,.profileFields select,.profileFields input { width: 100%; min-width: 0; min-height: var(--control-min); box-sizing: border-box; border: 1px solid var(--line-strong); border-radius: 0; background: color-mix(in srgb, var(--paper) 58%, transparent); color: var(--ink); font: 500 var(--type-label) var(--body); }
 .profileSelectors select,.profileFields select { appearance: none; padding: 8px 34px 8px 11px; background-image: linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%); background-position: calc(100% - 17px) 50%,calc(100% - 12px) 50%; background-size: 5px 5px; background-repeat: no-repeat; cursor: pointer; }
 .profileFields input { padding: 8px 11px; }
-.profileSelectors button,.manageToggle,.profileActions button,.fileButton { min-height: 42px; padding: 8px 13px; border: 1px solid var(--line-strong); border-radius: 999px; background: transparent; color: var(--ink); font: 500 11px var(--sans); cursor: pointer; transition: border-color 160ms ease,color 160ms ease,background-color 160ms ease; }
+.profileSelectors button,.manageToggle,.profileActions button,.fileButton { min-height: var(--control-min); padding: 8px 13px; border: 1px solid var(--line-strong); border-radius: 999px; background: transparent; color: var(--ink); font: 500 var(--type-label) var(--sans); cursor: pointer; transition: border-color 160ms ease,color 160ms ease,background-color 160ms ease; }
 .profileSelectors button:hover,.manageToggle:hover,.profileActions button:hover:not(:disabled),.fileButton:hover { border-color: var(--coral); color: var(--coral); background: color-mix(in srgb,var(--coral) 5%,transparent); }
 .manageToggle { display: flex; justify-content: space-between; align-items: center; width: 100%; border-radius: 0; text-align: left; }
 .profileManage { display: grid; gap: 12px; padding-top: 2px; }
@@ -17,9 +17,9 @@
 .profileActions { display: flex; flex-wrap: wrap; gap: 8px; }
 .profileActions button:disabled { opacity: .4; cursor: not-allowed; }
 .fileButton { display: inline-flex; align-items: center; justify-content: center; }
-.profileStatus { margin: 0; padding: 9px 11px; border-left: 2px solid var(--mustard); background: color-mix(in srgb,var(--mustard) 8%,transparent); color: var(--ink-mute); font-size: 12px; }
+.profileStatus { margin: 0; padding: 9px 11px; border-left: 2px solid var(--mustard); background: color-mix(in srgb,var(--mustard) 8%,transparent); color: var(--ink-mute); font-size: var(--type-meta); }
 @media (max-width:1050px) { .profileWorkspaceHeading { grid-template-columns:1fr; gap:8px; } .profileSelectors { grid-template-columns:minmax(0,1fr) auto; } .profileFields { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (max-width:680px) { .profileSelectors { grid-template-columns:1fr; } .profileSelectors button,.profileActions > * { width:100%; } .profileFields { grid-template-columns:1fr; } }
 @media (prefers-reduced-motion:reduce) { .profileSelectors button,.manageToggle,.profileActions button,.fileButton { transition:none; } }
 
-.quickSwitch{grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end}.quickSwitch button{min-height:40px}.quickSwitch button:disabled{opacity:.4;cursor:not-allowed}@media(max-width:680px){.quickSwitch{justify-content:stretch;flex-direction:column}.quickSwitch button{width:100%}}
+.quickSwitch{grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end}.quickSwitch button{min-height:var(--control-min)}.quickSwitch button:disabled{opacity:.4;cursor:not-allowed}@media(max-width:680px){.quickSwitch{justify-content:stretch;flex-direction:column}.quickSwitch button{width:100%}}

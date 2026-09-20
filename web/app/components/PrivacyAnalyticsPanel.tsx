@@ -42,7 +42,7 @@ export function PrivacyAnalyticsPanel() {
       </details>
       <div className={styles.actions}>
         <button disabled={!events.length} onClick={() => downloadJson(`bindforge-local-analytics-${new Date().toISOString().slice(0,10)}.json`, { schemaVersion: 1, exportedAt: new Date().toISOString(), events })} type="button">Export local analytics</button>
-        <button disabled={!events.length} onClick={() => { clearLocalAnalyticsEvents(); setEvents([]); }} type="button">Clear local analytics</button>
+        <button disabled={!events.length} onClick={() => { if (!window.confirm("Clear local analytics from this browser? This cannot be undone unless you export them first.")) return; clearLocalAnalyticsEvents(); setEvents([]); }} type="button">Clear local analytics</button>
       </div>
     </div>
   );

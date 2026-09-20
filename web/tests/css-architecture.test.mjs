@@ -6,7 +6,12 @@ import test from "node:test";
 const appCss = await readFile(new URL("../app/app.css", import.meta.url), "utf8");
 const atelierCss = await readFile(new URL("../app/atelier-zero.css", import.meta.url), "utf8");
 const precisionCss = await readFile(new URL("../app/pixel-polish.css", import.meta.url), "utf8");
+const uiFixesCss = await readFile(new URL("../app/ui-fixes.css", import.meta.url), "utf8");
+const brandingCss = await readFile(new URL("../app/branding.css", import.meta.url), "utf8");
 const preferencesCss = await readFile(new URL("../app/preferences.css", import.meta.url), "utf8");
+const workspaceControlsCss = await readFile(new URL("../app/components/WorkspaceControls.module.css", import.meta.url), "utf8");
+const profileWorkspaceCss = await readFile(new URL("../app/components/ProfileWorkspaceManager.module.css", import.meta.url), "utf8");
+const firstVisitCss = await readFile(new URL("../app/components/FirstVisitHelp.module.css", import.meta.url), "utf8");
 const tokensCss = await readFile(new URL("../app/styles/tokens.css", import.meta.url), "utf8");
 const responsiveCss = await readFile(new URL("../app/styles/responsive.css", import.meta.url), "utf8");
 
@@ -37,6 +42,26 @@ test("global CSS keeps Atelier Zero canonical with governed precision and prefer
   assert.match(precisionCss, /--control-height:\s*46px/);
   assert.match(precisionCss, /--z-sticky:/);
   assert.match(precisionCss, /prefers-reduced-motion:\s*reduce/);
+});
+
+test("content width and font roles have one canonical owner", () => {
+  const activeGlobals = [appCss, atelierCss, uiFixesCss, brandingCss, precisionCss, preferencesCss];
+  const contentDefinitions = activeGlobals.flatMap((css) => css.match(/--content\s*:/g) ?? []);
+  assert.equal(contentDefinitions.length, 1, "Only app.css may define --content");
+  assert.match(appCss, /--content:\s*3000px/);
+  assert.equal(atelierCss.includes("Inter Tight"), false);
+  assert.match(atelierCss, /family=Inter:wght@300;400;500;600;700;800;900/);
+  assert.match(atelierCss, /family=JetBrains\+Mono:wght@400;500;600/);
+  assert.match(atelierCss, /family=Playfair\+Display/);
+});
+
+test("advanced and onboarding modules reuse the accessibility floor", () => {
+  for (const css of [workspaceControlsCss, profileWorkspaceCss, firstVisitCss]) {
+    assert.equal(/min-height:\s*(40|42)px/.test(css), false, "shared modules must not reintroduce 40/42px controls");
+  }
+  assert.match(workspaceControlsCss, /min-height:\s*var\(--control-min\)/);
+  assert.match(profileWorkspaceCss, /min-height:\s*var\(--control-min\)/);
+  assert.match(firstVisitCss, /min-height:\s*var\(--control-min\)/);
 });
 
 test("removed historical overrides are not imported", () => {

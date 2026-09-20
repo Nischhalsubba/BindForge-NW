@@ -9,7 +9,7 @@ function libraryView(page: import("@playwright/test").Page) {
 }
 
 async function openPackTools(page: import("@playwright/test").Page) {
-  const toggle = page.getByRole("button", { name: /Collections & command packs/i });
+  const toggle = page.getByRole("button", { name: /Selected keybinds/i });
   if (await toggle.getAttribute("aria-expanded") !== "true") await toggle.click();
   const panel = page.getByTestId("pack-tools-panel");
   await expect(panel).toBeVisible();
@@ -48,7 +48,7 @@ test("advanced browsing changes view, sorting, provenance, and collapsed groups"
 test("selection builds packs, local collections, and portable links", async ({ page, context }) => {
   const firstSelect = page.locator(".bind-card:visible").first().getByText("Select", { exact: true });
   await firstSelect.click();
-  await expect(page.getByRole("button", { name: /Collections & command packs/i })).toContainText("1 selected");
+  await expect(page.getByRole("button", { name: /Selected keybinds/i })).toContainText("1 selected");
   await expect(page.getByTestId("selection-tray")).toContainText("1 selected");
 
   const panel = await openPackTools(page);

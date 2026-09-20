@@ -42,6 +42,9 @@ Run the **Release verification** workflow from GitHub Actions before promoting a
 - [ ] Clipboard success and manual-copy fallback messages are understandable.
 - [ ] Loading, not-found, and runtime-error recovery pages are usable.
 - [ ] Keyboard navigation, focus indicators, responsive layouts, and reduced motion are acceptable.
+- [ ] NVDA + Chrome/Firefox manual pass: landmarks, primary navigation, Settings focus containment, search results, keybind-card actions, My Setup, and destructive confirmations announce useful names/roles/states.
+- [ ] VoiceOver + Safari manual pass: the same critical flows are understandable without relying on visual position or color.
+- [ ] Screen-reader testing confirms dynamic copy/status updates are announced once and focus returns to the invoking control after dialogs/tours close.
 - [ ] Desktop, tablet, and mobile layouts are visually reviewed.
 
 ## Release record

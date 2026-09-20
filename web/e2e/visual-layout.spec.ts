@@ -92,7 +92,7 @@ test("captures the consolidated default workspace without geometry regressions",
   await waitForLibrary(page);
   await expectNoDocumentOverflow(page);
   await expect(page.getByTestId("secondary-controls")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: /Collections & command packs/ })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /Selected keybinds/ })).toHaveCount(0);
   await expect(page.getByTestId("experience-workspace-summary")).toContainText("Beginner View");
   await page.screenshot({ fullPage: true, path: testInfo.outputPath("workspace-default.png") });
 });
@@ -100,13 +100,13 @@ test("captures the consolidated default workspace without geometry regressions",
 test("captures expanded pack tools and settings surfaces", async ({ page }, testInfo) => {
   await waitForLibrary(page);
   await showMoreTools(page);
-  await page.getByRole("button", { name: /Collections & command packs/ }).click();
+  await page.getByRole("button", { name: /Selected keybinds/ }).click();
   await expect(page.getByTestId("pack-tools-panel")).toBeVisible();
   await expectNoDocumentOverflow(page);
   await page.screenshot({ fullPage: true, path: testInfo.outputPath("workspace-pack-tools.png") });
 
-  await page.getByRole("button", { name: "Local data & backup", exact: true }).click();
-  await expect(page.getByRole("dialog", { name: "Local archive" })).toBeVisible();
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await expect(page.getByRole("dialog", { name: "Settings" })).toBeVisible();
   await expectNoDocumentOverflow(page);
   await page.screenshot({ fullPage: true, path: testInfo.outputPath("workspace-settings.png") });
 });
@@ -130,7 +130,7 @@ test("captures compact mode and the mobile filter drawer", async ({ page }, test
 
 test("captures the light-theme workspace", async ({ page }, testInfo) => {
   await waitForLibrary(page);
-  await page.getByRole("button", { name: "Local data & backup", exact: true }).click();
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
   await page.getByLabel("Appearance").getByRole("button", { name: "Light" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await page.getByRole("button", { name: "Close settings" }).click();
@@ -150,7 +150,7 @@ test("keeps the ultra-wide hero and workspace readable at reduced effective zoom
   await waitForLibrary(page);
 
   const heroPlate = page.locator(".hero-plate");
-  const settingsTrigger = heroPlate.getByRole("button", { name: "Local data & backup", exact: true });
+  const settingsTrigger = heroPlate.getByRole("button", { name: "Settings", exact: true });
   await expect(settingsTrigger).toBeVisible();
 
   await settingsTrigger.click();

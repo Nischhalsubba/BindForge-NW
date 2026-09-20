@@ -24,9 +24,9 @@ async function closeFilterDrawerIfOpen(page: Page) {
 }
 
 async function openSettings(page: Page) {
-  const trigger = page.getByRole("button", { name: "Local data & backup", exact: true });
+  const trigger = page.getByRole("button", { name: "Settings", exact: true });
   await trigger.click();
-  await expect(page.getByRole("dialog", { name: "Local archive" })).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "Settings" })).toBeVisible();
 }
 
 async function openPrimaryTool(page: Page, name: "Search existing keybinds" | "Compose your own keybind" | "Build your own command" | "Create your own say message") {
@@ -238,11 +238,11 @@ test("mobile filter drawer closes with Escape", async ({ page }, testInfo) => {
 });
 
 test("Settings closes with Escape and restores focus", async ({ page }) => {
-  const trigger = page.getByRole("button", { name: "Local data & backup", exact: true });
+  const trigger = page.getByRole("button", { name: "Settings", exact: true });
   await trigger.click();
-  await expect(page.getByRole("dialog", { name: "Local archive" })).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "Settings" })).toBeVisible();
   await page.keyboard.press("Escape");
-  await expect(page.getByRole("dialog", { name: "Local archive" })).toBeHidden();
+  await expect(page.getByRole("dialog", { name: "Settings" })).toBeHidden();
   await expect(trigger).toBeFocused();
 });
 

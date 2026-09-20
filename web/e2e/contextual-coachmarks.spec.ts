@@ -27,7 +27,7 @@ async function expectSpotlightOverlaps(spotlight: Locator, target: Locator) {
   }, { timeout: 2000 }).toBe(true);
 }
 
-test("first-run walkthrough uses anchored coachmarks on real UI instead of a centered popup", async ({ page }) => {
+test("first-run quick start uses anchored coachmarks on the task UI", async ({ page }) => {
   await openAsFirstVisit(page);
 
   const guide = page.getByTestId("first-visit-orientation");
@@ -37,48 +37,26 @@ test("first-run walkthrough uses anchored coachmarks on real UI instead of a cen
   await expect(guide).toHaveAttribute("aria-modal", "true");
   await expect(guide).toHaveAttribute("data-tour-layout", "coachmark");
   await expect(guide).not.toHaveAttribute("data-placement", "center");
-  await expect(guide.getByText("1 of 7", { exact: true })).toBeVisible();
-
-  const navTarget = page.locator('[data-tour="primary-nav"]');
-  await expect(navTarget).toBeVisible();
-  await expectSpotlightOverlaps(spotlight, navTarget);
-
-  await guide.getByRole("button", { name: "Next" }).click();
-  await expect(guide.getByText("2 of 7", { exact: true })).toBeVisible();
-  await expectSpotlightOverlaps(spotlight, page.locator('[data-tour="beginner-view"]'));
-
-  await guide.getByRole("button", { name: "Next" }).click();
-  await expect(guide.getByRole("heading", { name: "Search without learning commands" })).toBeVisible();
+  await expect(guide.getByText("1 of 3", { exact: true })).toBeVisible();
   await expectSpotlightOverlaps(spotlight, page.locator('[data-tour="keybind-search"]'));
 
   await guide.getByRole("button", { name: "Next" }).click();
-  await expect(guide.getByRole("heading", { name: "Read a keybind card" })).toBeVisible();
+  await expect(guide.getByText("2 of 3", { exact: true })).toBeVisible();
   await expectSpotlightOverlaps(spotlight, page.locator('[data-tour="keybind-card"]').first());
 
-  const beforeSetupScroll = await page.evaluate(() => window.scrollY);
   await guide.getByRole("button", { name: "Next" }).click();
-  await expect(guide.getByRole("heading", { name: "Keep characters and profiles separate" })).toBeVisible();
-  await expectSpotlightOverlaps(spotlight, page.locator('[data-tour="my-setup"]'));
-  expect(await page.evaluate(() => window.scrollY)).not.toBe(beforeSetupScroll);
-
-  await guide.getByRole("button", { name: "Next" }).click();
-  await expect(guide.getByRole("heading", { name: "Build when a preset is not enough" })).toBeVisible();
-  await expectSpotlightOverlaps(spotlight, page.locator('[data-tour="build"]'));
-
-  await guide.getByRole("button", { name: "Next" }).click();
-  await expect(guide.getByText("7 of 7", { exact: true })).toBeVisible();
-  await expect(guide.getByRole("heading", { name: "Help stays available after the tour" })).toBeVisible();
-  await expectSpotlightOverlaps(spotlight, page.locator('[data-tour="help"]'));
+  await expect(guide.getByText("3 of 3", { exact: true })).toBeVisible();
+  await expectSpotlightOverlaps(spotlight, page.locator('[data-tour="keybind-card"]').first());
 
   await guide.getByRole("button", { name: "Start in Beginner View" }).click();
   await expect(guide).toHaveCount(0);
 });
 
-test("coachmark placement remains inside the viewport on each responsive project", async ({ page }) => {
+test("quick-start coachmark placement remains inside the viewport on each responsive project", async ({ page }) => {
   await openAsFirstVisit(page);
   const guide = page.getByTestId("first-visit-orientation");
 
-  for (let step = 0; step < 7; step += 1) {
+  for (let step = 0; step < 3; step += 1) {
     const box = await guide.boundingBox();
     expect(box).not.toBeNull();
     const viewport = page.viewportSize();
@@ -87,21 +65,22 @@ test("coachmark placement remains inside the viewport on each responsive project
     expect(box!.y).toBeGreaterThanOrEqual(0);
     expect(box!.x + box!.width).toBeLessThanOrEqual(viewport!.width + 1);
     expect(box!.y + box!.height).toBeLessThanOrEqual(viewport!.height + 1);
-    if (step < 6) await guide.getByRole("button", { name: "Next" }).click();
+    if (step < 2) await guide.getByRole("button", { name: "Next" }).click();
   }
 });
 
-test("coachmark keeps keyboard controls contained and restores focus on replay", async ({ page }) => {
+test("full-tour replay keeps keyboard controls contained and restores focus", async ({ page }) => {
   await page.addInitScript((key) => window.localStorage.setItem(key, "seen"), FIRST_VISIT_KEY);
   await page.goto("/");
   const help = page.locator("#bindforge-help:visible").first();
   await help.locator("summary").click();
-  const replay = help.getByRole("button", { name: "Replay guided tour" });
+  const replay = help.getByRole("button", { name: "Take the full tour" });
   await replay.focus();
   await replay.click();
 
   const guide = page.getByTestId("first-visit-orientation");
   await expect(guide).toBeVisible();
+  await expect(guide.getByText("1 of 7", { exact: true })).toBeVisible();
   await expect(guide.getByRole("heading", { name: "Know where you are" })).toBeFocused();
 
   const close = guide.getByRole("button", { name: "Close guided tour" });

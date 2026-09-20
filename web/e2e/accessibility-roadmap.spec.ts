@@ -13,7 +13,7 @@ test.beforeEach(async ({ page }) => {
 test("reflows at a 320 CSS-pixel viewport with the largest built-in text setting", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop-chromium", "400% equivalent reflow is checked once.");
   await page.setViewportSize({ width: 320, height: 900 });
-  await page.getByRole("button", { name: "Local data & backup", exact: true }).click();
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
   await page.getByRole("group", { name: "Text size" }).getByRole("button", { name: "Extra large" }).click();
   await page.getByRole("button", { name: "Close settings" }).click();
 

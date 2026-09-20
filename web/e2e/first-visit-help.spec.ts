@@ -20,37 +20,30 @@ async function markTourSeen(page: Page) {
   }, FIRST_VISIT_KEY);
 }
 
-test("first visit uses an accessible seven-step contextual walkthrough and remembers completion", async ({ page }) => {
+test("first visit uses a focused three-step quick start and remembers completion", async ({ page }) => {
   await openAsFirstVisit(page);
 
   const guide = page.getByTestId("first-visit-orientation");
   await expect(guide).toBeVisible();
   await expect(guide).toHaveAttribute("role", "dialog");
   await expect(guide).toHaveAttribute("aria-modal", "true");
-  await expect(guide.getByText("1 of 7", { exact: true })).toBeVisible();
-  await expect(guide.getByRole("heading", { name: "Know where you are" })).toBeVisible();
-  await expect(guide).toContainText("Keybinds is for finding proven presets");
+  await expect(guide.getByText("1 of 3", { exact: true })).toBeVisible();
+  await expect(guide.getByRole("heading", { name: "Search for what you need" })).toBeVisible();
 
   await guide.getByRole("button", { name: "Next" }).click();
-  await expect(guide.getByText("2 of 7", { exact: true })).toBeVisible();
-  await expect(guide.getByRole("heading", { name: "Start simple, reveal more when ready" })).toBeVisible();
+  await expect(guide.getByText("2 of 3", { exact: true })).toBeVisible();
+  await expect(guide.getByRole("heading", { name: "Check the key and warning" })).toBeVisible();
 
   await guide.getByRole("button", { name: "Next" }).click();
-  await expect(guide.getByRole("heading", { name: "Search without learning commands" })).toBeVisible();
+  await expect(guide.getByText("3 of 3", { exact: true })).toBeVisible();
+  await expect(guide.getByRole("heading", { name: "Copy, test, and keep rollback ready" })).toBeVisible();
 
-  await guide.getByRole("button", { name: "Next" }).click();
-  await expect(guide.getByRole("heading", { name: "Read a keybind card" })).toBeVisible();
-
-  await guide.getByRole("button", { name: "Next" }).click();
-  await expect(guide.getByRole("heading", { name: "Keep characters and profiles separate" })).toBeVisible();
-
-  await guide.getByRole("button", { name: "Next" }).click();
-  await expect(guide.getByRole("heading", { name: "Build when a preset is not enough" })).toBeVisible();
-
-  await guide.getByRole("button", { name: "Next" }).click();
-  await expect(guide.getByText("7 of 7", { exact: true })).toBeVisible();
-  await expect(guide.getByRole("heading", { name: "Help stays available after the tour" })).toBeVisible();
-  await expect(guide).toContainText("Back up current binds");
+  const closeButton = guide.getByRole("button", { name: "Close guided tour" });
+  const closeBox = await closeButton.boundingBox();
+  expect(closeBox).not.toBeNull();
+  expect(closeBox!.height).toBeGreaterThanOrEqual(44);
+  const introFontSize = await guide.locator("p").nth(2).evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
+  expect(introFontSize).toBeGreaterThanOrEqual(13);
 
   await guide.getByRole("button", { name: "Start in Beginner View" }).click();
   await expect(guide).toHaveCount(0);
@@ -60,13 +53,13 @@ test("first visit uses an accessible seven-step contextual walkthrough and remem
   await expect(page.getByTestId("first-visit-orientation")).toHaveCount(0);
 });
 
-test("guided overlay supports Back, Skip, and Escape", async ({ page }) => {
+test("quick-start overlay supports Back, Skip, and Escape", async ({ page }) => {
   await openAsFirstVisit(page);
 
   const guide = page.getByTestId("first-visit-orientation");
   await guide.getByRole("button", { name: "Next" }).click();
   await guide.getByRole("button", { name: "Back" }).click();
-  await expect(guide.getByText("1 of 7", { exact: true })).toBeVisible();
+  await expect(guide.getByText("1 of 3", { exact: true })).toBeVisible();
 
   await guide.getByRole("button", { name: "Skip tour" }).focus();
   await page.keyboard.press("Escape");
@@ -74,7 +67,7 @@ test("guided overlay supports Back, Skip, and Escape", async ({ page }) => {
   await expect(page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: /Keybinds/ })).toBeFocused();
 });
 
-test("help glossary can replay the guided tour after onboarding", async ({ page }) => {
+test("help glossary can open the full seven-step guided tour", async ({ page }) => {
   await markTourSeen(page);
   await page.goto("/");
 
@@ -84,10 +77,11 @@ test("help glossary can replay the guided tour after onboarding", async ({ page 
   await expect(help).toContainText("Unbind / rollback");
   await expect(help).toContainText("Personal keymap");
 
-  const replay = help.getByRole("button", { name: "Replay guided tour" });
+  const replay = help.getByRole("button", { name: "Take the full tour" });
   await replay.click();
   const guide = page.getByTestId("first-visit-orientation");
   await expect(guide).toBeVisible();
+  await expect(guide.getByText("1 of 7", { exact: true })).toBeVisible();
   await expect(guide.getByRole("heading", { name: "Know where you are" })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(guide).toHaveCount(0);

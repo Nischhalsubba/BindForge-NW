@@ -36,7 +36,7 @@ test("experimental Fighter bind stays visibly experimental and explains its evid
 
 
 test("catalogue trust settings reconcile live cmdlist output without auto-verifying it", async ({ page }) => {
-  await page.getByRole("button", { name: "Local data & backup", exact: true }).click();
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Catalogue trust" })).toBeVisible();
 
   const input = page.getByLabel("Paste Neverwinter cmdlist output");

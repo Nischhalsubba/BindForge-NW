@@ -26,7 +26,7 @@ type TargetRect = {
   height: number;
 };
 
-const steps: readonly TourStep[] = [
+const fullSteps: readonly TourStep[] = [
   {
     eyebrow: "01 · Navigation",
     title: "Know where you are",
@@ -97,6 +97,39 @@ const steps: readonly TourStep[] = [
       "Back up current binds and keep rollback output before testing unfamiliar commands.",
     ],
     selector: '[data-tour="help"]',
+  },
+];
+
+const quickSteps: readonly TourStep[] = [
+  {
+    eyebrow: "01 · Search",
+    title: "Search for what you need",
+    intro: "Start with the job you came to do. Describe the result in normal player language instead of learning command syntax first.",
+    points: [
+      "Search understands common wording, abbreviations, command text, and small typos.",
+      "Choose a class pack when you want a curated starting point instead.",
+    ],
+    selector: '[data-tour="keybind-search"]',
+  },
+  {
+    eyebrow: "02 · Review",
+    title: "Check the key and warning",
+    intro: "Each preset shows the proposed key and any common or imported conflict before you copy it.",
+    points: [
+      "Change the key when the warning does not fit your setup.",
+      "Import your current keymap later for conflict checks against your real profile.",
+    ],
+    selector: '[data-tour="keybind-card"]',
+  },
+  {
+    eyebrow: "03 · Apply",
+    title: "Copy, test, and keep rollback ready",
+    intro: "Copy the generated command, test it in Neverwinter, and keep restore or unbind output available before trying unfamiliar commands.",
+    points: [
+      "BindForge never sends commands to the game automatically.",
+      "The full tour remains available from Help when you want profiles, builders, and evidence details.",
+    ],
+    selector: '[data-tour="keybind-card"]',
   },
 ];
 
@@ -214,7 +247,9 @@ export function FirstVisitOrientation() {
   const { hydrated, updatePreferences } = useBindForge();
   const [visible, setVisible] = useState(false);
   const [autoRequested, setAutoRequested] = useState(false);
+  const [tourMode, setTourMode] = useState<"quick" | "full">("quick");
   const [step, setStep] = useState(0);
+  const steps = tourMode === "full" ? fullSteps : quickSteps;
   const [targetRect, setTargetRect] = useState<TargetRect | null>(null);
   const dialogRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -238,6 +273,7 @@ export function FirstVisitOrientation() {
   useEffect(() => {
     if (!autoRequested || !hydrated) return;
     const frame = window.requestAnimationFrame(() => {
+      setTourMode("quick");
       setStep(0);
       setVisible(true);
       setAutoRequested(false);
@@ -248,6 +284,7 @@ export function FirstVisitOrientation() {
   useEffect(() => {
     function replay() {
       restoreFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      setTourMode("full");
       setStep(0);
       setVisible(true);
     }
@@ -328,7 +365,7 @@ export function FirstVisitOrientation() {
       window.removeEventListener("resize", updateTarget);
       window.removeEventListener("scroll", updateTarget, true);
     };
-  }, [step, visible]);
+  }, [step, visible, tourMode]);
 
   useEffect(() => {
     if (!visible) return;
@@ -442,7 +479,7 @@ export function ContextualHelpGlossary() {
         <div className={styles.helpIntro}>
           <h2>Read the tool without learning the jargon first.</h2>
           <p>BindForge keeps command details available for experienced players, but the core actions can be understood in plain language. Verification labels describe evidence, not a guarantee that a command will keep working after every Neverwinter update.</p>
-          <button className={styles.replayButton} onClick={replayTour} type="button">Replay guided tour</button>
+          <button className={styles.replayButton} onClick={replayTour} type="button">Take the full tour</button>
         </div>
         <dl className={styles.glossary}>
           <div className={styles.term}><dt>Bind</dt><dd>Assign a key or key combination to a Neverwinter command.</dd></div>
