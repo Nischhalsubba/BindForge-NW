@@ -39,6 +39,12 @@ test("Beginner View hides technical and secondary surfaces until requested", asy
   await expect(summary.getByRole("button", { name: "Show more tools" })).toBeVisible();
 });
 
+test("Beginner View starts with a smaller catalogue slice and an explicit browse-all action", async ({ page }) => {
+  const groups = page.locator(".bind-group:visible");
+  expect(await groups.count()).toBeLessThanOrEqual(3);
+  await expect(page.getByRole("button", { name: "Browse all keybinds" })).toBeVisible();
+});
+
 test("Show more tools switches to Standard, reveals hidden controls, and persists", async ({ page }) => {
   const summary = page.getByTestId("experience-workspace-summary");
   await summary.getByRole("button", { name: "Show more tools" }).click();
