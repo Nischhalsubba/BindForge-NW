@@ -7,7 +7,7 @@ const normalizeUrl = (value: string | null) => value?.replace(/\/$/, "") ?? "";
 
 async function waitForLibrary(page: Page) {
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("heading", { level: 1, name: /BindForge NW/i })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /Find it\./i })).toBeVisible();
   await expect(page.getByLabel("Search keybind library").first()).toBeEditable();
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
   await expect(page.locator(".bind-card").first()).toBeVisible();

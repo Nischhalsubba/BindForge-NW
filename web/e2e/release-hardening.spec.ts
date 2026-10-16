@@ -25,7 +25,7 @@ test("does not register or expose the retired service worker", async ({ page }) 
     return (await navigator.serviceWorker.getRegistrations()).map((registration) => registration.scope);
   });
   expect(registrations).toEqual([]);
-  await expect(page.locator('link[rel="manifest"]')).toHaveAttribute("href", /manifest\.webmanifest/);
+  await expect(page.locator('link[rel="manifest"]')).toHaveCount(0);
   const response = await page.request.get("/sw.js");
   expect(response.status()).toBe(404);
 });
@@ -78,14 +78,13 @@ test("asks before deleting a profile", async ({ page }) => {
   const deleteProfile = page.getByRole("button", { name: "Delete profile" });
   await expect(deleteProfile).toBeEnabled();
 
-  const message = new Promise<string>((resolve) => {
-    page.once("dialog", async (dialog) => {
-      resolve(dialog.message());
-      await dialog.dismiss();
-    });
-  });
   await deleteProfile.click();
-  expect(await message).toContain("Delete profile");
+  const confirmation = page.getByRole("dialog", { name: "Delete profile?" });
+  await expect(confirmation).toBeVisible();
+  await expect(confirmation).toContainText("cannot be undone");
+  await confirmation.getByRole("button", { name: "Cancel" }).click();
+  await expect(confirmation).toBeHidden();
+  await expect(deleteProfile).toBeEnabled();
 });
 
 test("asks before deleting a saved collection", async ({ page }) => {
@@ -97,14 +96,12 @@ test("asks before deleting a saved collection", async ({ page }) => {
   const deleteCollection = page.getByRole("button", { name: "Delete collection" });
   await expect(deleteCollection).toBeEnabled();
 
-  const message = new Promise<string>((resolve) => {
-    page.once("dialog", async (dialog) => {
-      resolve(dialog.message());
-      await dialog.dismiss();
-    });
-  });
   await deleteCollection.click();
-  expect(await message).toContain("Delete collection");
+  const confirmation = page.getByRole("dialog", { name: "Delete collection?" });
+  await expect(confirmation).toBeVisible();
+  await confirmation.getByRole("button", { name: "Cancel" }).click();
+  await expect(confirmation).toBeHidden();
+  await expect(deleteCollection).toBeEnabled();
 });
 
 test("meets touch-target geometry on narrow coarse-style layouts", async ({ page }, testInfo) => {
