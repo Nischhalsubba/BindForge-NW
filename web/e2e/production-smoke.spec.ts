@@ -135,7 +135,7 @@ test("production accessibility, overflow, touch targets, and retired PWA state p
 
   const registrations = await page.evaluate(async () => "serviceWorker" in navigator ? (await navigator.serviceWorker.getRegistrations()).length : 0);
   expect(registrations).toBe(0);
-  await expect(page.locator('link[rel="manifest"]')).toHaveCount(0);
+  await expect(page.locator('link[rel="manifest"]')).toHaveAttribute("href", /manifest\.webmanifest/);
   const retiredWorker = await page.request.get("/sw.js");
   expect(retiredWorker.status()).toBe(404);
 });

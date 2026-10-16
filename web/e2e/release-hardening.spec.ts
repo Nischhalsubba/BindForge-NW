@@ -25,7 +25,7 @@ test("does not register or expose the retired service worker", async ({ page }) 
     return (await navigator.serviceWorker.getRegistrations()).map((registration) => registration.scope);
   });
   expect(registrations).toEqual([]);
-  await expect(page.locator('link[rel="manifest"]')).toHaveCount(0);
+  await expect(page.locator('link[rel="manifest"]')).toHaveAttribute("href", /manifest\.webmanifest/);
   const response = await page.request.get("/sw.js");
   expect(response.status()).toBe(404);
 });
@@ -47,8 +47,8 @@ test("keeps settings focus inside the dialog and restores it after closing", asy
   await expect(page.getByRole("button", { name: "Dismiss settings" })).toHaveAttribute("tabindex", "-1");
 
   await page.keyboard.press("Shift+Tab");
-  const activeAfterShiftTab = await page.evaluate(() => document.activeElement?.textContent?.trim() ?? "");
-  expect(activeAfterShiftTab.length).toBeGreaterThan(0);
+  const focusWithinSettings = await page.evaluate(() => document.querySelector('[role="dialog"][aria-labelledby="settings-title"]')?.contains(document.activeElement) ?? false);
+  expect(focusWithinSettings).toBe(true);
   await page.keyboard.press("Tab");
   await expect(close).toBeFocused();
 

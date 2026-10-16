@@ -150,7 +150,7 @@ test("keeps the ultra-wide hero and workspace readable at reduced effective zoom
   await waitForLibrary(page);
 
   const heroPlate = page.locator(".hero-plate");
-  const settingsTrigger = heroPlate.getByRole("button", { name: "Settings", exact: true });
+  const settingsTrigger = page.getByRole("button", { name: "Settings", exact: true });
   await expect(settingsTrigger).toBeVisible();
 
   await settingsTrigger.click();

@@ -97,7 +97,7 @@ test("persists accessibility, experience, and appearance preferences", async ({ 
   await expect(page.getByRole("checkbox", { name: /Larger controls/ })).toBeChecked();
 });
 
-test("migrates legacy browser data to the warm appearance once without losing saved work", async ({ page }) => {
+test("preserves explicit dark appearance while migrating legacy browser data", async ({ page }) => {
   await page.evaluate(() => {
     window.localStorage.clear();
     window.localStorage.setItem("bindforge-nw:theme", "dark");
@@ -115,8 +115,8 @@ test("migrates legacy browser data to the warm appearance once without losing sa
 
   await expect(page.getByLabel("Search keybind library").first()).toHaveValue("bard");
   await expect(page.locator("html")).toHaveAttribute("data-experience", "standard");
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
-  await expect(page.locator("html")).toHaveAttribute("data-theme-choice", "light");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(page.locator("html")).toHaveAttribute("data-theme-choice", "dark");
   await openSettings(page);
   await expect(page.getByRole("group", { name: "Experience level" }).getByRole("button", { name: /Standard/ })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("checkbox", { name: /Explain technical terms/ })).not.toBeChecked();
@@ -128,7 +128,7 @@ test("migrates legacy browser data to the warm appearance once without losing sa
   }));
   expect(normalized.settings.version).toBe(3);
   expect(normalized.settings.preferences.experience).toBe("standard");
-  expect(normalized.settings.preferences.theme).toBe("light");
+  expect(normalized.settings.preferences.theme).toBe("dark");
   expect(normalized.settings.customSay.message).toBe("Group on me");
   expect(normalized.revision).toBe("field-manual-paper-2026-09");
 });

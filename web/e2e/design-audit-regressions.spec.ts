@@ -46,13 +46,13 @@ test("selected filter and copy buttons have AA contrast in both themes", async (
     const copy = page.locator('[data-testid="compact-bind-row"] button[class*="copyButton"]:not([disabled])').first();
     await expect(copy).toBeVisible();
     expect(await contrast(copy)).toBeGreaterThanOrEqual(4.5);
-    await page.getByRole("link", { name: /Build 03/ }).click();
+    await page.getByRole("link", { name: /^Build/ }).click();
     await page.getByLabel("Key for combined Neverwinter bind").fill("f1");
     await page.locator('button[class*="actionRow"]').first().click();
     const builderCopy = page.locator('button[class*="copyButton"]:not([disabled])').last();
     await expect(builderCopy).toBeVisible();
     expect(await contrast(builderCopy)).toBeGreaterThanOrEqual(4.5);
-    await page.getByRole("link", { name: /Keybinds 01/ }).click();
+    await page.getByRole("link", { name: /^Keybinds/ }).click();
   }
 });
 
@@ -99,7 +99,7 @@ test("command palette contains keyboard focus and restores the trigger", async (
 
 test("Extra large text increases action labels and preserves builder access", async ({ page }) => {
   await ready(page);
-  await page.getByRole("link", { name: /Build 03/ }).click();
+  await page.getByRole("link", { name: /^Build/ }).click();
   const label = page.locator('button[class*="actionRow"] strong').first();
   const before = await label.evaluate((element) => parseFloat(getComputedStyle(element).fontSize));
   await page.getByRole("button", { name: "Settings", exact: true }).click();
