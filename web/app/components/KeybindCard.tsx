@@ -163,7 +163,6 @@ function KeybindCardComponent(props: KeybindCardProps) {
         </div>
       ) : null}
 
-      <p aria-live="polite" className="sr-only">{copyState === "copied" || copyState === "fallback" ? `${props.preset.title} copied.` : copyState === "error" ? `Copy failed for ${props.preset.title}.` : ""}</p>
     </article>
   );
 }

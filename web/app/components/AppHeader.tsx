@@ -53,6 +53,7 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
           <a href="#my-setup">My Setup <span>02</span></a>
           <a href="#compose-keybind">Build <span>03</span></a>
         </div>
+        <div className={styles.navSettings}><SettingsPanel placement="nav" /></div>
       </nav>
 
       <section className={`hero ${styles.primaryHero}`} aria-labelledby="neverwinter-keybind-title" data-reveal>
@@ -93,11 +94,10 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
             <li><span>02</span><b>My Setup</b><small>Import binds and review conflicts.</small></li>
             <li><span>03</span><b>Build</b><small>Compose keybinds, commands, and chat binds.</small></li>
           </ol>
-          <div className={`ready-state ready-state-${feedback.state}`} aria-live="polite">
+          <div className={`ready-state ready-state-${feedback.state}`}>
             <Icon name="shield" />
             <span><strong>{statusTitle}</strong><small>{statusDetail}</small></span>
           </div>
-          <SettingsPanel />
         </div>
       </section>
     </header>

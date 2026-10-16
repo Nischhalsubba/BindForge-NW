@@ -17,7 +17,7 @@ function focusableElements(root: HTMLElement | null) {
   )).filter((element) => !element.hasAttribute("hidden"));
 }
 
-export function SettingsPanel() {
+export function SettingsPanel({ placement = "hero" }: { placement?: "hero" | "nav" }) {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -135,7 +135,7 @@ export function SettingsPanel() {
     : null;
 
   return (
-    <div className={styles.root}>
+    <div className={`${styles.root} ${placement === "nav" ? styles.navRoot : ""}`}>
       <button aria-controls="app-settings-panel" aria-expanded={open} className={styles.trigger} onClick={() => setOpen(true)} ref={triggerRef} type="button">
         Settings
       </button>

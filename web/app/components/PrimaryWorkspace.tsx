@@ -248,7 +248,7 @@ export function PrimaryWorkspace({ onCopy }: { onCopy: CopyHandler }) {
         >
           {experience === "simple" ? "Show more tools" : "Use Beginner View"}
         </button>
-        <small>Experience level is also available in Local data &amp; backup → Accessibility &amp; experience.</small>
+        <small>Change this anytime in Settings → Experience → Accessibility &amp; experience.</small>
       </div>
 
       <nav

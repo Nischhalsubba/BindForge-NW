@@ -7,10 +7,11 @@ type GuideProps = {
   command: string;
   label: string;
   onClose: () => void;
+  onDontShowAgain: () => void;
   onCopyAgain: () => Promise<boolean>;
 };
 
-export function UseInNeverwinterGuide({ command, label, onClose, onCopyAgain }: GuideProps) {
+export function UseInNeverwinterGuide({ command, label, onClose, onCopyAgain, onDontShowAgain }: GuideProps) {
   const [troubleshooting, setTroubleshooting] = useState(false);
   const [copyAgainState, setCopyAgainState] = useState<"idle" | "copied" | "error">("idle");
 
@@ -44,6 +45,7 @@ export function UseInNeverwinterGuide({ command, label, onClose, onCopyAgain }: 
         {copyAgainState === "copied" ? "Copied again" : copyAgainState === "error" ? "Copy failed — try again" : "Copy command again"}
       </button>
 
+      <button className={styles.secondary} onClick={onDontShowAgain} type="button">Don’t show this guide again</button>
       <div className={styles.actions}>
         <button className={styles.primary} onClick={onClose} type="button">It worked</button>
         <button aria-expanded={troubleshooting} className={styles.secondary} onClick={() => setTroubleshooting((value) => !value)} type="button">It didn’t work</button>

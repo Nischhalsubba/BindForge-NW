@@ -194,3 +194,10 @@
 .layoutControl{display:grid;gap:4px;color:var(--ink-mute);font:600 var(--type-meta) var(--mono);letter-spacing:.06em;text-transform:uppercase}
 .layoutControl select{min-height:40px;min-width:190px;padding:7px 10px;border:1px solid var(--line-strong);background:var(--paper);color:var(--ink);font:600 var(--type-meta) var(--sans);text-transform:none;letter-spacing:0}
 .layoutNote{max-width:58ch;font-size: var(--type-meta)!important}
+
+.panControls { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:0.6rem 1rem; }
+.panControls p { margin:0; color:var(--ink-mute); font-size:var(--type-meta); line-height:1.45; }
+.panControls > div { display:flex; gap:0.5rem; }
+.panControls button { min-width:var(--control-min); min-height:var(--control-min); padding:0.5rem 0.9rem; border:1px solid var(--line-strong); border-radius:999px; background:var(--paper); color:var(--ink); font:600 var(--type-meta) var(--sans); cursor:pointer; }
+.panControls button:hover { border-color:var(--coral); }
+@media (max-width:540px) { .panControls > div { width:100%; } .panControls button { flex:1; } }
