@@ -73,10 +73,6 @@ export function FilterSidebar() {
       setOpen(false);
       window.requestAnimationFrame(() => document.getElementById("keybind-library-search")?.focus());
     }
-    if (desktop.matches) {
-      setOpen(false);
-      return;
-    }
     desktop.addEventListener("change", dismissOnDesktop);
     return () => desktop.removeEventListener("change", dismissOnDesktop);
   }, [open]);

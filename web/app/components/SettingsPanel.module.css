@@ -31,5 +31,6 @@
 
 /* Navigation placement owns no hero divider or supplemental spacing. */
 .navRoot { width: auto; margin: 0; padding: 0; border: 0; }
-.navRoot .trigger { white-space: nowrap; }
+.navRoot .trigger { white-space: nowrap; color: var(--nav-ink); background: var(--nav-paper); border-color: var(--nav-muted); }
+.navRoot .trigger:hover { color: var(--nav-accent); border-color: var(--nav-accent); background: var(--nav-paper); }
 @media (max-width:560px) { .navRoot { width:auto; margin:0; padding:0; border:0; } .navRoot .trigger { width:auto; min-height:var(--control-min); } }
