@@ -1,8 +1,8 @@
 .shell {
   position: relative;
-  width: min(calc(100% - clamp(64px, 6vw, 180px)), var(--content));
+  width: min(calc(100% - var(--page-gutter) - var(--page-gutter)), var(--content));
   margin-inline: auto;
-  padding: 18px 0 0;
+  padding: 16px 0 0;
   min-width: 0;
 }
 
@@ -25,9 +25,9 @@
 .intro {
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(20rem, .72fr);
-  gap: clamp(32px, 4vw, 96px);
+  gap: clamp(24px, 4vw, 80px);
   align-items: end;
-  padding: 24px 0 26px;
+  padding: var(--section-gap) 0;
 }
 
 .intro p {
@@ -210,7 +210,7 @@
 .panel {
   min-width: 0;
   min-height: 0;
-  padding: 30px 0 0;
+  padding: var(--section-gap) 0 0;
 }
 
 .toolLoading {
@@ -237,7 +237,7 @@
   grid-template-columns: minmax(0, 1fr) minmax(20rem, .72fr);
   gap: clamp(32px, 4vw, 88px);
   align-items: end;
-  padding: 0 0 26px;
+  padding: 0 0 var(--section-gap);
   border-bottom: 1px solid var(--line);
 }
 
@@ -268,7 +268,7 @@
 :global(.workspace).searchView {
   width: 100%;
   margin-inline: 0;
-  padding: 30px 0 56px;
+  padding: var(--section-gap) 0 calc(var(--section-gap) * 1.25);
 }
 
 .panel :global(.command-lab) {
@@ -340,7 +340,7 @@
 }
 
 @media (max-width: 1279px) {
-  .shell { width: min(calc(100% - 64px), var(--content)); }
+  .shell { width: min(calc(100% - var(--page-gutter) - var(--page-gutter)), var(--content)); }
   .panel { min-height: 0; }
   .tab { min-height: 118px; padding: 19px 17px; }
   .tabCopy strong { font-size: 15px; }
@@ -350,7 +350,7 @@
 }
 
 @media (max-width: 1080px) {
-  .shell { width: min(calc(100% - 48px), var(--content)); }
+  .shell { width: min(calc(100% - var(--page-gutter) - var(--page-gutter)), var(--content)); }
   .tabs,
   .simpleTabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .tab:nth-child(2) { border-right: 0; }
@@ -365,7 +365,7 @@
 }
 
 @media (max-width: 880px) {
-  .shell { width: calc(100% - 40px); padding-top: 28px; }
+  .shell { padding-top: 20px; }
   .intro, .searchHeading { grid-template-columns: 1fr; gap: 18px; }
   .intro p, .searchHeading p { font-size: 15px; }
   .title { max-width: 18ch; }
@@ -395,16 +395,16 @@
 }
 
 @media (max-width: 560px) {
-  .shell { width: calc(100% - 32px); padding-top: 24px; }
-  .intro { padding: 24px 0 22px; }
+  .shell { padding-top: 16px; }
+  .intro { padding: var(--section-gap) 0; }
   .title { font-size: clamp(32px, 10vw, 46px); }
   .tab,
   .simpleSecondaryTool { flex-basis: min(84vw, 270px); padding: 15px 13px; }
   .tabCopy strong,
   .simpleSecondaryTool .tabCopy strong { font-size: 15px; }
   .tabCopy small { font-size: var(--type-meta); }
-  .searchHeading { padding-bottom: 22px; }
-  :global(.workspace).searchView { padding-top: 24px; padding-bottom: 42px; }
+  .searchHeading { padding-bottom: var(--section-gap); }
+  :global(.workspace).searchView { padding-top: var(--section-gap); padding-bottom: var(--section-gap); }
   .utilityDrawer,
   .advancedUtility { margin-bottom: 52px; }
 }

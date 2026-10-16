@@ -971,7 +971,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
                 <section className="bind-group" key={groupName}>
                   <div className="group-heading">
                     <div>
-                      <h3>{groupName}<span className="group-title-context"> · {state.className === "All" ? "Any Class" : state.className}</span></h3>
+                      <h3>{groupName}{!groupName.toLowerCase().includes((state.className === "All" ? "Any Class" : state.className).toLowerCase()) ? <span className="group-title-context"> · {state.className === "All" ? "Any Class" : state.className}</span> : null}</h3>
                       <p>Copy-ready presets with editable keys</p>
                     </div>
                     <div className="group-heading-actions"><span>{presets.length} {presets.length === 1 ? "bind" : "binds"}</span><button aria-expanded={!collapsed} className="icon-text-button" onClick={() => toggleGroup(groupName)} type="button">{collapsed ? "Expand" : "Collapse"}</button></div>
