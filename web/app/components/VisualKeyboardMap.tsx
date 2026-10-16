@@ -49,6 +49,7 @@ export function VisualKeyboardMap({
   const [focusKeyId, setFocusKeyId] = useState("escape");
   const [layoutId, setLayoutId] = useState("us-ansi");
   const keyRefs = useRef(new Map<string, HTMLButtonElement>());
+  const viewportRef = useRef<HTMLDivElement>(null);
   const keyboardRows = useMemo(() => getVisualKeyboardRowsForLayout(VISUAL_KEYBOARD_ROWS, layoutId), [layoutId]);
 
   useEffect(() => {
@@ -145,10 +146,19 @@ export function VisualKeyboardMap({
         <span><b aria-hidden="true">?</b> Unknown</span>
       </div>
 
+      <div className={styles.panControls} aria-label="Keyboard horizontal navigation">
+        <p>Explore the full keyboard by scrolling sideways or using the controls.</p>
+        <div>
+          <button aria-label="Scroll keyboard left" onClick={() => viewportRef.current?.scrollBy({ left: -(viewportRef.current.clientWidth * 0.75), behavior: "smooth" })} type="button">← Left</button>
+          <button aria-label="Scroll keyboard right" onClick={() => viewportRef.current?.scrollBy({ left: viewportRef.current.clientWidth * 0.75, behavior: "smooth" })} type="button">Right →</button>
+        </div>
+      </div>
       <div
         aria-label="Visual keyboard. Scroll horizontally inside this region on narrow screens."
         className={styles.viewport}
+        ref={viewportRef}
         role="region"
+        tabIndex={0}
       >
         <div className={styles.keyboard}>
           {keyboardRows.map((row, rowIndex) => (

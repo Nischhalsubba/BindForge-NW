@@ -1,16 +1,23 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useBindForge } from "./BindForgeProvider";
 
 export default function FilterTopBar({ resultCount }: { resultCount: number }) {
   const { state, setMode, setSearch, resetFilters } = useBindForge();
   const beginner = state.preferences.experience === "simple";
+  const [announcedCount, setAnnouncedCount] = useState(resultCount);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setAnnouncedCount(resultCount), 550);
+    return () => window.clearTimeout(timer);
+  }, [resultCount]);
 
   return (
     <section className="filter-top-bar" aria-label="Keybind search and output controls" data-testid="filter-toolbar" data-tour="keybind-search">
-      <div className="filter-top-summary" aria-live="polite">
+      <div className="filter-top-summary">
         <span>Keybind library</span>
         <strong data-testid="result-count">{resultCount} keybinds</strong>
+        <span aria-live="polite" className="sr-only">{announcedCount} keybinds</span>
       </div>
 
       <label className="filter-top-search" htmlFor="keybind-library-search">

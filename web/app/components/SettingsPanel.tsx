@@ -9,6 +9,7 @@ import { CatalogueTrustPanel } from "./CatalogueTrustPanel";
 import { RecoveryDataPanel } from "./RecoveryDataPanel";
 import { PrivacyAnalyticsPanel } from "./PrivacyAnalyticsPanel";
 import styles from "./SettingsPanel.module.css";
+import { Icon } from "./Icon";
 
 function focusableElements(root: HTMLElement | null) {
   if (!root) return [];
@@ -17,7 +18,7 @@ function focusableElements(root: HTMLElement | null) {
   )).filter((element) => !element.hasAttribute("hidden"));
 }
 
-export function SettingsPanel() {
+export function SettingsPanel({ placement = "hero" }: { placement?: "hero" | "nav" }) {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -80,7 +81,7 @@ export function SettingsPanel() {
         <section aria-labelledby="settings-title" aria-modal="true" className={styles.panel} id="app-settings-panel" ref={panelRef} role="dialog">
           <header className={styles.header}>
             <div><p>Experience, trust &amp; local data</p><h2 id="settings-title">Settings</h2></div>
-            <button aria-label="Close settings" className={styles.close} onClick={closePanel} ref={closeRef} type="button">×</button>
+            <button aria-label="Close settings" className={styles.close} onClick={closePanel} ref={closeRef} type="button"><Icon name="close" /></button>
           </header>
           <div className={styles.content}>
             <section aria-labelledby="experience-settings-title" className={styles.group}>
@@ -135,7 +136,7 @@ export function SettingsPanel() {
     : null;
 
   return (
-    <div className={styles.root}>
+    <div className={`${styles.root} ${placement === "nav" ? styles.navRoot : ""}`}>
       <button aria-controls="app-settings-panel" aria-expanded={open} className={styles.trigger} onClick={() => setOpen(true)} ref={triggerRef} type="button">
         Settings
       </button>

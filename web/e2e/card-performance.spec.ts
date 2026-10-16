@@ -38,6 +38,7 @@ test("mounts details only after the user requests them", async ({ page }) => {
 });
 
 test("progressively renders catalogue groups and can reveal the full filtered index", async ({ page }) => {
+  await page.getByTestId("experience-workspace-summary").getByRole("button", { name: "Show more tools" }).click();
   const initialCount = await page.locator(".bind-group").count();
   expect(initialCount).toBeGreaterThan(2);
   expect(initialCount).toBeLessThanOrEqual(8);

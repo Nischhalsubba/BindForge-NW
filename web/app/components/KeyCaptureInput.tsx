@@ -77,7 +77,7 @@ function displayToken(token: string) {
 export function KeyCaptureInput({
   value,
   onValueChange,
-  hint = "Press a key or mouse button. Use either + key to add another key. Hold Ctrl / Alt / Shift with another input to merge them automatically. Backspace removes the last captured part.",
+  hint = "Press a key or mouse button. Use + to add another.",
   className,
   placeholder,
   ...props
@@ -180,7 +180,7 @@ export function KeyCaptureInput({
         </div>
         <input
           {...props}
-          aria-describedby={[props["aria-describedby"], hintId].filter(Boolean).join(" ")}
+          aria-describedby={[props["aria-describedby"], hintId, `${hintId}-instructions`].filter(Boolean).join(" ")}
           className={["key-combination-capture", className].filter(Boolean).join(" ")}
           data-key-capture="true"
           onChange={(event) => onValueChange(sanitizeComboInput(event.target.value))}
@@ -194,6 +194,7 @@ export function KeyCaptureInput({
         />
       </div>
       <small className="key-capture-hint" id={hintId}>{hint}</small>
+      <span className="sr-only" id={`${hintId}-instructions`}>Hold Ctrl, Alt, or Shift with another input to capture a modified key. Backspace removes the last captured part. Both plus keys add another key to the sequence.</span>
       <span aria-live="polite" className="sr-only">
         {spokenCombination ? `Key combination: ${spokenCombination}${awaitingNext ? ". Waiting for the next key." : "."}` : "Key combination empty."}
       </span>

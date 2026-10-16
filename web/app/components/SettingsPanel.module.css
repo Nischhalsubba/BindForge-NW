@@ -28,3 +28,9 @@
 .section :global(.theme-switcher button:last-child) { border-right: 0; }
 .section :global(.theme-switcher button[aria-pressed='true']) { background: var(--ink); color: var(--paper); }
 @media (max-width:560px) { .root { margin-top: 20px; padding-top: 16px; }.trigger { width: 100%; min-height: var(--control-primary); }.panel { width: 100%; border-left: 0; }.header,.content { padding-inline: 18px; }.groupHeading { grid-template-columns: 1fr; gap: 6px; } }
+
+/* Navigation placement owns no hero divider or supplemental spacing. */
+.navRoot { width: auto; margin: 0; padding: 0; border: 0; }
+.navRoot .trigger { white-space: nowrap; color: var(--nav-ink); background: var(--nav-paper); border-color: var(--nav-muted); }
+.navRoot .trigger:hover { color: var(--nav-accent); border-color: var(--nav-accent); background: var(--nav-paper); }
+@media (max-width:560px) { .navRoot { width:auto; margin:0; padding:0; border:0; } .navRoot .trigger { width:auto; min-height:var(--control-min); } }

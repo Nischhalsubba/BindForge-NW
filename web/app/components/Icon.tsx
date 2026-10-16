@@ -1,4 +1,4 @@
-export type IconName = "forge" | "search" | "keyboard" | "code" | "shield" | "warning" | "copy" | "reset" | "filter" | "spark" | "star" | "check" | "close";
+export type IconName = "forge" | "search" | "keyboard" | "code" | "shield" | "warning" | "copy" | "reset" | "filter" | "spark" | "star" | "check" | "close" | "arrow-up" | "arrow-down";
 
 export function Icon({ name, filled = false }: { name: IconName; filled?: boolean }) {
   const paths = {
@@ -15,6 +15,8 @@ export function Icon({ name, filled = false }: { name: IconName; filled?: boolea
     star: <path d="m12 3 2.7 5.47 6.03.88-4.36 4.25 1.03 6-5.4-2.84-5.4 2.84 1.03-6-4.36-4.25 6.03-.88L12 3Z" />,
     check: <path d="m5 12.5 4.2 4.2L19 7" />,
     close: <path d="M6 6l12 12M18 6 6 18" />,
+    "arrow-up": <path d="M12 19V5m-6 6 6-6 6 6" />,
+    "arrow-down": <path d="M12 5v14m-6-6 6 6 6-6" />,
   };
 
   return (

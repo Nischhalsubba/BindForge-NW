@@ -4,11 +4,13 @@ import { createPortal } from "react-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DEFAULT_COMMAND_ACTIONS, filterCommandActions, type CommandAction } from "../lib/command-palette.mjs";
 import styles from "./CommandPalette.module.css";
+import { Icon } from "./Icon";
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
   const previousFocus = useRef<HTMLElement | null>(null);
   const actions = useMemo(() => filterCommandActions(DEFAULT_COMMAND_ACTIONS, query), [query]);
 
@@ -31,8 +33,41 @@ export function CommandPalette() {
       return;
     }
     previousFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const shell = document.querySelector<HTMLElement>(".app-shell");
+    const wasInert = shell?.hasAttribute("inert") ?? false;
+    const oldHidden = shell?.getAttribute("aria-hidden") ?? null;
+    const previousOverflow = document.body.style.overflow;
+    shell?.setAttribute("inert", "");
+    shell?.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "hidden";
     const frame = window.requestAnimationFrame(() => inputRef.current?.focus());
-    return () => window.cancelAnimationFrame(frame);
+    function containFocus(event: KeyboardEvent) {
+      if (event.key !== "Tab") return;
+      const focusable = Array.from(panelRef.current?.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ) ?? []).filter((item) => item.getClientRects().length > 0);
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (!first || !last) return;
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+    window.addEventListener("keydown", containFocus);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("keydown", containFocus);
+      document.body.style.overflow = previousOverflow;
+      if (shell) {
+        if (!wasInert) shell.removeAttribute("inert");
+        if (oldHidden === null) shell.removeAttribute("aria-hidden");
+        else shell.setAttribute("aria-hidden", oldHidden);
+      }
+    };
   }, [open]);
 
   function execute(action: CommandAction) {
@@ -53,9 +88,9 @@ export function CommandPalette() {
 
   const dialog = open && typeof document !== "undefined" ? createPortal(
     <div className={styles.layer}>
-      <button aria-label="Close command palette" className={styles.backdrop} onClick={() => setOpen(false)} type="button" />
-      <section aria-labelledby="command-palette-title" aria-modal="true" className={styles.panel} role="dialog">
-        <header><div><span>Power user shortcut</span><h2 id="command-palette-title">Command palette</h2></div><button aria-label="Close command palette" onClick={() => setOpen(false)} type="button">×</button></header>
+      <button aria-label="Dismiss command palette" className={styles.backdrop} onClick={() => setOpen(false)} tabIndex={-1} type="button" />
+      <section aria-labelledby="command-palette-title" aria-modal="true" className={styles.panel} ref={panelRef} role="dialog">
+        <header><div><span>Power user shortcut</span><h2 id="command-palette-title">Command palette</h2></div><button aria-label="Close command palette" onClick={() => setOpen(false)} type="button"><Icon name="close" /></button></header>
         <input aria-label="Search command palette" onChange={(event) => setQuery(event.target.value)} placeholder="Search actions…" ref={inputRef} value={query} />
         <div className={styles.actions}>
           {actions.map((action) => <button key={action.id} onClick={() => execute(action)} type="button"><strong>{action.label}</strong><small>{action.id === "settings" ? "Settings" : action.hash}</small></button>)}
@@ -69,7 +104,7 @@ export function CommandPalette() {
 
   return (
     <>
-      <button aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K" className={styles.trigger} onClick={() => setOpen(true)} type="button">⌘K</button>
+      <button aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K" className={styles.trigger} onClick={() => setOpen(true)} type="button">Commands</button>
       {dialog}
     </>
   );

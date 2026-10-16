@@ -1,15 +1,17 @@
+.navSettings { grid-column: 3; justify-self: end; min-width: 0; }
 .primaryHero .heroIndex {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 @media (max-width: 880px) {
   .primaryNav {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) auto;
     row-gap: 0;
   }
 
   .primaryNav .primaryLinks {
     grid-column: 1 / -1;
+    grid-row: 2;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0;
@@ -37,7 +39,16 @@
   }
 }
 
+@media (max-width: 880px) {
+  .navSettings { grid-column: 2; grid-row: 1; justify-self: end; }
+}
+
 @media (max-width: 560px) {
+  /* On phones the hero specimen is redundant with the navigation and delays real tools. */
+  .primaryHero :global(.hero-plate),
+  .primaryHero :global(.hero-stats) { display: none; }
+  .primaryHero { padding-bottom: 1.5rem; }
+
   .primaryNav {
     padding-bottom: 12px;
   }

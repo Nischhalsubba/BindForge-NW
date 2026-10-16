@@ -216,9 +216,6 @@ export function CompactKeybindRow({
         </div>
       ) : null}
 
-      <p aria-live="polite" className="sr-only">
-        {copyState === "copied" || copyState === "fallback" ? `${preset.title} copied.` : copyState === "error" ? `Copy failed for ${preset.title}.` : ""}
-      </p>
     </article>
   );
 }

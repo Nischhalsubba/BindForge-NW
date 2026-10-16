@@ -56,6 +56,10 @@ test("refreshes keyboard state when switching profiles and remains contained on 
   await page.getByRole("button", { name: "Add profile" }).click();
   await page.getByLabel("Profile name").fill("Clean profile");
   await page.getByRole("button", { name: "Clear personal keymap" }).click();
+  const confirmation = page.getByRole("dialog", { name: "Clear imported keymap?" });
+  await expect(confirmation).toBeVisible();
+  await confirmation.getByRole("button", { name: "Clear keymap" }).click();
+  await expect(confirmation).toBeHidden();
   await expect(page.getByTestId("keyboard-key-7")).toHaveAttribute("data-state", "customized");
 
   await page.getByLabel("Active profile").selectOption("profile-default");

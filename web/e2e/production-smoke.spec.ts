@@ -7,7 +7,7 @@ const normalizeUrl = (value: string | null) => value?.replace(/\/$/, "") ?? "";
 
 async function waitForLibrary(page: Page) {
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("heading", { level: 1, name: /BindForge NW/i })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /Find it\./i })).toBeVisible();
   await expect(page.getByLabel("Search keybind library").first()).toBeEditable();
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
   await expect(page.locator(".bind-card").first()).toBeVisible();
@@ -135,7 +135,7 @@ test("production accessibility, overflow, touch targets, and retired PWA state p
 
   const registrations = await page.evaluate(async () => "serviceWorker" in navigator ? (await navigator.serviceWorker.getRegistrations()).length : 0);
   expect(registrations).toBe(0);
-  await expect(page.locator('link[rel="manifest"]')).toHaveCount(0);
+  await expect(page.locator('link[rel="manifest"]')).toHaveAttribute("href", /manifest\.webmanifest/);
   const retiredWorker = await page.request.get("/sw.js");
   expect(retiredWorker.status()).toBe(404);
 });

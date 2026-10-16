@@ -175,7 +175,7 @@
 .tabIndex {
   padding-top: 3px;
   color: var(--coral);
-  font: 500 11px var(--mono);
+  font: 500 var(--type-meta) var(--mono);
 }
 
 .tabIcon {
@@ -209,7 +209,7 @@
 
 .panel {
   min-width: 0;
-  min-height: 720px;
+  min-height: 0;
   padding: 30px 0 0;
 }
 
@@ -249,7 +249,7 @@
 
 .searchHeading span {
   color: var(--coral);
-  font: 500 11px var(--mono);
+  font: 500 var(--type-meta) var(--mono);
 }
 
 .searchHeading h2 {
@@ -325,7 +325,7 @@
 .advancedUtilityHeading p {
   margin: 0;
   color: var(--ink-mute);
-  font-size: 0.8rem;
+  font-size:var(--type-meta);
   line-height: 1.55;
 }
 
@@ -336,12 +336,12 @@
 /* The visual key builder adds useful inline guidance to Command Lab. Keep the desktop stage tall
    enough that switching between Command and Say never moves the footer underneath the user. */
 @media (min-width: 881px) {
-  .panel:global(#primary-workspace-panel) { min-height: 900px; }
+  .panel:global(#primary-workspace-panel) { min-height: 0; }
 }
 
 @media (max-width: 1279px) {
   .shell { width: min(calc(100% - 64px), var(--content)); }
-  .panel { min-height: 680px; }
+  .panel { min-height: 0; }
   .tab { min-height: 118px; padding: 19px 17px; }
   .tabCopy strong { font-size: 15px; }
   .tabCopy small { font-size: var(--type-meta); }

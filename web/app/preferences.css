@@ -29,6 +29,7 @@ html[data-theme='dark'] {
   --primary-hover: #ffb09f;
   --color-primary-hover: #ffb09f;
   --primary-ink: #15140f;
+  --on-accent: #15140f;
   --color-primary-ink: #15140f;
   --focus: #ffd16e;
   --color-focus: #ffd16e;
