@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import styles from "./UseInNeverwinterGuide.module.css";
+import { Icon } from "./Icon";
 
 type GuideProps = {
   command: string;
@@ -28,7 +29,7 @@ export function UseInNeverwinterGuide({ command, label, onClose, onCopyAgain, on
           <p className={styles.eyebrow}>Copied · next step</p>
           <h2 className={styles.title}>Use this in Neverwinter</h2>
         </div>
-        <button aria-label="Close in-game guidance" className={styles.close} onClick={onClose} type="button">×</button>
+        <button aria-label="Close in-game guidance" className={styles.close} onClick={onClose} type="button"><Icon name="close" /></button>
       </div>
 
       <p className={styles.note}>You copied <strong>{label}</strong>. BindForge cannot inspect your live game state, so test the result in-game before relying on it.</p>

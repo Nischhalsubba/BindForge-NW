@@ -31,7 +31,7 @@
 .eyebrow {
   margin: 0;
   color: var(--specimen-muted);
-  font-size: 0.76rem;
+  font-size: var(--type-meta);
   font-weight: 750;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -62,7 +62,7 @@
   border: 1px solid rgba(21, 20, 15, 0.16);
   border-radius: 10px;
   background: rgba(21, 20, 15, 0.045);
-  font-size: 0.78rem;
+  font-size: var(--type-meta);
   line-height: 1.5;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
@@ -148,7 +148,7 @@
 .note {
   margin: 0;
   color: var(--specimen-muted);
-  font-size: 0.76rem;
+  font-size: var(--type-meta);
   line-height: 1.45;
 }
 

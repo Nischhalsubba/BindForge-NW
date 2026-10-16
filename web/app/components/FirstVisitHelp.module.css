@@ -291,7 +291,7 @@
 
 .term { min-width: 0; }
 .term dt { font: 700 0.82rem/1.35 var(--sans); }
-.term dd { margin: 0.2rem 0 0; color: var(--ink-mute); font-size: 0.78rem; line-height: 1.5; }
+.term dd { margin: 0.2rem 0 0; color: var(--ink-mute); font-size: var(--type-meta); line-height: 1.5; }
 
 @media (max-width: 880px) {
   .help { width: calc(100% - 40px); }

@@ -179,8 +179,8 @@ export function VerifiedBindBuilder({ onCopy }: { onCopy: CopyHandler }) {
                 <span className={styles.order}>{String(index + 1).padStart(2, "0")}</span>
                 <span className={styles.chainIdentity}><strong>{item.label}</strong><code>{item.fragment}</code><small data-source={item.source}>{item.source === "settings-screenshot" ? "Screenshot verified" : item.source === "user-provided-working-bind" ? "Observed working bind" : "Custom / unverified"}</small></span>
                 <span className={styles.chainActions}>
-                  <button aria-label={`Move ${item.label} up`} disabled={index === 0} onClick={() => moveItem(index, -1)} type="button">↑</button>
-                  <button aria-label={`Move ${item.label} down`} disabled={index === chain.length - 1} onClick={() => moveItem(index, 1)} type="button">↓</button>
+                  <button aria-label={`Move ${item.label} up`} disabled={index === 0} onClick={() => moveItem(index, -1)} type="button"><Icon name="arrow-up" /></button>
+                  <button aria-label={`Move ${item.label} down`} disabled={index === chain.length - 1} onClick={() => moveItem(index, 1)} type="button"><Icon name="arrow-down" /></button>
                   <button aria-label={`Remove ${item.label}`} onClick={() => removeItem(item.instanceId)} type="button"><Icon name="close" /></button>
                 </span>
               </li>

@@ -40,6 +40,7 @@ import { SAFE_KEY_SUGGESTIONS, normalizedKey } from "../lib/safe-key-suggestions
 import type { CopyResultState } from "../page";
 import FilterTopBar from "../FilterTopBar";
 import { CompactKeybindRow } from "./CompactKeybindRow";
+import { ConfirmDialog, type Confirmation } from "./ConfirmDialog";
 import { Icon } from "./Icon";
 import { KeybindCard } from "./KeybindCard";
 import type { KeybindSafetyStatus } from "./KeybindCard";
@@ -253,6 +254,7 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   const [profileHistory, setProfileHistory] = useState<Record<string, ProfileHistorySnapshot[]>>({});
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [activeCollection, setActiveCollection] = useState("all");
+  const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
   const [collectionName, setCollectionName] = useState("");
   const [visibleGroupCount, setVisibleGroupCount] = useState(() => state.preferences.experience === "simple" ? BEGINNER_VISIBLE_GROUPS : INITIAL_VISIBLE_GROUPS);
   const [personalImportMessage, setPersonalImportMessage] = useState("");
@@ -564,11 +566,19 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   }
   function removeActiveCollection() {
     if (activeCollection === "all" || activeCollection === "favourites") return;
-    if (!window.confirm(`Delete collection “${activeCollection}”? The saved collection will be removed from this browser.`)) return;
-    const next = { ...library.collections };
-    delete next[activeCollection];
-    patchLibrary({ collections: next });
-    setActiveCollection("all");
+    const name = activeCollection;
+    setConfirmation({
+      title: "Delete collection?",
+      description: `Delete collection “${name}”? This removes it from this browser. Export your setup first if you want a backup.`,
+      actionLabel: "Delete collection",
+      onConfirm: () => {
+        const next = { ...library.collections };
+        delete next[name];
+        patchLibrary({ collections: next });
+        setActiveCollection("all");
+        setConfirmation(null);
+      },
+    });
   }
   function updateProfileKey(presetId: string, value: string) {
     const preset = keybindPresets.find((item) => item.id === presetId);
@@ -648,28 +658,42 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
   }
   function deleteCharacter() {
     if (!profileWorkspace || profileWorkspace.characters.length <= 1) return;
-    if (!window.confirm(`Delete character “${activeCharacter.name}” and all of its profiles? This cannot be undone unless you exported My Setup first.`)) return;
-    const remaining = profileWorkspace.characters.filter((character) => character.id !== activeCharacter.id);
-    const character = remaining[0];
-    const profile = character.profiles[0];
-    saveWorkspace({ ...profileWorkspace, activeCharacterId: character.id, activeProfileId: profile.id, characters: remaining });
-    replaceKeys(profile.keyValues);
-    setPersonalImportMessage("");
-    setProfileStatus("Character deleted. Switched to the next available character.");
+    setConfirmation({
+      title: "Delete character?",
+      description: `Delete “${activeCharacter.name}” and all its profiles? This cannot be undone unless you exported My Setup first.`,
+      actionLabel: "Delete character",
+      onConfirm: () => {
+        const remaining = profileWorkspace.characters.filter((character) => character.id !== activeCharacter.id);
+        const character = remaining[0];
+        const profile = character.profiles[0];
+        saveWorkspace({ ...profileWorkspace, activeCharacterId: character.id, activeProfileId: profile.id, characters: remaining });
+        replaceKeys(profile.keyValues);
+        setPersonalImportMessage("");
+        setProfileStatus("Character deleted. Switched to the next available character.");
+        setConfirmation(null);
+      },
+    });
   }
   function deleteProfile() {
     if (!profileWorkspace || activeCharacter.profiles.length <= 1) return;
-    if (!window.confirm(`Delete profile “${activeProfile.name}”? This cannot be undone unless you exported My Setup first.`)) return;
-    const profiles = activeCharacter.profiles.filter((profile) => profile.id !== activeProfile.id);
-    const profile = profiles[0];
-    saveWorkspace({
-      ...profileWorkspace,
-      activeProfileId: profile.id,
-      characters: profileWorkspace.characters.map((character) => character.id === activeCharacter.id ? { ...character, profiles } : character),
+    setConfirmation({
+      title: "Delete profile?",
+      description: `Delete “${activeProfile.name}”? This cannot be undone unless you exported My Setup first.`,
+      actionLabel: "Delete profile",
+      onConfirm: () => {
+        const profiles = activeCharacter.profiles.filter((profile) => profile.id !== activeProfile.id);
+        const profile = profiles[0];
+        saveWorkspace({
+          ...profileWorkspace,
+          activeProfileId: profile.id,
+          characters: profileWorkspace.characters.map((character) => character.id === activeCharacter.id ? { ...character, profiles } : character),
+        });
+        replaceKeys(profile.keyValues);
+        setPersonalImportMessage("");
+        setProfileStatus("Profile deleted. Switched to the next available profile.");
+        setConfirmation(null);
+      },
     });
-    replaceKeys(profile.keyValues);
-    setPersonalImportMessage("");
-    setProfileStatus("Profile deleted. Switched to the next available profile.");
   }
   function importPersonalBinds(text: string, sourceName = "Pasted keymap") {
     const parsed = parseBindText(text);
@@ -695,10 +719,17 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
     }
   }
   function clearPersonalBinds() {
-    if (!window.confirm("Clear the imported personal keymap for this profile? A local profile-history snapshot will be kept before clearing.")) return;
-    captureActiveProfile("Before clearing imported keymap");
-    patchActiveProfile({ personalBinds: [], personalSourceName: "", personalImportedAt: "" });
-    setPersonalImportMessage("Personal keymap cleared for this profile. BindForge is using common conflict guidance only.");
+    setConfirmation({
+      title: "Clear imported keymap?",
+      description: "Clear this profile’s imported binds? A local profile-history snapshot is saved before clearing.",
+      actionLabel: "Clear keymap",
+      onConfirm: () => {
+        captureActiveProfile("Before clearing imported keymap");
+        patchActiveProfile({ personalBinds: [], personalSourceName: "", personalImportedAt: "" });
+        setPersonalImportMessage("Personal keymap cleared for this profile. BindForge is using common conflict guidance only.");
+        setConfirmation(null);
+      },
+    });
   }
   function exportActiveProfile() {
     const payload = {
@@ -1020,6 +1051,9 @@ export function KeybindLibrary({ onCopy }: { onCopy: CopyHandler }) {
           )}
         </div>
       )}
+      {confirmation ? (
+        <ConfirmDialog confirmation={confirmation} onCancel={() => setConfirmation(null)} />
+      ) : null}
     </section>
   );
 }

@@ -175,7 +175,7 @@
 .tabIndex {
   padding-top: 3px;
   color: var(--coral);
-  font: 500 11px var(--mono);
+  font: 500 var(--type-meta) var(--mono);
 }
 
 .tabIcon {
@@ -249,7 +249,7 @@
 
 .searchHeading span {
   color: var(--coral);
-  font: 500 11px var(--mono);
+  font: 500 var(--type-meta) var(--mono);
 }
 
 .searchHeading h2 {
@@ -325,7 +325,7 @@
 .advancedUtilityHeading p {
   margin: 0;
   color: var(--ink-mute);
-  font-size: 0.8rem;
+  font-size:var(--type-meta);
   line-height: 1.55;
 }
 

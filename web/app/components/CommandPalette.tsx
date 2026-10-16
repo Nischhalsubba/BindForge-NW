@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DEFAULT_COMMAND_ACTIONS, filterCommandActions, type CommandAction } from "../lib/command-palette.mjs";
 import styles from "./CommandPalette.module.css";
+import { Icon } from "./Icon";
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
@@ -89,7 +90,7 @@ export function CommandPalette() {
     <div className={styles.layer}>
       <button aria-label="Dismiss command palette" className={styles.backdrop} onClick={() => setOpen(false)} tabIndex={-1} type="button" />
       <section aria-labelledby="command-palette-title" aria-modal="true" className={styles.panel} ref={panelRef} role="dialog">
-        <header><div><span>Power user shortcut</span><h2 id="command-palette-title">Command palette</h2></div><button aria-label="Close command palette" onClick={() => setOpen(false)} type="button">×</button></header>
+        <header><div><span>Power user shortcut</span><h2 id="command-palette-title">Command palette</h2></div><button aria-label="Close command palette" onClick={() => setOpen(false)} type="button"><Icon name="close" /></button></header>
         <input aria-label="Search command palette" onChange={(event) => setQuery(event.target.value)} placeholder="Search actions…" ref={inputRef} value={query} />
         <div className={styles.actions}>
           {actions.map((action) => <button key={action.id} onClick={() => execute(action)} type="button"><strong>{action.label}</strong><small>{action.id === "settings" ? "Settings" : action.hash}</small></button>)}
