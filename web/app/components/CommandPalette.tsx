@@ -35,7 +35,7 @@ export function CommandPalette() {
     previousFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const shell = document.querySelector<HTMLElement>(".app-shell");
     const wasInert = shell?.hasAttribute("inert") ?? false;
-    const oldHidden = shell?.getAttribute("aria-hidden");
+    const oldHidden = shell?.getAttribute("aria-hidden") ?? null;
     const previousOverflow = document.body.style.overflow;
     shell?.setAttribute("inert", "");
     shell?.setAttribute("aria-hidden", "true");
