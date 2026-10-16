@@ -31,7 +31,26 @@ export function FilterSidebar() {
     closeRef.current?.focus();
 
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") closeDrawer();
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeDrawer();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const dialog = document.getElementById("mobile-filter-drawer");
+      const focusable = Array.from(dialog?.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ) ?? []).filter((element) => element.getClientRects().length > 0);
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (!first || !last) return;
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     }
 
     window.addEventListener("keydown", handleKeyDown);
@@ -44,6 +63,22 @@ export function FilterSidebar() {
       }
       window.removeEventListener("keydown", handleKeyDown);
     };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const desktop = window.matchMedia("(min-width: 1081px)");
+    function dismissOnDesktop(event: MediaQueryListEvent) {
+      if (!event.matches) return;
+      setOpen(false);
+      window.requestAnimationFrame(() => document.getElementById("keybind-library-search")?.focus());
+    }
+    if (desktop.matches) {
+      setOpen(false);
+      return;
+    }
+    desktop.addEventListener("change", dismissOnDesktop);
+    return () => desktop.removeEventListener("change", dismissOnDesktop);
   }, [open]);
 
   function closeDrawer() {
@@ -136,7 +171,7 @@ export function FilterSidebar() {
   const drawer = open && typeof document !== "undefined"
     ? createPortal(
       <div className={styles.drawerLayer} data-testid="filter-drawer-layer" data-gsap-enter>
-        <button aria-label="Dismiss filters" className={styles.backdrop} onClick={closeDrawer} type="button" />
+        <button aria-label="Dismiss filters" className={styles.backdrop} onClick={closeDrawer} tabIndex={-1} type="button" />
         <div aria-labelledby="drawer-filter-panel-title" aria-modal="true" className={styles.drawer} id="mobile-filter-drawer" role="dialog">
           {renderPanel("drawer", true)}
           <div className={styles.drawerFooter}>

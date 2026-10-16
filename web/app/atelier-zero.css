@@ -12,9 +12,9 @@
   --coral: #ed6f5c;
   --coral-soft: #f08e7c;
   --mustard: #e9b94a;
-  --olive: #6e7448;
+  --olive: #5c6638;
   --success: #4f7359;
-  --warning: #9b6b2e;
+  --warning: #80541e;
   --danger: #a34e43;
   --line: rgba(21, 20, 15, 0.16);
   --line-strong: rgba(21, 20, 15, 0.28);
@@ -40,6 +40,7 @@
   --primary: var(--coral);
   --primary-hover: #e25e4a;
   --primary-ink: #fff;
+  --on-accent: #ffffff;
   --accent: var(--coral);
   --focus: var(--coral);
   --color-bg: var(--paper);

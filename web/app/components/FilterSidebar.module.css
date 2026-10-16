@@ -25,7 +25,7 @@
 .difficultyOptions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
 .difficulty { min-height: 40px; padding: 8px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink-mute); cursor: pointer; font: 500 9.5px var(--mono); text-transform: uppercase; transition: border-color 160ms ease, color 160ms ease, background-color 160ms ease; }
 .difficulty:hover { border-color: var(--ink); color: var(--ink); }
-.difficulty[aria-pressed='true'] { border-color: var(--coral); background: var(--coral); color: #fff; }
+.difficulty[aria-pressed='true'] { border-color: var(--coral); background: var(--coral); color: var(--on-accent); }
 .tip { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; padding-top: 18px; border-top: 1px solid var(--line); color: var(--ink-mute); font-size: 11.5px; line-height: 1.5; }
 .tip svg { color: var(--olive); margin-top: 2px; }
 .drawerLayer { position: fixed; inset: 0; z-index: 90; display: none; }
