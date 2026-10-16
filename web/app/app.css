@@ -57,6 +57,14 @@
 
   /* Give the editorial desktop layout more useful horizontal room. */
   --content: 3000px;
+
+  /* Shared geometry: one outer gutter and one 4px-derived component rhythm. */
+  --page-gutter: clamp(16px, 2.5vw, 48px);
+  --panel-pad: clamp(16px, 1.25vw, 24px);
+  --card-pad: clamp(18px, 1.4vw, 28px);
+  --layout-gap: clamp(16px, 1.25vw, 24px);
+  --section-gap: clamp(24px, 2.5vw, 44px);
+  --card-stack-gap: clamp(12px, 1vw, 18px);
 }
 
 html {
@@ -187,7 +195,32 @@ label:has(> input[type='radio']) {
 .filter-top-bar {
   position: static;
   top: auto;
+  gap: var(--layout-gap);
+  padding: var(--panel-pad);
 }
+
+/* Shared workspace and catalogue rhythm, independent of experience mode. */
+.app-shell .workspace { column-gap: var(--layout-gap); row-gap: var(--layout-gap); }
+.library { gap: var(--layout-gap); }
+.group-stack { gap: var(--section-gap); }
+.bind-grid { gap: var(--layout-gap); }
+.bind-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-stack-gap);
+  padding: var(--card-pad);
+  /* Avoid 520px of speculative offscreen height when the actual card is shorter. */
+  contain-intrinsic-size: auto 400px;
+}
+.card-copy { min-width: 0; }
+.card-copy p { min-height: 0; }
+.card-primary-actions { margin-top: auto; }
+.card-header { flex-wrap: wrap; }
+.footer-grid { gap: var(--section-gap); padding-block: var(--section-gap); }
+@media (min-width: 1081px) {
+  .app-shell .workspace { grid-template-columns: minmax(220px, 256px) minmax(0, 1fr); }
+}
+
 
 .footer-mega {
   max-width: 100%;
@@ -198,25 +231,25 @@ label:has(> input[type='radio']) {
 }
 
 /* Primary workflow layout: preserve the visual system while shortening the old long-page shell. */
-.app-header { padding-bottom: 28px; }
+.app-header { padding-bottom: var(--section-gap); }
 .hero { min-height: min(640px, calc(100vh - 150px)); padding-top: 40px; padding-bottom: 20px; }
 .hero-plate { min-height: 520px; padding-top: 48px; padding-bottom: 34px; }
 .command-specimen { margin-top: 54px; }
 .hero-index { margin-top: 48px; }
-.app-footer { margin-top: 54px; }
+.app-footer { margin-top: var(--section-gap); }
 
 /*
  * Hero usability refinement.
  * The dark theme deliberately keeps the navigation on a light paper strip,
  * so its foreground must stay dark instead of inheriting the inverted theme ink.
  */
-.app-header,
-.workbench-intro,
-.workspace,
-.tools-chapter,
-.app-footer,
-.settings-anchor {
-  width: min(calc(100% - 96px), var(--content));
+.app-shell .app-header,
+.app-shell .workbench-intro,
+.app-shell .workspace,
+.app-shell .tools-chapter,
+.app-shell .app-footer,
+.app-shell .settings-anchor {
+  width: min(calc(100% - var(--page-gutter) - var(--page-gutter)), var(--content));
 }
 
 .site-nav {
@@ -435,7 +468,7 @@ html[data-theme='dark'] .command-specimen small {
   .tools-chapter,
   .app-footer,
   .settings-anchor {
-    width: min(calc(100% - 88px), var(--content));
+    width: min(calc(100% - var(--page-gutter) - var(--page-gutter)), var(--content));
   }
 }
 
@@ -446,7 +479,7 @@ html[data-theme='dark'] .command-specimen small {
   .tools-chapter,
   .app-footer,
   .settings-anchor {
-    width: min(calc(100% - 64px), var(--content));
+    width: min(calc(100% - var(--page-gutter) - var(--page-gutter)), var(--content));
   }
 
   .hero { min-height: auto; padding-top: 40px; }
@@ -460,7 +493,7 @@ html[data-theme='dark'] .command-specimen small {
   .tools-chapter,
   .app-footer,
   .settings-anchor {
-    width: calc(100% - 48px);
+    width: min(calc(100% - var(--page-gutter) - var(--page-gutter)), var(--content));
   }
 }
 
@@ -471,10 +504,10 @@ html[data-theme='dark'] .command-specimen small {
   .tools-chapter,
   .app-footer,
   .settings-anchor {
-    width: calc(100% - 32px);
+    width: min(calc(100% - var(--page-gutter) - var(--page-gutter)), var(--content));
   }
 
-  .app-header { padding-bottom: 42px; }
+  .app-header { padding-bottom: var(--section-gap); }
   .hero { padding-top: 32px; padding-bottom: 0; }
   .hero-plate { min-height: 470px; }
   .command-specimen { margin-top: 42px; }
@@ -564,7 +597,7 @@ html[data-theme='dark'] .command-specimen small {
   align-items: center;
   min-height: 64px;
   margin-bottom: 18px;
-  padding: 10px 0 14px;
+  padding: 10px var(--card-pad) 14px;
   border-bottom: 1px solid var(--line);
   background: color-mix(in srgb, var(--paper) 94%, transparent);
   box-shadow: 0 10px 24px color-mix(in srgb, var(--ink) 9%, transparent);
@@ -584,7 +617,7 @@ html[data-theme='dark'] .command-specimen small {
   .group-heading {
     gap: 10px;
     min-height: 56px;
-    padding: 8px 0 10px;
+    padding: 8px var(--card-pad) 10px;
   }
 
   .group-heading > div:first-child {

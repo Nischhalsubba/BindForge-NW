@@ -250,3 +250,56 @@ test("keeps the ultra-wide hero and workspace readable at reduced effective zoom
   expect(geometry.sideRailDisplay).toBe("none");
   expect(geometry.phraseRectCounts).toEqual([1, 1, 1]);
 });
+
+
+test("uses the same page gutters, group alignment, and card insets across breakpoints", async ({ page }) => {
+  for (const width of [390, 768, 1024, 1440, 2048]) {
+    await page.setViewportSize({ width, height: 900 });
+    await waitForLibrary(page);
+    const geometry = await page.evaluate(() => {
+      const rect = (selector: string) => document.querySelector<HTMLElement>(selector)?.getBoundingClientRect();
+      const header = rect(".app-header");
+      const workbench = rect("#primary-workspace");
+      const footer = rect(".app-footer");
+      const group = rect(".bind-group");
+      const groupHeading = rect(".group-heading");
+      const grid = rect(".bind-grid");
+      const card = document.querySelector<HTMLElement>(".bind-card");
+      const title = rect(".group-heading h3");
+      const cardHeading = rect(".bind-card h4");
+      const cardStyle = card ? getComputedStyle(card) : null;
+      const stickyStyle = document.querySelector<HTMLElement>(".group-heading");
+      return {
+        viewportWidth: document.documentElement.clientWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+        outerLeft: header?.left ?? -1,
+        workbenchLeft: workbench?.left ?? -1,
+        footerLeft: footer?.left ?? -1,
+        groupLeft: group?.left ?? -1,
+        groupHeadingLeft: groupHeading?.left ?? -1,
+        gridLeft: grid?.left ?? -1,
+        cardLeft: card?.getBoundingClientRect().left ?? -1,
+        titleLeft: title?.left ?? -1,
+        cardHeadingLeft: cardHeading?.left ?? -1,
+        cardPadding: cardStyle ? Number.parseFloat(cardStyle.paddingLeft) : -1,
+        headingPadding: stickyStyle ? Number.parseFloat(getComputedStyle(stickyStyle).paddingLeft) : -1,
+      };
+    });
+
+    expect(geometry.scrollWidth, `Horizontal overflow at ${width}px`).toBeLessThanOrEqual(geometry.viewportWidth + 1);
+    expect(Math.abs(geometry.outerLeft - geometry.workbenchLeft), `Header/workbench gutters at ${width}px`).toBeLessThanOrEqual(2);
+    expect(Math.abs(geometry.outerLeft - geometry.footerLeft), `Header/footer gutters at ${width}px`).toBeLessThanOrEqual(2);
+    expect(geometry.outerLeft, `Edge gutter at ${width}px`).toBeGreaterThanOrEqual(15);
+    expect(Math.abs(geometry.groupLeft - geometry.groupHeadingLeft), `Group boundary at ${width}px`).toBeLessThanOrEqual(2);
+    expect(Math.abs(geometry.gridLeft - geometry.cardLeft), `Grid boundary at ${width}px`).toBeLessThanOrEqual(2);
+    expect(Math.abs(geometry.titleLeft - geometry.groupHeadingLeft - geometry.headingPadding), `Heading inset at ${width}px`).toBeLessThanOrEqual(2);
+    expect(Math.abs(geometry.cardHeadingLeft - geometry.cardLeft - geometry.cardPadding), `Card text inset at ${width}px`).toBeLessThanOrEqual(2);
+    expect(Math.abs(geometry.headingPadding - geometry.cardPadding), `Shared heading/card inset at ${width}px`).toBeLessThanOrEqual(2);
+  }
+});
+
+test("catalogue headings do not duplicate the selected class context", async ({ page }) => {
+  await waitForLibrary(page);
+  const title = await page.locator(".group-heading h3").first().innerText();
+  expect((title.match(/Any Class/g) ?? []).length).toBe(1);
+});
