@@ -1,15 +1,17 @@
+/* eslint-disable @next/next/no-html-link-for-pages -- The root workbench is a static document, so navigation must reload the document. */
 "use client";
 
+import {SettingsPanel} from "../components/SettingsPanel";
 import { BindForgeProvider } from "../BindForgeProvider";
 import { useEffect, useRef, useState } from "react";
-import { AppHeader } from "../components/AppHeader";
+
 import { CommandPalette } from "../components/CommandPalette";
-import type { CopyFeedback } from "../components/AppHeader";
-import { ContextualHelpGlossary, FirstVisitOrientation } from "../components/FirstVisitHelp";
-import { GsapMotionEnhancer } from "../components/GsapMotionEnhancer";
+import type { CopyFeedback } from "../lib/copy-types";
+import { ContextualHelpGlossary } from "../components/FirstVisitHelp";
+
 import { Icon } from "../components/Icon";
 import { PrimaryWorkspace } from "../components/PrimaryWorkspace";
-import { RevealController } from "../components/RevealController";
+
 import { UrlStateBridge } from "../components/UrlStateBridge";
 import { UseInNeverwinterGuide } from "../components/UseInNeverwinterGuide";
 import { FastCopyPanel } from "../components/FastCopyPanel";
@@ -24,15 +26,6 @@ type InGameGuideState = {
   label: string;
 } | null;
 
-function SectionRule({ roman, meta, page }: { roman: string; meta: string; page: string }) {
-  return (
-    <div className="section-rule" aria-hidden="true">
-      <span className="roman">{roman}.</span>
-      <span>{meta}</span>
-      <span>{page} / 003</span>
-    </div>
-  );
-}
 
 function AdvancedWorkbench() {
   const [feedback, setFeedback] = useState<CopyFeedback>({ state: "idle", label: "" });
@@ -78,31 +71,17 @@ function AdvancedWorkbench() {
 
   return (
     <main className="app-shell">
-      <GsapMotionEnhancer />
-      <RevealController />
+
+
       <a className="skip-link" href="#primary-workspace">Skip to primary tools</a>
-      <div className="side-rail left" aria-hidden="true"><span>Neverwinter Keybind · Field Manual</span></div>
-      <div className="side-rail right" aria-hidden="true"><span>Neverwinter Command Systems · MMXXVI</span></div>
       <UrlStateBridge />
-      <AppHeader feedback={feedback} />
-      <FirstVisitOrientation />
+      <header className="site-header"><a className="identity" href="/"><span className="brand-name">BindForge <small>NEVERWINTER WORKBENCH</small></span></a><nav className="advanced-nav" aria-label="Primary navigation"><span className="site-nav-links"><a href="#search-keybinds">Keybinds</a><a href="#my-setup">My Setup</a><a href="#compose-keybind">Build</a></span><SettingsPanel placement="nav"/><a href="/">Copy workbench</a><a href="/account">Account &amp; cloud save</a><a href="/#help">Help &amp; guide</a></nav></header><div className="advanced-intro"><h1>Characters &amp; advanced setups</h1><p>Manage characters, profiles, assigned keys, imports and recovery in one workspace.</p></div>
+
 
       <PrimaryWorkspace onCopy={copyText} />
       <FastCopyPanel />
       <ContextualHelpGlossary />
       <CommandPalette />
-
-      <footer className="app-footer" data-reveal>
-        <SectionRule roman="III" meta="Notes / provenance / studio" page="003" />
-        <div className="footer-grid">
-          <section><span>Independent utility</span><p>Neverwinter Keybind is a community-made tool for preparing Neverwinter keybind commands.</p></section>
-          <section><span>Use responsibly</span><p>Commands can change after game updates. Back up existing binds before testing unfamiliar setups.</p></section>
-          <section><span>Local by default</span><p>Preferences and collections stay in your browser unless you export or share them.</p></section>
-          <section><span>Studio</span><p>Designed and developed by <strong>Archew</strong>.</p></section>
-        </div>
-        <p className="footer-mega">Neverwinter <em>Keybind</em><span>.</span></p>
-        <div className="footer-bottom"><span><i className="pulse" /> Built-in catalogue</span><span>FIN. · MMXXVI</span></div>
-      </footer>
 
       {inGameGuide ? (
         <UseInNeverwinterGuide

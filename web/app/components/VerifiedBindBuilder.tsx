@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { observedWorkingBindFragments, verifiedActionCategories, verifiedKeybindActions } from "../data/verifiedKeybindActions";
 import { buildCommandChain, sanitizeBindFragment, validateCustomFragment } from "../lib/command-chain.mjs";
 import { isCompleteCombo } from "../lib/keybind-core.mjs";
-import type { CopyResultState } from "../page";
+import type { CopyResultState } from "../lib/copy-types";
 import { Icon } from "./Icon";
 import { KeyCaptureInput } from "./KeyCaptureInput";
 import styles from "./VerifiedBindBuilder.module.css";

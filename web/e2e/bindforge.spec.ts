@@ -65,7 +65,7 @@ test.beforeEach(async ({ page }) => {
     window.localStorage.setItem("bindforge-nw:first-visit:v2", "seen");
   });
   await page.reload();
-  await expect(page.getByRole("heading", { level: 1, name: /Find it. Build it. Bind it/ })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Characters & advanced setups" })).toBeVisible();
   await waitForHydration(page);
   const experience = page.getByTestId("experience-workspace-summary");
   const showMore = experience.getByRole("button", { name: "Show more tools" });

@@ -37,7 +37,7 @@ import { recordLocalAnalyticsEvent } from "../lib/local-analytics-client";
 import { buildCommunityPack } from "../lib/community-evidence.mjs";
 import { buildResearchCandidate } from "../lib/research-candidate.mjs";
 import { SAFE_KEY_SUGGESTIONS, normalizedKey } from "../lib/safe-key-suggestions";
-import type { CopyResultState } from "../page";
+import type { CopyResultState } from "../lib/copy-types";
 import FilterTopBar from "../FilterTopBar";
 import { CompactKeybindRow } from "./CompactKeybindRow";
 import { ConfirmDialog, type Confirmation } from "./ConfirmDialog";

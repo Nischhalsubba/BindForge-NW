@@ -13,3 +13,6 @@
 .toggle strong { color: var(--ink); font: 700 14px var(--sans); }
 .toggle small { color: var(--ink-mute); font: 400 13px/1.4 var(--body); }
 @media (max-width:560px) { .choiceGrid { grid-template-columns: 1fr; }.choice { min-height: 68px; } }
+
+/* Workbench palette and readable controls */
+:global(button),:global(input),:global(select){min-height:44px}

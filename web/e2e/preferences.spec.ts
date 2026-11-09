@@ -34,7 +34,7 @@ test.beforeEach(async ({ page }) => {
   await waitForHydration(page);
 });
 
-test("starts new users on the warm field-manual appearance before preferences hydrate", async ({ page }) => {
+test("starts new users on the shared accessible appearance before preferences hydrate", async ({ page }) => {
   const root = page.locator("html");
   await expect(root).toHaveAttribute("data-appearance-ready", "true");
   await expect(root).toHaveAttribute("data-theme", "light");

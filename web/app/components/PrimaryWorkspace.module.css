@@ -34,14 +34,14 @@
   margin: 0;
   max-width: 48ch;
   color: var(--ink-mute);
-  font-size: clamp(15px, .78vw, 18px);
+  font-size:clamp(1rem,2vw,2rem);
   line-height: 1.6;
 }
 
 .title {
   margin: 0;
   max-width: 15ch;
-  font: 800 clamp(40px, 4vw, 84px)/.98 var(--sans);
+  font: 800 clamp(2rem, 4vw, 84px)/.98 var(--sans);
   letter-spacing: -.04em;
 }
 
@@ -161,7 +161,7 @@
 }
 
 .simpleSecondaryTool .tabCopy strong {
-  font-size: 14px;
+  font-size: 0.875rem;
 }
 
 .active {
@@ -196,12 +196,12 @@
 }
 
 .tabCopy strong {
-  font: 700 17px/1.25 var(--sans);
+  font: 700 1.0625rem/1.25 var(--sans);
 }
 
 .tabCopy small {
   color: var(--ink-faint);
-  font-size: 13px;
+  font-size: 0.875rem;
   line-height: 1.45;
 }
 
@@ -254,14 +254,14 @@
 
 .searchHeading h2 {
   margin: 0;
-  font: 700 clamp(32px, 3vw, 52px)/1.06 var(--sans);
+  font: 700 clamp(2.0rem, 3vw, 52px)/1.06 var(--sans);
   letter-spacing: -.03em;
 }
 
 .searchHeading p {
   margin: 0;
   color: var(--ink-mute);
-  font-size: clamp(15px, .76vw, 18px);
+  font-size:clamp(1rem,2vw,2rem);
   line-height: 1.58;
 }
 
@@ -285,13 +285,13 @@
   cursor: pointer;
   list-style: none;
   padding: 18px 0;
-  font: 600 14px var(--sans);
+  font: 600 0.875rem var(--sans);
   text-transform: uppercase;
   letter-spacing: .08em;
 }
 
 .utilityDrawer > summary::-webkit-details-marker { display: none; }
-.utilityDrawer > summary::after { content: '+'; float: right; color: var(--coral); font: 500 18px var(--mono); }
+.utilityDrawer > summary::after { content: '+'; float: right; color: var(--coral); font: 500 1.125rem var(--mono); }
 .utilityDrawer[open] > summary::after { content: '−'; }
 .utilityBody :global(.portable-share-panel) { padding: 28px 0 52px; }
 
@@ -343,7 +343,7 @@
   .shell { width: min(calc(100% - var(--page-gutter) - var(--page-gutter)), var(--content)); }
   .panel { min-height: 0; }
   .tab { min-height: 118px; padding: 19px 17px; }
-  .tabCopy strong { font-size: 15px; }
+  .tabCopy strong { font-size: 0.9375rem; }
   .tabCopy small { font-size: var(--type-meta); }
   .experienceBar { grid-template-columns: auto minmax(0, 1fr) auto; }
   .experienceBar small { grid-column: 2 / 4; }
@@ -360,14 +360,14 @@
   }
   .simpleSecondaryTool .tabIcon { display: grid; }
   .simpleSecondaryTool .tabCopy small { display: block; }
-  .simpleSecondaryTool .tabCopy strong { font-size: 15px; }
+  .simpleSecondaryTool .tabCopy strong { font-size: 0.9375rem; }
   .advancedUtility { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 880px) {
   .shell { padding-top: 20px; }
   .intro, .searchHeading { grid-template-columns: 1fr; gap: 18px; }
-  .intro p, .searchHeading p { font-size: 15px; }
+  .intro p, .searchHeading p { font-size: 0.9375rem; }
   .title { max-width: 18ch; }
   .experienceBar { grid-template-columns: 1fr; gap: 0.55rem; }
   .experienceBar small { grid-column: auto; }
@@ -397,11 +397,11 @@
 @media (max-width: 560px) {
   .shell { padding-top: 16px; }
   .intro { padding: var(--section-gap) 0; }
-  .title { font-size: clamp(32px, 10vw, 46px); }
+  .title { font-size:clamp(1rem,2vw,2rem); }
   .tab,
   .simpleSecondaryTool { flex-basis: min(84vw, 270px); padding: 15px 13px; }
   .tabCopy strong,
-  .simpleSecondaryTool .tabCopy strong { font-size: 15px; }
+  .simpleSecondaryTool .tabCopy strong { font-size: 0.9375rem; }
   .tabCopy small { font-size: var(--type-meta); }
   .searchHeading { padding-bottom: var(--section-gap); }
   :global(.workspace).searchView { padding-top: var(--section-gap); padding-bottom: var(--section-gap); }
@@ -420,3 +420,9 @@
 @media (prefers-reduced-motion: reduce) {
   .tab { transition: none; }
 }
+/* Shared workbench presentation */
+.eyebrow{display:none}
+
+.title{font:600 1.75rem/1.4 var(--font-display);max-width:none;letter-spacing:0}.intro{padding:24px 0;gap:24px}.tabIndex{display:none}.shell{width:100%;margin:0}.tabs{background:var(--panel);border:1px solid var(--border);padding:12px}.tab{border-radius:3px}.panel{padding:20px;background:var(--panel);border:1px solid var(--border)}
+
+.intro{display:block}.intro p,.searchHeading p{font-size:1rem;max-width:72ch}.intro .title{margin-bottom:8px}.searchHeading{display:block}.searchHeading h2{font:600 1.4rem/1.4 var(--font-display);margin-bottom:8px}.searchHeading span{display:none}.tab{display:block;min-height:72px!important;padding:14px!important}.tabIcon{display:none!important}.tabCopy strong{font-size:1rem}.tabCopy small{font-size:.875rem}.active,.active:hover,.simpleSecondaryTool.active{background:var(--selected);color:var(--text);box-shadow:inset 0 -3px var(--gold)}.active .tabCopy small{color:var(--muted)}.experienceBadge,.experienceAction{border-radius:3px}.panel{padding:20px}.experienceBar{margin-bottom:16px}.tabs{padding:0}.searchView:global(.workspace){gap:20px}

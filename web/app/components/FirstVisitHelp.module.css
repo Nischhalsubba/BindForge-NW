@@ -116,7 +116,7 @@
   border-radius: 999px;
   background: transparent;
   color: inherit;
-  font: 500 20px/1 var(--sans);
+  font: 500 1.25rem/1 var(--sans);
   cursor: pointer;
 }
 
@@ -136,7 +136,7 @@
 .tourBody h2 {
   margin: 0;
   max-width: 27ch;
-  font: 760 clamp(20px, 2.2vw, 26px)/1.08 var(--sans);
+  font: 760 clamp(1.25rem, 2.2vw, 26px)/1.08 var(--sans);
   letter-spacing: -.025em;
 }
 
@@ -172,7 +172,7 @@
   left: 11px;
   top: 7px;
   color: var(--coral);
-  font: 800 13px/1 var(--mono);
+  font: 800 0.875rem/1 var(--mono);
 }
 
 .stepRail {
@@ -319,7 +319,7 @@
 
   .tourBody h2 {
     max-width: none;
-    font-size: 21px;
+    font-size: 1.3125rem;
   }
 
   .tourPoints {
@@ -376,3 +376,6 @@
     transition: none;
   }
 }
+
+/* Shared workbench presentation */
+.eyebrow{display:none}

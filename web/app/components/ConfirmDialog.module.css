@@ -9,3 +9,6 @@
 .actions .destructive { border-color:var(--danger); color:var(--danger); font-weight:700; }
 .actions .destructive:hover { background:color-mix(in srgb,var(--danger) 9%,var(--paper)); }
 @media (max-width:560px) { .actions { display:grid; grid-template-columns:1fr; } .actions button { width:100%; } }
+
+/* Shared workbench presentation */
+.eyebrow{display:none}

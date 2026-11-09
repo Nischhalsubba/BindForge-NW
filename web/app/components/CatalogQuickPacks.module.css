@@ -185,3 +185,6 @@
 @media (prefers-reduced-motion: reduce) {
   .chevron { transform: none !important; }
 }
+
+/* Shared workbench presentation */
+.eyebrow{display:none}

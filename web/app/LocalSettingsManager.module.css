@@ -15,3 +15,6 @@
 .actions .danger { color:var(--danger); border-color:rgba(163,78,67,.35); }
 .privacy { color:var(--ink-faint); font:400 var(--type-meta)/1.5 var(--mono); }
 @media (max-width:560px) { .actions { grid-template-columns:1fr; }.actions .primary { grid-column:auto; } }
+
+/* Workbench palette and readable controls */
+:global(button),:global(input),:global(select){min-height:44px}

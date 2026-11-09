@@ -5,7 +5,7 @@ import type { KeybindPreset } from "../data/keybindPresets";
 import { buildPresetLine, isCompleteCombo, normalizeCombo } from "../lib/keybind-core.mjs";
 import { presetTrustInfo } from "../lib/preset-trust.mjs";
 import { SAFE_KEY_SUGGESTIONS } from "../lib/safe-key-suggestions";
-import type { CopyResultState } from "../page";
+import type { CopyResultState } from "../lib/copy-types";
 import { Icon } from "./Icon";
 import { KeyCaptureInput } from "./KeyCaptureInput";
 import { PresetTrustBadge } from "./PresetTrustBadge";

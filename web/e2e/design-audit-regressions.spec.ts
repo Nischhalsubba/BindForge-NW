@@ -114,7 +114,7 @@ test("mobile first screen prioritizes task entry over decorative content", async
   test.skip(!info.project.name.includes("mobile"), "Phone viewport only");
   await ready(page);
   await expect(page.locator(".hero-plate")).toBeHidden();
-  await expect(page.getByRole("link", { name: /Browse keybinds/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Keybinds", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Settings", exact: true })).toBeVisible();
 });
 

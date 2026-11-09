@@ -25,7 +25,7 @@
 
 .header h2 {
   margin-top: 5px;
-  font: italic 500 clamp(30px, 4vw, 48px)/.98 var(--serif);
+  font: italic 500 clamp(1.875rem, 4vw, 48px)/.98 var(--serif);
   letter-spacing: -.025em;
 }
 
@@ -102,7 +102,7 @@
   font: 700 var(--type-meta) var(--mono);
 }
 
-.panelHeading h3 { font: 700 18px/1.2 var(--sans); }
+.panelHeading h3 { font: 700 1.125rem/1.2 var(--sans); }
 .panelHeading p { margin-top: 4px; color: var(--ink-faint); font-size: var(--type-meta); line-height: 1.45; }
 
 .keyPanel input,
@@ -255,7 +255,7 @@
 .actionRow strong { font-size: var(--type-meta); }
 .actionRow small { color: var(--ink-faint); font: 500 var(--type-meta) var(--mono); text-transform: uppercase; }
 .actionRow code { min-width: 0; color: var(--ink-mute); font: 500 var(--type-meta)/1.35 var(--mono); overflow-wrap: anywhere; }
-.actionRow b { color: var(--coral); font-size: 18px; font-weight: 400; }
+.actionRow b { color: var(--coral); font-size: 1.125rem; font-weight: 400; }
 .empty { padding: 22px 4px; color: var(--ink-faint); font-size: var(--type-meta); }
 
 .chainList {
@@ -342,3 +342,6 @@
 @media (prefers-reduced-motion: reduce) {
   .actionRow { scroll-behavior: auto; }
 }
+
+/* Shared workbench presentation */
+.eyebrow{display:none}
