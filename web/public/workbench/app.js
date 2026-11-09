@@ -41,7 +41,18 @@ import {
 import { buildCatalogPacks } from "./engine/catalog-packs.mjs";
 import { scorePresetSearch } from "./engine/preset-search.mjs";
 import { reconcileCmdlist } from "./engine/cmdlist-reconcile.mjs";
-try {if(localStorage.getItem('bindforge-nw:cloud-owner')){const cloud=await import('./cloud.bundle.js');await cloud.verifyWorkspaceOwner();cloud.startCloudSync(message=>{const el=document.getElementById('cloudStatus');if(el)el.textContent=message;});}}catch(error){const el=document.getElementById('loadState');if(el)el.textContent=error.message;throw error;}
+let cloudOwner = null;
+try { cloudOwner = localStorage.getItem('bindforge-nw:cloud-owner'); } catch { /* Guests can work without browser storage. */ }
+if (cloudOwner) {
+  try {
+    const cloud = await import('./cloud.bundle.js');
+    await cloud.verifyWorkspaceOwner();
+    cloud.startCloudSync(message => { const el = document.getElementById('cloudStatus'); if (el) el.textContent = message; });
+  } catch (error) {
+    const el = document.getElementById('loadState'); if (el) el.textContent = error.message;
+    throw error;
+  }
+}
 const replayGuide=location.hash==='#help';
 const $ = (id) => document.getElementById(id),
   esc = (s) =>
@@ -168,7 +179,7 @@ function renderCombinations() {
     );
 }
 function readCopies() {
-  return parseCopyHistory(localStorage.getItem(COPY_HISTORY_KEY));
+  try { return parseCopyHistory(localStorage.getItem(COPY_HISTORY_KEY)); } catch { return parseCopyHistory(null); }
 }
 function saveCopies(next) {
   try {

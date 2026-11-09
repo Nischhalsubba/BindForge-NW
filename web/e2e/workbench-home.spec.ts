@@ -85,3 +85,11 @@ test('captures physical keys and mouse buttons with plus reserved for combinatio
  await key.press('Tab');await expect(key).not.toBeFocused();
  await expect(page.locator('script[src*="/_next/"]')).toHaveCount(0);
 });
+test('guest search and key capture work when browser storage is blocked',async({page})=>{
+ await page.addInitScript(()=>{Storage.prototype.getItem=()=>{throw new DOMException('Storage blocked','SecurityError')};});
+ await page.goto('/');await expect(page.locator('#resultCount')).toContainText('177');
+ await page.getByLabel('Search keybind library').fill('VIP bank');
+ const key=page.getByRole('textbox',{name:'Key for Summon VIP Bank Portal',exact:true});
+ await key.press('F8');await expect(key).toHaveValue('f8');
+ await expect(page.getByRole('button',{name:'Copy bind for Summon VIP Bank Portal',exact:true})).toBeEnabled();
+});
