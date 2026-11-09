@@ -1,7 +1,7 @@
 {
-  "productionCommit": "d59f5610f0f7e205f2b4448b11cca7b4f08e1f23",
+  "productionCommit": "9ab20e0086b6d436db251009c37b757afce01311",
   "sourceMainSha": "1de5b3171bbb700bd0a85376a6bad0e888a4a89b",
-  "releasedAt": "2026-11-09T16:57:39.091049+00:00",
+  "releasedAt": "2026-11-09T17:02:57.425119+00:00",
   "managedBy": "User-authorized workbench usability release via PR #195",
-  "note": "Static guest workbench, shared Neverwinter-inspired design, keyboard/mouse capture, email/password access and first-run guide. Owner SMTP and real-account email delivery verification remain required."
+  "note": "Static guest workbench, shared Neverwinter-inspired design, keyboard/mouse capture, email/password access and first-run guide. Race-tested account isolation. Owner SMTP and real-account email delivery verification remain required."
 }

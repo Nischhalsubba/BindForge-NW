@@ -14,6 +14,10 @@ export async function verifyWorkspaceOwner() {
   const client = getCloudClient();
   if (!client) throw Error("Cloud connection unavailable.");
   const cached = await client.auth.getSession();
+  if (localStorage.getItem(ownerKey) !== owner) {
+    location.reload();
+    throw Error("Account changed.");
+  }
   if (cached.data.session?.user.id !== owner) {
     isolateAccountWorkspace(localStorage, owner);
     location.reload();
@@ -21,6 +25,10 @@ export async function verifyWorkspaceOwner() {
   }
   if (!navigator.onLine) return;
   const verified = await client.auth.getUser();
+  if (localStorage.getItem(ownerKey) !== owner) {
+    location.reload();
+    throw Error("Account changed.");
+  }
   if (verified.error)
     throw Error(
       "Could not verify this account. Check your connection and reload.",
@@ -71,6 +79,7 @@ export function startCloudSync(status: (message: string) => void) {
         .select("revision,document")
         .eq("user_id", owner)
         .maybeSingle();
+      if (localStorage.getItem(ownerKey) !== owner || paused) return;
       if (error) throw error;
       const plan = planSync({
         local,
@@ -120,6 +129,7 @@ export function startCloudSync(status: (message: string) => void) {
         expected_revision: queued.baseRevision,
         workspace_document: local,
       });
+      if (localStorage.getItem(ownerKey) !== owner || paused) return;
       if (result.error) throw result.error;
       localStorage.setItem(
         metaKey,
@@ -164,11 +174,13 @@ export function startCloudSync(status: (message: string) => void) {
     }
   });
   client.auth.onAuthStateChange((event, session) => {
-    if (event === "SIGNED_OUT" || session?.user.id !== owner)
+    if (event === "SIGNED_OUT" || session?.user.id !== owner) {
+      paused = true;
       setTimeout(() => {
         isolateAccountWorkspace(localStorage, owner);
         location.reload();
       }, 0);
+    }
   });
   setInterval(() => void sync(), 30000);
   void sync();
