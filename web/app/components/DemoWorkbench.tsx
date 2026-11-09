@@ -16,8 +16,8 @@ export function DemoWorkbench() {
   useEffect(() => {
     let alive = true;
     void (async () => {
-      await loadScript("/workbench/vendor/gsap.min.js");
-      await loadScript("/workbench/vendor/Flip.min.js");
+      try { await loadScript("/workbench/vendor/gsap.min.js");
+      await loadScript("/workbench/vendor/Flip.min.js"); } catch { /* Copy/build tools remain available without motion libraries. */ }
       if (alive) await loadScript("/workbench/app.js", true);
     })().catch(() => {
       const state = document.getElementById("loadState");
