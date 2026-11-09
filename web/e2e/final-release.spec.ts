@@ -88,7 +88,7 @@ test("landmarks and workflow controls keep a logical accessible structure", asyn
   await expect(page.getByRole("main")).toHaveCount(1);
   await expect(page.getByRole("tablist", { name: "Primary keybind tools" })).toHaveCount(1);
   await expect(page.getByLabel("Search keybind library")).toHaveCount(1);
-  await expect(page.getByRole("heading", { name: "Choose a workflow." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Advanced workflows" })).toBeVisible();
   await expect(page.getByTestId("result-count").first()).toBeVisible();
 });
 

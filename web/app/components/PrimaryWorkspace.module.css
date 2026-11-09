@@ -61,7 +61,7 @@
   min-height: 1.9rem;
   padding: 0.3rem 0.6rem;
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border-radius:3px;
   color: var(--ink);
   font: 700 var(--type-meta)/1.2 var(--sans);
   white-space: nowrap;
@@ -84,7 +84,7 @@
   min-height: var(--control-min);
   padding: 8px 13px;
   border: 1px solid var(--line-strong);
-  border-radius: 999px;
+  border-radius:3px;
   background: transparent;
   color: var(--ink);
   font: 650 var(--type-label) var(--sans);
@@ -95,7 +95,7 @@
 .experienceAction:hover:not(:disabled),
 .experienceAction:focus-visible {
   border-color: var(--coral);
-  color: var(--coral);
+  color:var(--gold);
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
 }
@@ -174,7 +174,7 @@
 
 .tabIndex {
   padding-top: 3px;
-  color: var(--coral);
+  color:var(--gold);
   font: 500 var(--type-meta) var(--mono);
 }
 
@@ -229,7 +229,7 @@
   flex: 0 0 auto;
   border: 2px solid var(--line-strong);
   border-top-color: var(--coral);
-  border-radius: 999px;
+  border-radius:3px;
 }
 
 .searchHeading {
@@ -248,7 +248,7 @@
 }
 
 .searchHeading span {
-  color: var(--coral);
+  color:var(--gold);
   font: 500 var(--type-meta) var(--mono);
 }
 
@@ -291,7 +291,7 @@
 }
 
 .utilityDrawer > summary::-webkit-details-marker { display: none; }
-.utilityDrawer > summary::after { content: '+'; float: right; color: var(--coral); font: 500 1.125rem var(--mono); }
+.utilityDrawer > summary::after { content: '+'; float: right; color:var(--gold); font: 500 1.125rem var(--mono); }
 .utilityDrawer[open] > summary::after { content: '−'; }
 .utilityBody :global(.portable-share-panel) { padding: 28px 0 52px; }
 
@@ -311,7 +311,7 @@
 }
 
 .advancedUtilityHeading span {
-  color: var(--coral);
+  color:var(--gold);
   font: 650 0.7rem/1.3 var(--mono);
   letter-spacing: .08em;
   text-transform: uppercase;

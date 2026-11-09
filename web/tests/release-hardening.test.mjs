@@ -21,5 +21,5 @@ test("keeps coarse-pointer controls at an accessible touch size", () => {
 
 test("retains reduced-motion handling", () => {
   assert.match(responsive, /prefers-reduced-motion:\s?reduce/);
-  assert.match(responsive, /animation-duration:\s?\.01ms/);
+  assert.match(responsive, /animation-duration:\s?0?\.01ms/);
 });

@@ -25,12 +25,12 @@
 
 .header h2 {
   margin-top: 5px;
-  font: italic 500 clamp(1.875rem, 4vw, 48px)/.98 var(--serif);
+  font: 500 clamp(1.875rem, 4vw, 48px)/.98 var(--serif);
   letter-spacing: -.025em;
 }
 
 .eyebrow {
-  color: var(--coral);
+  color:var(--gold);
   font: 600 var(--type-meta) var(--mono);
   letter-spacing: .12em;
   text-transform: uppercase;
@@ -98,7 +98,7 @@
   min-width: 30px;
   height: 30px;
   border: 1px solid var(--line-strong);
-  color: var(--coral);
+  color:var(--gold);
   font: 700 var(--type-meta) var(--mono);
 }
 
@@ -255,7 +255,7 @@
 .actionRow strong { font-size: var(--type-meta); }
 .actionRow small { color: var(--ink-faint); font: 500 var(--type-meta) var(--mono); text-transform: uppercase; }
 .actionRow code { min-width: 0; color: var(--ink-mute); font: 500 var(--type-meta)/1.35 var(--mono); overflow-wrap: anywhere; }
-.actionRow b { color: var(--coral); font-size: 1.125rem; font-weight: 400; }
+.actionRow b { color:var(--gold); font-size: 1.125rem; font-weight: 400; }
 .empty { padding: 22px 4px; color: var(--ink-faint); font-size: var(--type-meta); }
 
 .chainList {
@@ -276,7 +276,7 @@
   border-bottom: 1px solid var(--line);
 }
 
-.order { color: var(--coral); font: 600 var(--type-meta) var(--mono); }
+.order { color:var(--gold); font: 600 var(--type-meta) var(--mono); }
 .chainIdentity { min-width: 0; display: grid; gap: 3px; }
 .chainIdentity strong { font-size: var(--type-meta); }
 .chainIdentity code { color: var(--ink-mute); font: 500 var(--type-meta)/1.35 var(--mono); overflow-wrap: anywhere; }
@@ -287,7 +287,7 @@
 .chainActions { display: flex; gap: 4px; }
 .chainActions button { display: grid; place-items: center; min-width: var(--control-min); min-height: var(--control-min); width: var(--control-min); height: var(--control-min); padding: 0; }
 .chainActions button:disabled { opacity: .25; cursor: not-allowed; }
-.chainActions button:hover:not(:disabled) { border-color: var(--coral); color: var(--coral); }
+.chainActions button:hover:not(:disabled) { border-color: var(--coral); color:var(--gold); }
 .chainActions button :global(.ui-icon) { width: 14px; height: 14px; }
 
 .chainEmpty {
@@ -312,7 +312,7 @@
 .advanced > p { margin-top: 10px !important; color: var(--ink-faint); font-size: var(--type-meta); line-height: 1.5; }
 .customRow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; margin-top: 12px; }
 .customRow button { min-height: 44px; padding: 8px 12px; font: 600 var(--type-meta) var(--sans); }
-.customRow button:hover { border-color: var(--coral); color: var(--coral); }
+.customRow button:hover { border-color: var(--coral); color:var(--gold); }
 .error { margin-top: 8px !important; color: var(--danger); font-size: var(--type-meta); }
 .observed { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; margin-top: 12px; }
 .observed > span { color: var(--ink-faint); font-size: var(--type-meta); }

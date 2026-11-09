@@ -1,2 +1,30 @@
-import type {ReactNode} from "react";
-export function RecoveryPanel({title,description,children,busy=false,reference=null}:{eyebrow?:string;title:string;description:string;children?:ReactNode;busy?:boolean;reference?:string|null}){return <main className="app-shell"><section className="guide-card" aria-busy={busy} aria-labelledby="recovery-title"><h1 id="recovery-title">{title}</h1><p>{description}</p>{children?<div className="buttonrow">{children}</div>:null}{reference?<p className="hint">Reference: {reference}</p>:null}</section></main>;}
+import type { ReactNode } from "react";
+export function RecoveryPanel({
+  title,
+  description,
+  children,
+  busy = false,
+  reference = null,
+}: {
+  eyebrow?: string;
+  title: string;
+  description: string;
+  children?: ReactNode;
+  busy?: boolean;
+  reference?: string | null;
+}) {
+  return (
+    <main className="app-shell">
+      <section
+        className="guide-card"
+        aria-busy={busy}
+        aria-labelledby="recovery-title"
+      >
+        <h1 id="recovery-title">{title}</h1>
+        <p>{description}</p>
+        {children ? <div className="buttonrow">{children}</div> : null}
+        {reference ? <p className="hint">Reference: {reference}</p> : null}
+      </section>
+    </main>
+  );
+}
