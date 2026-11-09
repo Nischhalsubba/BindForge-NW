@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 
 async function waitForLibrary(page: Page) {
-  await page.goto("/");
+  await page.goto("/advanced");
   await page.evaluate(() => {
     window.localStorage.clear();
     window.localStorage.setItem("bindforge-nw:first-visit:v2", "seen");

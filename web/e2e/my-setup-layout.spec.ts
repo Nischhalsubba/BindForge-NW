@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 async function openMySetup(page: Page) {
-  await page.goto("/");
+  await page.goto("/advanced");
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
   const nav = page.getByRole("navigation", { name: "Primary navigation" });
   await nav.getByRole("link", { name: /My Setup/ }).click();

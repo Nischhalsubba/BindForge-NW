@@ -4,7 +4,7 @@ const FIRST_VISIT_KEY = "bindforge-nw:first-visit:v2";
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript((key) => window.localStorage.setItem(key, "seen"), FIRST_VISIT_KEY);
-  await page.goto("/");
+  await page.goto("/advanced");
   await expect(page.getByLabel("Search keybind library").first()).toBeEditable();
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
 });

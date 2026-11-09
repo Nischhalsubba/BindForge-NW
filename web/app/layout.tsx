@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import packageInfo from "../package.json";
-import { BindForgeProvider } from "./BindForgeProvider";
+import { CloudWorkspaceGuard } from "./components/CloudWorkspaceGuard";
 import { CloudAutosaveBridge } from "./components/CloudAutosaveBridge";
 import "./data/catalogIntegrity";
 import "./app.css";
@@ -160,6 +160,11 @@ const appearanceBootstrap = `
     preferences = { ...freshPreferences };
   }
 
+  if (!location.pathname.startsWith("/advanced")) {
+    try { const workbench=JSON.parse(localStorage.getItem("bindforge-nw:workbench:v1")||"null")?.state;
+      preferences={...preferences,theme:workbench?.theme==="light"?"light":"dark",textSize:workbench?.largeText?"large":"default",contrast:workbench?.highContrast?"high":"standard",reducedMotion:workbench?.reduceMotion===true};
+    } catch { preferences.theme="dark"; }
+  }
   const choice = validTheme(preferences.theme);
   const resolved = choice === "system"
     ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
@@ -189,7 +194,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body>
         <script dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} type="application/ld+json" />
-        <BindForgeProvider><CloudAutosaveBridge />{children}</BindForgeProvider>
+        <CloudWorkspaceGuard><CloudAutosaveBridge />{children}</CloudWorkspaceGuard>
       </body>
     </html>
   );

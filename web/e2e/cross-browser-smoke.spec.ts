@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("critical browse, My Setup, and settings flow works outside Chromium", async ({ page }) => {
-  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.goto("/advanced", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { level: 1, name: /Find it\./i })).toBeVisible();
 
   const search = page.getByLabel("Search keybind library").first();

@@ -4,7 +4,7 @@ type Page = import("@playwright/test").Page;
 type Locator = import("@playwright/test").Locator;
 
 async function waitForLibrary(page: Page) {
-  await page.goto("/");
+  await page.goto("/advanced");
   await expect(page.getByTestId("filter-toolbar").first()).toBeVisible();
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
 }

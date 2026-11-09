@@ -6,7 +6,7 @@ async function openWithoutTour(page: Page) {
   await page.addInitScript((firstVisitKey) => {
     window.localStorage.setItem(firstVisitKey, "seen");
   }, FIRST_VISIT_KEY);
-  await page.goto("/");
+  await page.goto("/advanced");
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
 }
 

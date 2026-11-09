@@ -25,7 +25,7 @@ async function waitForPreferences(page: Page, expected: Record<string, unknown>)
 }
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/advanced");
   await page.evaluate(() => {
     window.localStorage.clear();
     window.localStorage.setItem("bindforge-nw:first-visit:v2", "seen");

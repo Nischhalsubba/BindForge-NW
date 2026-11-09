@@ -24,7 +24,7 @@ async function waitForStableWorkspace(page: Page) {
 }
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/advanced");
   await page.evaluate(() => {
     window.localStorage.clear();
     window.localStorage.setItem("bindforge-nw:first-visit:v2", "seen");
@@ -98,7 +98,7 @@ test("Advanced experience surfaces portable technical tools without an extra dis
 });
 
 test("technical deep links are redirected to Compose while Beginner View is active", async ({ page }) => {
-  await page.goto("/#build-command");
+  await page.goto("/advanced#build-command");
   await waitForStableWorkspace(page);
   await expect(page.locator("html")).toHaveAttribute("data-experience", "simple");
   await expect(page).toHaveURL(/#compose-keybind$/);
