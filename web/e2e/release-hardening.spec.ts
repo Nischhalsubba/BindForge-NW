@@ -3,7 +3,7 @@ import axe from "axe-core";
 
 /** Resets browser state and waits for the keybind catalogue before each release test. */
 async function prepare(page: Page) {
-  await page.goto("/");
+  await page.goto("/advanced");
   await page.evaluate(() => {
     window.localStorage.clear();
     window.localStorage.setItem("bindforge-nw:first-visit:v2", "seen");

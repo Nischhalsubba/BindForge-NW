@@ -6,7 +6,7 @@ const productionUrl = process.env.PRODUCTION_URL ?? "https://neverwinterkeybind.
 const normalizeUrl = (value: string | null) => value?.replace(/\/$/, "") ?? "";
 
 async function waitForLibrary(page: Page) {
-  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.goto("/advanced", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { level: 1, name: /Find it\./i })).toBeVisible();
   await expect(page.getByLabel("Search keybind library").first()).toBeEditable();
   await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
@@ -44,7 +44,7 @@ function attachRuntimeFailureGuards(page: Page) {
 }
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/advanced");
   await page.evaluate(() => {
     window.localStorage.clear();
     window.localStorage.setItem("bindforge-nw:first-visit:v2", "seen");

@@ -1,7 +1,7 @@
 {
-  "productionCommit": "d1404b3292e56c806df39a0287ff4fb5c37d64a7",
-  "sourceMainSha": "0c8ddc87dcbbad2b33a034301ad3d3b75a8804db",
-  "releasedAt": "2026-09-19T08:05:40Z",
-  "managedBy": ".github/workflows/release-production.yml",
-  "note": "Updated automatically by the controlled production release PR workflow."
+  "productionCommit": "7cb9a977b102c6d0b75342c862eec1c603d22f4d",
+  "sourceMainSha": "b712299905fcc0f132fbc21d231cce1ec74374ce",
+  "releasedAt": "2026-11-09T08:54:08.321074+00:00",
+  "managedBy": "User-authorized release via PR #194",
+  "note": "All demo features integrated. Release fixes preserve parameterized drafts and retry newer edits safely. Google provider credentials remain owner-configured."
 }

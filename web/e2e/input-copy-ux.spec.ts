@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 async function waitForLibrary(page: import("@playwright/test").Page) {
-  await page.goto("/");
+  await page.goto("/advanced");
   await expect(page.getByTestId("filter-toolbar").first()).toBeVisible();
   const experience = page.getByTestId("experience-workspace-summary");
   const showMore = experience.getByRole("button", { name: "Show more tools" });

@@ -11,7 +11,7 @@ async function openAsFirstVisit(page: Page) {
     window.sessionStorage.removeItem(sessionKey);
     window.sessionStorage.setItem(resetKey, "done");
   }, { firstVisitKey: FIRST_VISIT_KEY, sessionKey: FIRST_VISIT_SESSION_KEY, resetKey: FIRST_VISIT_TEST_RESET_KEY });
-  await page.goto("/");
+  await page.goto("/advanced");
 }
 
 async function markTourSeen(page: Page) {
@@ -69,7 +69,7 @@ test("quick-start overlay supports Back, Skip, and Escape", async ({ page }) => 
 
 test("help glossary can open the full seven-step guided tour", async ({ page }) => {
   await markTourSeen(page);
-  await page.goto("/");
+  await page.goto("/advanced");
 
   const help = page.locator("#bindforge-help:visible").first();
   await help.locator("summary").click();

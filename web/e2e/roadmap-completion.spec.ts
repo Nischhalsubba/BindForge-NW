@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/advanced");
   await page.evaluate(() => {
     window.localStorage.clear();
     window.localStorage.setItem("bindforge-nw:first-visit:v2", "seen");
@@ -40,6 +40,7 @@ test("records only coarse local analytics and recent activity after user actions
   const firstCard = page.locator(".bind-card:visible").first();
   await firstCard.getByRole("button", { name: /Copy command:/ }).click();
   await expect(page.getByTestId("recent-activity")).toBeVisible();
+  const useGuide=page.getByTestId("in-game-guide");if(await useGuide.isVisible())await useGuide.getByRole("button",{name:"Close in-game guidance"}).click();
 
   await page.getByLabel("Search keybind library").fill("definitely-no-match-xyz");
   await expect(page.getByTestId("search-empty-state")).toBeVisible();

@@ -11,7 +11,7 @@ async function openAsFirstVisit(page: Page) {
     window.sessionStorage.removeItem(sessionKey);
     window.sessionStorage.setItem(resetKey, "done");
   }, { firstVisitKey: FIRST_VISIT_KEY, sessionKey: FIRST_VISIT_SESSION_KEY, resetKey: FIRST_VISIT_TEST_RESET_KEY });
-  await page.goto("/");
+  await page.goto("/advanced");
   await expect(page.getByLabel("Search keybind library").first()).toBeEditable();
 }
 
@@ -71,7 +71,7 @@ test("quick-start coachmark placement remains inside the viewport on each respon
 
 test("full-tour replay keeps keyboard controls contained and restores focus", async ({ page }) => {
   await page.addInitScript((key) => window.localStorage.setItem(key, "seen"), FIRST_VISIT_KEY);
-  await page.goto("/");
+  await page.goto("/advanced");
   const help = page.locator("#bindforge-help:visible").first();
   await help.locator("summary").click();
   const replay = help.getByRole("button", { name: "Take the full tour" });

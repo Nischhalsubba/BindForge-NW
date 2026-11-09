@@ -1,9 +1,9 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
 async function ready(page: Page) {
-  await page.goto("/");
-  await expect(page.getByTestId("filter-toolbar")).toBeVisible();
-  await expect(page.getByTestId("result-count")).not.toHaveText("0 keybinds");
+  await page.goto("/advanced");
+  await expect(page.getByTestId("filter-toolbar").first()).toBeVisible();
+  await expect(page.getByTestId("result-count").first()).not.toHaveText("0 keybinds");
 }
 
 async function setTheme(page: Page, theme: "Light" | "Dark") {
