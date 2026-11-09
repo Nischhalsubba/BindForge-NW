@@ -329,3 +329,11 @@ export function isolateAccountWorkspace(storage, owner) {
     storage.removeItem(key);
   storage.removeItem(`bindforge-nw:cloud-meta:${owner}`);
 }
+export function queueLatestDraft(userId, local, baseRevision, pending = null) {
+  if (pending !== null) {
+    const validated = validateOutbox(pending, userId);
+    if (!validated.ok) throw Error(validated.error);
+    return makeOutbox(userId, local, validated.value.baseRevision);
+  }
+  return makeOutbox(userId, local, baseRevision);
+}

@@ -11,3 +11,4 @@ export function makeOutbox(userId:string,envelope:WorkspaceEnvelope,baseRevision
 export function validateOutbox(value:unknown,userId:string):{ok:true;value:Outbox}|{ok:false;error:string};
 export function restoreWorkspace(storage:Pick<Storage,'getItem'|'setItem'|'removeItem'>,envelope:WorkspaceEnvelope):void;
 export function isolateAccountWorkspace(storage:Pick<Storage,'getItem'|'setItem'|'removeItem'>,owner:string):void;
+export function queueLatestDraft(userId:string,local:WorkspaceEnvelope,baseRevision:number,pending?:unknown):Outbox;

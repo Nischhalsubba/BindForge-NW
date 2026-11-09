@@ -3,6 +3,7 @@ import {
   defaultWorkbench,
   parseWorkbench,
   serializeWorkbench,
+  resolveCommandDraft,
 } from "./engine/workbench-state.mjs";
 import {
   COPY_HISTORY_KEY,
@@ -860,6 +861,13 @@ function renderCommands() {
     );
 }
 function renderCommandSelection() {
+  if (selectedCommand === -1 && state.customPreset) {
+    $("commandName").textContent = state.customPreset.title;
+    $("commandParams").textContent =
+      "Preset parameters: replace angle-bracket placeholders in the command.";
+    renderCommandOutput();
+    return;
+  }
   const c = catalog.commands[selectedCommand];
   if (!c) return;
   $("commandName").textContent = c.command;
@@ -1179,10 +1187,16 @@ async function init() {
     $("sayMessage").value = state.sayMessage;
     $("commandKey").value = state.commandKey;
     $("commandArgs").value = state.commandArgs;
-    selectedCommand = Math.max(
-      0,
-      catalog.commands.findIndex((c) => c.id === state.commandId),
-    );
+    const draft = resolveCommandDraft(state, catalog.commands, catalog.presets);
+    selectedCommand = draft.index;
+    if (draft.preset) state.customPreset = draft.preset;
+    else {
+      delete state.customPreset;
+      if (draft.clearArguments) {
+        $("commandArgs").value = "";
+        state.commandArgs = "";
+      }
+    }
     $("loadState").classList.add("hidden");
     renderLibrary();
     renderActions();

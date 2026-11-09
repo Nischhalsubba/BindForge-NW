@@ -132,3 +132,17 @@ export function serializeWorkbench(state) {
   }
   return parseWorkbench(raw);
 }
+export function resolveCommandDraft(state, commands, presets) {
+  const preset =
+    state.customPreset &&
+    presets.find((item) => item.id === state.customPreset.id);
+  if (preset) return { index: -1, preset };
+  return {
+    index: Math.max(
+      0,
+      commands.findIndex((item) => item.id === state.commandId),
+    ),
+    preset: null,
+    clearArguments: !!state.customPreset,
+  };
+}

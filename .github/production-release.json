@@ -1,7 +1,7 @@
 {
-  "productionCommit": "397c55f053443fee73a6893b29906f4d3b2b6d35",
+  "productionCommit": "7cb9a977b102c6d0b75342c862eec1c603d22f4d",
   "sourceMainSha": "b712299905fcc0f132fbc21d231cce1ec74374ce",
-  "releasedAt": "2026-11-09T08:46:26.795483+00:00",
+  "releasedAt": "2026-11-09T08:54:08.321074+00:00",
   "managedBy": "User-authorized release via PR #194",
-  "note": "Integrates the approved Neverwinter demo workbench and cloud-ready accounts. Google provider credentials remain owner-configured."
+  "note": "All demo features integrated. Release fixes preserve parameterized drafts and retry newer edits safely. Google provider credentials remain owner-configured."
 }

@@ -14,3 +14,5 @@ Ruling: workbench state nests in the existing builder document — avoids anothe
 Ruling: preserve the repository's explicit Netlify release gate — final marker commit changes .github/production-release.json and ends in [deploy]. User has explicitly authorized merge and deploy.
 
 Google owner steps are in web/docs/CLOUD_SETUP.md. The full community/guild/AI/admin roadmap is not claimed delivered by this release.
+
+Hosted checks for the integration passed desktop/tablet/mobile Chromium and Firefox/WebKit smoke, core, dependency audit and CodeQL. The repository’s automated review then identified false pending-queue conflicts and parameterized-preset reload confusion; both were verified and fixed with red→green unit regressions and a browser regression for parameterized reloads. Final local core suite: 158/158; browser typecheck passes. Final hosted checks run on the release head before merge.

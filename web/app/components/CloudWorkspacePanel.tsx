@@ -11,6 +11,7 @@ import {
   workspaceFingerprint,
   planSync,
   makeOutbox,
+  queueLatestDraft,
   validateOutbox,
   restoreWorkspace,
   isolateAccountWorkspace,
@@ -253,16 +254,6 @@ export function CloudWorkspacePanel() {
         fingerprint = workspaceFingerprint(local);
       const raw = localStorage.getItem(queueKey(current.id));
       const pending = raw ? validateOutbox(JSON.parse(raw), current.id) : null;
-      if (
-        pending &&
-        (!pending.ok ||
-          workspaceFingerprint(pending.value.envelope) !== fingerprint)
-      ) {
-        setConflict(true);
-        throw Error(
-          "A pending copy differs from this browser. Recover the pending copy or deliberately keep this browser copy.",
-        );
-      }
       if (pending && !pending.ok)
         throw Error(
           "Pending save is invalid or belongs to another account. Export your local workspace before repairing it.",
@@ -270,7 +261,14 @@ export function CloudWorkspacePanel() {
       if (!navigator.onLine) {
         localStorage.setItem(
           queueKey(current.id),
-          JSON.stringify(makeOutbox(current.id, local, meta.baseRevision ?? 0)),
+          JSON.stringify(
+            queueLatestDraft(
+              current.id,
+              local,
+              meta.baseRevision ?? 0,
+              raw ? JSON.parse(raw) : null,
+            ),
+          ),
         );
         setStatus(
           "Offline — changes are queued for this account on this browser.",

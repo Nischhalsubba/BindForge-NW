@@ -8,6 +8,7 @@ import {
   workspaceFingerprint,
   planSync,
   makeOutbox,
+  queueLatestDraft,
   validateOutbox,
   restoreWorkspace,
   isolateAccountWorkspace,
@@ -66,7 +67,14 @@ export function CloudAutosaveBridge() {
         if (!navigator.onLine) {
           localStorage.setItem(
             queue,
-            JSON.stringify(makeOutbox(owner, local, meta.baseRevision ?? 0)),
+            JSON.stringify(
+              queueLatestDraft(
+                owner,
+                local,
+                meta.baseRevision ?? 0,
+                JSON.parse(localStorage.getItem(queue) || "null"),
+              ),
+            ),
           );
           setMessage("Offline — changes queued");
           return;
@@ -79,14 +87,11 @@ export function CloudAutosaveBridge() {
         }
         const raw = localStorage.getItem(queue),
           pending = raw ? validateOutbox(JSON.parse(raw), owner) : null;
-        if (
-          pending &&
-          (!pending.ok ||
-            workspaceFingerprint(pending.value.envelope) !==
-              workspaceFingerprint(local))
-        ) {
+        if (pending && !pending.ok) {
           suspended = true;
-          setMessage("Pending copy differs — recover or review before syncing");
+          setMessage(
+            "Invalid pending copy — export or recover it before syncing",
+          );
           return;
         }
         const { data, error } = await client!

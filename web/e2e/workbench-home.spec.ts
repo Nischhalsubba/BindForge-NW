@@ -51,3 +51,29 @@ test("account route has configured provider feedback and returns to the usable h
   await page.getByRole("link", { name: "Back to workbench" }).click();
   await expect(page.locator("#resultCount")).toContainText("177");
 });
+test("parameterized preset stays in preset mode after reload", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page
+    .getByLabel("Search keybind library")
+    .fill("Use Any Chosen Inventory Slot");
+  await page
+    .getByRole("button", { name: "Use Any Chosen Inventory Slot", exact: true })
+    .click();
+  const configure = page.getByRole("button", {
+    name: "Configure parameters",
+    exact: true,
+  });
+  if (await configure.isVisible()) await configure.click();
+  await page
+    .getByRole("textbox", { name: "Arguments", exact: true })
+    .fill('"+InventoryExec inventory 0"');
+  const line = await page.locator("#commandOutput").textContent();
+  await page.reload();
+  await expect(page.locator("#commandName")).toHaveText(
+    "Use Any Chosen Inventory Slot",
+  );
+  await expect(page.locator("#commandOutput")).toHaveText(line!);
+  await expect(page.locator("#commandOutput")).not.toContainText("netgraph");
+});
