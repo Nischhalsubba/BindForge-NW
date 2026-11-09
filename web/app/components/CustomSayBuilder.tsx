@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import { useBindForge } from "../BindForgeProvider";
 import { buildSayLine, isCompleteCombo, normalizeMessage } from "../lib/keybind-core.mjs";
+import { COPY_HISTORY_KEY,parseCopyHistory,recordCopy } from "../lib/copy-workflow.mjs";
 import { copyTextSafely } from "../lib/clipboard";
 import { KeyCaptureInput } from "./KeyCaptureInput";
 import styles from "./CustomSayBuilder.module.css";
@@ -24,6 +25,7 @@ export function CustomSayBuilder() {
     setCopyState("copying");
     const result = await copyTextSafely(command);
     setCopyState(result.ok ? (result.method === "fallback" ? "fallback" : "copied") : "error");
+    if(result.ok){try{localStorage.setItem(COPY_HISTORY_KEY,JSON.stringify(recordCopy(parseCopyHistory(localStorage.getItem(COPY_HISTORY_KEY)),{text:command,label:"Custom say bind"})));window.dispatchEvent(new Event("bindforge:copy-history-change"));}catch{/* Successful copy remains usable without history storage. */}}
     if (!result.ok) preview.current?.focus();
     if (resetTimer.current) window.clearTimeout(resetTimer.current);
     resetTimer.current = window.setTimeout(() => setCopyState("idle"), result.ok ? 2400 : 4200);

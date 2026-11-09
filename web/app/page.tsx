@@ -11,6 +11,8 @@ import { PrimaryWorkspace } from "./components/PrimaryWorkspace";
 import { RevealController } from "./components/RevealController";
 import { UrlStateBridge } from "./components/UrlStateBridge";
 import { UseInNeverwinterGuide } from "./components/UseInNeverwinterGuide";
+import { FastCopyPanel } from "./components/FastCopyPanel";
+import { COPY_HISTORY_KEY, parseCopyHistory, recordCopy } from "./lib/copy-workflow.mjs";
 import { copyTextSafely } from "./lib/clipboard";
 import { isNeverwinterBindPayload } from "./lib/in-game-guidance.mjs";
 
@@ -44,6 +46,7 @@ export default function Home() {
     const result = await copyTextSafely(text);
     const nextState: CopyResultState = result.ok ? (result.method === "fallback" ? "fallback" : "copied") : "error";
     setFeedback({ state: nextState, label });
+    if (result.ok) { try { const history = parseCopyHistory(window.localStorage.getItem(COPY_HISTORY_KEY)); window.localStorage.setItem(COPY_HISTORY_KEY, JSON.stringify(recordCopy(history, { text, label }))); window.dispatchEvent(new Event("bindforge:copy-history-change")); } catch { /* Copying stays available if history storage is blocked. */ } }
     if (result.ok && isNeverwinterBindPayload(text)) {
       try {
         if (window.localStorage.getItem("bindforge-nw:hide-in-game-guide") !== "true") setInGameGuide({ command: text, label });
@@ -83,6 +86,7 @@ export default function Home() {
       <AppHeader feedback={feedback} />
       <FirstVisitOrientation />
 
+      <FastCopyPanel />
       <PrimaryWorkspace onCopy={copyText} />
       <ContextualHelpGlossary />
       <CommandPalette />

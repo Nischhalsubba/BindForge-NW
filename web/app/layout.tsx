@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import packageInfo from "../package.json";
 import { BindForgeProvider } from "./BindForgeProvider";
+import { CloudAutosaveBridge } from "./components/CloudAutosaveBridge";
 import "./data/catalogIntegrity";
 import "./app.css";
 
@@ -188,7 +189,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body>
         <script dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} type="application/ld+json" />
-        <BindForgeProvider>{children}</BindForgeProvider>
+        <BindForgeProvider><CloudAutosaveBridge />{children}</BindForgeProvider>
       </body>
     </html>
   );

@@ -1,0 +1,13 @@
+export type WorkspaceEnvelope={schemaVersion:1;exportedAt:string;documents:Record<string,string>};
+export type CloudRecord={revision:number;document:WorkspaceEnvelope;updated_at?:string};
+export type Outbox={version:1;userId:string;envelope:WorkspaceEnvelope;baseRevision:number;queuedAt:string};
+export const MAX_CLOUD_BYTES:number;
+export const CLOUD_DOCUMENT_KEYS:readonly string[];
+export function validateEnvelope(value:unknown):{ok:true;value:WorkspaceEnvelope}|{ok:false;error:string};
+export function collectWorkspace(storage:Pick<Storage,'getItem'>,exportedAt?:string):WorkspaceEnvelope;
+export function workspaceFingerprint(envelope:WorkspaceEnvelope):string;
+export function planSync(input:{local:WorkspaceEnvelope;remote:CloudRecord|null;baseRevision:number|null;baseFingerprint?:string;migrationApproved?:boolean}):{action:'invalid'|'review'|'download'|'current'|'upload'|'conflict';revision?:number};
+export function makeOutbox(userId:string,envelope:WorkspaceEnvelope,baseRevision:number):Outbox;
+export function validateOutbox(value:unknown,userId:string):{ok:true;value:Outbox}|{ok:false;error:string};
+export function restoreWorkspace(storage:Pick<Storage,'getItem'|'setItem'|'removeItem'>,envelope:WorkspaceEnvelope):void;
+export function isolateAccountWorkspace(storage:Pick<Storage,'getItem'|'setItem'|'removeItem'>,owner:string):void;

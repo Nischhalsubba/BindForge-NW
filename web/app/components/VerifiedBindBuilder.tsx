@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { observedWorkingBindFragments, verifiedActionCategories, verifiedKeybindActions } from "../data/verifiedKeybindActions";
 import { buildCommandChain, sanitizeBindFragment, validateCustomFragment } from "../lib/command-chain.mjs";
 import { isCompleteCombo } from "../lib/keybind-core.mjs";
@@ -22,11 +22,50 @@ export function VerifiedBindBuilder({ onCopy }: { onCopy: CopyHandler }) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [chain, setChain] = useState<ChainItem[]>([]);
+  const [past, setPast] = useState<ChainItem[][]>([]);
+  const [future, setFuture] = useState<ChainItem[][]>([]);
+  const [draftReady, setDraftReady] = useState(false);
+  const [draftStatus, setDraftStatus] = useState("");
+  const [saved, setSaved] = useState<{name:string;key:string;chain:ChainItem[]}[]>([]);
+  const [saveName, setSaveName] = useState("");
   const [customFragment, setCustomFragment] = useState("");
   const [customError, setCustomError] = useState("");
   const [copyState, setCopyState] = useState<"idle" | "copying" | CopyResultState>("idle");
   const nextId = useRef(1);
   const preview = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+    try {
+      const stored=localStorage.getItem("bindforge-nw:builder:v1");
+      const raw = JSON.parse(stored || "null");
+      const validChain = (items: unknown): items is ChainItem[] => Array.isArray(items) && items.length <= 100 && items.every(x => x && typeof x.label === "string" && typeof x.fragment === "string" && x.fragment.length <= 2000 && Number.isSafeInteger(x.instanceId) && ["custom","settings-screenshot","user-provided-working-bind"].includes(x.source));
+      if (raw?.version === 1 && typeof raw.key === "string" && validChain(raw.chain)) {
+        setKeyValue(raw.key); setChain(raw.chain);
+        const restoredPast=Array.isArray(raw.past)?raw.past.filter(validChain).slice(-50):[];
+        const restoredFuture=Array.isArray(raw.future)?raw.future.filter(validChain).slice(0,50):[];
+        setPast(restoredPast);setFuture(restoredFuture);
+        nextId.current = Math.max(0,...[raw.chain,...restoredPast,...restoredFuture].flat().map((x:ChainItem)=>x.instanceId)) + 1;
+        if(Array.isArray(raw.saved)) setSaved(raw.saved.filter((x:{name:string;key:string;chain:unknown})=>typeof x.name === "string" && typeof x.key === "string" && validChain(x.chain)).slice(0,30));
+      } else if(stored){setDraftStatus("Saved draft is unreadable and has been preserved. Export your workspace before replacing it.");return;}
+    } catch { setDraftStatus("The saved draft could not be read and has been preserved.");return; }
+    setDraftReady(true);
+    },0);
+    return ()=>clearTimeout(timer);
+  }, []);
+  useEffect(() => {
+    if(!draftReady) return;
+    try { localStorage.setItem("bindforge-nw:builder:v1", JSON.stringify({version:1,key:keyValue,chain,saved,past,future})); }
+    catch { const timer=setTimeout(()=>setDraftStatus("Draft could not be saved on this browser. Copy or export your work before leaving."),0); return ()=>clearTimeout(timer); }
+  }, [draftReady,keyValue,chain,saved,past,future]);
+  function updateChain(next: ChainItem[] | ((items:ChainItem[])=>ChainItem[])) {
+    const value=typeof next === "function" ? next(chain) : next;
+    if(value.length>100){setDraftStatus("A combination can contain up to 100 actions.");return;}
+    setPast(items=>[...items,chain].slice(-50)); setFuture([]);
+    setChain(value);
+  }
+  function undo(){const previous=past.at(-1);if(!previous)return;setFuture(items=>[chain,...items]);setPast(items=>items.slice(0,-1));setChain(previous);}
+  function redo(){const next=future[0];if(!next)return;setPast(items=>[...items,chain]);setFuture(items=>items.slice(1));setChain(next);}
 
   const filteredActions = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -41,12 +80,12 @@ export function VerifiedBindBuilder({ onCopy }: { onCopy: CopyHandler }) {
   const canCopy = Boolean(isCompleteCombo(keyValue) && chain.length);
 
   function addItem(label: string, fragment: string, source: ChainItem["source"]) {
-    setChain((current) => [...current, { instanceId: nextId.current++, label, fragment, source }]);
+    updateChain((current) => [...current, { instanceId: nextId.current++, label, fragment, source }]);
     setCopyState("idle");
   }
 
   function moveItem(index: number, direction: -1 | 1) {
-    setChain((current) => {
+    updateChain((current) => {
       const target = index + direction;
       if (target < 0 || target >= current.length) return current;
       const next = [...current];
@@ -57,11 +96,12 @@ export function VerifiedBindBuilder({ onCopy }: { onCopy: CopyHandler }) {
   }
 
   function removeItem(instanceId: number) {
-    setChain((current) => current.filter((item) => item.instanceId !== instanceId));
+    updateChain((current) => current.filter((item) => item.instanceId !== instanceId));
     setCopyState("idle");
   }
 
   function addCustom() {
+    if(customFragment.length>2000){setCustomError("Use at most 2,000 characters per action.");return;}
     const validation = validateCustomFragment(customFragment);
     if (!validation.ok) {
       setCustomError(validation.message);
@@ -77,7 +117,7 @@ export function VerifiedBindBuilder({ onCopy }: { onCopy: CopyHandler }) {
     setKeyValue("");
     setSearch("");
     setCategory("All");
-    setChain([]);
+    updateChain([]);
     setCustomFragment("");
     setCustomError("");
     setCopyState("idle");
@@ -109,6 +149,14 @@ export function VerifiedBindBuilder({ onCopy }: { onCopy: CopyHandler }) {
         <div className={styles.verificationBadge}><Icon name="shield" /><span><strong>{verifiedKeybindActions.length}</strong> screenshot-verified actions</span></div>
       </header>
 
+      <div className={styles.previewActions}>
+        <button type="button" disabled={!past.length} onClick={undo}>Undo action change</button>
+        <button type="button" disabled={!future.length} onClick={redo}>Redo action change</button>
+        <label>Combination name <input value={saveName} maxLength={80} onChange={event=>setSaveName(event.target.value)} /></label>
+        <button type="button" disabled={!chain.length||!saveName.trim()||saved.length>=30} onClick={()=>{setSaved(items=>[...items,{name:saveName.trim(),key:keyValue,chain}]);setSaveName("");}}>Save reusable combination</button>
+      </div>
+      {saved.length ? <details className={styles.advanced}><summary>Reusable combinations ({saved.length})</summary>{saved.map((item,index)=><div key={index} className={styles.previewActions}><button type="button" onClick={()=>{updateChain(item.chain.map(x=>({...x,instanceId:nextId.current++})));setKeyValue(item.key);}}>Load {item.name}</button><button type="button" onClick={()=>setSaved(items=>items.filter((_,i)=>i!==index))}>Remove {item.name}</button></div>)}</details>:null}
+      {draftStatus?<p role="status">{draftStatus}</p>:null}
       <div className={styles.keyAndPreview}>
         <section className={styles.keyPanel} aria-labelledby="bind-key-title">
           <div className={styles.panelHeading}>
@@ -181,6 +229,7 @@ export function VerifiedBindBuilder({ onCopy }: { onCopy: CopyHandler }) {
                 <span className={styles.chainActions}>
                   <button aria-label={`Move ${item.label} up`} disabled={index === 0} onClick={() => moveItem(index, -1)} type="button"><Icon name="arrow-up" /></button>
                   <button aria-label={`Move ${item.label} down`} disabled={index === chain.length - 1} onClick={() => moveItem(index, 1)} type="button"><Icon name="arrow-down" /></button>
+                  <button aria-label={`Duplicate ${item.label}`} onClick={() => updateChain(items=>[...items.slice(0,index+1),{...item,instanceId:nextId.current++},...items.slice(index+1)])} type="button">Duplicate</button>
                   <button aria-label={`Remove ${item.label}`} onClick={() => removeItem(item.instanceId)} type="button"><Icon name="close" /></button>
                 </span>
               </li>

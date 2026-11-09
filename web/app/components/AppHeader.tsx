@@ -53,6 +53,7 @@ export function AppHeader({ feedback }: { feedback: CopyFeedback }) {
           <a href="#my-setup">My Setup <span>02</span></a>
           <a href="#compose-keybind">Build <span>03</span></a>
         </div>
+        <a href="/account">Account &amp; cloud save</a>
         <div className={styles.navSettings}><SettingsPanel placement="nav" /></div>
       </nav>
 
