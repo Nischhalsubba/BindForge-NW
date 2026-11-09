@@ -7,7 +7,7 @@ import { keyCombos } from "../data/keyCombos";
 import type { ConsoleCommand } from "../data/commands";
 import type { KeyCombo } from "../data/keyCombos";
 import { buildCustomLine, isCompleteCombo } from "../lib/keybind-core.mjs";
-import type { CopyResultState } from "../page";
+import type { CopyResultState } from "../lib/copy-types";
 import { Icon } from "./Icon";
 import { KeyCaptureInput } from "./KeyCaptureInput";
 

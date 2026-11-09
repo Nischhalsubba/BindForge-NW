@@ -31,19 +31,6 @@ test("switching primary tools does not move the page", async ({ page }) => {
   }
 });
 
-test("command and say views keep the footer at a stable desktop position", async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name.includes("mobile") || testInfo.project.name.includes("tablet"), "Desktop workspace uses the stable minimum-height stage.");
-  const tabs = await waitForWorkspace(page);
-
-  await tabs.getByRole("tab", { name: "Build your own command", exact: true }).click();
-  const commandFooterTop = await page.locator("footer.app-footer").evaluate((element) => element.getBoundingClientRect().top + window.scrollY);
-
-  await tabs.getByRole("tab", { name: "Create your own say message", exact: true }).click();
-  const sayFooterTop = await page.locator("footer.app-footer").evaluate((element) => element.getBoundingClientRect().top + window.scrollY);
-
-  expect(Math.abs(commandFooterTop - sayFooterTop)).toBeLessThanOrEqual(2);
-});
-
 test("primary tabs support arrow-key navigation without scrolling", async ({ page }) => {
   const tabs = await waitForWorkspace(page);
   await tabs.scrollIntoViewIfNeeded();

@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useEffect, useRef } from "react";
 import type { InputHTMLAttributes, KeyboardEvent, MouseEvent } from "react";
 import {
   appendComboToken,
@@ -83,6 +83,19 @@ export function KeyCaptureInput({
   ...props
 }: KeyCaptureInputProps) {
   const hintId = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const input = inputRef.current;
+    if (!input) return;
+    const wheel = (event: WheelEvent) => {
+      if (document.activeElement !== input || !event.deltaY) return;
+      event.preventDefault();
+      const modifiers = [event.ctrlKey && "ctrl", event.altKey && "alt", event.shiftKey && "shift"].filter(Boolean);
+      onValueChange(appendComboToken(value, [...modifiers, event.deltaY < 0 ? "wheelup" : "wheeldown"].join("+")));
+    };
+    input.addEventListener("wheel", wheel, { passive: false });
+    return () => input.removeEventListener("wheel", wheel);
+  }, [value, onValueChange]);
   const cleanValue = sanitizeComboInput(value);
   const tokens = comboTokens(cleanValue);
   const awaitingNext = comboAwaitingNext(cleanValue);
@@ -180,6 +193,7 @@ export function KeyCaptureInput({
         </div>
         <input
           {...props}
+          ref={inputRef}
           aria-describedby={[props["aria-describedby"], hintId, `${hintId}-instructions`].filter(Boolean).join(" ")}
           className={["key-combination-capture", className].filter(Boolean).join(" ")}
           data-key-capture="true"

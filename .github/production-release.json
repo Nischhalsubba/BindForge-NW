@@ -1,7 +1,7 @@
 {
-  "productionCommit": "7cb9a977b102c6d0b75342c862eec1c603d22f4d",
-  "sourceMainSha": "b712299905fcc0f132fbc21d231cce1ec74374ce",
-  "releasedAt": "2026-11-09T08:54:08.321074+00:00",
-  "managedBy": "User-authorized release via PR #194",
-  "note": "All demo features integrated. Release fixes preserve parameterized drafts and retry newer edits safely. Google provider credentials remain owner-configured."
+  "productionCommit": "61331d59408544c7093fa342b2a1eff38cac538d",
+  "sourceMainSha": "1de5b3171bbb700bd0a85376a6bad0e888a4a89b",
+  "releasedAt": "2026-11-09T17:05:41.107976+00:00",
+  "managedBy": "User-authorized workbench usability release via PR #195",
+  "note": "Static guest workbench, shared Neverwinter-inspired design, keyboard/mouse capture, email/password access and first-run guide. Race-tested account isolation. Owner SMTP and real-account email delivery verification remain required."
 }

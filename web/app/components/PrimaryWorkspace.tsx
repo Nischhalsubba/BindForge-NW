@@ -7,7 +7,7 @@ import { useBindForge } from "../BindForgeProvider";
 import { keybindPresets } from "../data/keybindPresets";
 import type { KeybindClass, KeybindType } from "../data/keybindPresets";
 import { buildCatalogPacks } from "../lib/catalog-packs.mjs";
-import type { CopyResultState } from "../page";
+import type { CopyResultState } from "../lib/copy-types";
 import { CatalogQuickPacks } from "./CatalogQuickPacks";
 import { FilterSidebar } from "./FilterSidebar";
 import { Icon, type IconName } from "./Icon";
@@ -223,18 +223,12 @@ export function PrimaryWorkspace({ onCopy }: { onCopy: CopyHandler }) {
         {tools.map((tool) => <span className={styles.hashTarget} id={tool.hash} key={tool.hash} />)}
       </div>
 
-      <div className="section-rule" aria-hidden="true">
-        <span className="roman">II.</span>
-        <span>Primary tools / one workspace</span>
-        <span>002 / 003</span>
-      </div>
-
       <header className={styles.intro}>
         <div>
-          <p className="label">The workbench</p>
-          <h2 className={styles.title} id="primary-workspace-title">Choose a workflow<span className="dot">.</span></h2>
+
+          <h2 className={styles.title} id="primary-workspace-title">Advanced workflows</h2>
         </div>
-        <p>Start with the job you came to do. Switching tools keeps your place on the page, so the workspace no longer jumps around underneath you.</p>
+        <p>Start with the job you came to do. Profiles, key assignments and recovery use the same saved workspace.</p>
       </header>
 
       <div className={styles.experienceBar} data-testid="experience-workspace-summary" data-tour="beginner-view">

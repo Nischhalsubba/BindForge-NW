@@ -1,13 +1,8 @@
-const gsap=window.gsap,Flip=window.Flip;
-if(gsap&&Flip)gsap.registerPlugin(Flip);
-let reduce=false,systemReduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-const targets='.view,.chain-row,.toast,.btn svg';
-function reset(){if(!gsap)return;gsap.killTweensOf(targets);gsap.set(targets,{clearProps:'transform,opacity,visibility'});}
-if(gsap){gsap.matchMedia().add({reduce:'(prefers-reduced-motion: reduce)',normal:'(prefers-reduced-motion: no-preference)'},context=>{systemReduce=context.conditions.reduce;if(systemReduce)reset();return ()=>reset()});}
-const enabled=()=>!!gsap&&!reduce&&!systemReduce;
-export function configureMotion(value){reduce=!!value;if(reduce)reset();}
-export function revealView(element){if(!enabled())return;gsap.fromTo(element,{y:10,opacity:.6},{y:0,opacity:1,duration:.32,ease:'power3.out',clearProps:'transform,opacity',overwrite:true});}
-export function revealToast(element){if(!enabled())return;gsap.fromTo(element,{y:8,opacity:.65},{y:0,opacity:1,duration:.22,ease:'power2.out',clearProps:'transform,opacity',overwrite:true});}
-export function copiedFeedback(button){if(!enabled()||!button)return;const mark=button.querySelector('svg');if(mark)gsap.fromTo(mark,{scale:.75,opacity:.7},{scale:1,opacity:1,duration:.2,ease:'power2.out',clearProps:'transform,opacity'});}
-export function captureChain(){return enabled()&&Flip?Flip.getState('.chain-row'):null;}
-export function animateChain(previous){if(!enabled())return;if(previous&&Flip)Flip.from(previous,{duration:.28,ease:'power2.out',absolute:false,prune:true,onEnter:elements=>gsap.fromTo(elements,{y:8,opacity:.6},{y:0,opacity:1,duration:.25,clearProps:'transform,opacity'})});}
+let reduce=false;const system=matchMedia('(prefers-reduced-motion: reduce)');const enabled=()=>!!window.gsap&&!reduce&&!system.matches;const targets='.view,.chain-row,.toast,.btn svg';
+export function configureMotion(value){reduce=!!value;if(reduce&&window.gsap){window.gsap.killTweensOf(targets);window.gsap.set(targets,{clearProps:'transform,opacity,visibility'});}}
+export function revealView(el){if(enabled())window.gsap.fromTo(el,{y:8,opacity:.7},{y:0,opacity:1,duration:.28,ease:'power3.out',clearProps:'transform,opacity',overwrite:true});}
+export function revealToast(el){if(enabled())window.gsap.fromTo(el,{y:8,opacity:.7},{y:0,opacity:1,duration:.2,ease:'power2.out',clearProps:'transform,opacity'});}
+export function copiedFeedback(button){if(enabled()&&button?.querySelector('svg'))window.gsap.fromTo(button.querySelector('svg'),{scale:.8},{scale:1,duration:.18,clearProps:'transform'});}
+export function captureChain(){return enabled()&&window.Flip?window.Flip.getState('.chain-row'):null;}
+export function animateChain(previous){if(enabled()&&previous&&window.Flip)window.Flip.from(previous,{duration:.25,ease:'power2.out',absolute:false,prune:true});}
+export function loadMotion(){const load=src=>new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=reject;document.head.append(script);});const run=async()=>{if(system.matches||reduce)return;try{await load('/workbench/vendor/gsap.min.js');await load('/workbench/vendor/Flip.min.js');window.gsap?.registerPlugin(window.Flip);}catch{}};if('requestIdleCallback'in window)requestIdleCallback(run,{timeout:2500});else setTimeout(run,500);}

@@ -49,6 +49,8 @@ const mouseButtonAliases = {
   0: "lbutton",
   1: "mbutton",
   2: "rbutton",
+  3: "button4",
+  4: "button5",
 };
 
 function fallbackKeyToken(key) {

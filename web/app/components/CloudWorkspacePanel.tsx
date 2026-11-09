@@ -1,5 +1,6 @@
 "use client";
 
+import {EmailAccountAccess} from "./EmailAccountAccess";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cloudUrl, cloudPublishableKey } from "../lib/cloud-config";
 import type { User } from "@supabase/supabase-js";
@@ -515,8 +516,11 @@ export function CloudWorkspacePanel() {
       <p className={styles.status} role="status" aria-live="polite">
         {status}
       </p>
+      {user?<EmailAccountAccess enabled={configured&&emailReady} onAuthenticated={refresh} onStatus={setStatus} recoveryOnly/>:null}
       {!user ? (
         <>
+          <EmailAccountAccess enabled={configured&&emailReady} onAuthenticated={refresh} onStatus={setStatus}/>
+          <details className={styles.section}><summary>Other sign-in options</summary>
           <div className={styles.actions}>
             <button
               type="button"
@@ -549,6 +553,7 @@ export function CloudWorkspacePanel() {
               Email me a sign-in link
             </button>
           </div>
+          </details>
           {!configured ? (
             <p>
               Backend setup is required before accounts are available. The local

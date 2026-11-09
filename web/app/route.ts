@@ -1,0 +1,8 @@
+import { workbenchMarkup } from "./components/workbench-markup";
+export const dynamic = "force-static";
+export function GET() {
+  return new Response(
+    `<!doctype html><html lang="en" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BindForge NW — Neverwinter Keybind Workbench</title><meta name="description" content="Find, combine and copy Neverwinter keybinds. Capture keys and mouse buttons, save setups and learn how to apply them."><meta property="og:title" content="BindForge NW — Neverwinter Keybind Workbench"><meta property="og:description" content="Find, combine and copy Neverwinter keybinds."><meta property="og:image" content="https://neverwinterkeybind.netlify.app/opengraph-image"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://neverwinterkeybind.netlify.app/"><link rel="icon" href="/neverwinter-keybind-logo.svg"><script>try{const s=JSON.parse(localStorage.getItem("bindforge-nw:workbench:v1")||"null");if(s?.state?.theme==="light")document.documentElement.dataset.theme="light";}catch{}</script><link rel="stylesheet" href="/workbench/workbench.bundle.css"><script type="module" src="/workbench/app.bundle.js"></script></head><body>${workbenchMarkup}<noscript>Enable JavaScript to search, capture inputs and copy binds. Your saved data remains on this browser.</noscript></body></html>`,
+    { headers: { "Content-Type": "text/html; charset=utf-8" } },
+  );
+}

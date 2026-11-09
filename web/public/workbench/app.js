@@ -1,3 +1,4 @@
+import {installKeyCapture,installGuide} from './interaction.js';
 import {
   WORKBENCH_KEY,
   defaultWorkbench,
@@ -19,6 +20,7 @@ import {
   copiedFeedback,
   captureChain,
   animateChain,
+  loadMotion,
 } from "./motion.js";
 import {
   normalizeCombo,
@@ -39,6 +41,19 @@ import {
 import { buildCatalogPacks } from "./engine/catalog-packs.mjs";
 import { scorePresetSearch } from "./engine/preset-search.mjs";
 import { reconcileCmdlist } from "./engine/cmdlist-reconcile.mjs";
+let cloudOwner = null;
+try { cloudOwner = localStorage.getItem('bindforge-nw:cloud-owner'); } catch { /* Guests can work without browser storage. */ }
+if (cloudOwner) {
+  try {
+    const cloud = await import('./cloud.bundle.js');
+    await cloud.verifyWorkspaceOwner();
+    cloud.startCloudSync(message => { const el = document.getElementById('cloudStatus'); if (el) el.textContent = message; });
+  } catch (error) {
+    const el = document.getElementById('loadState'); if (el) el.textContent = error.message;
+    throw error;
+  }
+}
+const replayGuide=location.hash==='#help';
 const $ = (id) => document.getElementById(id),
   esc = (s) =>
     String(s ?? "").replace(
@@ -164,7 +179,7 @@ function renderCombinations() {
     );
 }
 function readCopies() {
-  return parseCopyHistory(localStorage.getItem(COPY_HISTORY_KEY));
+  try { return parseCopyHistory(localStorage.getItem(COPY_HISTORY_KEY)); } catch { return parseCopyHistory(null); }
 }
 function saveCopies(next) {
   try {
@@ -1064,12 +1079,6 @@ function analyze() {
   renderInspector();
 }
 let capturing = false;
-function startCapture() {
-  capturing = true;
-  $("captureKey").textContent = "Press a key…";
-  $("builderKeyHint").textContent =
-    "Press a key with any modifiers. Escape cancels. You can also use the mouse buttons below.";
-}
 function capture(e) {
   if (!capturing) return;
   e.preventDefault();
@@ -1259,7 +1268,7 @@ $("resetSearch").onclick = () => {
 $("actionSearch").oninput = renderActions;
 $("actionCategory").onchange = renderActions;
 $("builderKey").oninput = renderBuilderOutput;
-$("captureKey").onclick = startCapture;
+$("captureKey").onclick = ()=>{$("builderKey").focus();toast("Press a key or click the field again for a mouse button. + joins inputs.");};
 $("clearChain").onclick = () => {
   checkpoint();
   state.chain = [];
@@ -1473,7 +1482,8 @@ function decorateForms() {
       ?.setAttribute("aria-label", "Copy unbind for " + title);
   });
 }
-init();
+installKeyCapture();
+init().then(()=>{installGuide(switchView);if(replayGuide)document.getElementById("openGuide").click();loadMotion();});
 
 $("undoChain").onclick = () => {
   if (!state.past.length) return;

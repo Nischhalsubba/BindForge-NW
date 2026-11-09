@@ -1,650 +1,494 @@
-@import "./atelier-zero.css";
-@import "./ui-fixes.css";
-@import "./branding.css";
-@import "./group-visibility.css";
-@import "./pixel-polish.css";
-@import "./preferences.css";
-
-/*
- * Neverwinter Keybind uses Atelier Zero as the canonical visual source.
- * Focused production, identity, and precision-polish layers load last so
- * they remain isolated and reviewable.
- */
-
-/*
- * Accessibility foundation.
- * This final layer owns the cross-product readability and interaction
- * invariants used by every current and future experience mode.
- */
+@import "../public/workbench/fonts.css";
+@import "../public/workbench/foundation.css";
+@import "../public/workbench/tokens.css";
+@import "../public/workbench/style.css";
+@import "../public/workbench/components.css";
 :root {
-  /* Keep the established palette while raising muted/accent text to WCAG AA contrast. */
-  --ink-faint: #676254;
-  --coral: #a84b3d;
-  --coral-soft: #bd6253;
-  --primary-hover: #923d32;
-  --color-primary-hover: #923d32;
-
-  /* Stable light-paper surfaces used inside the inverted dark theme. */
-  --nav-paper: #efe7d2;
-  --nav-ink: #15140f;
-  --nav-muted: #5a5448;
-  --nav-accent: #a84b3d;
-  --nav-focus: #7f2f27;
-  --specimen-paper: #f7f1de;
-  --specimen-ink: #15140f;
-  --specimen-muted: #5a5448;
-
-  /* Accessible type scale for functional UI copy. */
-  --type-meta: 0.8125rem;
-  --type-label: 0.875rem;
-  --type-control: 0.9375rem;
+  --surface: var(--panel);
+  --surface-2: var(--raised);
+  --bone: var(--panel);
+  --bone-light: var(--raised);
+  --ink: var(--text);
+  --ink-mute: var(--muted);
+  --ink-faint: var(--muted);
+  --coral: var(--red);
+  --coral-soft: var(--red-hover);
+  --line: var(--divider);
+  --sans: var(--font-body);
+  --serif: var(--font-display);
+  --mono: var(--font-code);
+  --content: 1480px;
+  --page-gutter: clamp(16px, 3vw, 44px);
+  --section-gap: 24px;
   --type-body: 1rem;
-  --type-body-large: 1.125rem;
-
-  /* Interaction geometry. */
+  --type-meta: 0.875rem;
+  --type-label: 0.9375rem;
+  --type-control: 1rem;
+  --focus-ring-color: var(--focus);
+  --color-focus: var(--focus);
   --control-min: 44px;
   --control-primary: 48px;
-  --touch-gap: 8px;
-
-  /* Focus and motion are semantic product tokens rather than per-component guesses. */
-  --focus-ring-color: var(--color-focus, var(--coral));
-  --focus-ring-width: 3px;
-  --focus-ring-offset: 3px;
-  --motion-fast: 160ms;
-  --motion-normal: 240ms;
-  --motion-slow: 360ms;
-  --ease-ui: cubic-bezier(.22, .61, .36, 1);
-
-  /* Give the editorial desktop layout more useful horizontal room. */
-  --content: 3000px;
-
-  /* Shared geometry: one outer gutter and one 4px-derived component rhythm. */
-  --page-gutter: clamp(16px, 2.5vw, 48px);
-  --panel-pad: clamp(16px, 1.25vw, 24px);
-  --card-pad: clamp(18px, 1.4vw, 28px);
-  --layout-gap: clamp(16px, 1.25vw, 24px);
-  --section-gap: clamp(24px, 2.5vw, 44px);
-  --card-stack-gap: clamp(12px, 1vw, 18px);
+  --nav-paper: var(--panel);
+  --nav-ink: var(--text);
+  --nav-muted: var(--muted);
+  --specimen-paper: var(--panel);
+  --specimen-ink: var(--text);
+  --specimen-muted: var(--muted);
 }
-
-html {
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
+.app-shell {
+  max-width: 1480px;
+  padding: 24px clamp(16px, 3vw, 44px);
+  margin: 0 auto;
 }
-
-body {
-  font-size: var(--type-body);
-  line-height: 1.6;
+.workspace {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 24px;
 }
-
-/* Functional microcopy must remain readable without zooming or leaning into the screen. */
-.topbar,
-.section-rule,
-.brand-copy small,
-.site-nav-links a span,
-.label,
-.hero-stats small,
-.plate-meta,
-.command-specimen p,
-.hero-index span,
-.hero-index small,
-.ready-state small,
-.filter-top-summary span,
-.filter-top-bar label > span,
-.filter-top-output > span,
-.filter-top-output small,
-.group-heading p,
-.card-meta,
-.key-capture-hint,
-.unbind-context > span {
-  font-size: var(--type-meta);
+.filter-panel {
+  position: sticky;
+  top: 20px;
+  align-self: start;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  padding: 18px;
 }
-
-.site-nav-links a,
-.nav-cta,
-.btn,
-.primary-button,
-.secondary-button,
-.text-button,
-.filter-top-mode button {
-  font-size: var(--type-label);
-}
-
-.filter-top-bar input,
-.filter-top-bar select,
-.card-copy p {
-  font-size: var(--type-body);
-}
-
-.command-preview code,
-.lab-preview code {
-  font-size: var(--type-meta);
-}
-
-/* Minimum WCAG-friendly target geometry for discrete interactive controls. */
-button,
-select,
-input:not([type='checkbox']):not([type='radio']):not([type='hidden']),
-textarea,
-.site-nav-links a,
-.nav-cta,
-.icon-text-button,
-.select-preset {
-  min-height: var(--control-min);
-}
-
-.card-primary-actions .primary-button,
-.card-primary-actions .secondary-button {
-  min-height: var(--control-primary);
-}
-
-.site-nav-links,
-.hero-actions,
-.card-header-actions,
-.card-primary-actions,
-.lab-copy-actions {
-  column-gap: max(var(--touch-gap), 0.5rem);
-}
-
-/* One strong, predictable keyboard focus treatment across native and ARIA controls. */
-:where(
-  a,
-  button,
-  input,
-  select,
-  textarea,
-  summary,
-  [role='button'],
-  [role='tab'],
-  [role='checkbox'],
-  [tabindex]:not([tabindex='-1'])
-):focus-visible {
-  outline: var(--focus-ring-width) solid var(--focus-ring-color);
-  outline-offset: var(--focus-ring-offset);
-  box-shadow: none;
-}
-
-/* Preserve native check/radio size while keeping their labelled rows comfortably tappable. */
-label:has(> input[type='checkbox']),
-label:has(> input[type='radio']) {
-  min-height: var(--control-min);
-}
-
-/*
- * Responsive geometry hardening.
- * These are layout invariants rather than a second visual system: grid
- * children may shrink, the command toolbar stays in document flow, and the
- * editorial footer wordmark never becomes wider than the viewport.
- */
-.app-shell,
-.app-header,
-.hero,
-.hero > *,
-.workbench-intro,
-.workbench-intro-grid > *,
-.workspace,
-.workspace > *,
-.library,
-.library > *,
-.filter-top-bar > *,
-.tools-chapter,
-.app-footer {
+.library-results {
   min-width: 0;
 }
-
-.filter-top-bar {
-  position: static;
-  top: auto;
-  gap: var(--layout-gap);
-  padding: var(--panel-pad);
+.keybind-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
 }
-
-/* Shared workspace and catalogue rhythm, independent of experience mode. */
-.app-shell .workspace { column-gap: var(--layout-gap); row-gap: var(--layout-gap); }
-.library { gap: var(--layout-gap); }
-.group-stack { gap: var(--section-gap); }
-.bind-grid { gap: var(--layout-gap); }
 .bind-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--card-stack-gap);
-  padding: var(--card-pad);
-  /* Avoid 520px of speculative offscreen height when the actual card is shorter. */
-  contain-intrinsic-size: auto 400px;
+  border: 1px solid var(--border);
+  padding: 20px;
+  background: var(--panel);
 }
-.card-copy { min-width: 0; }
-.card-copy p { min-height: 0; }
-.card-primary-actions { margin-top: auto; }
-.card-header { flex-wrap: wrap; }
-.footer-grid { gap: var(--section-gap); padding-block: var(--section-gap); }
-@media (min-width: 1081px) {
-  .app-shell .workspace { grid-template-columns: minmax(220px, 256px) minmax(0, 1fr); }
+.bind-card h3 {
+  font-size: 1.1rem;
 }
-
-
-.footer-mega {
-  max-width: 100%;
-  font-size: clamp(44px, 9vw, 136px);
-  line-height: .84;
-  white-space: normal;
-  overflow-wrap: normal;
+.bind-card code {
+  display: block;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--gold);
 }
-
-/* Primary workflow layout: preserve the visual system while shortening the old long-page shell. */
-.app-header { padding-bottom: var(--section-gap); }
-.hero { min-height: min(640px, calc(100vh - 150px)); padding-top: 40px; padding-bottom: 20px; }
-.hero-plate { min-height: 520px; padding-top: 48px; padding-bottom: 34px; }
-.command-specimen { margin-top: 54px; }
-.hero-index { margin-top: 48px; }
-.app-footer { margin-top: var(--section-gap); }
-
-/*
- * Hero usability refinement.
- * The dark theme deliberately keeps the navigation on a light paper strip,
- * so its foreground must stay dark instead of inheriting the inverted theme ink.
- */
-.app-shell .app-header,
-.app-shell .workbench-intro,
-.app-shell .workspace,
-.app-shell .tools-chapter,
-.app-shell .app-footer,
-.app-shell .settings-anchor {
-  width: min(calc(100% - var(--page-gutter) - var(--page-gutter)), var(--content));
+.ui-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
-
-.site-nav {
-  color: var(--nav-ink);
-  background: var(--nav-paper);
-  border-bottom-color: color-mix(in srgb, var(--nav-ink) 16%, transparent);
-}
-
-.site-nav .brand-copy b,
-.site-nav .site-nav-links a {
-  color: var(--nav-ink);
-}
-
-.site-nav .brand-copy small,
-.site-nav .site-nav-links a span {
-  color: var(--nav-muted);
-}
-
-.site-nav .site-nav-links a:hover {
-  color: var(--nav-accent);
-}
-
-.site-nav :where(a, button):focus-visible {
-  outline-color: var(--nav-focus);
-}
-
-html[data-theme='dark'] .brand-mark {
-  background: var(--nav-ink);
-}
-
-/* Primary actions must use the semantic foreground token in every theme. */
-.btn-primary,
-.primary-button {
-  background: var(--primary);
-  color: var(--primary-ink);
-}
-
-.btn-primary:hover,
-.primary-button:hover:not(:disabled) {
-  background: var(--primary-hover);
-  color: var(--primary-ink);
-}
-
-/* Keep the secondary path visibly interactive on both light and dark surfaces. */
-.btn-ghost {
-  border-color: var(--line-strong);
-  background: color-mix(in srgb, var(--surface) 14%, transparent);
-}
-
-.btn-ghost:hover {
-  background: color-mix(in srgb, var(--coral) 7%, transparent);
-}
-
-/* The dark theme uses a light command specimen: keep its copy dark enough to read. */
-html[data-theme='dark'] .command-specimen {
-  background: var(--specimen-paper);
-  color: var(--specimen-ink);
-}
-
-html[data-theme='dark'] .command-specimen p {
-  color: var(--nav-muted);
-}
-
-html[data-theme='dark'] .command-specimen small {
-  color: var(--specimen-muted);
-}
-
-/* Phrase groups may wrap between ideas, never in the middle of “Build it.” or “Bind it.” */
-.display-phrase {
-  display: inline-block;
-}
-
-.hero-index b {
-  font-size: var(--type-label);
-}
-
-.ready-state strong {
-  font-size: var(--type-label);
-}
-
-.hero-stats span {
-  grid-template-columns: 34px 64px 1fr;
+.primary-button,
+.secondary-button {
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  text-decoration: none;
 }
-
-.side-rail span {
-  opacity: .58;
+.primary-button {
+  background: var(--red);
+  color: var(--on-primary);
 }
-
-/*
- * Structured key-combination builder.
- * The invisible native input remains the single accessible capture target while the visible
- * surface presents each captured token as a keycap. This keeps stored/output syntax unchanged
- * while making keyboard, numpad, modifier, and mouse combinations much easier to understand.
- */
+.secondary-button {
+  background: var(--raised);
+  color: var(--text);
+}
+.copy-toast {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  background: var(--toast-bg);
+  color: var(--toast-ink);
+  padding: 12px 20px;
+  max-width: calc(100% - 32px);
+}
+.copy-toast:empty {
+  display: none;
+}
+.copy-toast small {
+  display: block;
+}
 .key-combination-builder {
   position: relative;
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  min-height: var(--control-primary);
-  padding: 7px 12px;
-  border: 1px solid var(--line-strong);
-  background: var(--paper);
-  color: var(--ink);
-  overflow: hidden;
-  transition: border-color var(--motion-fast) var(--ease-ui), background var(--motion-fast) var(--ease-ui);
+  border: 1px solid var(--border);
+  min-height: 48px;
+  background: var(--input-bg);
 }
-
-.key-combination-builder:hover {
-  border-color: color-mix(in srgb, var(--coral) 52%, var(--line-strong));
-}
-
-.key-combination-builder:focus-within {
-  border-color: var(--focus-ring-color);
-  outline: var(--focus-ring-width) solid var(--focus-ring-color);
-  outline-offset: var(--focus-ring-offset);
-}
-
-.key-combination-builder.is-awaiting {
-  background: color-mix(in srgb, var(--coral) 5%, var(--paper));
-}
-
 .key-combination-tokens {
+  display: none;
+}
+.key-combination-capture {
+  width: 100%;
+  min-height: 48px;
+  border: 0 !important;
+}
+.key-combination-instructions,
+.key-combination-status {
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+.advanced-intro {
+  margin: 24px 0;
+}
+.advanced-intro h1 {
+  font-size: 1.75rem;
+}
+.advanced-intro p {
+  max-width: 72ch;
+  color: var(--muted);
+}
+.advanced-nav {
   display: flex;
-  flex: 1 1 auto;
+  gap: 12px;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-  pointer-events: none;
 }
-
-.key-combination-part {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
+.section-rule,
+.side-rail,
+.footer-mega,
+.footer-bottom {
+  display: none;
 }
-
-.key-combination-keycap {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 28px;
-  max-width: 100%;
-  padding: 4px 8px;
-  border: 1px solid var(--line-strong);
-  border-radius: 3px;
-  background: var(--surface);
-  color: var(--ink);
-  box-shadow: 0 2px 0 color-mix(in srgb, var(--ink) 12%, transparent);
-  font: 600 0.75rem/1.15 var(--mono);
+html[data-text-size="large"] {
+  font-size: 18px;
+}
+html[data-text-size="extra-large"] {
+  font-size: 20px;
+}
+html[data-contrast="high"] {
+  --text: #fff;
+  --muted: #eee;
+  --border: #ddd;
+  --divider: #aaa;
+}
+html[data-motion="reduced"] * {
+  scroll-behavior: auto !important;
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+}
+dialog {
+  max-height: 90dvh;
+  overflow: auto;
+}
+input:not([type="checkbox"]),
+select,
+textarea {
+  min-height: 44px;
+}
+button {
+  min-height: 44px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th,
+td {
+  text-align: left;
+  padding: 12px;
+  border-bottom: 1px solid var(--divider);
+}
+pre {
+  white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
-
-.key-combination-plus {
-  color: var(--coral);
-  font: 700 0.875rem/1 var(--mono);
-}
-
-.key-combination-placeholder {
-  color: var(--ink-faint);
-  font: 500 var(--type-meta)/1.3 var(--mono);
-}
-
-.key-combination-next {
-  display: inline-flex;
-  align-items: center;
-  min-height: 28px;
-  padding: 4px 8px;
-  border: 1px dashed var(--coral);
-  color: var(--coral);
-  font: 600 0.72rem/1.15 var(--mono);
-  letter-spacing: .02em;
-}
-
-.key-combination-capture {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  width: 100% !important;
-  height: 100%;
-  min-height: 100% !important;
-  margin: 0;
-  padding: 0 !important;
-  border: 0 !important;
-  background: transparent !important;
-  color: transparent !important;
-  caret-color: transparent;
-  opacity: 0;
-  cursor: text;
-}
-
-.key-combination-capture:focus-visible {
-  outline: 0;
-  outline-offset: 0;
-}
-
-.key-capture-hint {
-  display: block;
-  margin-top: 2px;
-  color: var(--ink-faint);
-  line-height: 1.45;
-}
-
-/* Keep the footer/provenance position stable when desktop users switch between the four primary tools. */
-@media (min-width: 881px) {
-  #primary-workspace-panel { min-height: 800px; }
-}
-
-@media (max-width: 1279px) {
-  .app-header,
-  .workbench-intro,
+@media (max-width: 850px) {
   .workspace,
-  .tools-chapter,
-  .app-footer,
-  .settings-anchor {
-    width: min(calc(100% - var(--page-gutter) - var(--page-gutter)), var(--content));
+  .keybind-grid {
+    grid-template-columns: 1fr;
+  }
+  .filter-panel {
+    position: static;
+  }
+  .app-shell {
+    padding: 20px 16px;
   }
 }
-
-@media (max-width: 1080px) {
-  .app-header,
-  .workbench-intro,
-  .workspace,
-  .tools-chapter,
-  .app-footer,
-  .settings-anchor {
-    width: min(calc(100% - var(--page-gutter) - var(--page-gutter)), var(--content));
-  }
-
-  .hero { min-height: auto; padding-top: 40px; }
-  .hero-plate { min-height: 500px; }
-}
-
-@media (max-width: 880px) {
-  .app-header,
-  .workbench-intro,
-  .workspace,
-  .tools-chapter,
-  .app-footer,
-  .settings-anchor {
-    width: min(calc(100% - var(--page-gutter) - var(--page-gutter)), var(--content));
-  }
-}
-
-@media (max-width: 560px) {
-  .app-header,
-  .workbench-intro,
-  .workspace,
-  .tools-chapter,
-  .app-footer,
-  .settings-anchor {
-    width: min(calc(100% - var(--page-gutter) - var(--page-gutter)), var(--content));
-  }
-
-  .app-header { padding-bottom: var(--section-gap); }
-  .hero { padding-top: 32px; padding-bottom: 0; }
-  .hero-plate { min-height: 470px; }
-  .command-specimen { margin-top: 42px; }
-  .hero-index { margin-top: 42px; }
-
-  .btn,
-  .primary-button,
-  .secondary-button,
-  .nav-cta,
-  .filter-top-bar input,
-  .filter-top-bar select,
-  .filter-top-mode button,
-  .filter-top-reset,
-  .key-combination-builder {
-    min-height: var(--control-primary);
-  }
-
-  .key-combination-keycap,
-  .key-combination-next {
-    min-height: 30px;
-  }
-}
-
-/* Forced-colour users keep visible boundaries and focus instead of inheriting decorative paper effects. */
-@media (forced-colors: active) {
-  :where(a, button, input, select, textarea, summary):focus-visible {
-    outline-color: Highlight;
-  }
-
-  button,
-  input,
-  select,
-  textarea,
-  .bind-card,
-  .filter-top-bar,
-  .command-preview,
-  .lab-preview,
-  .key-combination-builder,
-  .key-combination-keycap,
-  .key-combination-next {
-    border-color: CanvasText;
-  }
-
-  .key-combination-builder:focus-within {
-    outline-color: Highlight;
-  }
-
-  .pulse,
-  body::before {
-    display: none;
-  }
-}
-
-/* Reduced motion is a product-wide preference, not a component-by-component courtesy. */
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
+  * {
     scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-
-  .bind-card:hover,
-  .btn:hover,
-  .primary-button:hover:not(:disabled) {
-    transform: none;
-  }
 }
 
+html[data-theme="light"][data-contrast="high"] {
+  --text: #111;
+  --muted: #222;
+  --border: #333;
+  --divider: #555;
+  --bg: #fff;
+  --panel: #fff;
+}
+.key-combination-tokens {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 8px 10px;
+}
+.key-combination-keycap {
+  color: var(--gold);
+  background: var(--raised);
+  border: 1px solid var(--border);
+  padding: 3px 6px;
+}
+.key-combination-plus {
+  padding: 0 5px;
+}
 
-/* Keep the active catalogue category visible while its cards are being reviewed. */
-.bind-group {
+:root {
+  --paper: var(--panel);
+  --paper-warm: var(--raised);
+  --line-strong: var(--border);
+  --line-soft: var(--divider);
+  --panel-pad: 24px;
+  --card-pad: 20px;
+  --layout-gap: 24px;
+  --focus-ring-width: 3px;
+  --focus-ring-offset: 3px;
+  --mustard: var(--gold);
+  --olive: var(--gold);
+  --nav-accent: var(--gold);
+  --on-accent: var(--on-primary);
+  --primary-ink: var(--on-primary);
+  --shadow: 0 12px 30px #0003;
+  --success: var(--gold);
+  --warning: var(--warning-text);
+}
+.site-header a,
+.site-header button {
+  color: var(--brand-ink);
+}
+.site-header .identity {
+  text-decoration: none;
+}
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  z-index: 200;
+}
+.skip-link:focus {
+  top: 8px;
+  background: var(--panel);
+  padding: 12px;
+}
+.bind-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.group-stack {
+  display: grid;
+  gap: 24px;
   min-width: 0;
-  overflow: visible;
 }
-
 .group-heading {
   position: sticky;
   top: 0;
-  z-index: 24;
+  z-index: 3;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
   align-items: center;
-  min-height: 64px;
-  margin-bottom: 18px;
-  padding: 10px var(--card-pad) 14px;
-  border-bottom: 1px solid var(--line);
-  background: color-mix(in srgb, var(--paper) 94%, transparent);
-  box-shadow: 0 10px 24px color-mix(in srgb, var(--ink) 9%, transparent);
-  backdrop-filter: blur(14px);
+  padding: 20px;
+  background: var(--raised);
+  border: 1px solid var(--border);
 }
-
-.group-title-context {
-  color: var(--ink-faint);
-  font-weight: 600;
+.group-heading h3 {
+  margin: 0;
+  font: 600 1.1rem/1.4 var(--font-body);
 }
-
+.group-heading p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
 .group-heading-actions {
-  flex: 0 0 auto;
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }
-
-@media (max-width: 680px) {
+.bind-card {
+  min-width: 0;
+}
+.bind-card h4 {
+  font: 600 1.15rem/1.4 var(--font-body);
+  margin: 12px 0;
+}
+.bind-card p {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+.bind-card-meta,
+.bind-card-actions,
+.button-row,
+.action-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.bind-card-meta {
+  font-size: 0.875rem;
+}
+.bind-card-actions {
+  margin-top: 16px;
+}
+.active-filter-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+.active-filter-row span {
+  background: var(--raised);
+  padding: 6px 10px;
+  border: 1px solid var(--divider);
+}
+.icon-text-button,
+.bind-card button {
+  min-height: 44px;
+  padding: 8px 12px;
+  background: var(--raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.bind-card .copy-button {
+  background: var(--red);
+  color: var(--on-primary);
+}
+.key-capture-hint {
+  display: block;
+  margin: 8px 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.key-combination-capture {
+  padding: 10px;
+}
+.filter-panel {
+  max-height: 95dvh;
+  overflow-y: auto;
+}
+.filter-panel button {
+  max-width: 100%;
+}
+.library-results {
+  width: 100%;
+}
+.workspace > .library-results {
+  grid-column: 2;
+}
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.section-heading h2 {
+  font-size: 1.4rem;
+}
+input,
+select,
+textarea {
+  max-width: 100%;
+  padding: 10px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+button {
+  border-radius: var(--radius);
+}
+.advanced-nav {
+  align-items: center;
+}
+.advanced-nav a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px;
+}
+.site-header {
+  gap: 24px;
+}
+.advanced-intro {
+  margin-bottom: 0;
+}
+@media (max-width: 850px) {
+  .bind-grid {
+    grid-template-columns: 1fr;
+  }
+  .workspace > .library-results {
+    grid-column: auto;
+  }
+  .filter-panel {
+    position: static;
+    max-height: none;
+  }
   .group-heading {
-    gap: 10px;
-    min-height: 56px;
-    padding: 8px var(--card-pad) 10px;
+    padding: 16px;
+    align-items: start;
   }
-
-  .group-heading > div:first-child {
-    min-width: 0;
-  }
-
-  .group-heading h3 {
-    font-size: clamp(18px, 5.5vw, 24px);
+  .app-shell {
     overflow-wrap: anywhere;
   }
-
-  .group-heading p {
-    display: none;
+  .site-header {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 16px;
   }
-
-  .group-heading-actions {
-    align-items: center;
+  .advanced-nav {
     gap: 6px;
   }
-
-  .group-heading-actions > span {
-    font-size: 9px;
-  }
-
-  .group-heading-actions .icon-text-button {
-    min-width: 44px;
-    min-height: 44px;
-    padding-inline: 10px;
+  .group-heading-actions {
+    flex-wrap: wrap;
   }
 }
+.site-nav-links {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.library {
+  min-width: 0;
+  width: 100%;
+}
+.account-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+.site-header .brand-emblem {
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+}
+.site-header .identity {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.site-header .brand-name small {
+  color: var(--brand-ink);
+}
+@media (max-width: 1080px) {
+  .workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Accessibility preferences apply across module-owned controls as well. */
+html[data-large-controls="true"] button,html[data-large-controls="true"] input:not([type=checkbox]),html[data-large-controls="true"] select,html[data-large-controls="true"] .primary-button,html[data-large-controls="true"] .secondary-button{min-height:52px!important}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--focus)!important;outline-offset:3px!important}
+
+@media(max-width:560px){.group-heading{flex-wrap:wrap}.group-heading>div{min-width:0}.group-heading h3{overflow-wrap:anywhere}.bind-card-actions{flex-wrap:wrap}.bind-card-actions>*{max-width:100%}.advanced-nav,.site-nav-links{min-width:0}.advanced-nav a{white-space:normal}}
+
+button{background:var(--raised);color:var(--text);border:1px solid var(--border);padding:10px 14px}.filter-top-bar{display:flex;gap:16px;align-items:end;flex-wrap:wrap;padding:16px;background:var(--raised);border:1px solid var(--border);margin-bottom:16px}.filter-top-summary{display:grid;gap:4px}.filter-top-summary>span:first-child,.filter-top-search>span:first-child,.filter-top-output>span{font-size:.875rem;color:var(--muted)}.filter-top-search{display:grid;gap:6px;flex:1 1 240px;min-width:0}.filter-top-search input{width:100%;min-width:0}.filter-top-output{display:grid;gap:6px}.filter-top-mode{display:flex}.filter-top-mode button[aria-pressed=true]{background:var(--red);color:var(--on-primary)}.bind-card-meta{gap:8px}.card-topline{display:flex;gap:8px;flex-wrap:wrap}.card-meta{display:flex;gap:8px;flex-wrap:wrap;font-size:.875rem;color:var(--muted)}

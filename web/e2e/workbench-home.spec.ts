@@ -46,7 +46,7 @@ test("account route has configured provider feedback and returns to the usable h
     page.getByRole("heading", { name: "Your account & cloud workspace" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "Continue with Google" }),
+    page.getByRole("button", { name: "Sign in with email", exact: true }),
   ).toBeVisible();
   await page.getByRole("link", { name: "Back to workbench" }).click();
   await expect(page.locator("#resultCount")).toContainText("177");
@@ -76,4 +76,20 @@ test("parameterized preset stays in preset mode after reload", async ({
   );
   await expect(page.locator("#commandOutput")).toHaveText(line!);
   await expect(page.locator("#commandOutput")).not.toContainText("netgraph");
+});
+test('captures physical keys and mouse buttons with plus reserved for combinations',async({page})=>{
+ await page.goto('/');
+ const key=page.getByRole('textbox',{name:'Key for Summon VIP Bank Portal',exact:true});
+ await key.click();await key.press('Control+k');await expect(key).toHaveValue('ctrl+k');
+ await key.press('+');await key.click({button:'right'});await expect(key).toHaveValue('ctrl+k+rbutton');
+ await key.press('Tab');await expect(key).not.toBeFocused();
+ await expect(page.locator('script[src*="/_next/"]')).toHaveCount(0);
+});
+test('guest search and key capture work when browser storage is blocked',async({page})=>{
+ await page.addInitScript(()=>{Storage.prototype.getItem=()=>{throw new DOMException('Storage blocked','SecurityError')};});
+ await page.goto('/');await expect(page.locator('#resultCount')).toContainText('177');
+ await page.getByLabel('Search keybind library').fill('VIP bank');
+ const key=page.getByRole('textbox',{name:'Key for Summon VIP Bank Portal',exact:true});
+ await key.press('F8');await expect(key).toHaveValue('f8');
+ await expect(page.getByRole('button',{name:'Copy bind for Summon VIP Bank Portal',exact:true})).toBeEnabled();
 });

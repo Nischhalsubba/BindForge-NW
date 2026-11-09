@@ -72,3 +72,49 @@ try {
 } finally {
   await rm(temporary, { recursive: true, force: true });
 }
+import { build } from "esbuild";
+const buildRoot = fileURLToPath(new URL("../", import.meta.url));
+await Promise.all(
+  ["key-capture.mjs", "workbench-capture.mjs"].map((name) =>
+    copyFile(
+      new URL("../app/lib/" + name, import.meta.url),
+      new URL("../public/workbench/engine/" + name, import.meta.url),
+    ),
+  ),
+);
+await Promise.all([
+  build({
+    entryPoints: [path.join(buildRoot, "public/workbench/app.js")],
+    outfile: path.join(buildRoot, "public/workbench/app.bundle.js"),
+    bundle: true,
+    minify: true,
+    format: "esm",
+    platform: "browser",
+    target: "es2022",
+    external: ["./cloud.bundle.js"],
+  }),
+  build({
+    entryPoints: [path.join(buildRoot, "app/lib/workbench-cloud.ts")],
+    outfile: path.join(buildRoot, "public/workbench/cloud.bundle.js"),
+    bundle: true,
+    minify: true,
+    format: "esm",
+    platform: "browser",
+    target: "es2022",
+    define: {
+      "process.env.NEXT_PUBLIC_SUPABASE_URL": JSON.stringify(
+        process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+      ),
+      "process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY": JSON.stringify(
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "",
+      ),
+    },
+  }),
+  build({
+    entryPoints: [path.join(buildRoot, "public/workbench/workbench.css")],
+    outfile: path.join(buildRoot, "public/workbench/workbench.bundle.css"),
+    bundle: true,
+    minify: true,
+    external: ["/workbench/fonts/*"],
+  }),
+]);

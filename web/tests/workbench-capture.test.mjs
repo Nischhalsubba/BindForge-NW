@@ -1,0 +1,31 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {
+  captureKeyboard,
+  captureMouse,
+  captureWheel,
+} from "../app/lib/workbench-capture.mjs";
+test("captures physical keys, modifier combinations and + as a separator", () => {
+  assert.equal(captureKeyboard("", { code: "KeyA", key: "a" }), "a");
+  assert.equal(captureKeyboard("a", { code: "Equal", key: "+" }), "a+");
+  assert.equal(
+    captureKeyboard("a+", { code: "KeyB", key: "b", ctrlKey: true }),
+    "a+ctrl+b",
+  );
+  assert.equal(captureKeyboard("", { code: "NumpadAdd", key: "+" }), "");
+  assert.equal(
+    captureKeyboard("a", { code: "Backspace", key: "Backspace" }),
+    "",
+  );
+  assert.equal(captureKeyboard("a", { code: "Tab", key: "Tab" }), null);
+});
+test("captures mouse buttons and wheel while never adding a plus key", () => {
+  assert.equal(captureMouse("a+", { button: 2 }), "a+rbutton");
+  assert.equal(captureMouse("", { button: 4 }), "button5");
+  assert.equal(captureWheel("", -12), "wheelup");
+  assert.equal(
+    captureWheel("", -12, { ctrlKey: true, altKey: true }),
+    "ctrl+alt+wheelup",
+  );
+  assert.equal(captureWheel("a+", 12), "a+wheeldown");
+});

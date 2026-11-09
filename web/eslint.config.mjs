@@ -29,6 +29,7 @@ const eslintConfig = defineConfig([
     // Default ignores of eslint-config-next:
     ".next/**",
     "public/workbench/vendor/**",
+    "public/workbench/*.bundle.js",
     "public/workbench/engine/**",
     "out/**",
     "build/**",

@@ -58,7 +58,7 @@ test("maps supported mouse buttons to Neverwinter tokens", () => {
   assert.equal(mouseTokenFromButton(0), "lbutton");
   assert.equal(mouseTokenFromButton(1), "mbutton");
   assert.equal(mouseTokenFromButton(2), "rbutton");
-  assert.equal(mouseTokenFromButton(3), "");
+  assert.equal(mouseTokenFromButton(3), "button4");
 });
 
 test("captures mouse buttons with keyboard modifiers", () => {
@@ -71,5 +71,5 @@ test("does not emit modifier-only, meta, or unsupported mouse combinations", () 
   assert.equal(comboFromKeyboardLike({ code: "ControlLeft", key: "Control", ctrlKey: true }), "");
   assert.equal(comboFromKeyboardLike({ code: "KeyK", key: "k", metaKey: true }), "");
   assert.equal(comboFromMouseLike({ button: 0, metaKey: true }), "");
-  assert.equal(comboFromMouseLike({ button: 4 }), "");
+  assert.equal(comboFromMouseLike({ button: 9 }), "");
 });

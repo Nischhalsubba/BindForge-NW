@@ -1,19 +1,25 @@
+/* eslint-disable @next/next/no-img-element, @next/next/no-html-link-for-pages -- The root workbench is a static document, so navigation must reload the document. */
 "use client";
 
+import { SettingsPanel } from "../components/SettingsPanel";
 import { BindForgeProvider } from "../BindForgeProvider";
 import { useEffect, useRef, useState } from "react";
-import { AppHeader } from "../components/AppHeader";
+
 import { CommandPalette } from "../components/CommandPalette";
-import type { CopyFeedback } from "../components/AppHeader";
-import { ContextualHelpGlossary, FirstVisitOrientation } from "../components/FirstVisitHelp";
-import { GsapMotionEnhancer } from "../components/GsapMotionEnhancer";
+import type { CopyFeedback } from "../lib/copy-types";
+import { ContextualHelpGlossary } from "../components/FirstVisitHelp";
+
 import { Icon } from "../components/Icon";
 import { PrimaryWorkspace } from "../components/PrimaryWorkspace";
-import { RevealController } from "../components/RevealController";
+
 import { UrlStateBridge } from "../components/UrlStateBridge";
 import { UseInNeverwinterGuide } from "../components/UseInNeverwinterGuide";
 import { FastCopyPanel } from "../components/FastCopyPanel";
-import { COPY_HISTORY_KEY, parseCopyHistory, recordCopy } from "../lib/copy-workflow.mjs";
+import {
+  COPY_HISTORY_KEY,
+  parseCopyHistory,
+  recordCopy,
+} from "../lib/copy-workflow.mjs";
 import { copyTextSafely } from "../lib/clipboard";
 import { isNeverwinterBindPayload } from "../lib/in-game-guidance.mjs";
 
@@ -24,85 +30,137 @@ type InGameGuideState = {
   label: string;
 } | null;
 
-function SectionRule({ roman, meta, page }: { roman: string; meta: string; page: string }) {
-  return (
-    <div className="section-rule" aria-hidden="true">
-      <span className="roman">{roman}.</span>
-      <span>{meta}</span>
-      <span>{page} / 003</span>
-    </div>
-  );
-}
-
 function AdvancedWorkbench() {
-  const [feedback, setFeedback] = useState<CopyFeedback>({ state: "idle", label: "" });
+  const [feedback, setFeedback] = useState<CopyFeedback>({
+    state: "idle",
+    label: "",
+  });
   const [inGameGuide, setInGameGuide] = useState<InGameGuideState>(null);
   const feedbackTimer = useRef<number | null>(null);
 
-  useEffect(() => () => {
-    if (feedbackTimer.current) window.clearTimeout(feedbackTimer.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (feedbackTimer.current) window.clearTimeout(feedbackTimer.current);
+    },
+    [],
+  );
 
-  async function copyText(text: string, label: string, target: HTMLElement | null): Promise<CopyResultState> {
+  async function copyText(
+    text: string,
+    label: string,
+    target: HTMLElement | null,
+  ): Promise<CopyResultState> {
     const result = await copyTextSafely(text);
-    const nextState: CopyResultState = result.ok ? (result.method === "fallback" ? "fallback" : "copied") : "error";
+    const nextState: CopyResultState = result.ok
+      ? result.method === "fallback"
+        ? "fallback"
+        : "copied"
+      : "error";
     setFeedback({ state: nextState, label });
-    if (result.ok) { try { const history = parseCopyHistory(window.localStorage.getItem(COPY_HISTORY_KEY)); window.localStorage.setItem(COPY_HISTORY_KEY, JSON.stringify(recordCopy(history, { text, label }))); window.dispatchEvent(new Event("bindforge:copy-history-change")); } catch { /* Copying stays available if history storage is blocked. */ } }
+    if (result.ok) {
+      try {
+        const history = parseCopyHistory(
+          window.localStorage.getItem(COPY_HISTORY_KEY),
+        );
+        window.localStorage.setItem(
+          COPY_HISTORY_KEY,
+          JSON.stringify(recordCopy(history, { text, label })),
+        );
+        window.dispatchEvent(new Event("bindforge:copy-history-change"));
+      } catch {
+        /* Copying stays available if history storage is blocked. */
+      }
+    }
     if (result.ok && isNeverwinterBindPayload(text)) {
       try {
-        if (window.localStorage.getItem("bindforge-nw:hide-in-game-guide") !== "true") setInGameGuide({ command: text, label });
-      } catch { setInGameGuide({ command: text, label }); }
-    }
-    else if (!result.ok) target?.focus();
+        if (
+          window.localStorage.getItem("bindforge-nw:hide-in-game-guide") !==
+          "true"
+        )
+          setInGameGuide({ command: text, label });
+      } catch {
+        setInGameGuide({ command: text, label });
+      }
+    } else if (!result.ok) target?.focus();
     if (feedbackTimer.current) window.clearTimeout(feedbackTimer.current);
-    feedbackTimer.current = window.setTimeout(() => setFeedback({ state: "idle", label: "" }), result.ok ? 2600 : 5200);
+    feedbackTimer.current = window.setTimeout(
+      () => setFeedback({ state: "idle", label: "" }),
+      result.ok ? 2600 : 5200,
+    );
     return nextState;
   }
 
   async function copyGuideAgain() {
     if (!inGameGuide) return false;
     const result = await copyTextSafely(inGameGuide.command);
-    setFeedback({ state: result.ok ? (result.method === "fallback" ? "fallback" : "copied") : "error", label: inGameGuide.label });
+    setFeedback({
+      state: result.ok
+        ? result.method === "fallback"
+          ? "fallback"
+          : "copied"
+        : "error",
+      label: inGameGuide.label,
+    });
     if (feedbackTimer.current) window.clearTimeout(feedbackTimer.current);
-    feedbackTimer.current = window.setTimeout(() => setFeedback({ state: "idle", label: "" }), result.ok ? 2600 : 5200);
+    feedbackTimer.current = window.setTimeout(
+      () => setFeedback({ state: "idle", label: "" }),
+      result.ok ? 2600 : 5200,
+    );
     return result.ok;
   }
 
-  const toastTitle = feedback.state === "copied"
-    ? "Copied"
-    : feedback.state === "fallback"
-      ? "Copied with browser fallback"
-      : feedback.state === "error"
-        ? "Copy failed"
-        : "";
+  const toastTitle =
+    feedback.state === "copied"
+      ? "Copied"
+      : feedback.state === "fallback"
+        ? "Copied with browser fallback"
+        : feedback.state === "error"
+          ? "Copy failed"
+          : "";
 
   return (
     <main className="app-shell">
-      <GsapMotionEnhancer />
-      <RevealController />
-      <a className="skip-link" href="#primary-workspace">Skip to primary tools</a>
-      <div className="side-rail left" aria-hidden="true"><span>Neverwinter Keybind · Field Manual</span></div>
-      <div className="side-rail right" aria-hidden="true"><span>Neverwinter Command Systems · MMXXVI</span></div>
+      <a className="skip-link" href="#primary-workspace">
+        Skip to primary tools
+      </a>
       <UrlStateBridge />
-      <AppHeader feedback={feedback} />
-      <FirstVisitOrientation />
+      <header className="site-header">
+        <a className="identity" href="/">
+          <img
+            className="brand-emblem"
+            src="/workbench/assets/neverwinter.webp"
+            alt="Neverwinter"
+            width="54"
+            height="54"
+          />
+          <span className="brand-name">
+            BindForge <small>NEVERWINTER WORKBENCH</small>
+          </span>
+        </a>
+        <nav className="advanced-nav" aria-label="Primary navigation">
+          <span className="site-nav-links">
+            <a href="#search-keybinds">Keybinds</a>
+            <a href="#my-setup">My Setup</a>
+            <a href="#compose-keybind">Build</a>
+          </span>
+          <SettingsPanel placement="nav" />
+          <a href="/">Copy workbench</a>
+          <a href="/account">Account &amp; cloud save</a>
+          <a href="/#help">Help &amp; guide</a>
+        </nav>
+      </header>
+      <div className="advanced-intro">
+        <h1>Characters &amp; advanced setups</h1>
+        <p>
+          Manage characters, profiles, assigned keys, imports and recovery in
+          one workspace.
+        </p>
+      </div>
 
       <PrimaryWorkspace onCopy={copyText} />
       <FastCopyPanel />
       <ContextualHelpGlossary />
       <CommandPalette />
-
-      <footer className="app-footer" data-reveal>
-        <SectionRule roman="III" meta="Notes / provenance / studio" page="003" />
-        <div className="footer-grid">
-          <section><span>Independent utility</span><p>Neverwinter Keybind is a community-made tool for preparing Neverwinter keybind commands.</p></section>
-          <section><span>Use responsibly</span><p>Commands can change after game updates. Back up existing binds before testing unfamiliar setups.</p></section>
-          <section><span>Local by default</span><p>Preferences and collections stay in your browser unless you export or share them.</p></section>
-          <section><span>Studio</span><p>Designed and developed by <strong>Archew</strong>.</p></section>
-        </div>
-        <p className="footer-mega">Neverwinter <em>Keybind</em><span>.</span></p>
-        <div className="footer-bottom"><span><i className="pulse" /> Built-in catalogue</span><span>FIN. · MMXXVI</span></div>
-      </footer>
 
       {inGameGuide ? (
         <UseInNeverwinterGuide
@@ -110,20 +168,46 @@ function AdvancedWorkbench() {
           label={inGameGuide.label}
           onClose={() => setInGameGuide(null)}
           onDontShowAgain={() => {
-            try { window.localStorage.setItem("bindforge-nw:hide-in-game-guide", "true"); } catch { /* current session only */ }
+            try {
+              window.localStorage.setItem(
+                "bindforge-nw:hide-in-game-guide",
+                "true",
+              );
+            } catch {
+              /* current session only */
+            }
             setInGameGuide(null);
           }}
           onCopyAgain={copyGuideAgain}
         />
       ) : null}
 
-      <div aria-atomic="true" aria-live="polite" className={`copy-toast copy-toast-${feedback.state}`} role="status">
+      <div
+        aria-atomic="true"
+        aria-live="polite"
+        className={`copy-toast copy-toast-${feedback.state}`}
+        role="status"
+      >
         {feedback.state !== "idle" ? (
-          <><span className="copy-toast-icon"><Icon name={feedback.state === "error" ? "warning" : "shield"} /></span><span><strong>{toastTitle}</strong><small>{feedback.label}</small></span></>
+          <>
+            <span className="copy-toast-icon">
+              <Icon name={feedback.state === "error" ? "warning" : "shield"} />
+            </span>
+            <span>
+              <strong>{toastTitle}</strong>
+              <small>{feedback.label}</small>
+            </span>
+          </>
         ) : null}
       </div>
     </main>
   );
 }
 
-export default function AdvancedPage(){return <BindForgeProvider><AdvancedWorkbench /></BindForgeProvider>;}
+export default function AdvancedPage() {
+  return (
+    <BindForgeProvider>
+      <AdvancedWorkbench />
+    </BindForgeProvider>
+  );
+}

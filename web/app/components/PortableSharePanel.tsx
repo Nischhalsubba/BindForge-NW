@@ -3,7 +3,7 @@
 import { useLayoutEffect } from "react";
 import { useBindForge } from "../BindForgeProvider";
 import { keybindPresets } from "../data/keybindPresets";
-import type { CopyResultState } from "../page";
+import type { CopyResultState } from "../lib/copy-types";
 
 const LIBRARY_SETTINGS_KEY = "bindforge-nw:library:v1";
 
