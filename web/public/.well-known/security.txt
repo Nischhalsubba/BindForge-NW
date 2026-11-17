@@ -1,0 +1,6 @@
+# BindForge NW responsible disclosure contact
+# Do not post vulnerabilities or credentials in public issues.
+Contact: mailto:hinischalsubba@gmail.com
+Expires: 2027-05-17T00:00:00Z
+Preferred-Languages: en
+Canonical: https://neverwinterkeybind.netlify.app/.well-known/security.txt
