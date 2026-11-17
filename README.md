@@ -25,6 +25,16 @@ Build, review, organize, and export Neverwinter keybinds without memorizing cons
 | Power users | Use Command Lab, raw commands, provenance, portable links, bulk packs and rollback output |
 | Maintainers | Review evidence, verification dates, command coverage, accessibility and release quality |
 
+## Start with your first bind
+
+1. Open the [BindForge NW web app](https://neverwinterkeybind.netlify.app) and use **Search** or a class/role quick pack to find a relevant preset.
+2. Check its **trust label** and any available source evidence. A preset marked community-tested or experimental is not a guarantee it still works after a Neverwinter patch.
+3. Choose or capture a keyboard/mouse combination. If you have existing keybinds, import their text first so the conflict review can compare against keys you already use.
+4. Review the selected pack for duplicates and native-key warnings, then copy or download the bind commands and keep the corresponding unbind/rollback output.
+5. Paste the commands into Neverwinter and test them before relying on them. Keep the rollback output so you can undo your changes if needed.
+
+BindForge generates commands; it does not run them in the game or automatically read your live keymap. See the [technical guide](./web/README.md) for supported workflows and limitations.
+
 ## Current product capabilities
 
 - **Plain-language Search v2** with aliases, common player wording, typo tolerance, relevance ranking and no-result recovery.
@@ -99,6 +109,17 @@ See [`web/README.md`](./web/README.md) for architecture, verification commands, 
 ## Design and data principles
 
 Dense command tooling should stay scannable and reversible. Preserve clear key/command relationships, explicit conflict states, visible trust/evidence, keyboard accessibility, useful empty/error states, responsive layouts and copy/export feedback. Never promote a command from experimental/community evidence to verified without evidence, and never describe advisory conflict guidance as a guarantee about a player's in-game configuration.
+
+## Help improve command accuracy
+
+Before reporting a broken or outdated preset, check the [open issues](https://github.com/Nischhalsubba/BindForge-NW/issues) for an existing report. A useful new report includes:
+
+- The preset name and exact command or syntax involved.
+- The Neverwinter patch/version or test date, when known.
+- What you expected, what happened, and how to reproduce it.
+- A public reference or verification evidence, if available. Do not include account credentials or private player data.
+
+Contributions should preserve existing trust labels until evidence justifies changing them. Improvements to documentation, accessible workflows, and reproducible command tests are also welcome.
 
 ## Contribution flow
 
