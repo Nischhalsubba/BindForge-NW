@@ -131,3 +131,7 @@ flowchart LR
     TEST --> DOCS["Update docs / provenance"]
     DOCS --> PR["Review and merge"]
 ```
+
+## Contributor verification guide
+
+For changes to BindForge-NW, follow [command review](docs/COMMAND_REVIEW.md) for reproducible checks, review evidence and rollback expectations.
