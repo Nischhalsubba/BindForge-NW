@@ -135,3 +135,7 @@ flowchart LR
 ## Contributor verification guide
 
 For changes to BindForge-NW, follow [command review](docs/COMMAND_REVIEW.md) for reproducible checks, review evidence and rollback expectations.
+
+## Maintainer review checklist
+
+Before changing critical product behavior or public claims, use the [Keybind command safety checklist](docs/KEYBIND_RELEASE_SAFETY.md) to record evidence, verification and rollback expectations.
