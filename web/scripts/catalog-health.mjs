@@ -1,6 +1,7 @@
 // Builds a catalog-health report from the typed preset-section modules and blocks structural corruption.
 import { readdir, writeFile } from "node:fs/promises";
 import { verificationHistoryForPreset } from "../app/lib/verification-history.mjs";
+import { buildCatalogEvidenceReviewQueue } from "./catalog-evidence-review-queue.mjs";
 
 const sectionsDirectory = new URL("../app/data/keybindPresetSections/", import.meta.url);
 const outputPath = new URL("../catalog-health.json", import.meta.url);
@@ -100,6 +101,13 @@ const report = {
     staleVerification,
     riskyWithoutExperimentalFlag,
   },
+  // Actionable, bounded human-review queue; source/date evidence is not inferred.
+  evidenceReviewQueue: buildCatalogEvidenceReviewQueue(normalized, {
+    missingSource,
+    missingVerificationDate,
+    staleVerification,
+    duplicateCommands,
+  }),
 };
 
 await writeFile(outputPath, `${JSON.stringify(report, null, 2)}\n`);
